@@ -11,6 +11,7 @@ from app.core.security import (
 from app.core.hashing import get_password_hash, verify_password
 from app.models.user import UserInDB, UserCreate
 from app.core.config import settings
+from app.db.mongodb import get_collection
 
 router = APIRouter()
 

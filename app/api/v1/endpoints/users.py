@@ -7,7 +7,8 @@ import os
 import shutil
 from pathlib import Path
 
-from app.core.security import get_current_user, get_password_hash, oauth2_scheme
+from app.core.security import get_current_user, oauth2_scheme
+from app.core.hashing import get_password_hash
 from app.db.mongodb import get_collection
 from app.models.user import (
     UserInDB, UserCreate, UserUpdate, UserResponse, 

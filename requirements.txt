@@ -26,3 +26,4 @@ python-jose[cryptography]
 python-magic
 python-multipart
 uvicorn
+email-validator
