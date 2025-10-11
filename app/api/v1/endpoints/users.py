@@ -252,3 +252,73 @@ async def delete_user_me(
         shutil.rmtree(user_avatar_dir)
     
     return None
+
+@router.get("/{user_id}/profile")
+async def get_user_profile(
+    user_id: str,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Get a user's full profile with recent memories and stats"""
+    user_doc = await get_collection("users").find_one({"_id": ObjectId(user_id)})
+    if not user_doc:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Get relationship status
+    relationship = await get_collection("relationships").find_one({
+        "follower_id": ObjectId(current_user.id),
+        "following_id": ObjectId(user_id)
+    })
+    
+    # Get user stats
+    stats = {
+        "memories": await get_collection("memories").count_documents({"owner_id": ObjectId(user_id)}),
+        "files": await get_collection("files").count_documents({"owner_id": ObjectId(user_id)}),
+        "followers": await get_collection("relationships").count_documents({"following_id": ObjectId(user_id), "status": "accepted"}),
+        "following": await get_collection("relationships").count_documents({"follower_id": ObjectId(user_id), "status": "accepted"})
+    }
+    
+    # Get recent public/friends memories (based on privacy and relationship)
+    memory_query = {"owner_id": ObjectId(user_id)}
+    if str(user_id) != str(current_user.id):
+        if relationship and relationship.get("status") == "accepted":
+            memory_query["privacy"] = {"$in": ["public", "friends"]}
+        else:
+            memory_query["privacy"] = "public"
+    
+    cursor = get_collection("memories").find(memory_query).sort("created_at", -1).limit(10)
+    
+    recent_memories = []
+    async for memory_doc in cursor:
+        recent_memories.append({
+            "id": str(memory_doc["_id"]),
+            "title": memory_doc["title"],
+            "content": memory_doc.get("content", "")[:200],
+            "media_urls": memory_doc.get("media_urls", []),
+            "tags": memory_doc.get("tags", []),
+            "created_at": memory_doc["created_at"],
+            "like_count": memory_doc.get("like_count", 0)
+        })
+    
+    return {
+        "id": str(user_doc["_id"]),
+        "email": user_doc["email"],
+        "full_name": user_doc.get("full_name"),
+        "avatar_url": user_doc.get("avatar_url"),
+        "bio": user_doc.get("bio"),
+        "city": user_doc.get("city"),
+        "country": user_doc.get("country"),
+        "website": user_doc.get("website"),
+        "created_at": user_doc.get("created_at"),
+        "stats": stats,
+        "recent_memories": recent_memories,
+        "is_following": relationship is not None and relationship.get("status") == "accepted",
+        "is_own_profile": str(user_id) == str(current_user.id)
+    }
+
+# Fix the get_user_profile endpoint to handle invalid ObjectIds
+async def safe_object_id(id_str: str) -> ObjectId:
+    """Safely convert string to ObjectId, raise 400 if invalid"""
+    try:
+        return ObjectId(id_str)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid ID format")

@@ -12,6 +12,9 @@ import 'screens/vault/vault_detail_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/profile/edit_profile_screen.dart';
 import 'screens/profile/change_password_screen.dart';
+import 'screens/social/hubs_screen.dart';
+import 'screens/social/user_search_screen.dart';
+import 'screens/social/user_profile_view_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -137,6 +140,15 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const EditProfileScreen());
           case '/profile/password':
             return MaterialPageRoute(builder: (_) => const ChangePasswordScreen());
+          case '/profile/view':
+            final userId = settings.arguments as String;
+            return MaterialPageRoute(
+              builder: (_) => UserProfileViewScreen(userId: userId),
+            );
+          case '/social/hubs':
+            return MaterialPageRoute(builder: (_) => const HubsScreen());
+          case '/social/search':
+            return MaterialPageRoute(builder: (_) => const UserSearchScreen());
           default:
             return null;
         }
