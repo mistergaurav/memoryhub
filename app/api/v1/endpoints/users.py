@@ -21,19 +21,46 @@ router = APIRouter()
 AVATAR_UPLOAD_DIR = "uploads/avatars"
 os.makedirs(AVATAR_UPLOAD_DIR, exist_ok=True)
 
+def convert_user_doc(user_doc: dict) -> dict:
+    """Convert MongoDB user document to response format"""
+    if not user_doc:
+        return None
+    
+    result = dict(user_doc)
+    if "_id" in result:
+        result["id"] = str(result.pop("_id"))
+    
+    # Ensure required fields are present
+    if "created_at" not in result:
+        result["created_at"] = result.get("created_at", datetime.utcnow())
+    if "updated_at" not in result:
+        result["updated_at"] = result.get("updated_at", datetime.utcnow())
+    
+    return result
+
 @router.get("/me", response_model=UserProfileResponse)
 async def read_users_me(current_user: UserInDB = Depends(get_current_user)):
     """Get current user profile with stats"""
     # Get user stats
     stats = {
-        "memories": await get_collection("memories").count_documents({"owner_id": current_user.id}),
-        "files": await get_collection("files").count_documents({"owner_id": current_user.id}),
-        "followers": await get_collection("relationships").count_documents({"following_id": current_user.id, "status": "accepted"}),
-        "following": await get_collection("relationships").count_documents({"follower_id": current_user.id, "status": "accepted"})
+        "memories": await get_collection("memories").count_documents({"owner_id": ObjectId(current_user.id)}),
+        "files": await get_collection("files").count_documents({"owner_id": ObjectId(current_user.id)}),
+        "followers": await get_collection("relationships").count_documents({"following_id": ObjectId(current_user.id), "status": "accepted"}),
+        "following": await get_collection("relationships").count_documents({"follower_id": ObjectId(current_user.id), "status": "accepted"})
     }
     
-    user_dict = current_user.dict()
-    user_dict["stats"] = stats
+    user_dict = {
+        "id": str(current_user.id),
+        "email": current_user.email,
+        "full_name": current_user.full_name,
+        "avatar_url": current_user.avatar_url,
+        "bio": current_user.bio,
+        "is_active": current_user.is_active,
+        "role": current_user.role,
+        "created_at": current_user.created_at,
+        "updated_at": current_user.updated_at,
+        "stats": stats
+    }
     return user_dict
 
 @router.put("/me", response_model=UserResponse)
@@ -60,7 +87,7 @@ async def update_user_me(
     )
     
     updated_user = await get_collection("users").find_one({"_id": ObjectId(current_user.id)})
-    return UserResponse(**updated_user)
+    return UserResponse(**convert_user_doc(updated_user))
 
 @router.put("/me/password")
 async def change_password(
@@ -123,7 +150,7 @@ async def upload_avatar(
     
     # Return updated user
     updated_user = await get_collection("users").find_one({"_id": ObjectId(current_user.id)})
-    return UserResponse(**updated_user)
+    return UserResponse(**convert_user_doc(updated_user))
 
 @router.get("/me/avatar/{filename}")
 async def get_avatar(
@@ -205,7 +232,7 @@ async def update_user_settings(
     )
     
     updated_user = await get_collection("users").find_one({"_id": ObjectId(current_user.id)})
-    return UserResponse(**updated_user)
+    return UserResponse(**convert_user_doc(updated_user))
 
 @router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user_me(

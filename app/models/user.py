@@ -3,18 +3,23 @@ from typing import List, Optional, Dict, Any
 from enum import Enum
 from pydantic import BaseModel, EmailStr, Field, validator, field_validator
 from bson import ObjectId
-from app.core.hashing import get_password_hash
 
 class PyObjectId(ObjectId):
     @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        if not ObjectId.is_valid(v):
-            raise ValueError("Invalid ObjectId")
-        return ObjectId(v)
+    def __get_pydantic_core_schema__(cls, _source_type, _handler):
+        from pydantic_core import core_schema
+        
+        def validate_object_id(value):
+            if isinstance(value, ObjectId):
+                return value
+            if isinstance(value, str) and ObjectId.is_valid(value):
+                return ObjectId(value)
+            raise ValueError(f"Invalid ObjectId: {value}")
+        
+        return core_schema.no_info_after_validator_function(
+            validate_object_id,
+            core_schema.any_schema(),
+        )
 
     @classmethod
     def __get_pydantic_json_schema__(cls, _core_schema, _handler):
@@ -39,7 +44,7 @@ class UserCreate(UserBase):
     def password_must_be_strong(cls, v):
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters long')
-        return get_password_hash(v)
+        return v
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
