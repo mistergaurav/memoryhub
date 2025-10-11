@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
+      home: const LoginScreen(),
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/login':
