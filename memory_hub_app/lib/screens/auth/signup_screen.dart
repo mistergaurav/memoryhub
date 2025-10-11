@@ -85,10 +85,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.person_add,
                       size: 80,
-                      color: Colors.deepPurple,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(height: 16),
                     const Text(
@@ -194,10 +194,6 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 48,
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _handleSignup,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
-                        ),
                         child: _isLoading
                             ? const SizedBox(
                                 width: 24,
