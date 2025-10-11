@@ -22,10 +22,6 @@ args = "MongoDB"
 task = "workflow.run"
 args = "Backend"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Flutter Web"
-
 [[workflows.workflow]]
 name = "MongoDB"
 author = "agent"
@@ -41,25 +37,13 @@ outputType = "console"
 name = "Backend"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "uvicorn app.main:app --host 0.0.0.0 --port 8000"
-waitForPort = 8000
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow]]
-name = "Flutter Web"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd memory_hub_app && flutter run -d web-server --web-port=5000 --web-hostname=0.0.0.0"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "uvicorn app.main:app --host 0.0.0.0 --port 5000"
+waitForPort = 5000
 
 [[ports]]
 localPort = 5000
@@ -68,3 +52,7 @@ externalPort = 5000
 [[ports]]
 localPort = 8000
 externalPort = 80
+
+[[ports]]
+localPort = 38487
+externalPort = 3000

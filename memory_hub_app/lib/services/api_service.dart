@@ -8,7 +8,7 @@ import '../models/hub_item.dart';
 import 'auth_service.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://55ffb8e1-7a3f-41ea-b940-6a0568597a5a-00-1fms3et0zzs02.kirk.replit.dev:8000/api/v1';
+  static const String baseUrl = '/api/v1';
   final AuthService _authService = AuthService();
 
   Future<http.Response> _handleRequest(Future<http.Response> request) async {
