@@ -122,7 +122,25 @@ Preferred communication style: Simple, everyday language.
 
 **Third-Party Services**: Currently designed for local deployment with no external API dependencies (weather, location services referenced in models but not implemented)
 
+## API Configuration
+
+**Platform-Specific URL Handling**: 
+- Web builds use relative URLs (`/api/v1`) to leverage same-origin API calls
+- Mobile builds use absolute URLs with Replit domain prefix for cross-platform compatibility
+- Asset URLs (avatars, files) intelligently handle both absolute and relative paths
+- Hard-coded Replit domain: `https://f1f703b2-5ae2-4384-84cb-cc0d43774e0d-00-1xb1vbt5sy6oi.janeway.replit.dev`
+
+**Note**: When deploying to a different domain, update the `_replitDomain` constant in `memory_hub_app/lib/config/api_config.dart`
+
 ## Recent Changes
+
+### October 2025 - Production Enhancement Release
+- ✅ **Settings Screen**: Comprehensive user settings with notifications, theme, privacy controls, and data management
+- ✅ **API Configuration**: Platform-aware URL handling for web, Android, and iOS compatibility
+- ✅ **Error Handling**: Robust JSON parsing with fallback error handling in auth service
+- ✅ **Flutter Web Build**: Optimized production build with tree-shaken assets
+- ✅ **Avatar Support**: Cross-platform avatar rendering with proper URL handling
+- ✅ **CORS Support**: Full cross-origin support for web browser access
 
 ### December 2025 - Major Feature Release v2.0
 - ✅ **Comments System**: Users can now comment on memories, hub items, and files with like functionality
