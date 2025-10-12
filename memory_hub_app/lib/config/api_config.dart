@@ -3,16 +3,16 @@ import 'dart:io' show Platform;
 
 class ApiConfig {
   // Environment configuration
-  // For Windows local development, use: localhost:5000
+  // For Windows local development, use: localhost:8000
   // For Replit deployment, use the Replit URL
   // For mobile builds, set API_URL environment variable
   
   static const String _replitApiUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: 'https://localhost:5000',
+    defaultValue: 'http://localhost:8000',
   );
   
-  static const String _localApiUrl = 'http://localhost:5000';
+  static const String _localApiUrl = 'http://localhost:8000';
   
   // Set this to true when running locally on Windows
   static const bool _useLocalhost = String.fromEnvironment('USE_LOCALHOST', defaultValue: 'true') == 'true';
