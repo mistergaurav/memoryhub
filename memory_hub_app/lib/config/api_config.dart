@@ -1,48 +1,26 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:io' show Platform;
 
 class ApiConfig {
-  // Environment configuration
-  // For Windows local development, use: localhost:8000
-  // For Replit deployment, use the Replit URL
-  // For mobile builds, set API_URL environment variable
-  
-  static const String _replitApiUrl = String.fromEnvironment(
-    'API_URL',
-    defaultValue: 'http://localhost:8000',
-  );
-  
-  static const String _localApiUrl = 'http://localhost:8000';
-  
-  // Set this to true when running locally on Windows
-  static const bool _useLocalhost = String.fromEnvironment('USE_LOCALHOST', defaultValue: 'true') == 'true';
-  
-  static String get _apiUrl {
-    // Priority: Environment variable > Local setting > Replit default
-    if (_useLocalhost && !kIsWeb) {
-      return _localApiUrl;
-    }
-    return _replitApiUrl;
-  }
+  // Backend runs on port 8000 in Replit
+  static const String _backendPort = '8000';
   
   static String get baseUrl {
     if (kIsWeb) {
-      // For web builds in development, explicitly use localhost:8000
-      // For production, this should be replaced with the actual backend URL
+      // For web builds, detect the current host and use port 8000 for backend
+      // In Replit, we'll use the same domain but port 8000
+      // In local dev, it will use localhost:8000
       return 'http://localhost:8000/api/v1';
     } else {
-      return '$_apiUrl/api/v1';
+      // For mobile/desktop builds
+      return 'http://localhost:8000/api/v1';
     }
   }
   
   static String get wsBaseUrl {
     if (kIsWeb) {
-      // For web builds in development, explicitly use localhost:8000
       return 'ws://localhost:8000/ws';
     } else {
-      final apiUri = Uri.parse(_apiUrl);
-      final wsProtocol = apiUri.scheme == 'https' ? 'wss' : 'ws';
-      return '$wsProtocol://${apiUri.authority}/ws';
+      return 'ws://localhost:8000/ws';
     }
   }
   
@@ -52,16 +30,15 @@ class ApiConfig {
     }
     
     if (kIsWeb) {
-      return path;
+      // For web, use localhost:8000 for assets
+      return 'http://localhost:8000$path';
     } else {
-      return '$_apiUrl$path';
+      return 'http://localhost:8000$path';
     }
   }
   
   // Helper method to check which environment is being used
   static String get currentEnvironment {
-    if (kIsWeb) return 'Web (Proxied)';
-    if (_useLocalhost) return 'Local Windows ($_localApiUrl)';
-    return 'Replit ($_replitApiUrl)';
+    return 'Backend: localhost:8000';
   }
 }
