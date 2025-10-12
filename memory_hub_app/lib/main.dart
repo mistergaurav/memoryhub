@@ -19,6 +19,8 @@ import 'screens/notifications/notifications_screen.dart';
 import 'screens/collections/collections_screen.dart';
 import 'screens/analytics/analytics_screen.dart';
 import 'screens/activity/activity_feed_screen.dart';
+import 'screens/admin/admin_dashboard_screen.dart';
+import 'screens/admin/admin_users_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -161,6 +163,10 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const AnalyticsScreen());
           case '/activity':
             return MaterialPageRoute(builder: (_) => const ActivityFeedScreen());
+          case '/admin':
+            return MaterialPageRoute(builder: (_) => const AdminDashboardScreen());
+          case '/admin/users':
+            return MaterialPageRoute(builder: (_) => const AdminUsersScreen());
           default:
             return null;
         }

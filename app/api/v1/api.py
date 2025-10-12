@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from app.api.v1.endpoints import (
     auth, users, memories, vault, hub, social, comments,
     notifications, collections, activity, search, tags,
-    analytics, sharing, reminders, export
+    analytics, sharing, reminders, export, admin
 )
 
 api_router = APIRouter()
@@ -22,3 +22,4 @@ api_router.include_router(analytics.router, prefix="/analytics", tags=["analytic
 api_router.include_router(sharing.router, prefix="/sharing", tags=["sharing"])
 api_router.include_router(reminders.router, prefix="/reminders", tags=["reminders"])
 api_router.include_router(export.router, prefix="/export", tags=["export"])
+api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
