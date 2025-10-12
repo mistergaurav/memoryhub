@@ -148,9 +148,18 @@ class ApiService {
     );
     
     request.headers.addAll(headers);
-    request.fields.addAll(memoryCreate.toFormData().map(
-      (key, value) => MapEntry(key, value.toString()),
-    ));
+    
+    // Add form fields
+    request.fields['title'] = memoryCreate.title;
+    request.fields['content'] = memoryCreate.content;
+    request.fields['tags'] = jsonEncode(memoryCreate.tags);  // JSON encode tags array
+    request.fields['privacy'] = memoryCreate.privacy;
+    if (memoryCreate.location != null) {
+      request.fields['location'] = memoryCreate.location!;
+    }
+    if (memoryCreate.mood != null) {
+      request.fields['mood'] = memoryCreate.mood!;
+    }
 
     if (files != null) {
       for (var file in files) {
@@ -161,10 +170,11 @@ class ApiService {
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       return Memory.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to create memory');
+      final errorBody = response.body.isNotEmpty ? response.body : 'Failed to create memory';
+      throw Exception(errorBody);
     }
   }
 

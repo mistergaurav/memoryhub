@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime
 from typing import List, Optional
 from fastapi import (
@@ -34,13 +35,19 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 async def create_memory(
     title: str = Form(...),
     content: str = Form(...),
-    tags: List[str] = Form([]),
+    tags: str = Form("[]"),  # Accept tags as JSON string
     privacy: MemoryPrivacy = Form(MemoryPrivacy.PRIVATE),
     location: Optional[str] = Form(None),
     mood: Optional[str] = Form(None),
     files: List[UploadFile] = File([]),
     current_user: UserInDB = Depends(get_current_user)
 ):
+    # Parse tags from JSON string
+    try:
+        tags_list = json.loads(tags) if tags else []
+    except json.JSONDecodeError:
+        tags_list = []
+    
     # Save uploaded files
     media_urls = []
     for file in files:
@@ -59,7 +66,7 @@ async def create_memory(
     memory_data = {
         "title": title,
         "content": content,
-        "tags": tags,
+        "tags": tags_list,
         "privacy": privacy,
         "media_urls": media_urls,
         "owner_id": ObjectId(current_user.id),

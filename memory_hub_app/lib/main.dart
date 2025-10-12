@@ -36,16 +36,22 @@ class MyApp extends StatelessWidget {
       title: 'The Memory Hub',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6366F1),
+          seedColor: const Color(0xFF7C3AED),  // Vibrant purple
           brightness: Brightness.light,
+          primary: const Color(0xFF7C3AED),
+          secondary: const Color(0xFFEC4899),  // Pink accent
+          tertiary: const Color(0xFF06B6D4),   // Cyan accent
         ),
         useMaterial3: true,
-        appBarTheme: const AppBarTheme(
+        appBarTheme: AppBarTheme(
           centerTitle: true,
           elevation: 0,
+          backgroundColor: Colors.transparent,
+          foregroundColor: const Color(0xFF7C3AED),
         ),
         cardTheme: CardThemeData(
-          elevation: 0,
+          elevation: 2,
+          shadowColor: Colors.black12,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -57,10 +63,17 @@ class MyApp extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
+            backgroundColor: const Color(0xFF7C3AED),
+            foregroundColor: Colors.white,
           ),
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Color(0xFFEC4899),
+          foregroundColor: Colors.white,
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
+          fillColor: const Color(0xFFF3F4F6),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -71,22 +84,27 @@ class MyApp extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(width: 2),
+            borderSide: const BorderSide(width: 2, color: Color(0xFF7C3AED)),
           ),
         ),
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6366F1),
+          seedColor: const Color(0xFF7C3AED),
           brightness: Brightness.dark,
+          primary: const Color(0xFF9333EA),
+          secondary: const Color(0xFFF472B6),
+          tertiary: const Color(0xFF22D3EE),
         ),
         useMaterial3: true,
         appBarTheme: const AppBarTheme(
           centerTitle: true,
           elevation: 0,
+          backgroundColor: Colors.transparent,
         ),
         cardTheme: CardThemeData(
-          elevation: 0,
+          elevation: 2,
+          shadowColor: Colors.black26,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -98,10 +116,17 @@ class MyApp extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
+            backgroundColor: const Color(0xFF9333EA),
+            foregroundColor: Colors.white,
           ),
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Color(0xFFF472B6),
+          foregroundColor: Colors.white,
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
+          fillColor: const Color(0xFF1F2937),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide.none,
@@ -112,7 +137,7 @@ class MyApp extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(width: 2),
+            borderSide: const BorderSide(width: 2, color: Color(0xFF9333EA)),
           ),
         ),
       ),

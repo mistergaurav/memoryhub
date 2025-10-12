@@ -111,11 +111,12 @@ class MemoryCreate {
     this.mood,
   });
 
+  // Note: This method is not currently used. Tags are JSON-encoded in ApiService.createMemory
   Map<String, dynamic> toFormData() {
     return {
       'title': title,
       'content': content,
-      'tags': tags,
+      'tags': tags,  // Keep as list for potential future use
       'privacy': privacy,
       if (location != null) 'location': location,
       if (mood != null) 'mood': mood,
