@@ -27,8 +27,9 @@ class ApiConfig {
   
   static String get baseUrl {
     if (kIsWeb) {
-      // For web builds, use relative path (proxied by backend)
-      return '/api/v1';
+      // For web builds in development, explicitly use localhost:8000
+      // For production, this should be replaced with the actual backend URL
+      return 'http://localhost:8000/api/v1';
     } else {
       return '$_apiUrl/api/v1';
     }
@@ -36,8 +37,8 @@ class ApiConfig {
   
   static String get wsBaseUrl {
     if (kIsWeb) {
-      final wsProtocol = Uri.base.scheme == 'https' ? 'wss' : 'ws';
-      return '$wsProtocol://${Uri.base.authority}/ws';
+      // For web builds in development, explicitly use localhost:8000
+      return 'ws://localhost:8000/ws';
     } else {
       final apiUri = Uri.parse(_apiUrl);
       final wsProtocol = apiUri.scheme == 'https' ? 'wss' : 'ws';
