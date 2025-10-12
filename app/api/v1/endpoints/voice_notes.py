@@ -73,6 +73,10 @@ async def get_voice_note(
     if not note:
         raise HTTPException(status_code=404, detail="Voice note not found")
     
+    # Verify ownership
+    if note["user_id"] != str(current_user.id):
+        raise HTTPException(status_code=403, detail="Not authorized to access this voice note")
+    
     note["_id"] = str(note["_id"])
     return note
 
@@ -106,6 +110,10 @@ async def transcribe_voice_note(
     note = await db.voice_notes.find_one({"_id": ObjectId(note_id)})
     if not note:
         raise HTTPException(status_code=404, detail="Voice note not found")
+    
+    # Verify ownership
+    if note["user_id"] != str(current_user.id):
+        raise HTTPException(status_code=403, detail="Not authorized to transcribe this voice note")
     
     # Placeholder for transcription service integration
     transcription = "Transcription feature coming soon..."

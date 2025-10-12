@@ -2,7 +2,7 @@
 
 The Memory Hub is a full-stack digital legacy platform that enables families to preserve and share memories, files, and personal content. The application consists of a FastAPI backend (Python) serving both REST APIs and a Flutter web frontend, with MongoDB as the database layer.
 
-The platform provides 14+ comprehensive features:
+The platform provides 24+ comprehensive features:
 
 ## Core Features
 1. **Memories** - Personal diary/journal entries with media attachments, tags, location, and mood tracking
@@ -10,7 +10,7 @@ The platform provides 14+ comprehensive features:
 3. **Hub** - Customizable dashboard aggregating memories, files, notes, links, and tasks
 4. **User Management** - Authentication, profiles, and social relationships
 
-## New Enhanced Features (Latest Release)
+## Enhanced Features (V2.0)
 5. **Comments System** - Comment on memories, hub items, and files with likes
 6. **Notifications** - Real-time notifications for likes, follows, comments, and invitations
 7. **Activity Feed** - Social feed showing activities from followed users
@@ -21,6 +21,18 @@ The platform provides 14+ comprehensive features:
 12. **File Sharing** - Generate shareable links with expiration for files
 13. **Memory Reminders** - Date-based reminder system for important dates
 14. **Export/Backup** - Export memories as JSON and files as ZIP archives
+
+## Latest Features (October 2025 - V3.0)
+15. **Stories** - 24-hour ephemeral content with view tracking and media support
+16. **Voice Notes** - Audio memory recording with transcription capability
+17. **Categories** - Custom categories for organizing memories with color coding
+18. **Reactions** - Emoji reactions on memories, comments, and stories with statistics
+19. **Memory Templates** - Reusable templates for common memory types (travel, birthday, etc.)
+20. **Two-Factor Authentication** - Enhanced security with TOTP-based 2FA and QR codes
+21. **Password Reset** - Secure self-service password recovery with token system
+22. **Privacy Settings** - Granular privacy controls, user blocking, and visibility settings
+23. **Places/Geolocation** - Location-based memories with nearby place discovery
+24. **Scheduled Posts** - Schedule memories, stories, and updates for future publishing
 
 # User Preferences
 
@@ -34,9 +46,10 @@ Preferred communication style: Simple, everyday language.
 
 **API Structure**: 
 - RESTful API design with versioned endpoints (`/api/v1/`)
-- Modular routing system with 16 feature modules:
+- Modular routing system with 27 feature modules:
   - Core: auth, users, memories, vault, hub, social
-  - Enhanced: comments, notifications, collections, activity, search, tags, analytics, sharing, reminders, export
+  - Enhanced: comments, notifications, collections, activity, search, tags, analytics, sharing, reminders, export, admin
+  - Latest (V3.0): stories, voice-notes, categories, reactions, memory-templates, 2fa, password-reset, privacy, places, scheduled-posts
 - JWT-based authentication with access/refresh token pattern
 - OAuth2 password bearer for token validation
 - CORS middleware configured for cross-origin requests
@@ -70,7 +83,7 @@ Preferred communication style: Simple, everyday language.
 **Database**: MongoDB with Motor async driver
 
 **Collections**:
-- `users` - User accounts with unique email index
+- `users` - User accounts with unique email index, privacy settings, 2FA data
 - `memories` - Journal entries with media, tags, location data
 - `files` - File metadata and storage references
 - `hub_items` - Polymorphic content items (memories, files, notes, links, tasks)
@@ -84,6 +97,14 @@ Preferred communication style: Simple, everyday language.
 - `hub_members` - Hub membership tracking
 - `share_links` - Shareable file links with expiration
 - `reminders` - Date-based reminders for users
+- `stories` - 24-hour ephemeral content with expiration
+- `voice_notes` - Audio recordings with transcription
+- `categories` - User-defined memory categories
+- `reactions` - Emoji reactions on various content types
+- `memory_templates` - Reusable memory templates
+- `password_resets` - Password reset tokens and history
+- `places` - Saved locations with geolocation data
+- `scheduled_posts` - Posts scheduled for future publishing
 
 **File Storage**: 
 - Local filesystem storage under `uploads/` directory
@@ -107,6 +128,8 @@ Preferred communication style: Simple, everyday language.
 - `python-multipart` - File upload handling
 - `python-magic` + `pillow` - File type detection and image processing
 - `python-dotenv` - Environment variable management
+- `pyotp` + `qrcode` - Two-factor authentication with QR code generation
+- `requests` - HTTP client for external API calls
 
 **Frontend Dart Packages**:
 - `http` - HTTP client for API calls
@@ -127,13 +150,25 @@ Preferred communication style: Simple, everyday language.
 **Platform-Specific URL Handling**: 
 - Web builds use relative URLs (`/api/v1`) to leverage same-origin API calls - automatically resolves to current domain
 - Mobile builds use environment variable `API_URL` or fallback to default Replit domain
+- **Windows Local Development**: Use `--dart-define=USE_LOCALHOST=true` to connect to localhost:5000
 - Asset URLs (avatars, files) intelligently handle both absolute and relative paths
 - WebSocket connections automatically use correct protocol (wss for https, ws for http)
 
 **Building for Different Environments**:
 - Web: `flutter build web --release` (uses relative URLs automatically)
+- Windows Desktop (Local): `flutter run -d windows --dart-define=USE_LOCALHOST=true`
+- Windows Desktop (Replit): `flutter run -d windows --dart-define=API_URL=https://your-replit-url`
 - Android/iOS with custom domain: `flutter build apk --dart-define=API_URL=https://your-domain.com`
 - Android/iOS with default: `flutter build apk` (uses fallback domain)
+- Android Emulator (Local): `flutter run -d emulator --dart-define=API_URL=http://10.0.2.2:5000`
+
+**Local Windows Development**:
+See `WINDOWS_LOCAL_SETUP.md` for complete setup instructions including:
+- Python virtual environment setup
+- MongoDB configuration
+- Running backend with uvicorn
+- Flutter configuration for localhost
+- Troubleshooting guide
 
 **Backend Compatibility**:
 - Python 3.9+ supported (uses typing.Union for compatibility)
@@ -197,4 +232,86 @@ The admin panel provides developers with complete control over the platform:
 - Content creation statistics
 - Platform usage analytics
 - Popular tags across the platform
+
+## Latest Features (October 2025 - V3.0 Update)
+
+### Stories System
+- Create 24-hour ephemeral stories with text and media
+- View tracking to see who watched your stories
+- Automatic expiration after 24 hours
+- Follow-based story feed (see stories from people you follow)
+- Delete stories before expiration
+
+### Voice Notes
+- Record and save audio memories
+- Attach tags and descriptions
+- Transcription support (placeholder for future AI integration)
+- Browse and manage voice note library
+
+### Memory Categories
+- Create custom categories with colors and icons
+- Organize memories by category
+- Track memory count per category
+- Browse memories within categories
+- Visual category management
+
+### Emoji Reactions
+- React to memories, comments, and stories with emojis
+- View reaction summaries grouped by emoji
+- See who reacted with each emoji
+- Reaction statistics and analytics
+- Remove reactions
+
+### Memory Templates
+- Create reusable templates for common memory types
+- Define template fields (text, image, date, location, tags)
+- Browse public and private templates
+- Use templates to quickly create memories
+- Track template usage statistics
+
+### Two-Factor Authentication (2FA)
+- TOTP-based authentication
+- QR code generation for authenticator apps
+- Enable/disable 2FA with code verification
+- Backup codes support
+- Enhanced account security
+
+### Password Reset
+- Self-service password recovery
+- Secure token-based reset system
+- Email verification (placeholder for email service)
+- Reset history tracking
+- One-hour token expiration
+
+### Privacy & Security
+- Granular privacy settings (profile, memories, location)
+- User blocking system
+- Privacy controls for comments, tags, and friend requests
+- Visibility settings (public, friends, private)
+- Blocked users management
+
+### Places & Geolocation
+- Save favorite places with coordinates
+- Attach memories to specific locations
+- Browse nearby places
+- Location categories
+- Place-based memory filtering
+
+### Scheduled Posts
+- Schedule memories, stories, and status updates
+- Future date/time posting
+- Edit scheduled posts before publication
+- Publish immediately option
+- View and manage scheduled content queue
+
+## Windows Local Development Support
+
+The application now fully supports local development on Windows:
+
+- Environment-based configuration system
+- Localhost connection support for desktop/mobile testing
+- Comprehensive setup guide (`WINDOWS_LOCAL_SETUP.md`)
+- PowerShell scripts for easy startup
+- Development vs production environment switching
+- Hot reload support for rapid development
 

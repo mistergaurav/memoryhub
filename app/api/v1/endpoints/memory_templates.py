@@ -84,6 +84,10 @@ async def get_template(
     if not template:
         raise HTTPException(status_code=404, detail="Template not found")
     
+    # Verify access: must be owner or template must be public
+    if template["user_id"] != str(current_user.id) and not template.get("is_public", False):
+        raise HTTPException(status_code=403, detail="Not authorized to access this template")
+    
     template["_id"] = str(template["_id"])
     return template
 
@@ -99,6 +103,10 @@ async def use_template(
     template = await db.memory_templates.find_one({"_id": ObjectId(template_id)})
     if not template:
         raise HTTPException(status_code=404, detail="Template not found")
+    
+    # Verify access: must be owner or template must be public
+    if template["user_id"] != str(current_user.id) and not template.get("is_public", False):
+        raise HTTPException(status_code=403, detail="Not authorized to use this template")
     
     # Validate required fields
     for field in template["fields"]:

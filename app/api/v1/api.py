@@ -4,7 +4,7 @@ from app.api.v1.endpoints import (
     notifications, collections, activity, search, tags,
     analytics, sharing, reminders, export, admin, stories,
     voice_notes, categories, reactions, memory_templates,
-    two_factor, password_reset
+    two_factor, password_reset, privacy, places, scheduled_posts
 )
 
 api_router = APIRouter()
@@ -32,3 +32,6 @@ api_router.include_router(reactions.router, prefix="/reactions", tags=["reaction
 api_router.include_router(memory_templates.router, prefix="/memory-templates", tags=["memory-templates"])
 api_router.include_router(two_factor.router, prefix="/2fa", tags=["2fa"])
 api_router.include_router(password_reset.router, prefix="/password-reset", tags=["password-reset"])
+api_router.include_router(privacy.router, prefix="/privacy", tags=["privacy"])
+api_router.include_router(places.router, prefix="/places", tags=["places"])
+api_router.include_router(scheduled_posts.router, prefix="/scheduled-posts", tags=["scheduled-posts"])

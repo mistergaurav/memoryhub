@@ -1,10 +1,12 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional
 from datetime import datetime, timedelta
 from bson import ObjectId
 from pydantic import BaseModel, EmailStr
 from app.db.mongodb import get_database
 from app.core.hashing import get_password_hash
+from app.models.user import UserInDB
+from app.core.security import get_current_user
 import secrets
 
 router = APIRouter()
@@ -41,11 +43,11 @@ async def request_password_reset(data: PasswordResetRequest):
     })
     
     # In production, send email with reset link
-    reset_link = f"https://memoryhub.com/reset-password?token={reset_token}"
+    # Email service integration would send the reset_token via email
+    # reset_link = f"https://memoryhub.com/reset-password?token={reset_token}"
     
     return {
-        "message": "If the email exists, a reset link will be sent",
-        "reset_link": reset_link  # Remove this in production
+        "message": "If the email exists, a reset link has been sent to your email address"
     }
 
 @router.post("/verify-token")
@@ -95,9 +97,16 @@ async def confirm_password_reset(data: PasswordResetConfirm):
     return {"message": "Password reset successfully"}
 
 @router.get("/history")
-async def get_reset_history(email: str):
+async def get_reset_history(
+    email: str,
+    current_user: UserInDB = Depends(get_current_user)
+):
     """Get reset history for an email (admin only)"""
     db = get_database()
+    
+    # Check if user is admin
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
     
     resets = await db.password_resets.find({
         "email": email
