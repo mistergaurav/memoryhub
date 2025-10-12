@@ -2,11 +2,25 @@
 
 The Memory Hub is a full-stack digital legacy platform that enables families to preserve and share memories, files, and personal content. The application consists of a FastAPI backend (Python) serving both REST APIs and a Flutter web frontend, with MongoDB as the database layer.
 
-The platform provides four core features:
+The platform provides 14+ comprehensive features:
+
+## Core Features
 1. **Memories** - Personal diary/journal entries with media attachments, tags, location, and mood tracking
 2. **Vault** - Secure file storage with organization, privacy controls, and metadata management
 3. **Hub** - Customizable dashboard aggregating memories, files, notes, links, and tasks
 4. **User Management** - Authentication, profiles, and social relationships
+
+## New Enhanced Features (Latest Release)
+5. **Comments System** - Comment on memories, hub items, and files with likes
+6. **Notifications** - Real-time notifications for likes, follows, comments, and invitations
+7. **Activity Feed** - Social feed showing activities from followed users
+8. **Collections/Albums** - Group memories into themed collections
+9. **Advanced Search** - Full-text search across all content types with filters
+10. **Tags Management** - Browse, organize, and manage tags across all content
+11. **Analytics Dashboard** - Detailed statistics, charts, and activity trends
+12. **File Sharing** - Generate shareable links with expiration for files
+13. **Memory Reminders** - Date-based reminder system for important dates
+14. **Export/Backup** - Export memories as JSON and files as ZIP archives
 
 # User Preferences
 
@@ -20,7 +34,9 @@ Preferred communication style: Simple, everyday language.
 
 **API Structure**: 
 - RESTful API design with versioned endpoints (`/api/v1/`)
-- Modular routing system separating concerns (auth, users, memories, vault, hub)
+- Modular routing system with 16 feature modules:
+  - Core: auth, users, memories, vault, hub, social
+  - Enhanced: comments, notifications, collections, activity, search, tags, analytics, sharing, reminders, export
 - JWT-based authentication with access/refresh token pattern
 - OAuth2 password bearer for token validation
 - CORS middleware configured for cross-origin requests
@@ -59,6 +75,15 @@ Preferred communication style: Simple, everyday language.
 - `files` - File metadata and storage references
 - `hub_items` - Polymorphic content items (memories, files, notes, links, tasks)
 - `relationships` - Social connections between users
+- `comments` - Comments on memories, hub items, and files
+- `comment_likes` - Likes on comments
+- `notifications` - User notifications for various activities
+- `collections` - Memory collections/albums
+- `collection_memories` - Many-to-many relationship for collections
+- `hubs` - Collaborative hubs
+- `hub_members` - Hub membership tracking
+- `share_links` - Shareable file links with expiration
+- `reminders` - Date-based reminders for users
 
 **File Storage**: 
 - Local filesystem storage under `uploads/` directory
@@ -96,3 +121,20 @@ Preferred communication style: Simple, everyday language.
 - `flutter_lints` - Dart linting rules
 
 **Third-Party Services**: Currently designed for local deployment with no external API dependencies (weather, location services referenced in models but not implemented)
+
+## Recent Changes
+
+### December 2025 - Major Feature Release v2.0
+- ✅ **Comments System**: Users can now comment on memories, hub items, and files with like functionality
+- ✅ **Notifications**: Real-time notification system for all user activities
+- ✅ **Activity Feed**: Social feed showing activities from followed users
+- ✅ **Collections**: Memory collections/albums for organizing related memories
+- ✅ **Advanced Search**: Full-text search across memories, files, hub items, and collections
+- ✅ **Tags Management**: Comprehensive tag browsing, renaming, and deletion across all content
+- ✅ **Analytics Dashboard**: Rich analytics with charts, trends, and statistics
+- ✅ **File Sharing**: Secure file sharing with expiring shareable links
+- ✅ **Memory Reminders**: Reminder system for anniversaries and important dates
+- ✅ **Export/Backup**: Full backup functionality with JSON/ZIP export options
+- ✅ **Enhanced UI**: Modern Material 3 design with new Flutter screens for all features
+- ✅ **16 API Modules**: Comprehensive backend with 16 feature modules
+

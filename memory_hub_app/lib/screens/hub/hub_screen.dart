@@ -83,6 +83,8 @@ class _HubScreenState extends State<HubScreen> {
             const SizedBox(height: 24),
             _buildStatsSection(stats),
             const SizedBox(height: 32),
+            _buildNewFeaturesSection(),
+            const SizedBox(height: 32),
             _buildQuickActionsSection(quickLinks),
             const SizedBox(height: 32),
             _buildRecentActivitySection(recentActivity),
@@ -317,3 +319,58 @@ class _HubScreenState extends State<HubScreen> {
     }
   }
 }
+
+  Widget _buildNewFeaturesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Explore Features',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        GridView.count(
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.1,
+          children: [
+            _buildFeatureCard('Notifications', Icons.notifications, '/notifications', Colors.orange),
+            _buildFeatureCard('Collections', Icons.collections, '/collections', Colors.purple),
+            _buildFeatureCard('Activity', Icons.timeline, '/activity', Colors.blue),
+            _buildFeatureCard('Analytics', Icons.analytics, '/analytics', Colors.green),
+            _buildFeatureCard('Social', Icons.people, '/social/hubs', Colors.pink),
+            _buildFeatureCard('Search', Icons.search, '/social/search', Colors.teal),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFeatureCard(String title, IconData icon, String route, Color color) {
+    return Card(
+      child: InkWell(
+        onTap: () => Navigator.pushNamed(context, route),
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 32, color: color),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }

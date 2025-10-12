@@ -15,6 +15,10 @@ import 'screens/profile/change_password_screen.dart';
 import 'screens/social/hubs_screen.dart';
 import 'screens/social/user_search_screen.dart';
 import 'screens/social/user_profile_view_screen.dart';
+import 'screens/notifications/notifications_screen.dart';
+import 'screens/collections/collections_screen.dart';
+import 'screens/analytics/analytics_screen.dart';
+import 'screens/activity/activity_feed_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -149,6 +153,14 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const HubsScreen());
           case '/social/search':
             return MaterialPageRoute(builder: (_) => const UserSearchScreen());
+          case '/notifications':
+            return MaterialPageRoute(builder: (_) => const NotificationsScreen());
+          case '/collections':
+            return MaterialPageRoute(builder: (_) => const CollectionsScreen());
+          case '/analytics':
+            return MaterialPageRoute(builder: (_) => const AnalyticsScreen());
+          case '/activity':
+            return MaterialPageRoute(builder: (_) => const ActivityFeedScreen());
           default:
             return null;
         }
