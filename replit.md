@@ -126,7 +126,7 @@ Preferred communication style: Simple, everyday language.
 
 ### December 2025 - Major Feature Release v2.0
 - ✅ **Comments System**: Users can now comment on memories, hub items, and files with like functionality
-- ✅ **Notifications**: Real-time notification system for all user activities
+- ✅ **Notifications**: Real-time notification system for all user activities with unread count
 - ✅ **Activity Feed**: Social feed showing activities from followed users
 - ✅ **Collections**: Memory collections/albums for organizing related memories
 - ✅ **Advanced Search**: Full-text search across memories, files, hub items, and collections
@@ -136,5 +136,32 @@ Preferred communication style: Simple, everyday language.
 - ✅ **Memory Reminders**: Reminder system for anniversaries and important dates
 - ✅ **Export/Backup**: Full backup functionality with JSON/ZIP export options
 - ✅ **Enhanced UI**: Modern Material 3 design with new Flutter screens for all features
-- ✅ **16 API Modules**: Comprehensive backend with 16 feature modules
+- ✅ **Admin Panel**: Complete admin dashboard with user management, statistics, and developer tools
+- ✅ **Production-Ready**: API base URL configuration for mobile/web deployment
+- ✅ **17 API Modules**: Comprehensive backend with 17 feature modules including admin
+
+## Admin Panel Features
+
+The admin panel provides developers with complete control over the platform:
+
+**Dashboard Statistics**:
+- Total users count
+- Active users (24-hour tracking)
+- New users (7-day tracking)
+- Content statistics (memories, files, collections, hubs)
+- Storage usage monitoring (GB tracking)
+
+**User Management**:
+- Search and filter users
+- Pagination support (20 users per page)
+- Activate/deactivate user accounts
+- Change user roles (user/admin)
+- Delete users and all their data
+- View user statistics (memories count, files count)
+
+**Activity Tracking**:
+- User registration trends over time
+- Content creation statistics
+- Platform usage analytics
+- Popular tags across the platform
 

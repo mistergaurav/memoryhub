@@ -83,7 +83,7 @@ class _HubScreenState extends State<HubScreen> {
             const SizedBox(height: 24),
             _buildStatsSection(stats),
             const SizedBox(height: 32),
-            _buildNewFeaturesSection(),
+            _buildNewFeaturesSection(context),
             const SizedBox(height: 32),
             _buildQuickActionsSection(quickLinks),
             const SizedBox(height: 32),
@@ -320,7 +320,7 @@ class _HubScreenState extends State<HubScreen> {
   }
 }
 
-  Widget _buildNewFeaturesSection() {
+  Widget _buildNewFeaturesSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -337,19 +337,19 @@ class _HubScreenState extends State<HubScreen> {
           crossAxisSpacing: 12,
           childAspectRatio: 1.1,
           children: [
-            _buildFeatureCard('Notifications', Icons.notifications, '/notifications', Colors.orange),
-            _buildFeatureCard('Collections', Icons.collections, '/collections', Colors.purple),
-            _buildFeatureCard('Activity', Icons.timeline, '/activity', Colors.blue),
-            _buildFeatureCard('Analytics', Icons.analytics, '/analytics', Colors.green),
-            _buildFeatureCard('Social', Icons.people, '/social/hubs', Colors.pink),
-            _buildFeatureCard('Search', Icons.search, '/social/search', Colors.teal),
+            _buildFeatureCard(context, 'Notifications', Icons.notifications, '/notifications', Colors.orange),
+            _buildFeatureCard(context, 'Collections', Icons.collections, '/collections', Colors.purple),
+            _buildFeatureCard(context, 'Activity', Icons.timeline, '/activity', Colors.blue),
+            _buildFeatureCard(context, 'Analytics', Icons.analytics, '/analytics', Colors.green),
+            _buildFeatureCard(context, 'Social', Icons.people, '/social/hubs', Colors.pink),
+            _buildFeatureCard(context, 'Search', Icons.search, '/social/search', Colors.teal),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildFeatureCard(String title, IconData icon, String route, Color color) {
+  Widget _buildFeatureCard(BuildContext context, String title, IconData icon, String route, Color color) {
     return Card(
       child: InkWell(
         onTap: () => Navigator.pushNamed(context, route),
