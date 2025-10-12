@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../../services/auth_service.dart';
+import '../../config/api_config.dart';
 
 class UserProfileViewScreen extends StatefulWidget {
   final String userId;
@@ -25,43 +26,60 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
   }
 
   Future<void> _loadProfile() async {
-    setState(() => _isLoading = true);
+    if (mounted) setState(() => _isLoading = true);
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.get(
-        Uri.parse('/api/v1/users/${widget.userId}/profile'),
+        Uri.parse('${ApiConfig.baseUrl}/users/${widget.userId}/profile'),
         headers: headers,
       );
+
+      if (!mounted) return;
 
       if (response.statusCode == 200) {
         setState(() {
           _profile = jsonDecode(response.body);
           _isLoading = false;
         });
+      } else {
+        setState(() => _isLoading = false);
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading profile: $e')),
+      );
     }
   }
 
   Future<void> _toggleFollow() async {
     if (_profile == null) return;
 
+    final wasFollowing = _profile!['is_following'] == true;
     try {
       final headers = await _authService.getAuthHeaders();
-      if (_profile!['is_following'] == true) {
+      if (wasFollowing) {
         await http.delete(
-          Uri.parse('/api/v1/social/users/${widget.userId}/follow'),
+          Uri.parse('${ApiConfig.baseUrl}/social/users/${widget.userId}/follow'),
           headers: headers,
         );
       } else {
         await http.post(
-          Uri.parse('/api/v1/social/users/${widget.userId}/follow'),
+          Uri.parse('${ApiConfig.baseUrl}/social/users/${widget.userId}/follow'),
           headers: headers,
         );
       }
+      if (!mounted) return;
       _loadProfile();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(wasFollowing ? 'Unfollowed' : 'Following'),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
@@ -107,15 +125,16 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
                   children: [
                     CircleAvatar(
                       radius: 50,
+                      backgroundColor: Colors.white,
                       backgroundImage: _profile!['avatar_url'] != null
-                          ? NetworkImage(_profile!['avatar_url'])
+                          ? NetworkImage(ApiConfig.getAssetUrl(_profile!['avatar_url']))
                           : null,
                       child: _profile!['avatar_url'] == null
                           ? Text(
                               (_profile!['full_name'] ??
                                       _profile!['email'])[0]
                                   .toUpperCase(),
-                              style: const TextStyle(fontSize: 32),
+                              style: const TextStyle(fontSize: 32, color: Colors.black87),
                             )
                           : null,
                     ),

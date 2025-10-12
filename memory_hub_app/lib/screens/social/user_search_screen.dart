@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../services/auth_service.dart';
+import '../../config/api_config.dart';
 
 class UserSearchScreen extends StatefulWidget {
   const UserSearchScreen({super.key});
@@ -18,26 +19,34 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
 
   Future<void> _searchUsers(String query) async {
     if (query.isEmpty) {
-      setState(() => _users = []);
+      if (mounted) setState(() => _users = []);
       return;
     }
 
-    setState(() => _isLoading = true);
+    if (mounted) setState(() => _isLoading = true);
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.get(
-        Uri.parse('/api/v1/social/users/search?query=$query'),
+        Uri.parse('${ApiConfig.baseUrl}/social/users/search?query=$query'),
         headers: headers,
       );
+
+      if (!mounted) return;
 
       if (response.statusCode == 200) {
         setState(() {
           _users = jsonDecode(response.body);
           _isLoading = false;
         });
+      } else {
+        setState(() => _isLoading = false);
       }
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Search error: $e')),
+      );
     }
   }
 
@@ -46,17 +55,19 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       final headers = await _authService.getAuthHeaders();
       if (isFollowing) {
         await http.delete(
-          Uri.parse('/api/v1/social/users/$userId/follow'),
+          Uri.parse('${ApiConfig.baseUrl}/social/users/$userId/follow'),
           headers: headers,
         );
       } else {
         await http.post(
-          Uri.parse('/api/v1/social/users/$userId/follow'),
+          Uri.parse('${ApiConfig.baseUrl}/social/users/$userId/follow'),
           headers: headers,
         );
       }
+      if (!mounted) return;
       _searchUsers(_searchController.text);
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
@@ -109,13 +120,15 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                           final user = _users[index];
                           return ListTile(
                             leading: CircleAvatar(
+                              backgroundColor: Theme.of(context).colorScheme.primary,
                               backgroundImage: user['avatar_url'] != null
-                                  ? NetworkImage(user['avatar_url'])
+                                  ? NetworkImage(ApiConfig.getAssetUrl(user['avatar_url']))
                                   : null,
                               child: user['avatar_url'] == null
                                   ? Text(
                                       (user['full_name'] ?? user['email'])[0]
                                           .toUpperCase(),
+                                      style: const TextStyle(color: Colors.white),
                                     )
                                   : null,
                             ),

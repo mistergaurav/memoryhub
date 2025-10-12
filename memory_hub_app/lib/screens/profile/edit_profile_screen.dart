@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../services/api_service.dart';
 import '../../models/user.dart';
+import '../../config/api_config.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -38,9 +39,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _loadUser() async {
-    setState(() => _isLoading = true);
+    if (mounted) setState(() => _isLoading = true);
     try {
       final user = await _apiService.getCurrentUser();
+      if (!mounted) return;
       setState(() {
         _currentUser = user;
         _emailController.text = user.email;
@@ -48,13 +50,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _bioController.text = user.bio ?? '';
       });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading profile: $e')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading profile: $e')),
+      );
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -64,28 +65,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         type: FileType.image,
       );
 
+      if (!mounted) return;
+
       if (result != null && result.files.single.path != null) {
         setState(() {
           _avatarFile = File(result.files.single.path!);
         });
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error picking image: $e')),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking image: $e')),
+      );
     }
   }
 
   Future<void> _handleSave() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isSaving = true);
+    if (mounted) setState(() => _isSaving = true);
 
     try {
       if (_avatarFile != null) {
         await _apiService.uploadAvatar(_avatarFile!);
+        if (!mounted) return;
       }
 
       final userUpdate = UserUpdate(
@@ -100,24 +103,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       await _apiService.updateUser(userUpdate);
 
-      if (mounted) {
-        Navigator.of(context).pop(true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile updated successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profile updated successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.of(context).pop(true);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceAll('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() => _isSaving = false);
@@ -137,24 +139,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Profile'),
-        actions: [
-          if (_isSaving)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.check),
-              onPressed: _handleSave,
-            ),
-        ],
       ),
       body: Form(
         key: _formKey,
@@ -166,12 +150,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 children: [
                   CircleAvatar(
                     radius: 60,
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     backgroundImage: _avatarFile != null
                         ? FileImage(_avatarFile!)
                         : (_currentUser?.avatarUrl != null
-                            ? NetworkImage(
-                                'http://localhost:8000${_currentUser!.avatarUrl}')
+                            ? NetworkImage(ApiConfig.getAssetUrl(_currentUser!.avatarUrl!))
                             : null) as ImageProvider?,
                     child: _avatarFile == null && _currentUser?.avatarUrl == null
                         ? Text(
@@ -184,10 +167,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     bottom: 0,
                     right: 0,
                     child: CircleAvatar(
-                      backgroundColor: Colors.deepPurple,
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                       child: IconButton(
                         icon: const Icon(Icons.camera_alt, color: Colors.white),
                         onPressed: _pickAvatar,
+                        tooltip: 'Change Avatar',
                       ),
                     ),
                   ),
@@ -199,6 +183,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               controller: _emailController,
               decoration: const InputDecoration(
                 labelText: 'Email',
+                prefixIcon: Icon(Icons.email),
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.emailAddress,
@@ -217,6 +202,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               controller: _fullNameController,
               decoration: const InputDecoration(
                 labelText: 'Full Name',
+                prefixIcon: Icon(Icons.person),
                 border: OutlineInputBorder(),
               ),
             ),
@@ -225,11 +211,45 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               controller: _bioController,
               decoration: const InputDecoration(
                 labelText: 'Bio',
+                prefixIcon: Icon(Icons.info_outline),
                 border: OutlineInputBorder(),
                 alignLabelWithHint: true,
+                hintText: 'Tell us about yourself...',
               ),
-              maxLines: 3,
+              maxLines: 4,
             ),
+            const SizedBox(height: 32),
+            SizedBox(
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _isSaving ? null : _handleSave,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                ),
+                child: _isSaving
+                    ? const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Text('Saving...'),
+                        ],
+                      )
+                    : const Text(
+                        'Save Changes',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
