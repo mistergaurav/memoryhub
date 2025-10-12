@@ -6,9 +6,10 @@ import '../models/memory.dart';
 import '../models/vault_file.dart';
 import '../models/hub_item.dart';
 import 'auth_service.dart';
+import '../config/api_config.dart';
 
 class ApiService {
-  static const String baseUrl = '/api/v1';
+  static String get baseUrl => ApiConfig.baseUrl;
   final AuthService _authService = AuthService();
 
   Future<http.Response> _handleRequest(Future<http.Response> request) async {

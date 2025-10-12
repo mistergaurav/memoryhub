@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
 
 class CommentsService {
-  static String get baseUrl => ApiConfig.fullBaseUrl;
+  static String get baseUrl => ApiConfig.baseUrl;
 
   Future<Map<String, String>> _getHeaders() async {
     final prefs = await SharedPreferences.getInstance();

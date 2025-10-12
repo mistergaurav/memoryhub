@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../../models/user.dart';
+import '../../config/api_config.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -79,9 +80,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 CircleAvatar(
                   radius: 60,
-                  backgroundColor: Colors.deepPurple,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   backgroundImage: _user!.avatarUrl != null
-                      ? NetworkImage('http://localhost:8000${_user!.avatarUrl}')
+                      ? NetworkImage(ApiConfig.getAssetUrl(_user!.avatarUrl!))
                       : null,
                   child: _user!.avatarUrl == null
                       ? Text(

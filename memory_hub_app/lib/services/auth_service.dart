@@ -2,9 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
+import '../config/api_config.dart';
 
 class AuthService {
-  static const String baseUrl = '/api/v1';
+  static String get baseUrl => ApiConfig.baseUrl;
   
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
@@ -25,9 +26,15 @@ class AuthService {
         await _saveTokens(tokens);
         return tokens;
       } else {
-        throw Exception(jsonDecode(response.body)['detail'] ?? 'Login failed');
+        try {
+          final errorBody = jsonDecode(response.body);
+          throw Exception(errorBody['detail'] ?? 'Login failed');
+        } catch (e) {
+          throw Exception('Login failed: ${response.body}');
+        }
       }
     } catch (e) {
+      if (e is Exception) rethrow;
       throw Exception('Login error: $e');
     }
   }
@@ -47,9 +54,15 @@ class AuthService {
       if (response.statusCode == 201) {
         return true;
       } else {
-        throw Exception(jsonDecode(response.body)['detail'] ?? 'Signup failed');
+        try {
+          final errorBody = jsonDecode(response.body);
+          throw Exception(errorBody['detail'] ?? 'Signup failed');
+        } catch (e) {
+          throw Exception('Signup failed: ${response.body}');
+        }
       }
     } catch (e) {
+      if (e is Exception) rethrow;
       throw Exception('Signup error: $e');
     }
   }

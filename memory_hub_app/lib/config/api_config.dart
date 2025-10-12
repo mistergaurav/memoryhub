@@ -1,25 +1,33 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 class ApiConfig {
+  static const String _replitDomain = 'https://f1f703b2-5ae2-4384-84cb-cc0d43774e0d-00-1xb1vbt5sy6oi.janeway.replit.dev';
+  
   static String get baseUrl {
-    // For web builds, use relative URL to work with the backend serving the Flutter app
-    // For mobile/desktop, use environment variable or default
-    const String? envUrl = String.fromEnvironment('API_URL', defaultValue: '');
-    
-    if (envUrl.isNotEmpty) {
-      return envUrl;
+    if (kIsWeb) {
+      return '/api/v1';
+    } else {
+      return '$_replitDomain/api/v1';
     }
-    
-    // Default for web when served by the same backend
-    return '/api/v1';
   }
   
-  static String get fullBaseUrl {
-    const String? envUrl = String.fromEnvironment('API_URL', defaultValue: '');
-    
-    if (envUrl.isNotEmpty) {
-      return envUrl;
+  static String get wsBaseUrl {
+    if (kIsWeb) {
+      return 'wss://f1f703b2-5ae2-4384-84cb-cc0d43774e0d-00-1xb1vbt5sy6oi.janeway.replit.dev/ws';
+    } else {
+      return 'wss://f1f703b2-5ae2-4384-84cb-cc0d43774e0d-00-1xb1vbt5sy6oi.janeway.replit.dev/ws';
+    }
+  }
+  
+  static String getAssetUrl(String path) {
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
     }
     
-    // For local development
-    return 'http://localhost:5000/api/v1';
+    if (kIsWeb) {
+      return path;
+    } else {
+      return '$_replitDomain$path';
+    }
   }
 }
