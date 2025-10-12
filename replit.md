@@ -125,12 +125,19 @@ Preferred communication style: Simple, everyday language.
 ## API Configuration
 
 **Platform-Specific URL Handling**: 
-- Web builds use relative URLs (`/api/v1`) to leverage same-origin API calls
-- Mobile builds use absolute URLs with Replit domain prefix for cross-platform compatibility
+- Web builds use relative URLs (`/api/v1`) to leverage same-origin API calls - automatically resolves to current domain
+- Mobile builds use environment variable `API_URL` or fallback to default Replit domain
 - Asset URLs (avatars, files) intelligently handle both absolute and relative paths
-- Hard-coded Replit domain: `https://f1f703b2-5ae2-4384-84cb-cc0d43774e0d-00-1xb1vbt5sy6oi.janeway.replit.dev`
+- WebSocket connections automatically use correct protocol (wss for https, ws for http)
 
-**Note**: When deploying to a different domain, update the `_replitDomain` constant in `memory_hub_app/lib/config/api_config.dart`
+**Building for Different Environments**:
+- Web: `flutter build web --release` (uses relative URLs automatically)
+- Android/iOS with custom domain: `flutter build apk --dart-define=API_URL=https://your-domain.com`
+- Android/iOS with default: `flutter build apk` (uses fallback domain)
+
+**Backend Compatibility**:
+- Python 3.9+ supported (uses typing.Union for compatibility)
+- FastAPI with modern lifespan events (not deprecated on_event)
 
 ## Recent Changes
 
