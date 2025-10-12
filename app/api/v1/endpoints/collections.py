@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from typing import List, Optional
+from typing import List, Optional, Union
 from datetime import datetime
 from bson import ObjectId
 
@@ -16,7 +16,7 @@ from app.db.mongodb import get_collection
 
 router = APIRouter()
 
-async def _prepare_collection_response(col_doc: dict, current_user_id: str, include_memories: bool = False) -> CollectionResponse | CollectionWithMemories:
+async def _prepare_collection_response(col_doc: dict, current_user_id: str, include_memories: bool = False) -> Union[CollectionResponse, CollectionWithMemories]:
     """Prepare collection document for API response"""
     owner = await get_collection("users").find_one({"_id": col_doc["owner_id"]})
     
