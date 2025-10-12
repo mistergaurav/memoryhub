@@ -2,7 +2,9 @@ from fastapi import APIRouter
 from app.api.v1.endpoints import (
     auth, users, memories, vault, hub, social, comments,
     notifications, collections, activity, search, tags,
-    analytics, sharing, reminders, export, admin
+    analytics, sharing, reminders, export, admin, stories,
+    voice_notes, categories, reactions, memory_templates,
+    two_factor, password_reset
 )
 
 api_router = APIRouter()
@@ -23,3 +25,10 @@ api_router.include_router(sharing.router, prefix="/sharing", tags=["sharing"])
 api_router.include_router(reminders.router, prefix="/reminders", tags=["reminders"])
 api_router.include_router(export.router, prefix="/export", tags=["export"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
+api_router.include_router(stories.router, prefix="/stories", tags=["stories"])
+api_router.include_router(voice_notes.router, prefix="/voice-notes", tags=["voice-notes"])
+api_router.include_router(categories.router, prefix="/categories", tags=["categories"])
+api_router.include_router(reactions.router, prefix="/reactions", tags=["reactions"])
+api_router.include_router(memory_templates.router, prefix="/memory-templates", tags=["memory-templates"])
+api_router.include_router(two_factor.router, prefix="/2fa", tags=["2fa"])
+api_router.include_router(password_reset.router, prefix="/password-reset", tags=["password-reset"])
