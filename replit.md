@@ -134,6 +134,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 2025 - Social Features Enhancement
+- ✅ **User Search**: Find and connect with other users through comprehensive search functionality
+- ✅ **Follow/Unfollow System**: Follow users to see their activities in your feed with one-click follow/unfollow
+- ✅ **Enhanced Profile Editing**: Improved edit profile screen with visible Save button and better form handling
+- ✅ **Lifecycle Safety**: All async operations properly handle widget lifecycle with mounted checks to prevent crashes
+- ✅ **Avatar Integration**: Consistent avatar rendering across all social features using ApiConfig
+- ✅ **User Profiles**: View other users' profiles with follower/following counts and social stats
+
 ### October 2025 - Production Enhancement Release
 - ✅ **Settings Screen**: Comprehensive user settings with notifications, theme, privacy controls, and data management
 - ✅ **API Configuration**: Platform-aware URL handling for web, Android, and iOS compatibility
