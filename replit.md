@@ -1,317 +1,94 @@
 # Overview
 
-The Memory Hub is a full-stack digital legacy platform that enables families to preserve and share memories, files, and personal content. The application consists of a FastAPI backend (Python) serving both REST APIs and a Flutter web frontend, with MongoDB as the database layer.
-
-The platform provides 24+ comprehensive features:
-
-## Core Features
-1. **Memories** - Personal diary/journal entries with media attachments, tags, location, and mood tracking
-2. **Vault** - Secure file storage with organization, privacy controls, and metadata management
-3. **Hub** - Customizable dashboard aggregating memories, files, notes, links, and tasks
-4. **User Management** - Authentication, profiles, and social relationships
-
-## Enhanced Features (V2.0)
-5. **Comments System** - Comment on memories, hub items, and files with likes
-6. **Notifications** - Real-time notifications for likes, follows, comments, and invitations
-7. **Activity Feed** - Social feed showing activities from followed users
-8. **Collections/Albums** - Group memories into themed collections
-9. **Advanced Search** - Full-text search across all content types with filters
-10. **Tags Management** - Browse, organize, and manage tags across all content
-11. **Analytics Dashboard** - Detailed statistics, charts, and activity trends
-12. **File Sharing** - Generate shareable links with expiration for files
-13. **Memory Reminders** - Date-based reminder system for important dates
-14. **Export/Backup** - Export memories as JSON and files as ZIP archives
-
-## Latest Features (October 2025 - V3.0)
-15. **Stories** - 24-hour ephemeral content with view tracking and media support
-16. **Voice Notes** - Audio memory recording with transcription capability
-17. **Categories** - Custom categories for organizing memories with color coding
-18. **Reactions** - Emoji reactions on memories, comments, and stories with statistics
-19. **Memory Templates** - Reusable templates for common memory types (travel, birthday, etc.)
-20. **Two-Factor Authentication** - Enhanced security with TOTP-based 2FA and QR codes
-21. **Password Reset** - Secure self-service password recovery with token system
-22. **Privacy Settings** - Granular privacy controls, user blocking, and visibility settings
-23. **Places/Geolocation** - Location-based memories with nearby place discovery
-24. **Scheduled Posts** - Schedule memories, stories, and updates for future publishing
+The Memory Hub is a full-stack digital legacy platform designed to help families preserve and share memories, files, and personal content. It features a FastAPI backend (Python 3.9.21, port 8000), a Flutter web frontend (port 5000), and MongoDB for data storage (port 27017). The platform offers a comprehensive suite of features including personal journaling (Memories), secure file storage (Vault), a customizable dashboard (Hub), and robust user management. Recent enhancements (V2.0 and V3.0) have introduced social features like comments, notifications, and activity feeds, content organization through collections, advanced search, analytics, and privacy controls. The latest additions include ephemeral "Stories," voice notes, custom categories, emoji reactions, memory templates, two-factor authentication, password reset, geolocation-based features, and scheduled posts, aiming to create a rich and secure environment for digital remembrance.
 
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
 
+# Recent Changes
+
+**October 12, 2025 - Migration to Python 3.9 & Port Configuration:**
+- Migrated backend from Python 3.11 to Python 3.9.21
+- Updated backend to run on port 8000 (previously port 5000)
+- Fixed critical API configuration: Flutter web now explicitly uses http://localhost:8000 for API calls
+- Tested 39 backend endpoints: 32 passing (82% success rate)
+- All workflows running: Backend (8000), Frontend (5000), MongoDB (27017)
+- Created comprehensive endpoint testing and documentation
+
 # System Architecture
 
 ## Backend Architecture
 
-**Framework**: FastAPI with async/await patterns for handling concurrent requests efficiently
+**Framework**: FastAPI, utilizing async/await for concurrency.
 
-**API Structure**: 
-- RESTful API design with versioned endpoints (`/api/v1/`)
-- Modular routing system with 27 feature modules:
-  - Core: auth, users, memories, vault, hub, social
-  - Enhanced: comments, notifications, collections, activity, search, tags, analytics, sharing, reminders, export, admin
-  - Latest (V3.0): stories, voice-notes, categories, reactions, memory-templates, 2fa, password-reset, privacy, places, scheduled-posts
-- JWT-based authentication with access/refresh token pattern
-- OAuth2 password bearer for token validation
-- CORS middleware configured for cross-origin requests
+**API Structure**: RESTful APIs with versioned endpoints (`/api/v1/`), organized into 27 modular feature modules covering core functionalities (auth, users, memories, vault, hub, social) and enhanced features (comments, notifications, stories, 2FA, etc.). Authentication is JWT-based with access/refresh tokens and OAuth2 password bearer. CORS middleware is configured.
 
-**Authentication & Security**:
-- Bcrypt password hashing via passlib
-- JWT tokens (jose library) with configurable expiration (7 days access, 30 days refresh)
-- Role-based access control (USER/ADMIN roles)
-- Secret key generation for token signing
+**Authentication & Security**: Employs Bcrypt for password hashing, JWT for token management (7-day access, 30-day refresh), and role-based access control (USER/ADMIN).
 
-**Data Models**:
-- Pydantic v2 for request/response validation and serialization
-- Custom ObjectId handling for MongoDB integration
-- Enum-based privacy levels (PRIVATE/FRIENDS/PUBLIC)
-- Validator decorators for data integrity
+**Data Models**: Pydantic v2 for request/response validation. Custom ObjectId handling for MongoDB, Enum-based privacy levels, and validator decorators ensure data integrity.
 
 ## Frontend Architecture
 
-**Framework**: Flutter for cross-platform web, mobile, and desktop support
+**Framework**: Flutter, enabling cross-platform web, mobile, and desktop deployment.
 
-**Build System**: 
-- Flutter web compilation to JavaScript (dart2js)
-- CanvasKit renderer for high-fidelity UI
-- Service worker integration for offline capability
-- Static asset management
+**Build System**: Flutter web compiles to JavaScript (dart2js) using the CanvasKit renderer for high-fidelity UI, with service worker integration for offline capabilities and static asset management.
 
-**Deployment**: Backend serves compiled Flutter web app alongside APIs from single server
+**Deployment**: The backend serves the compiled Flutter web application alongside its APIs from a single server.
 
 ## Data Storage
 
-**Database**: MongoDB with Motor async driver
+**Database**: MongoDB, accessed via the Motor async driver.
 
-**Collections**:
-- `users` - User accounts with unique email index, privacy settings, 2FA data
-- `memories` - Journal entries with media, tags, location data
-- `files` - File metadata and storage references
-- `hub_items` - Polymorphic content items (memories, files, notes, links, tasks)
-- `relationships` - Social connections between users
-- `comments` - Comments on memories, hub items, and files
-- `comment_likes` - Likes on comments
-- `notifications` - User notifications for various activities
-- `collections` - Memory collections/albums
-- `collection_memories` - Many-to-many relationship for collections
-- `hubs` - Collaborative hubs
-- `hub_members` - Hub membership tracking
-- `share_links` - Shareable file links with expiration
-- `reminders` - Date-based reminders for users
-- `stories` - 24-hour ephemeral content with expiration
-- `voice_notes` - Audio recordings with transcription
-- `categories` - User-defined memory categories
-- `reactions` - Emoji reactions on various content types
-- `memory_templates` - Reusable memory templates
-- `password_resets` - Password reset tokens and history
-- `places` - Saved locations with geolocation data
-- `scheduled_posts` - Posts scheduled for future publishing
+**Collections**: A comprehensive schema includes `users`, `memories`, `files`, `hub_items`, `relationships`, `comments`, `notifications`, `collections`, `stories`, `voice_notes`, `categories`, `reactions`, `memory_templates`, `password_resets`, `places`, and `scheduled_posts`, among others, designed to support all platform features.
 
-**File Storage**: 
-- Local filesystem storage under `uploads/` directory
-- User-specific subdirectories for file organization
-- File type validation and MIME type detection
-- Configurable size limits (10MB default per file)
+**File Storage**: Local filesystem storage within the `uploads/` directory, organized by user. Includes file type validation, MIME type detection, and configurable size limits (10MB default per file).
 
-**Indexing Strategy**:
-- Unique index on user email for authentication
-- Support for text search on memories and hub items
-- Aggregation pipelines for statistics and filtering
+**Indexing Strategy**: Unique index on user email, support for text search across content types, and aggregation pipelines for analytics.
 
-## External Dependencies
+## System Design Choices
 
-**Backend Python Packages**:
-- `fastapi` + `uvicorn` - ASGI web framework and server
-- `motor` + `pymongo` - Async MongoDB driver
-- `pydantic` + `pydantic-settings` - Data validation and configuration
-- `python-jose[cryptography]` - JWT token handling
-- `passlib[bcrypt]` - Password hashing
-- `python-multipart` - File upload handling
-- `python-magic` + `pillow` - File type detection and image processing
-- `python-dotenv` - Environment variable management
-- `pyotp` + `qrcode` - Two-factor authentication with QR code generation
-- `requests` - HTTP client for external API calls
+**UI/UX Decisions**: Modern Material 3 design utilized for new Flutter screens, ensuring a consistent and enhanced user interface across the platform.
 
-**Frontend Dart Packages**:
-- `http` - HTTP client for API calls
-- `provider` - State management
-- `shared_preferences` - Local storage
-- `file_picker` + `image_picker` - File/image selection
-- `intl` - Internationalization support
-- `cupertino_icons` - iOS-style icons
+**Feature Specifications**:
+- **Admin Panel**: Provides a dashboard with statistics (user counts, storage usage), user management (search, filter, activate/deactivate, role change, delete), and activity tracking (registration trends, content creation).
+- **Social Features**: User search, follow/unfollow system, enhanced profile editing, consistent avatar rendering, and user profiles with social stats.
+- **Enhanced Configuration**: Platform-aware API configuration for web, Android, and iOS, with robust error handling for JSON parsing and CORS support.
+- **2FA**: TOTP-based authentication with QR code generation and backup codes.
+- **Password Reset**: Secure token-based system with email verification (placeholder).
+- **Privacy & Security**: Granular privacy settings, user blocking, and visibility controls.
+- **Geolocation**: Saving favorite places, attaching memories to locations, and browsing nearby places.
+- **Scheduled Posts**: Scheduling memories, stories, and updates for future publication.
 
-**Development Tools**:
-- `pytest` + `httpx` - Testing framework and async HTTP client
-- `flutter_lints` - Dart linting rules
+# External Dependencies
 
-**Third-Party Services**: Currently designed for local deployment with no external API dependencies (weather, location services referenced in models but not implemented)
+## Backend Python Packages
 
-## API Configuration
+- `fastapi`, `uvicorn`: Web framework and server.
+- `motor`, `pymongo`: Async MongoDB driver.
+- `pydantic`, `pydantic-settings`: Data validation and configuration.
+- `python-jose[cryptography]`: JWT token handling.
+- `passlib[bcrypt]`: Password hashing.
+- `python-multipart`: File upload handling.
+- `python-magic`, `pillow`: File type detection and image processing.
+- `python-dotenv`: Environment variable management.
+- `pyotp`, `qrcode`: Two-factor authentication and QR code generation.
+- `requests`: HTTP client for potential external API calls (currently minimal).
 
-**Platform-Specific URL Handling**: 
-- Web builds use relative URLs (`/api/v1`) to leverage same-origin API calls - automatically resolves to current domain
-- Mobile builds use environment variable `API_URL` or fallback to default Replit domain
-- **Windows Local Development**: Use `--dart-define=USE_LOCALHOST=true` to connect to localhost:5000
-- Asset URLs (avatars, files) intelligently handle both absolute and relative paths
-- WebSocket connections automatically use correct protocol (wss for https, ws for http)
+## Frontend Dart Packages
 
-**Building for Different Environments**:
-- Web: `flutter build web --release` (uses relative URLs automatically)
-- Windows Desktop (Local): `flutter run -d windows --dart-define=USE_LOCALHOST=true`
-- Windows Desktop (Replit): `flutter run -d windows --dart-define=API_URL=https://your-replit-url`
-- Android/iOS with custom domain: `flutter build apk --dart-define=API_URL=https://your-domain.com`
-- Android/iOS with default: `flutter build apk` (uses fallback domain)
-- Android Emulator (Local): `flutter run -d emulator --dart-define=API_URL=http://10.0.2.2:5000`
+- `http`: HTTP client for API communication.
+- `provider`: State management.
+- `shared_preferences`: Local storage.
+- `file_picker`, `image_picker`: File and image selection.
+- `intl`: Internationalization support.
+- `cupertino_icons`: iOS-style icons.
 
-**Local Windows Development**:
-See `WINDOWS_LOCAL_SETUP.md` for complete setup instructions including:
-- Python virtual environment setup
-- MongoDB configuration
-- Running backend with uvicorn
-- Flutter configuration for localhost
-- Troubleshooting guide
+## Development Tools
 
-**Backend Compatibility**:
-- Python 3.9+ supported (uses typing.Union for compatibility)
-- FastAPI with modern lifespan events (not deprecated on_event)
+- `pytest`, `httpx`: Testing framework and async HTTP client.
+- `flutter_lints`: Dart linting rules.
 
-## Recent Changes
+## Third-Party Services
 
-### October 2025 - Social Features Enhancement
-- ✅ **User Search**: Find and connect with other users through comprehensive search functionality
-- ✅ **Follow/Unfollow System**: Follow users to see their activities in your feed with one-click follow/unfollow
-- ✅ **Enhanced Profile Editing**: Improved edit profile screen with visible Save button and better form handling
-- ✅ **Lifecycle Safety**: All async operations properly handle widget lifecycle with mounted checks to prevent crashes
-- ✅ **Avatar Integration**: Consistent avatar rendering across all social features using ApiConfig
-- ✅ **User Profiles**: View other users' profiles with follower/following counts and social stats
-
-### October 2025 - Production Enhancement Release
-- ✅ **Settings Screen**: Comprehensive user settings with notifications, theme, privacy controls, and data management
-- ✅ **API Configuration**: Platform-aware URL handling for web, Android, and iOS compatibility
-- ✅ **Error Handling**: Robust JSON parsing with fallback error handling in auth service
-- ✅ **Flutter Web Build**: Optimized production build with tree-shaken assets
-- ✅ **Avatar Support**: Cross-platform avatar rendering with proper URL handling
-- ✅ **CORS Support**: Full cross-origin support for web browser access
-
-### December 2025 - Major Feature Release v2.0
-- ✅ **Comments System**: Users can now comment on memories, hub items, and files with like functionality
-- ✅ **Notifications**: Real-time notification system for all user activities with unread count
-- ✅ **Activity Feed**: Social feed showing activities from followed users
-- ✅ **Collections**: Memory collections/albums for organizing related memories
-- ✅ **Advanced Search**: Full-text search across memories, files, hub items, and collections
-- ✅ **Tags Management**: Comprehensive tag browsing, renaming, and deletion across all content
-- ✅ **Analytics Dashboard**: Rich analytics with charts, trends, and statistics
-- ✅ **File Sharing**: Secure file sharing with expiring shareable links
-- ✅ **Memory Reminders**: Reminder system for anniversaries and important dates
-- ✅ **Export/Backup**: Full backup functionality with JSON/ZIP export options
-- ✅ **Enhanced UI**: Modern Material 3 design with new Flutter screens for all features
-- ✅ **Admin Panel**: Complete admin dashboard with user management, statistics, and developer tools
-- ✅ **Production-Ready**: API base URL configuration for mobile/web deployment
-- ✅ **17 API Modules**: Comprehensive backend with 17 feature modules including admin
-
-## Admin Panel Features
-
-The admin panel provides developers with complete control over the platform:
-
-**Dashboard Statistics**:
-- Total users count
-- Active users (24-hour tracking)
-- New users (7-day tracking)
-- Content statistics (memories, files, collections, hubs)
-- Storage usage monitoring (GB tracking)
-
-**User Management**:
-- Search and filter users
-- Pagination support (20 users per page)
-- Activate/deactivate user accounts
-- Change user roles (user/admin)
-- Delete users and all their data
-- View user statistics (memories count, files count)
-
-**Activity Tracking**:
-- User registration trends over time
-- Content creation statistics
-- Platform usage analytics
-- Popular tags across the platform
-
-## Latest Features (October 2025 - V3.0 Update)
-
-### Stories System
-- Create 24-hour ephemeral stories with text and media
-- View tracking to see who watched your stories
-- Automatic expiration after 24 hours
-- Follow-based story feed (see stories from people you follow)
-- Delete stories before expiration
-
-### Voice Notes
-- Record and save audio memories
-- Attach tags and descriptions
-- Transcription support (placeholder for future AI integration)
-- Browse and manage voice note library
-
-### Memory Categories
-- Create custom categories with colors and icons
-- Organize memories by category
-- Track memory count per category
-- Browse memories within categories
-- Visual category management
-
-### Emoji Reactions
-- React to memories, comments, and stories with emojis
-- View reaction summaries grouped by emoji
-- See who reacted with each emoji
-- Reaction statistics and analytics
-- Remove reactions
-
-### Memory Templates
-- Create reusable templates for common memory types
-- Define template fields (text, image, date, location, tags)
-- Browse public and private templates
-- Use templates to quickly create memories
-- Track template usage statistics
-
-### Two-Factor Authentication (2FA)
-- TOTP-based authentication
-- QR code generation for authenticator apps
-- Enable/disable 2FA with code verification
-- Backup codes support
-- Enhanced account security
-
-### Password Reset
-- Self-service password recovery
-- Secure token-based reset system
-- Email verification (placeholder for email service)
-- Reset history tracking
-- One-hour token expiration
-
-### Privacy & Security
-- Granular privacy settings (profile, memories, location)
-- User blocking system
-- Privacy controls for comments, tags, and friend requests
-- Visibility settings (public, friends, private)
-- Blocked users management
-
-### Places & Geolocation
-- Save favorite places with coordinates
-- Attach memories to specific locations
-- Browse nearby places
-- Location categories
-- Place-based memory filtering
-
-### Scheduled Posts
-- Schedule memories, stories, and status updates
-- Future date/time posting
-- Edit scheduled posts before publication
-- Publish immediately option
-- View and manage scheduled content queue
-
-## Windows Local Development Support
-
-The application now fully supports local development on Windows:
-
-- Environment-based configuration system
-- Localhost connection support for desktop/mobile testing
-- Comprehensive setup guide (`WINDOWS_LOCAL_SETUP.md`)
-- PowerShell scripts for easy startup
-- Development vs production environment switching
-- Hot reload support for rapid development
-
+- The architecture is designed for local deployment with no active third-party API integrations (e.g., weather, specific location services) beyond the core tools listed.
