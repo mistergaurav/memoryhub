@@ -9,13 +9,13 @@ class ApiConfig {
   
   static const String _replitApiUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: 'https://14535a8b-db67-4f4d-9926-05522d0ee98c-00-lc0syjpx9rpz.spock.replit.dev',
+    defaultValue: 'https://localhost:5000',
   );
   
   static const String _localApiUrl = 'http://localhost:5000';
   
   // Set this to true when running locally on Windows
-  static const bool _useLocalhost = String.fromEnvironment('USE_LOCALHOST', defaultValue: 'false') == 'true';
+  static const bool _useLocalhost = String.fromEnvironment('USE_LOCALHOST', defaultValue: 'true') == 'true';
   
   static String get _apiUrl {
     // Priority: Environment variable > Local setting > Replit default
