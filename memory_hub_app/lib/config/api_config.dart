@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ApiConfig {
-  static const String _replitDomain = 'https://f1f703b2-5ae2-4384-84cb-cc0d43774e0d-00-1xb1vbt5sy6oi.janeway.replit.dev';
+  static const String _replitDomain = 'https://14535a8b-db67-4f4d-9926-05522d0ee98c-00-lc0syjpx9rpz.spock.replit.dev';
   
   static String get baseUrl {
     if (kIsWeb) {
@@ -13,9 +13,10 @@ class ApiConfig {
   
   static String get wsBaseUrl {
     if (kIsWeb) {
-      return 'wss://f1f703b2-5ae2-4384-84cb-cc0d43774e0d-00-1xb1vbt5sy6oi.janeway.replit.dev/ws';
+      final wsProtocol = Uri.base.scheme == 'https' ? 'wss' : 'ws';
+      return '$wsProtocol://${Uri.base.host}/ws';
     } else {
-      return 'wss://f1f703b2-5ae2-4384-84cb-cc0d43774e0d-00-1xb1vbt5sy6oi.janeway.replit.dev/ws';
+      return 'wss://14535a8b-db67-4f4d-9926-05522d0ee98c-00-lc0syjpx9rpz.spock.replit.dev/ws';
     }
   }
   
