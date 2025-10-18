@@ -159,3 +159,42 @@ async def download_export(
         filename=filename,
         media_type="application/octet-stream"
     )
+
+# Alias endpoints for better API compatibility
+@router.post("/json")
+async def export_json_alias(
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Alias for /memories/json endpoint"""
+    return await export_memories_json(start_date, end_date, current_user)
+
+@router.post("/archive")
+async def export_archive_alias(
+    file_ids: Optional[list[str]] = None,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Alias for /files/zip endpoint"""
+    return await export_files_zip(file_ids, current_user)
+
+@router.get("/history")
+async def export_history(
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Get export history for current user"""
+    # Return list of exports created by user
+    files = []
+    if os.path.exists(EXPORT_DIR):
+        for filename in os.listdir(EXPORT_DIR):
+            if current_user.id in filename:
+                filepath = os.path.join(EXPORT_DIR, filename)
+                stat = os.stat(filepath)
+                files.append({
+                    "filename": filename,
+                    "download_url": f"/api/v1/export/download/{filename}",
+                    "size": stat.st_size,
+                    "created_at": datetime.fromtimestamp(stat.st_ctime).isoformat()
+                })
+    
+    return sorted(files, key=lambda x: x['created_at'], reverse=True)

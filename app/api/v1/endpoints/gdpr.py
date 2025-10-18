@@ -451,3 +451,18 @@ async def _serialize_activity(activity: dict) -> dict:
         "details": activity.get("details"),
         "created_at": activity.get("created_at")
     }
+
+# Alias endpoints for better API compatibility
+@router.post("/delete-account")
+async def delete_account_alias(
+    deletion_request: DataDeletionRequest,
+    background_tasks: BackgroundTasks,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Alias for /request-deletion endpoint"""
+    return await request_account_deletion(deletion_request, background_tasks, current_user)
+
+@router.get("/data-info")
+async def data_info_alias():
+    """Alias for /data-processing-info endpoint"""
+    return await get_data_processing_info()
