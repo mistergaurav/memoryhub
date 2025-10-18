@@ -316,4 +316,342 @@ class ApiService {
       throw Exception('Failed to load hub items');
     }
   }
+
+  Future<Map<String, dynamic>> globalSearch(String query) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/search?q=$query'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to search');
+    }
+  }
+
+  Future<List<String>> getSearchSuggestions(String query) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/search/suggestions?q=$query'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return List<String>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to get suggestions');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAllTags() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/tags'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load tags');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPopularTags() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/tags/popular'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load popular tags');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getStories() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/stories'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load stories');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getVoiceNotes() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/voice-notes'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load voice notes');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getCategories() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/categories'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load categories');
+    }
+  }
+
+  Future<void> createCategory(Map<String, dynamic> data) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/categories'),
+        headers: headers,
+        body: jsonEncode(data),
+      ),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to create category');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getReminders() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/reminders'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load reminders');
+    }
+  }
+
+  Future<void> deleteReminder(String id) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.delete(Uri.parse('$baseUrl/reminders/$id'), headers: headers),
+    );
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete reminder');
+    }
+  }
+
+  Future<void> exportMemoriesJson() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/export/memories'), headers: headers),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to export memories');
+    }
+  }
+
+  Future<void> exportFilesZip() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/export/files'), headers: headers),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to export files');
+    }
+  }
+
+  Future<void> exportFullBackup() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/export/full'), headers: headers),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to export backup');
+    }
+  }
+
+  Future<Map<String, dynamic>> getPrivacySettings() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/privacy/settings'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load privacy settings');
+    }
+  }
+
+  Future<void> updatePrivacySettings(Map<String, dynamic> settings) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.put(
+        Uri.parse('$baseUrl/privacy/settings'),
+        headers: headers,
+        body: jsonEncode(settings),
+      ),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update privacy settings');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPlaces() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/places'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load places');
+    }
+  }
+
+  Future<Map<String, dynamic>> get2FAStatus() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/auth/2fa/status'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to get 2FA status');
+    }
+  }
+
+  Future<Map<String, dynamic>> enable2FA() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(Uri.parse('$baseUrl/auth/2fa/enable'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to enable 2FA');
+    }
+  }
+
+  Future<void> verifyEnable2FA(String code) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/auth/2fa/verify'),
+        headers: headers,
+        body: jsonEncode({'code': code}),
+      ),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to verify 2FA');
+    }
+  }
+
+  Future<void> disable2FA() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(Uri.parse('$baseUrl/auth/2fa/disable'), headers: headers),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to disable 2FA');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getScheduledPosts() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/scheduled-posts'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load scheduled posts');
+    }
+  }
+
+  Future<void> publishScheduledPostNow(String id) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(Uri.parse('$baseUrl/scheduled-posts/$id/publish'), headers: headers),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to publish post');
+    }
+  }
+
+  Future<void> deleteScheduledPost(String id) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.delete(Uri.parse('$baseUrl/scheduled-posts/$id'), headers: headers),
+    );
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete post');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getMemoryTemplates() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/templates'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load templates');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getComments(String targetType, String targetId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/comments/$targetType/$targetId'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load comments');
+    }
+  }
+
+  Future<void> createComment(Map<String, dynamic> data) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/comments'),
+        headers: headers,
+        body: jsonEncode(data),
+      ),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to create comment');
+    }
+  }
+
+  Future<void> likeComment(String commentId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(Uri.parse('$baseUrl/comments/$commentId/like'), headers: headers),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to like comment');
+    }
+  }
+
+  Future<void> deleteComment(String commentId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.delete(Uri.parse('$baseUrl/comments/$commentId'), headers: headers),
+    );
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete comment');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getSharedFiles() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/sharing/files'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load shared files');
+    }
+  }
 }

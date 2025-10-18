@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'services/auth_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
@@ -22,6 +23,35 @@ import 'screens/analytics/analytics_screen.dart';
 import 'screens/activity/activity_feed_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/admin/admin_users_screen.dart';
+import 'screens/search/search_screen.dart';
+import 'screens/search/advanced_search_screen.dart';
+import 'screens/tags/tags_screen.dart';
+import 'screens/tags/tag_detail_screen.dart';
+import 'screens/tags/tags_management_screen.dart';
+import 'screens/stories/stories_screen.dart';
+import 'screens/stories/create_story_screen.dart';
+import 'screens/stories/story_viewer_screen.dart';
+import 'screens/voice_notes/voice_notes_screen.dart';
+import 'screens/voice_notes/create_voice_note_screen.dart';
+import 'screens/categories/categories_screen.dart';
+import 'screens/categories/category_detail_screen.dart';
+import 'screens/reminders/reminders_screen.dart';
+import 'screens/reminders/create_reminder_screen.dart';
+import 'screens/export/export_screen.dart';
+import 'screens/privacy/privacy_settings_screen.dart';
+import 'screens/privacy/blocked_users_screen.dart';
+import 'screens/places/places_screen.dart';
+import 'screens/places/nearby_places_screen.dart';
+import 'screens/places/place_detail_screen.dart';
+import 'screens/two_factor/two_factor_setup_screen.dart';
+import 'screens/two_factor/two_factor_verify_screen.dart';
+import 'screens/scheduled_posts/scheduled_posts_screen.dart';
+import 'screens/scheduled_posts/create_scheduled_post_screen.dart';
+import 'screens/templates/templates_screen.dart';
+import 'screens/templates/template_editor_screen.dart';
+import 'screens/comments/comments_screen.dart';
+import 'screens/sharing/file_sharing_screen.dart';
+import 'screens/sharing/shared_files_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,112 +63,196 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'The Memory Hub',
+      title: 'Memory Hub',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF7C3AED),  // Vibrant purple
+          seedColor: const Color(0xFF6366F1),
           brightness: Brightness.light,
-          primary: const Color(0xFF7C3AED),
-          secondary: const Color(0xFFEC4899),  // Pink accent
-          tertiary: const Color(0xFF06B6D4),   // Cyan accent
+          primary: const Color(0xFF6366F1),
+          secondary: const Color(0xFFEC4899),
+          tertiary: const Color(0xFF8B5CF6),
+          error: const Color(0xFFEF4444),
+          surface: Colors.white,
         ),
         useMaterial3: true,
+        textTheme: GoogleFonts.interTextTheme(),
         appBarTheme: AppBarTheme(
-          centerTitle: true,
+          centerTitle: false,
           elevation: 0,
+          scrolledUnderElevation: 0,
           backgroundColor: Colors.transparent,
-          foregroundColor: const Color(0xFF7C3AED),
+          foregroundColor: const Color(0xFF1F2937),
+          titleTextStyle: GoogleFonts.inter(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF1F2937),
+          ),
         ),
         cardTheme: CardThemeData(
-          elevation: 2,
-          shadowColor: Colors.black12,
+          elevation: 0,
+          shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
+          color: Colors.white,
+          surfaceTintColor: Colors.transparent,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             elevation: 0,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
-            backgroundColor: const Color(0xFF7C3AED),
+            backgroundColor: const Color(0xFF6366F1),
             foregroundColor: Colors.white,
+            textStyle: GoogleFonts.inter(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-        floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Color(0xFFEC4899),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: const Color(0xFFEC4899),
           foregroundColor: Colors.white,
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: const Color(0xFFF3F4F6),
+          fillColor: const Color(0xFFF9FAFB),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(width: 2, color: Color(0xFF7C3AED)),
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(width: 2, color: Color(0xFF6366F1)),
           ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xFFEF4444)),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(width: 2, color: Color(0xFFEF4444)),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        ),
+        chipTheme: ChipThemeData(
+          backgroundColor: const Color(0xFFF3F4F6),
+          labelStyle: GoogleFonts.inter(fontSize: 13),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        dividerTheme: const DividerThemeData(
+          color: Color(0xFFF3F4F6),
+          thickness: 1,
+          space: 1,
         ),
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF7C3AED),
+          seedColor: const Color(0xFF818CF8),
           brightness: Brightness.dark,
-          primary: const Color(0xFF9333EA),
+          primary: const Color(0xFF818CF8),
           secondary: const Color(0xFFF472B6),
-          tertiary: const Color(0xFF22D3EE),
+          tertiary: const Color(0xFFA78BFA),
+          error: const Color(0xFFF87171),
+          surface: const Color(0xFF1F2937),
         ),
         useMaterial3: true,
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
+        textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+        scaffoldBackgroundColor: const Color(0xFF111827),
+        appBarTheme: AppBarTheme(
+          centerTitle: false,
           elevation: 0,
+          scrolledUnderElevation: 0,
           backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          titleTextStyle: GoogleFonts.inter(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         cardTheme: CardThemeData(
-          elevation: 2,
-          shadowColor: Colors.black26,
+          elevation: 0,
+          shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
+          color: const Color(0xFF1F2937),
+          surfaceTintColor: Colors.transparent,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             elevation: 0,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
-            backgroundColor: const Color(0xFF9333EA),
+            backgroundColor: const Color(0xFF818CF8),
             foregroundColor: Colors.white,
+            textStyle: GoogleFonts.inter(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
-        floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Color(0xFFF472B6),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: const Color(0xFFF472B6),
           foregroundColor: Colors.white,
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: const Color(0xFF1F2937),
+          fillColor: const Color(0xFF374151),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xFF4B5563)),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xFF4B5563)),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(width: 2, color: Color(0xFF9333EA)),
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(width: 2, color: Color(0xFF818CF8)),
           ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xFFF87171)),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(width: 2, color: Color(0xFFF87171)),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        ),
+        chipTheme: ChipThemeData(
+          backgroundColor: const Color(0xFF374151),
+          labelStyle: GoogleFonts.inter(fontSize: 13),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        dividerTheme: const DividerThemeData(
+          color: Color(0xFF374151),
+          thickness: 1,
+          space: 1,
         ),
       ),
       themeMode: ThemeMode.system,
@@ -195,6 +309,74 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const AdminDashboardScreen());
           case '/admin/users':
             return MaterialPageRoute(builder: (_) => const AdminUsersScreen());
+          case '/search':
+            return MaterialPageRoute(builder: (_) => const SearchScreen());
+          case '/search/advanced':
+            return MaterialPageRoute(builder: (_) => const AdvancedSearchScreen());
+          case '/tags':
+            return MaterialPageRoute(builder: (_) => const TagsScreen());
+          case '/tags/detail':
+            final tag = settings.arguments as String;
+            return MaterialPageRoute(builder: (_) => TagDetailScreen(tag: tag));
+          case '/tags/management':
+            return MaterialPageRoute(builder: (_) => const TagsManagementScreen());
+          case '/stories':
+            return MaterialPageRoute(builder: (_) => const StoriesScreen());
+          case '/stories/create':
+            return MaterialPageRoute(builder: (_) => const CreateStoryScreen());
+          case '/stories/view':
+            final storyId = settings.arguments as String;
+            return MaterialPageRoute(builder: (_) => StoryViewerScreen(storyId: storyId));
+          case '/voice-notes':
+            return MaterialPageRoute(builder: (_) => const VoiceNotesScreen());
+          case '/voice-notes/create':
+            return MaterialPageRoute(builder: (_) => const CreateVoiceNoteScreen());
+          case '/categories':
+            return MaterialPageRoute(builder: (_) => const CategoriesScreen());
+          case '/categories/detail':
+            final categoryId = settings.arguments as String;
+            return MaterialPageRoute(builder: (_) => CategoryDetailScreen(categoryId: categoryId));
+          case '/reminders':
+            return MaterialPageRoute(builder: (_) => const RemindersScreen());
+          case '/reminders/create':
+            return MaterialPageRoute(builder: (_) => const CreateReminderScreen());
+          case '/export':
+            return MaterialPageRoute(builder: (_) => const ExportScreen());
+          case '/privacy/settings':
+            return MaterialPageRoute(builder: (_) => const PrivacySettingsScreen());
+          case '/privacy/blocked':
+            return MaterialPageRoute(builder: (_) => const BlockedUsersScreen());
+          case '/places':
+            return MaterialPageRoute(builder: (_) => const PlacesScreen());
+          case '/places/nearby':
+            return MaterialPageRoute(builder: (_) => const NearbyPlacesScreen());
+          case '/places/detail':
+            final placeId = settings.arguments as String;
+            return MaterialPageRoute(builder: (_) => PlaceDetailScreen(placeId: placeId));
+          case '/2fa/setup':
+            return MaterialPageRoute(builder: (_) => const TwoFactorSetupScreen());
+          case '/2fa/verify':
+            return MaterialPageRoute(builder: (_) => const TwoFactorVerifyScreen());
+          case '/scheduled-posts':
+            return MaterialPageRoute(builder: (_) => const ScheduledPostsScreen());
+          case '/scheduled-posts/create':
+            return MaterialPageRoute(builder: (_) => const CreateScheduledPostScreen());
+          case '/templates':
+            return MaterialPageRoute(builder: (_) => const TemplatesScreen());
+          case '/templates/create':
+            return MaterialPageRoute(builder: (_) => const TemplateEditorScreen());
+          case '/comments':
+            final args = settings.arguments as Map<String, String>;
+            return MaterialPageRoute(
+              builder: (_) => CommentsScreen(
+                targetId: args['targetId']!,
+                targetType: args['targetType']!,
+              ),
+            );
+          case '/sharing':
+            return MaterialPageRoute(builder: (_) => const FileSharingScreen());
+          case '/sharing/shared':
+            return MaterialPageRoute(builder: (_) => const SharedFilesScreen());
           default:
             return null;
         }
@@ -210,17 +392,40 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   final AuthService _authService = AuthService();
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+    
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+    
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    );
+    
+    _controller.forward();
     _checkAuth();
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(seconds: 2));
     
     final isLoggedIn = await _authService.isLoggedIn();
     
@@ -240,26 +445,72 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.memory,
-              size: 100,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'The Memory Hub',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.secondary,
+              Theme.of(context).colorScheme.tertiary,
+            ],
+          ),
+        ),
+        child: Center(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.auto_awesome,
+                      size: 80,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Text(
+                    'Memory Hub',
+                    style: GoogleFonts.inter(
+                      fontSize: 42,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: -1,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Your Digital Legacy',
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                  const SizedBox(height: 60),
+                  SizedBox(
+                    width: 50,
+                    height: 50,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white.withOpacity(0.8),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 48),
-            const CircularProgressIndicator(),
-          ],
+          ),
         ),
       ),
     );
@@ -279,6 +530,8 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = const [
     HubScreen(),
     MemoriesListScreen(),
+    SocialTabScreen(),
+    CollectionsScreen(),
     VaultListScreen(),
     ProfileScreen(),
   ];
@@ -286,30 +539,103 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          setState(() => _currentIndex = index);
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard),
-            label: 'Hub',
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: NavigationBar(
+          selectedIndex: _currentIndex,
+          onDestinationSelected: (index) {
+            setState(() => _currentIndex = index);
+          },
+          height: 70,
+          elevation: 0,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          indicatorColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: [
+            NavigationDestination(
+              icon: Icon(Icons.dashboard_outlined),
+              selectedIcon: Icon(Icons.dashboard),
+              label: 'Hub',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.auto_stories_outlined),
+              selectedIcon: Icon(Icons.auto_stories),
+              label: 'Memories',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.people_outline),
+              selectedIcon: Icon(Icons.people),
+              label: 'Social',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.collections_outlined),
+              selectedIcon: Icon(Icons.collections),
+              label: 'Collections',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.folder_outlined),
+              selectedIcon: Icon(Icons.folder),
+              label: 'Vault',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.person_outline),
+              selectedIcon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SocialTabScreen extends StatelessWidget {
+  const SocialTabScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Social', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.notifications_outlined),
+              onPressed: () => Navigator.pushNamed(context, '/notifications'),
+            ),
+          ],
+          bottom: TabBar(
+            indicatorColor: Theme.of(context).colorScheme.primary,
+            labelColor: Theme.of(context).colorScheme.primary,
+            unselectedLabelColor: Colors.grey,
+            labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+            tabs: const [
+              Tab(text: 'Feed'),
+              Tab(text: 'Hubs'),
+              Tab(text: 'Discover'),
+            ],
           ),
-          NavigationDestination(
-            icon: Icon(Icons.memory),
-            label: 'Memories',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.folder),
-            label: 'Vault',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+        ),
+        body: const TabBarView(
+          children: [
+            ActivityFeedScreen(),
+            HubsScreen(),
+            UserSearchScreen(),
+          ],
+        ),
       ),
     );
   }
