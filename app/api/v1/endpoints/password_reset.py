@@ -116,3 +116,14 @@ async def get_reset_history(
         reset["_id"] = str(reset["_id"])
     
     return resets
+
+# Alias endpoints for better API compatibility
+@router.post("/verify")
+async def verify_alias(token: str):
+    """Alias for /verify-token endpoint"""
+    return await verify_reset_token(token)
+
+@router.post("/reset")
+async def reset_alias(data: PasswordResetConfirm):
+    """Alias for /confirm endpoint"""
+    return await confirm_password_reset(data)

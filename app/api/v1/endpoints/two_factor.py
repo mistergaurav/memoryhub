@@ -13,6 +13,12 @@ from app.db.mongodb import get_database
 
 router = APIRouter()
 
+# Alias endpoint for setup
+@router.post("/setup")
+async def setup_2fa_alias(current_user: UserInDB = Depends(get_current_user)):
+    """Alias for /enable endpoint"""
+    return await enable_2fa(current_user)
+
 class TwoFactorEnable(BaseModel):
     code: str
 

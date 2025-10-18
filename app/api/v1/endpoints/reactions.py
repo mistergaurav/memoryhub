@@ -124,3 +124,18 @@ async def get_user_reaction_stats(
         "emoji_breakdown": emoji_counts,
         "most_used_emoji": max(emoji_counts.items(), key=lambda x: x[1])[0] if emoji_counts else None
     }
+
+# Convenience endpoints for specific target types
+@router.post("/memory/{memory_id}")
+async def add_memory_reaction(
+    memory_id: str,
+    emoji: str = "❤️",
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Add a reaction to a memory (convenience endpoint)"""
+    reaction = ReactionCreate(
+        target_type="memory",
+        target_id=memory_id,
+        emoji=emoji
+    )
+    return await add_reaction(reaction, current_user)

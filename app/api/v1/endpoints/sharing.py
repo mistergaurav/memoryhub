@@ -440,3 +440,64 @@ async def access_shared_file(share_token: str):
         raise HTTPException(status_code=400, detail="This is not a file share link")
     
     return result["resource_data"]
+
+# Additional convenience endpoints for memories, collections, and hubs
+@router.post("/memory/{memory_id}")
+async def create_memory_share_link(
+    memory_id: str,
+    expires_in_days: int = 7,
+    request: Request = None,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Create a shareable link for a memory (convenience endpoint)"""
+    share_data = ShareLinkCreate(
+        resource_type="memory",
+        resource_id=memory_id,
+        expires_in_days=expires_in_days
+    )
+    return await create_share_link(share_data, request, current_user)
+
+@router.post("/collection/{collection_id}")
+async def create_collection_share_link(
+    collection_id: str,
+    expires_in_days: int = 7,
+    request: Request = None,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Create a shareable link for a collection (convenience endpoint)"""
+    share_data = ShareLinkCreate(
+        resource_type="collection",
+        resource_id=collection_id,
+        expires_in_days=expires_in_days
+    )
+    return await create_share_link(share_data, request, current_user)
+
+@router.post("/file/{file_id}")
+async def create_file_share_link_short(
+    file_id: str,
+    expires_in_days: int = 7,
+    request: Request = None,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Create a shareable link for a file (convenience endpoint - shorter path)"""
+    share_data = ShareLinkCreate(
+        resource_type="file",
+        resource_id=file_id,
+        expires_in_days=expires_in_days
+    )
+    return await create_share_link(share_data, request, current_user)
+
+@router.post("/hub/{hub_id}")
+async def create_hub_share_link(
+    hub_id: str,
+    expires_in_days: int = 7,
+    request: Request = None,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Create a shareable link for a hub (convenience endpoint)"""
+    share_data = ShareLinkCreate(
+        resource_type="hub",
+        resource_id=hub_id,
+        expires_in_days=expires_in_days
+    )
+    return await create_share_link(share_data, request, current_user)

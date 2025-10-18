@@ -14,6 +14,28 @@ from app.utils.hub_utils import get_hub_stats, get_recent_activity, search_hub_i
 
 router = APIRouter()
 
+# Alias endpoints for better API compatibility
+@router.get("/", response_model=List[HubItemResponse])
+async def list_hub_items_alias(
+    item_type: Optional[HubItemType] = None,
+    privacy: Optional[HubItemPrivacy] = None,
+    tag: Optional[str] = None,
+    search: Optional[str] = None,
+    page: int = 1,
+    limit: int = 20,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Alias for /items endpoint - list hub items"""
+    return await list_hub_items(item_type, privacy, tag, search, page, limit, current_user)
+
+@router.post("/", response_model=HubItemResponse)
+async def create_hub_item_alias(
+    item: HubItemCreate,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Alias for /items endpoint - create hub item"""
+    return await create_hub_item(item, current_user)
+
 @router.get("/dashboard", response_model=Dict[str, Any])
 async def get_hub_dashboard(
     current_user: UserInDB = Depends(get_current_user)
