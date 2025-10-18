@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart'; // Temporarily disabled for debugging
+import 'package:google_fonts/google_fonts.dart';
 import 'config/api_config.dart';
 import 'services/auth_service.dart';
 import 'screens/auth/login_screen.dart';
-import 'screens/test_screen.dart';
 import 'screens/auth/signup_screen.dart';
 import 'screens/auth/password_reset_request_screen.dart';
 import 'screens/auth/password_reset_confirm_screen.dart';
@@ -153,7 +152,7 @@ class MyApp extends StatelessWidget {
         ),
         chipTheme: ChipThemeData(
           backgroundColor: const Color(0xFFF3F4F6),
-          labelStyle: const TextStyle(fontSize: 13),
+          labelStyle: GoogleFonts.inter(fontSize: 13),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -176,7 +175,7 @@ class MyApp extends StatelessWidget {
           surface: const Color(0xFF1F2937),
         ),
         useMaterial3: true,
-        // textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme), // Temporarily disabled
+        textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
         scaffoldBackgroundColor: const Color(0xFF111827),
         appBarTheme: AppBarTheme(
           centerTitle: false,
@@ -184,7 +183,7 @@ class MyApp extends StatelessWidget {
           scrolledUnderElevation: 0,
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
-          titleTextStyle: const TextStyle(
+          titleTextStyle: GoogleFonts.inter(
             fontSize: 22,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -263,8 +262,7 @@ class MyApp extends StatelessWidget {
       ),
       themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
-      // Test with minimal screen to diagnose issue
-      home: const TestScreen(),
+      home: const LoginScreen(),
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/login':
@@ -528,7 +526,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   const SizedBox(height: 32),
                   Text(
                     'Memory Hub',
-                    style: const TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 42,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -538,7 +536,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   const SizedBox(height: 12),
                   Text(
                     'Your Digital Legacy',
-                    style: TextStyle(
+                    style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.w400,
                       color: Colors.white.withOpacity(0.9),
@@ -658,7 +656,7 @@ class SocialTabScreen extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Social', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text('Social', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
           actions: [
             IconButton(
               icon: const Icon(Icons.notifications_outlined),
@@ -669,7 +667,7 @@ class SocialTabScreen extends StatelessWidget {
             indicatorColor: Theme.of(context).colorScheme.primary,
             labelColor: Theme.of(context).colorScheme.primary,
             unselectedLabelColor: Colors.grey,
-            labelStyle: const TextStyle(fontWeight: FontWeight.w600),
+            labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
             tabs: const [
               Tab(text: 'Feed'),
               Tab(text: 'Hubs'),
