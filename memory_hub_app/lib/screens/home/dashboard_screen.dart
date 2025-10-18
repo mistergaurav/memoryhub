@@ -149,14 +149,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         gradient: LinearGradient(
                           colors: [Colors.blue.shade400, Colors.blue.shade600],
                         ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MemoryCreateScreen(),
-                            ),
-                          );
-                        },
+                        onTap: () => Navigator.pushNamed(context, '/memories/create'),
                       ),
                       _buildQuickActionCard(
                         title: 'Upload File',
@@ -164,29 +157,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         gradient: LinearGradient(
                           colors: [Colors.green.shade400, Colors.green.shade600],
                         ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const VaultUploadScreen(),
-                            ),
-                          );
-                        },
+                        onTap: () => Navigator.pushNamed(context, '/vault/upload'),
                       ),
                       _buildQuickActionCard(
-                        title: 'Collections',
-                        icon: Icons.collections,
+                        title: 'Search',
+                        icon: Icons.search,
                         gradient: LinearGradient(
                           colors: [Colors.purple.shade400, Colors.purple.shade600],
                         ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const CollectionsScreen(),
-                            ),
-                          );
-                        },
+                        onTap: () => Navigator.pushNamed(context, '/search'),
                       ),
                       _buildQuickActionCard(
                         title: 'Analytics',
@@ -194,17 +173,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         gradient: LinearGradient(
                           colors: [Colors.orange.shade400, Colors.orange.shade600],
                         ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const AnalyticsScreen(),
-                            ),
-                          );
-                        },
+                        onTap: () => Navigator.pushNamed(context, '/analytics'),
+                      ),
+                      _buildQuickActionCard(
+                        title: 'Stories',
+                        icon: Icons.auto_stories,
+                        gradient: LinearGradient(
+                          colors: [Colors.pink.shade400, Colors.pink.shade600],
+                        ),
+                        onTap: () => Navigator.pushNamed(context, '/stories'),
+                      ),
+                      _buildQuickActionCard(
+                        title: 'Family Hub',
+                        icon: Icons.family_restroom,
+                        gradient: LinearGradient(
+                          colors: [Colors.teal.shade400, Colors.teal.shade600],
+                        ),
+                        onTap: () => Navigator.pushNamed(context, '/family'),
                       ),
                     ],
                   ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'More Features',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildFeaturesList(),
                   const SizedBox(height: 32),
                   const Text(
                     'Your Stats',
@@ -430,6 +428,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFeaturesList() {
+    final features = [
+      {'title': 'Social Hubs', 'icon': Icons.groups, 'route': '/social/hubs', 'subtitle': 'Connect with communities'},
+      {'title': 'User Search', 'icon': Icons.search, 'route': '/social/search', 'subtitle': 'Find people'},
+      {'title': 'Collections', 'icon': Icons.collections, 'route': '/collections', 'subtitle': 'Organize memories'},
+      {'title': 'Activity Feed', 'icon': Icons.feed, 'route': '/activity', 'subtitle': 'See what\'s happening'},
+      {'title': 'Tags', 'icon': Icons.label, 'route': '/tags', 'subtitle': 'Organize with tags'},
+      {'title': 'Reminders', 'icon': Icons.notifications_active, 'route': '/reminders', 'subtitle': 'Set memory reminders'},
+      {'title': 'Voice Notes', 'icon': Icons.mic, 'route': '/voice-notes', 'subtitle': 'Record voice memories'},
+      {'title': 'Templates', 'icon': Icons.description, 'route': '/templates', 'subtitle': 'Memory templates'},
+      {'title': 'Categories', 'icon': Icons.category, 'route': '/categories', 'subtitle': 'Organize by category'},
+      {'title': 'Places', 'icon': Icons.place, 'route': '/places', 'subtitle': 'Location-based memories'},
+      {'title': 'Comments', 'icon': Icons.comment, 'route': '/comments', 'subtitle': 'View all comments'},
+      {'title': 'Sharing', 'icon': Icons.share, 'route': '/sharing/management', 'subtitle': 'Manage shared links'},
+      {'title': 'Export Data', 'icon': Icons.download, 'route': '/export', 'subtitle': 'Backup your data'},
+      {'title': 'Scheduled Posts', 'icon': Icons.schedule, 'route': '/scheduled-posts', 'subtitle': 'Schedule content'},
+      {'title': 'Genealogy Tree', 'icon': Icons.account_tree, 'route': '/family/genealogy', 'subtitle': 'Family tree'},
+      {'title': 'Health Records', 'icon': Icons.health_and_safety, 'route': '/family/health', 'subtitle': 'Family health'},
+      {'title': 'Recipes', 'icon': Icons.restaurant, 'route': '/family/recipes', 'subtitle': 'Family recipes'},
+      {'title': 'Traditions', 'icon': Icons.celebration, 'route': '/family/traditions', 'subtitle': 'Family customs'},
+      {'title': 'Legacy Letters', 'icon': Icons.mail, 'route': '/family/letters', 'subtitle': 'Write to future'},
+      {'title': 'Admin Panel', 'icon': Icons.admin_panel_settings, 'route': '/admin', 'subtitle': 'Administration'},
+    ];
+
+    return Card(
+      child: Column(
+        children: features.map((feature) => ListTile(
+          leading: Icon(feature['icon'] as IconData, color: Theme.of(context).colorScheme.primary),
+          title: Text(feature['title'] as String),
+          subtitle: Text(feature['subtitle'] as String, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => Navigator.pushNamed(context, feature['route'] as String),
+        )).toList(),
       ),
     );
   }
