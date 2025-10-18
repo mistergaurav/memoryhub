@@ -219,3 +219,14 @@ python-multipart
 qrcode
 requests
 uvicorn
+bcrypt
+fastapi
+motor
+passlib
+pillow
+pymongo
+pyotp
+python-jose
+python-multipart
+qrcode
+uvicorn
