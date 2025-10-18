@@ -53,13 +53,13 @@ waitForPort = 8000
 name = "Frontend"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd memory_hub_app && flutter run -d web-server --web-port 5000 --web-hostname 0.0.0.0"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd memory_hub_app && python -m http.server 5000 -d build/web --bind 0.0.0.0"
+waitForPort = 5000
 
 [[ports]]
 localPort = 5000
@@ -76,6 +76,10 @@ externalPort = 3001
 [[ports]]
 localPort = 38487
 externalPort = 3000
+
+[[ports]]
+localPort = 41729
+externalPort = 3003
 
 [[ports]]
 localPort = 45729
