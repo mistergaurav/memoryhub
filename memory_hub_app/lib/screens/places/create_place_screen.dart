@@ -86,12 +86,31 @@ class _CreatePlaceScreenState extends State<CreatePlaceScreen> {
 
     setState(() => _isLoading = true);
     try {
+      final latitude = double.tryParse(_latitudeController.text);
+      final longitude = double.tryParse(_longitudeController.text);
+
+      if (latitude == null || longitude == null) {
+        throw Exception('Invalid coordinates. Please enter valid numbers.');
+      }
+
+      if (latitude < -90 || latitude > 90) {
+        throw Exception('Latitude must be between -90 and 90 degrees.');
+      }
+
+      if (longitude < -180 || longitude > 180) {
+        throw Exception('Longitude must be between -180 and 180 degrees.');
+      }
+
+      if (latitude == 0.0 && longitude == 0.0) {
+        throw Exception('Invalid location (0, 0). Please provide a valid location or use the current location button.');
+      }
+
       final placeData = {
         'name': _nameController.text,
         'description': _descriptionController.text,
         'address': _addressController.text,
-        'latitude': double.tryParse(_latitudeController.text) ?? 0.0,
-        'longitude': double.tryParse(_longitudeController.text) ?? 0.0,
+        'latitude': latitude,
+        'longitude': longitude,
         'category': _selectedCategory,
       };
 
@@ -263,7 +282,7 @@ class _CreatePlaceScreenState extends State<CreatePlaceScreen> {
                         Expanded(
                           child: TextFormField(
                             controller: _latitudeController,
-                            keyboardType: TextInputType.number,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
                             decoration: InputDecoration(
                               labelText: 'Latitude',
                               hintText: '37.7749',
@@ -278,8 +297,12 @@ class _CreatePlaceScreenState extends State<CreatePlaceScreen> {
                               if (value == null || value.isEmpty) {
                                 return 'Required';
                               }
-                              if (double.tryParse(value) == null) {
-                                return 'Invalid';
+                              final num = double.tryParse(value);
+                              if (num == null) {
+                                return 'Invalid number';
+                              }
+                              if (num < -90 || num > 90) {
+                                return 'Must be -90 to 90';
                               }
                               return null;
                             },
@@ -289,7 +312,7 @@ class _CreatePlaceScreenState extends State<CreatePlaceScreen> {
                         Expanded(
                           child: TextFormField(
                             controller: _longitudeController,
-                            keyboardType: TextInputType.number,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
                             decoration: InputDecoration(
                               labelText: 'Longitude',
                               hintText: '-122.4194',
@@ -304,8 +327,12 @@ class _CreatePlaceScreenState extends State<CreatePlaceScreen> {
                               if (value == null || value.isEmpty) {
                                 return 'Required';
                               }
-                              if (double.tryParse(value) == null) {
-                                return 'Invalid';
+                              final num = double.tryParse(value);
+                              if (num == null) {
+                                return 'Invalid number';
+                              }
+                              if (num < -180 || num > 180) {
+                                return 'Must be -180 to 180';
                               }
                               return null;
                             },
