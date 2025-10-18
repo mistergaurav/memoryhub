@@ -4,7 +4,7 @@ from app.api.v1.endpoints import (
     notifications, collections, activity, search, tags,
     analytics, sharing, reminders, export, admin, stories,
     voice_notes, categories, reactions, memory_templates,
-    two_factor, password_reset, privacy, places, scheduled_posts, gdpr
+    two_factor, password_reset, privacy, places, scheduled_posts, gdpr, family
 )
 
 api_router = APIRouter()
@@ -36,3 +36,4 @@ api_router.include_router(privacy.router, prefix="/privacy", tags=["privacy"])
 api_router.include_router(places.router, prefix="/places", tags=["places"])
 api_router.include_router(scheduled_posts.router, prefix="/scheduled-posts", tags=["scheduled-posts"])
 api_router.include_router(gdpr.router, prefix="/gdpr", tags=["gdpr"])
+api_router.include_router(family.router, prefix="/family", tags=["family"])

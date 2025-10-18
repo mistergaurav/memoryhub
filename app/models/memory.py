@@ -19,6 +19,9 @@ class MemoryBase(BaseModel):
     location: Optional[Dict[str, float]] = None  # { "lat": 0.0, "lng": 0.0 }
     mood: Optional[str] = None
     weather: Optional[Dict[str, Any]] = None
+    tagged_family_members: List[Dict[str, str]] = Field(default_factory=list)  # [{"user_id": "xxx", "relation": "mom"}]
+    family_circle_ids: List[str] = Field(default_factory=list)  # Family circles this memory is shared with
+    relationship_context: Optional[str] = None  # e.g., "Mom's Birthday", "Family Reunion"
     
     @validator('title')
     def title_must_not_be_empty(cls, v):

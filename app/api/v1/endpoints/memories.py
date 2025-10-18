@@ -39,6 +39,9 @@ async def create_memory(
     privacy: MemoryPrivacy = Form(MemoryPrivacy.PRIVATE),
     location: Optional[str] = Form(None),
     mood: Optional[str] = Form(None),
+    tagged_family_members: str = Form("[]"),  # JSON array of {"user_id": "xxx", "relation": "mom"}
+    family_circle_ids: str = Form("[]"),  # JSON array of circle IDs
+    relationship_context: Optional[str] = Form(None),  # e.g., "Mom's Birthday"
     files: List[UploadFile] = File([]),
     current_user: UserInDB = Depends(get_current_user)
 ):
@@ -47,6 +50,55 @@ async def create_memory(
         tags_list = json.loads(tags) if tags else []
     except json.JSONDecodeError:
         tags_list = []
+    
+    # Parse family tags
+    try:
+        tagged_family = json.loads(tagged_family_members) if tagged_family_members else []
+    except json.JSONDecodeError:
+        tagged_family = []
+    
+    # Parse family circles
+    try:
+        family_circles = json.loads(family_circle_ids) if family_circle_ids else []
+    except json.JSONDecodeError:
+        family_circles = []
+    
+    # Validate tagged family members - ensure they are in user's family relationships
+    validated_family_tags = []
+    for family_member in tagged_family:
+        if not family_member.get("user_id"):
+            continue
+        
+        try:
+            member_oid = ObjectId(family_member["user_id"])
+        except:
+            continue
+            
+        # Verify this is actually a family relationship of the current user
+        relationship = await get_collection("family_relationships").find_one({
+            "user_id": ObjectId(current_user.id),
+            "related_user_id": member_oid
+        })
+        
+        if relationship:
+            validated_family_tags.append(family_member)
+    
+    # Validate family circles - ensure user is a member
+    validated_circles = []
+    for circle_id in family_circles:
+        try:
+            circle_oid = ObjectId(circle_id)
+        except:
+            continue
+            
+        # Verify user is a member of this circle
+        circle = await get_collection("family_circles").find_one({
+            "_id": circle_oid,
+            "member_ids": ObjectId(current_user.id)
+        })
+        
+        if circle:
+            validated_circles.append(circle_id)
     
     # Save uploaded files
     media_urls = []
@@ -70,7 +122,15 @@ async def create_memory(
         "privacy": privacy,
         "media_urls": media_urls,
         "owner_id": ObjectId(current_user.id),
-        "mood": mood
+        "mood": mood,
+        "tagged_family_members": validated_family_tags,
+        "family_circle_ids": validated_circles,
+        "relationship_context": relationship_context,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+        "view_count": 0,
+        "like_count": 0,
+        "comment_count": 0
     }
     
     if location:
@@ -82,6 +142,23 @@ async def create_memory(
     
     result = await get_collection("memories").insert_one(memory_data)
     memory = await get_collection("memories").find_one({"_id": result.inserted_id})
+    
+    # Send notifications to tagged family members (using validated list)
+    for family_member in validated_family_tags:
+        if family_member.get("user_id"):
+            try:
+                await get_collection("notifications").insert_one({
+                    "user_id": ObjectId(family_member["user_id"]),
+                    "type": "family_tag",
+                    "title": f"{current_user.full_name} tagged you in a memory",
+                    "message": f"You were tagged as '{family_member.get('relation', 'family')}' in '{title}'",
+                    "link": f"/memories/{str(result.inserted_id)}",
+                    "read": False,
+                    "created_at": datetime.utcnow()
+                })
+            except:
+                pass  # Silent fail for notifications
+    
     return await _prepare_memory_response(memory, current_user.id)
 
 @router.get("/media/{filename}")
