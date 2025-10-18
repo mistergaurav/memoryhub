@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from fastapi.responses import StreamingResponse, JSONResponse
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from bson import ObjectId
 from pydantic import BaseModel, Field
@@ -24,7 +24,7 @@ class ConsentUpdate(BaseModel):
 
 class DataDeletionRequest(BaseModel):
     confirmation: bool = Field(..., description="User must confirm deletion")
-    feedback: str | None = Field(None, description="Optional feedback")
+    feedback: Optional[str] = Field(None, description="Optional feedback")
 
 class PrivacySettings(BaseModel):
     profile_visibility: str = Field("friends", description="public, friends, or private")
