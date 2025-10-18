@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'config/api_config.dart';
 import 'services/auth_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
@@ -438,16 +439,39 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   Future<void> _checkAuth() async {
-    await Future.delayed(const Duration(seconds: 2));
-    
-    final isLoggedIn = await _authService.isLoggedIn();
-    
-    if (mounted) {
-      if (isLoggedIn) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const MainScreen()),
-        );
+    try {
+      // Debug: Log API configuration
+      debugPrint('=== Memory Hub Startup Debug ===');
+      debugPrint('API Config: ${ApiConfig.debugInfo}');
+      debugPrint('Base URL: ${ApiConfig.baseUrl}');
+      debugPrint('Environment: ${ApiConfig.currentEnvironment}');
+      
+      await Future.delayed(const Duration(seconds: 2));
+      
+      debugPrint('Checking authentication status...');
+      final isLoggedIn = await _authService.isLoggedIn();
+      debugPrint('Is logged in: $isLoggedIn');
+      
+      if (mounted) {
+        debugPrint('Navigating to ${isLoggedIn ? 'MainScreen' : 'LoginScreen'}');
+        if (isLoggedIn) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+          );
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          );
+        }
+        debugPrint('Navigation completed');
       } else {
+        debugPrint('Widget not mounted, skipping navigation');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Error during _checkAuth: $e');
+      debugPrint('Stack trace: $stackTrace');
+      // Force navigation to login screen on error
+      if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const LoginScreen()),
         );

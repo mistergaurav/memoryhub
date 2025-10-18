@@ -1,22 +1,65 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class ApiConfig {
-  // Get the base URL dynamically based on the platform
+  // Environment variables for custom backend URLs (useful for desktop builds)
+  static const String _envBackendUrl = String.fromEnvironment('BACKEND_URL', defaultValue: '');
+  static const String _envBackendWsUrl = String.fromEnvironment('BACKEND_WS_URL', defaultValue: '');
+  
+  // Default backend URL for Replit deployment
+  // Set this to your Replit backend URL for Windows builds
+  // Example: flutter build windows --dart-define=DEFAULT_BACKEND=https://8000-yourapp.replit.dev
+  static const String _defaultReplitBackend = String.fromEnvironment('DEFAULT_BACKEND', defaultValue: '');
+  
+  // Helper to normalize backend URL (remove trailing slashes)
+  static String _normalizeUrl(String url) {
+    return url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+  }
+  
+  // Get the base URL dynamically based on the platform and environment
   static String get baseUrl {
+    // 1. Check for environment variable override (highest priority)
+    if (_envBackendUrl.isNotEmpty) {
+      final normalized = _normalizeUrl(_envBackendUrl);
+      return normalized.endsWith('/api/v1') 
+          ? normalized 
+          : '$normalized/api/v1';
+    }
+    
     if (kIsWeb) {
-      // For web builds, derive the backend URL from the current location
+      // 2. For web builds, derive the backend URL from the current location
       return _getWebBackendUrl();
     } else {
-      // For mobile/desktop builds, use localhost
+      // 3. For mobile/desktop builds
+      if (_defaultReplitBackend.isNotEmpty) {
+        // Use the default Replit backend if configured
+        final normalized = _normalizeUrl(_defaultReplitBackend);
+        return normalized.endsWith('/api/v1')
+            ? normalized
+            : '$normalized/api/v1';
+      }
+      // Fallback to localhost for local development
+      // WARNING: This will only work if backend is running locally!
+      // For production builds, always set BACKEND_URL or DEFAULT_BACKEND
       return 'http://localhost:8000/api/v1';
     }
   }
   
   static String get wsBaseUrl {
+    // Check for environment variable override
+    if (_envBackendWsUrl.isNotEmpty) {
+      return _normalizeUrl(_envBackendWsUrl);
+    }
+    
     if (kIsWeb) {
       return _getWebBackendWsUrl();
     } else {
-      return 'ws://localhost:8000/ws';
+      // For native builds, derive WebSocket URL from base URL
+      final base = baseUrl.replaceAll('/api/v1', '');
+      if (base.startsWith('https://')) {
+        return '${base.replaceFirst('https://', 'wss://')}/ws';
+      } else {
+        return '${base.replaceFirst('http://', 'ws://')}/ws';
+      }
     }
   }
   
@@ -29,7 +72,9 @@ class ApiConfig {
       final backendBase = _getWebBackendBase();
       return '$backendBase$path';
     } else {
-      return 'http://localhost:8000$path';
+      // For native builds, use the base URL without /api/v1
+      final base = baseUrl.replaceAll('/api/v1', '');
+      return '$base$path';
     }
   }
   
@@ -46,6 +91,9 @@ class ApiConfig {
         if (hostname.startsWith('5000-')) {
           // Port-prefixed hostname: replace 5000- with 8000-
           backendHostname = hostname.replaceFirst('5000-', '8000-');
+        } else if (hostname.contains('-')) {
+          // Already port-prefixed but not 5000-, might be direct access
+          backendHostname = hostname.replaceFirst(RegExp(r'^\d+-'), '8000-');
         } else {
           // Non-port-prefixed hostname: prepend 8000-
           backendHostname = '8000-$hostname';
@@ -75,6 +123,8 @@ class ApiConfig {
         String backendHostname;
         if (hostname.startsWith('5000-')) {
           backendHostname = hostname.replaceFirst('5000-', '8000-');
+        } else if (hostname.contains('-')) {
+          backendHostname = hostname.replaceFirst(RegExp(r'^\d+-'), '8000-');
         } else {
           backendHostname = '8000-$hostname';
         }
@@ -99,6 +149,8 @@ class ApiConfig {
         String backendHostname;
         if (hostname.startsWith('5000-')) {
           backendHostname = hostname.replaceFirst('5000-', '8000-');
+        } else if (hostname.contains('-')) {
+          backendHostname = hostname.replaceFirst(RegExp(r'^\d+-'), '8000-');
         } else {
           backendHostname = '8000-$hostname';
         }
@@ -133,13 +185,17 @@ class ApiConfig {
   
   // Helper method to check which environment is being used
   static String get currentEnvironment {
+    if (_envBackendUrl.isNotEmpty) {
+      return 'Custom Backend ($_envBackendUrl)';
+    }
+    
     if (kIsWeb) {
       try {
         final location = _getWindowLocation();
         final hostname = location['hostname'] as String;
         if (hostname.contains('replit.dev') || hostname.contains('.repl.co')) {
-          final backendHostname = hostname.replaceFirst(RegExp(r'^[^-]+-'), '8000-').replaceFirst('5000-', '8000-');
-          return 'Replit Web ($backendHostname)';
+          final backendUrl = _getWebBackendUrl();
+          return 'Replit Web ($backendUrl)';
         } else if (hostname == 'localhost') {
           return 'Local Web (localhost:8000)';
         } else {
@@ -149,6 +205,26 @@ class ApiConfig {
         return 'Web (localhost:8000)';
       }
     }
-    return 'Native (localhost:8000)';
+    
+    if (_defaultReplitBackend.isNotEmpty) {
+      return 'Native Desktop ($_defaultReplitBackend)';
+    }
+    
+    // For native platforms, we can't use Platform.operatingSystem without dart:io
+    // So we just return a generic message
+    return 'Native (localhost:8000 - Set BACKEND_URL for remote server!)';
+  }
+  
+  // Helper to get platform-specific info for debugging
+  static Map<String, String> get debugInfo {
+    return {
+      'platform': kIsWeb ? 'web' : 'native',
+      'baseUrl': baseUrl,
+      'wsBaseUrl': wsBaseUrl,
+      'environment': currentEnvironment,
+      'envBackendUrl': _envBackendUrl,
+      'envWsUrl': _envBackendWsUrl,
+      'defaultBackend': _defaultReplitBackend,
+    };
   }
 }
