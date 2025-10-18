@@ -314,3 +314,15 @@ python-multipart
 qrcode
 requests
 uvicorn
+bcrypt
+email-validator
+fastapi
+passlib
+pillow
+pydantic
+pydantic-settings
+pymongo
+python-jose
+python-multipart
+qrcode
+uvicorn
