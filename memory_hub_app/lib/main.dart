@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'services/auth_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
+import 'screens/auth/password_reset_request_screen.dart';
+import 'screens/auth/password_reset_confirm_screen.dart';
 import 'screens/hub/hub_screen.dart';
 import 'screens/memories/memories_list_screen.dart';
 import 'screens/memories/memory_create_screen.dart';
@@ -23,6 +25,7 @@ import 'screens/analytics/analytics_screen.dart';
 import 'screens/activity/activity_feed_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
 import 'screens/admin/admin_users_screen.dart';
+import 'screens/admin/admin_moderation_screen.dart';
 import 'screens/search/search_screen.dart';
 import 'screens/search/advanced_search_screen.dart';
 import 'screens/tags/tags_screen.dart';
@@ -43,6 +46,7 @@ import 'screens/privacy/blocked_users_screen.dart';
 import 'screens/places/places_screen.dart';
 import 'screens/places/nearby_places_screen.dart';
 import 'screens/places/place_detail_screen.dart';
+import 'screens/places/create_place_screen.dart';
 import 'screens/two_factor/two_factor_setup_screen.dart';
 import 'screens/two_factor/two_factor_verify_screen.dart';
 import 'screens/scheduled_posts/scheduled_posts_screen.dart';
@@ -353,6 +357,15 @@ class MyApp extends StatelessWidget {
           case '/places/detail':
             final placeId = settings.arguments as String;
             return MaterialPageRoute(builder: (_) => PlaceDetailScreen(placeId: placeId));
+          case '/places/create':
+            return MaterialPageRoute(builder: (_) => const CreatePlaceScreen());
+          case '/password-reset/request':
+            return MaterialPageRoute(builder: (_) => const PasswordResetRequestScreen());
+          case '/password-reset/confirm':
+            final token = settings.arguments as String?;
+            return MaterialPageRoute(builder: (_) => PasswordResetConfirmScreen(token: token));
+          case '/admin/moderation':
+            return MaterialPageRoute(builder: (_) => const AdminModerationScreen());
           case '/2fa/setup':
             return MaterialPageRoute(builder: (_) => const TwoFactorSetupScreen());
           case '/2fa/verify':

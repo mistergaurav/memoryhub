@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../services/notifications_service.dart';
+import '../../widgets/gradient_container.dart';
+import '../../widgets/animated_list_item.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -55,63 +59,242 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Notifications ${_unreadCount > 0 ? "($_unreadCount)" : ""}'),
-        actions: [
-          if (_unreadCount > 0)
-            IconButton(
-              icon: const Icon(Icons.done_all),
-              onPressed: _markAllAsRead,
-              tooltip: 'Mark all as read',
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 180,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: GradientContainer(
+                height: 180,
+                colors: [
+                  Colors.indigo,
+                  Colors.purple,
+                  Colors.pink,
+                ],
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.notifications,
+                        size: 70,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                      if (_unreadCount > 0) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '$_unreadCount New',
+                            style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              title: Text(
+                'Notifications',
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            actions: [
+              if (_unreadCount > 0)
+                IconButton(
+                  icon: const Icon(Icons.done_all, color: Colors.white),
+                  onPressed: _markAllAsRead,
+                  tooltip: 'Mark all as read',
+                ),
+            ],
+          ),
+          if (_isLoading)
+            const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (_notifications.isEmpty)
+            SliverFillRemaining(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.notifications_none,
+                      size: 80,
+                      color: Colors.grey[300],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No notifications yet',
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'We\'ll notify you when something happens',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final notif = _notifications[index];
+                    return AnimatedListItem(
+                      index: index,
+                      child: _buildNotificationCard(notif),
+                    );
+                  },
+                  childCount: _notifications.length,
+                ),
+              ),
             ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _notifications.isEmpty
-              ? const Center(child: Text('No notifications'))
-              : RefreshIndicator(
-                  onRefresh: _loadNotifications,
-                  child: ListView.builder(
-                    itemCount: _notifications.length,
-                    itemBuilder: (context, index) {
-                      final notif = _notifications[index];
-                      final isRead = notif['is_read'] ?? false;
-                      return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: notif['actor_avatar'] != null
-                                ? NetworkImage(notif['actor_avatar'])
-                                : null,
-                            child: notif['actor_avatar'] == null
-                                ? Icon(_getIconForType(notif['type']))
-                                : null,
-                          ),
-                          title: Text(notif['title'] ?? ''),
-                          subtitle: Text(notif['message'] ?? ''),
-                          trailing: !isRead
-                              ? Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.blue,
-                                    shape: BoxShape.circle,
-                                  ),
-                                )
-                              : null,
-                          onTap: () async {
-                            if (!isRead) {
-                              await _service.markAsRead(notif['id']);
-                              await _loadNotifications();
-                            }
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
     );
+  }
+
+  Widget _buildNotificationCard(Map<String, dynamic> notif) {
+    final isRead = notif['is_read'] ?? false;
+    final type = notif['type'] ?? 'general';
+    final createdAt = notif['created_at'];
+    final timeAgo = createdAt != null ? _getTimeAgo(DateTime.parse(createdAt)) : '';
+
+    return Card(
+      elevation: isRead ? 0 : 2,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: isRead ? Colors.grey[200]! : Colors.blue[100]!,
+          width: isRead ? 1 : 2,
+        ),
+      ),
+      color: isRead ? Colors.white : Colors.blue[50],
+      child: InkWell(
+        onTap: () async {
+          if (!isRead) {
+            await _service.markAsRead(notif['id']);
+            await _loadNotifications();
+          }
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: _getColorForType(type).withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  _getIconForType(type),
+                  color: _getColorForType(type),
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            notif['title'] ?? 'Notification',
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: isRead ? FontWeight.w500 : FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (!isRead)
+                          Container(
+                            width: 10,
+                            height: 10,
+                            decoration: const BoxDecoration(
+                              color: Colors.blue,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      notif['message'] ?? '',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: Colors.grey[700],
+                        height: 1.4,
+                      ),
+                    ),
+                    if (timeAgo.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
+                          const SizedBox(width: 4),
+                          Text(
+                            timeAgo,
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _getTimeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 7) {
+      return DateFormat('MMM d, yyyy').format(dateTime);
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
   }
 
   IconData _getIconForType(String? type) {
@@ -122,8 +305,33 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         return Icons.comment;
       case 'follow':
         return Icons.person_add;
+      case 'mention':
+        return Icons.alternate_email;
+      case 'share':
+        return Icons.share;
+      case 'memory':
+        return Icons.photo;
       default:
         return Icons.notifications;
+    }
+  }
+
+  Color _getColorForType(String? type) {
+    switch (type) {
+      case 'like':
+        return Colors.red;
+      case 'comment':
+        return Colors.blue;
+      case 'follow':
+        return Colors.green;
+      case 'mention':
+        return Colors.purple;
+      case 'share':
+        return Colors.orange;
+      case 'memory':
+        return Colors.pink;
+      default:
+        return Colors.grey;
     }
   }
 }

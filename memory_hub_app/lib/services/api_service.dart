@@ -78,6 +78,48 @@ class ApiService {
     }
   }
 
+  Future<void> requestPasswordReset(String email) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/password-reset/request'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(jsonDecode(response.body)['detail'] ?? 'Failed to request password reset');
+    }
+  }
+
+  Future<void> resetPassword(String token, String newPassword) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/password-reset/confirm'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'token': token,
+        'new_password': newPassword,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(jsonDecode(response.body)['detail'] ?? 'Failed to reset password');
+    }
+  }
+
+  Future<void> createPlace(Map<String, dynamic> placeData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/places'),
+        headers: headers,
+        body: jsonEncode(placeData),
+      ),
+    );
+
+    if (response.statusCode != 201 && response.statusCode != 200) {
+      throw Exception(jsonDecode(response.body)['detail'] ?? 'Failed to create place');
+    }
+  }
+
   Future<User> uploadAvatar(File file) async {
     final headers = await _authService.getMultipartAuthHeaders();
     final request = http.MultipartRequest(
