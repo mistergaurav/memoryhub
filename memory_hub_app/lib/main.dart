@@ -17,6 +17,11 @@ import 'screens/profile/profile_screen.dart';
 import 'screens/profile/edit_profile_screen.dart';
 import 'screens/profile/change_password_screen.dart';
 import 'screens/profile/settings_screen.dart';
+import 'screens/profile/settings_home_screen.dart';
+import 'screens/profile/account_security_screen.dart';
+import 'screens/profile/notifications_detail_screen.dart';
+import 'screens/profile/personalization_screen.dart';
+import 'screens/profile/support_legal_screen.dart';
 import 'screens/social/hubs_screen.dart';
 import 'screens/social/user_search_screen.dart';
 import 'screens/social/user_profile_view_screen.dart';
@@ -311,7 +316,17 @@ class MyApp extends StatelessWidget {
           case '/profile/password':
             return MaterialPageRoute(builder: (_) => const ChangePasswordScreen());
           case '/profile/settings':
+            return MaterialPageRoute(builder: (_) => const SettingsHomeScreen());
+          case '/settings/old':
             return MaterialPageRoute(builder: (_) => const SettingsScreen());
+          case '/settings/account-security':
+            return MaterialPageRoute(builder: (_) => const AccountSecurityScreen());
+          case '/settings/notifications':
+            return MaterialPageRoute(builder: (_) => const NotificationsDetailScreen());
+          case '/settings/personalization':
+            return MaterialPageRoute(builder: (_) => const PersonalizationScreen());
+          case '/settings/support':
+            return MaterialPageRoute(builder: (_) => const SupportLegalScreen());
           case '/profile/view':
             final userId = settings.arguments as String;
             return MaterialPageRoute(
