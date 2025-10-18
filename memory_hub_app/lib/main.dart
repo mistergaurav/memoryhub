@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+// import 'package:google_fonts/google_fonts.dart'; // Temporarily disabled for debugging
 import 'config/api_config.dart';
 import 'services/auth_service.dart';
 import 'screens/auth/login_screen.dart';
+import 'screens/test_screen.dart';
 import 'screens/auth/signup_screen.dart';
 import 'screens/auth/password_reset_request_screen.dart';
 import 'screens/auth/password_reset_confirm_screen.dart';
@@ -80,17 +81,17 @@ class MyApp extends StatelessWidget {
           surface: Colors.white,
         ),
         useMaterial3: true,
-        textTheme: GoogleFonts.interTextTheme(),
+        // textTheme: GoogleFonts.interTextTheme(), // Temporarily disabled
         appBarTheme: AppBarTheme(
           centerTitle: false,
           elevation: 0,
           scrolledUnderElevation: 0,
           backgroundColor: Colors.transparent,
           foregroundColor: const Color(0xFF1F2937),
-          titleTextStyle: GoogleFonts.inter(
+          titleTextStyle: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF1F2937),
+            color: Color(0xFF1F2937),
           ),
         ),
         cardTheme: CardThemeData(
@@ -111,7 +112,7 @@ class MyApp extends StatelessWidget {
             ),
             backgroundColor: const Color(0xFF6366F1),
             foregroundColor: Colors.white,
-            textStyle: GoogleFonts.inter(
+            textStyle: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -152,7 +153,7 @@ class MyApp extends StatelessWidget {
         ),
         chipTheme: ChipThemeData(
           backgroundColor: const Color(0xFFF3F4F6),
-          labelStyle: GoogleFonts.inter(fontSize: 13),
+          labelStyle: const TextStyle(fontSize: 13),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -175,7 +176,7 @@ class MyApp extends StatelessWidget {
           surface: const Color(0xFF1F2937),
         ),
         useMaterial3: true,
-        textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+        // textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme), // Temporarily disabled
         scaffoldBackgroundColor: const Color(0xFF111827),
         appBarTheme: AppBarTheme(
           centerTitle: false,
@@ -183,7 +184,7 @@ class MyApp extends StatelessWidget {
           scrolledUnderElevation: 0,
           backgroundColor: Colors.transparent,
           foregroundColor: Colors.white,
-          titleTextStyle: GoogleFonts.inter(
+          titleTextStyle: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -207,7 +208,7 @@ class MyApp extends StatelessWidget {
             ),
             backgroundColor: const Color(0xFF818CF8),
             foregroundColor: Colors.white,
-            textStyle: GoogleFonts.inter(
+            textStyle: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -248,7 +249,7 @@ class MyApp extends StatelessWidget {
         ),
         chipTheme: ChipThemeData(
           backgroundColor: const Color(0xFF374151),
-          labelStyle: GoogleFonts.inter(fontSize: 13),
+          labelStyle: const TextStyle(fontSize: 13),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -262,7 +263,8 @@ class MyApp extends StatelessWidget {
       ),
       themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
+      // Test with minimal screen to diagnose issue
+      home: const TestScreen(),
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/login':
@@ -446,35 +448,44 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       debugPrint('Base URL: ${ApiConfig.baseUrl}');
       debugPrint('Environment: ${ApiConfig.currentEnvironment}');
       
-      await Future.delayed(const Duration(seconds: 2));
+      // Reduced delay for faster debugging
+      await Future.delayed(const Duration(milliseconds: 1500));
       
       debugPrint('Checking authentication status...');
       final isLoggedIn = await _authService.isLoggedIn();
       debugPrint('Is logged in: $isLoggedIn');
       
-      if (mounted) {
-        debugPrint('Navigating to ${isLoggedIn ? 'MainScreen' : 'LoginScreen'}');
-        if (isLoggedIn) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const MainScreen()),
-          );
-        } else {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const LoginScreen()),
-          );
-        }
-        debugPrint('Navigation completed');
-      } else {
-        debugPrint('Widget not mounted, skipping navigation');
+      if (!mounted) {
+        debugPrint('Widget not mounted, aborting navigation');
+        return;
       }
+      
+      debugPrint('Navigating to ${isLoggedIn ? 'MainScreen' : 'LoginScreen'}');
+      
+      // Use Navigator.pushAndRemoveUntil for cleaner navigation
+      await Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => isLoggedIn ? const MainScreen() : const LoginScreen(),
+        ),
+        (route) => false, // Remove all previous routes
+      );
+      
+      debugPrint('Navigation completed successfully');
     } catch (e, stackTrace) {
-      debugPrint('Error during _checkAuth: $e');
+      debugPrint('ERROR during _checkAuth: $e');
       debugPrint('Stack trace: $stackTrace');
+      
       // Force navigation to login screen on error
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-        );
+        try {
+          await Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+          );
+          debugPrint('Emergency navigation to LoginScreen completed');
+        } catch (navError) {
+          debugPrint('CRITICAL: Navigation failed: $navError');
+        }
       }
     }
   }
@@ -517,7 +528,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   const SizedBox(height: 32),
                   Text(
                     'Memory Hub',
-                    style: GoogleFonts.inter(
+                    style: const TextStyle(
                       fontSize: 42,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
@@ -527,7 +538,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   const SizedBox(height: 12),
                   Text(
                     'Your Digital Legacy',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w400,
                       color: Colors.white.withOpacity(0.9),
@@ -647,7 +658,7 @@ class SocialTabScreen extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Social', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+          title: const Text('Social', style: TextStyle(fontWeight: FontWeight.bold)),
           actions: [
             IconButton(
               icon: const Icon(Icons.notifications_outlined),
@@ -658,7 +669,7 @@ class SocialTabScreen extends StatelessWidget {
             indicatorColor: Theme.of(context).colorScheme.primary,
             labelColor: Theme.of(context).colorScheme.primary,
             unselectedLabelColor: Colors.grey,
-            labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+            labelStyle: const TextStyle(fontWeight: FontWeight.w600),
             tabs: const [
               Tab(text: 'Feed'),
               Tab(text: 'Hubs'),
