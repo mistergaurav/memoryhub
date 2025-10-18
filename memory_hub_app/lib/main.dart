@@ -64,6 +64,18 @@ import 'screens/gdpr/data_export_screen.dart';
 import 'screens/gdpr/account_deletion_screen.dart';
 import 'screens/reactions/reactions_screen.dart';
 import 'screens/home/dashboard_screen.dart';
+import 'screens/family/family_hub_dashboard_screen.dart';
+import 'screens/family/family_albums_screen.dart';
+import 'screens/family/family_timeline_screen.dart';
+import 'screens/family/family_calendar_screen.dart';
+import 'screens/family/family_milestones_screen.dart';
+import 'screens/family/family_recipes_screen.dart';
+import 'screens/family/legacy_letters_screen.dart';
+import 'screens/family/family_traditions_screen.dart';
+import 'screens/family/parental_controls_screen.dart';
+import 'screens/family/family_document_vault_screen.dart';
+import 'screens/family/genealogy_tree_screen.dart';
+import 'screens/family/health_records_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -425,6 +437,30 @@ class MyApp extends StatelessWidget {
             );
           case '/dashboard':
             return MaterialPageRoute(builder: (_) => const DashboardScreen());
+          case '/family':
+            return MaterialPageRoute(builder: (_) => const FamilyHubDashboardScreen());
+          case '/family/albums':
+            return MaterialPageRoute(builder: (_) => const FamilyAlbumsScreen());
+          case '/family/timeline':
+            return MaterialPageRoute(builder: (_) => const FamilyTimelineScreen());
+          case '/family/calendar':
+            return MaterialPageRoute(builder: (_) => const FamilyCalendarScreen());
+          case '/family/milestones':
+            return MaterialPageRoute(builder: (_) => const FamilyMilestonesScreen());
+          case '/family/recipes':
+            return MaterialPageRoute(builder: (_) => const FamilyRecipesScreen());
+          case '/family/letters':
+            return MaterialPageRoute(builder: (_) => const LegacyLettersScreen());
+          case '/family/traditions':
+            return MaterialPageRoute(builder: (_) => const FamilyTraditionsScreen());
+          case '/family/parental-controls':
+            return MaterialPageRoute(builder: (_) => const ParentalControlsScreen());
+          case '/family/vault':
+            return MaterialPageRoute(builder: (_) => const FamilyDocumentVaultScreen());
+          case '/family/genealogy':
+            return MaterialPageRoute(builder: (_) => const GenealogyTreeScreen());
+          case '/family/health':
+            return MaterialPageRoute(builder: (_) => const HealthRecordsScreen());
           default:
             return null;
         }
