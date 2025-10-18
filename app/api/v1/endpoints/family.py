@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Optional
 from datetime import datetime, timedelta
 from bson import ObjectId
@@ -14,16 +14,9 @@ from app.models.family import (
 from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.db.mongodb import get_collection
+from app.utils.validators import validate_object_id, validate_object_ids, validate_user_has_access
 
 router = APIRouter()
-
-
-def safe_object_id(id_str: str) -> Optional[ObjectId]:
-    """Safely convert string to ObjectId"""
-    try:
-        return ObjectId(id_str)
-    except Exception:
-        return None
 
 
 @router.post("/relationships", response_model=FamilyRelationshipResponse, status_code=status.HTTP_201_CREATED)
@@ -33,9 +26,7 @@ async def create_family_relationship(
 ):
     """Create a family relationship"""
     try:
-        related_user_oid = safe_object_id(relationship.related_user_id)
-        if not related_user_oid:
-            raise HTTPException(status_code=400, detail="Invalid user ID")
+        related_user_oid = validate_object_id(relationship.related_user_id, "related_user_id")
         
         related_user = await get_collection("users").find_one({"_id": related_user_oid})
         if not related_user:
@@ -84,15 +75,17 @@ async def create_family_relationship(
 @router.get("/relationships", response_model=List[FamilyRelationshipResponse])
 async def list_family_relationships(
     relation_type: Optional[FamilyRelationType] = None,
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(50, ge=1, le=100, description="Number of records to return"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """List all family relationships for the current user"""
+    """List all family relationships for the current user with pagination"""
     try:
         query = {"user_id": ObjectId(current_user.id)}
         if relation_type:
             query["relation_type"] = relation_type.value
         
-        cursor = get_collection("family_relationships").find(query)
+        cursor = get_collection("family_relationships").find(query).skip(skip).limit(limit).sort("created_at", -1)
         relationships = []
         
         async for rel_doc in cursor:
@@ -123,9 +116,7 @@ async def delete_family_relationship(
 ):
     """Delete a family relationship"""
     try:
-        relationship_oid = safe_object_id(relationship_id)
-        if not relationship_oid:
-            raise HTTPException(status_code=400, detail="Invalid relationship ID")
+        relationship_oid = validate_object_id(relationship_id, "relationship_id")
         
         relationship = await get_collection("family_relationships").find_one({
             "_id": relationship_oid,
@@ -150,11 +141,7 @@ async def create_family_circle(
 ):
     """Create a family circle"""
     try:
-        member_oids = []
-        for member_id in circle.member_ids:
-            member_oid = safe_object_id(member_id)
-            if member_oid:
-                member_oids.append(member_oid)
+        member_oids = validate_object_ids(circle.member_ids, "member_ids") if circle.member_ids else []
         
         member_oids.append(ObjectId(current_user.id))
         member_oids = list(set(member_oids))
@@ -249,11 +236,8 @@ async def add_member_to_circle(
 ):
     """Add a member to a family circle"""
     try:
-        circle_oid = safe_object_id(circle_id)
-        user_oid = safe_object_id(user_id)
-        
-        if not circle_oid or not user_oid:
-            raise HTTPException(status_code=400, detail="Invalid ID")
+        circle_oid = validate_object_id(circle_id, "circle_id")
+        user_oid = validate_object_id(user_id, "user_id")
         
         circle = await get_collection("family_circles").find_one({"_id": circle_oid})
         if not circle:
@@ -292,11 +276,8 @@ async def remove_member_from_circle(
 ):
     """Remove a member from a family circle"""
     try:
-        circle_oid = safe_object_id(circle_id)
-        user_oid = safe_object_id(user_id)
-        
-        if not circle_oid or not user_oid:
-            raise HTTPException(status_code=400, detail="Invalid ID")
+        circle_oid = validate_object_id(circle_id, "circle_id")
+        user_oid = validate_object_id(user_id, "user_id")
         
         circle = await get_collection("family_circles").find_one({"_id": circle_oid})
         if not circle:
@@ -330,15 +311,14 @@ async def create_family_invitation(
 ):
     """Create a family invitation"""
     try:
-        circle_oids = []
+        circle_oids = validate_object_ids(invitation.circle_ids, "circle_ids")
         circle_names = []
-        for circle_id in invitation.circle_ids:
-            circle_oid = safe_object_id(circle_id)
-            if circle_oid:
-                circle = await get_collection("family_circles").find_one({"_id": circle_oid})
-                if circle and circle.get("owner_id") == ObjectId(current_user.id):
-                    circle_oids.append(circle_oid)
-                    circle_names.append(circle.get("name", ""))
+        for circle_oid in circle_oids:
+            circle = await get_collection("family_circles").find_one({"_id": circle_oid})
+            if circle and circle.get("owner_id") == ObjectId(current_user.id):
+                circle_names.append(circle.get("name", ""))
+            else:
+                raise HTTPException(status_code=403, detail="Can only create invitations for circles you own")
         
         token = secrets.token_urlsafe(32)
         

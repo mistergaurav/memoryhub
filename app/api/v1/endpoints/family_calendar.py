@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Optional
 from bson import ObjectId
 from datetime import datetime, timedelta
@@ -9,15 +9,9 @@ from app.models.family_calendar import (
 from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.db.mongodb import get_collection
+from app.utils.validators import validate_object_id, validate_object_ids
 
 router = APIRouter()
-
-def safe_object_id(id_str):
-    """Safely convert string to ObjectId"""
-    try:
-        return ObjectId(id_str)
-    except:
-        return None
 
 
 
@@ -28,8 +22,8 @@ async def create_family_event(
 ):
     """Create a new family event"""
     try:
-        family_circle_oids = [safe_object_id(cid) for cid in event.family_circle_ids if safe_object_id(cid)]
-        attendee_oids = [safe_object_id(aid) for aid in event.attendee_ids if safe_object_id(aid)]
+        family_circle_oids = validate_object_ids(event.family_circle_ids, "family_circle_ids") if event.family_circle_ids else []
+        attendee_oids = validate_object_ids(event.attendee_ids, "attendee_ids") if event.attendee_ids else []
         
         event_data = {
             "title": event.title,
@@ -150,7 +144,7 @@ async def get_family_event(
 ):
     """Get a specific event"""
     try:
-        event_oid = safe_object_id(event_id)
+        event_oid = validate_object_id(event_id, "event_id")
         if not event_oid:
             raise HTTPException(status_code=400, detail="Invalid event ID")
         
@@ -198,7 +192,7 @@ async def update_family_event(
 ):
     """Update an event"""
     try:
-        event_oid = safe_object_id(event_id)
+        event_oid = validate_object_id(event_id, "event_id")
         if not event_oid:
             raise HTTPException(status_code=400, detail="Invalid event ID")
         
@@ -263,7 +257,7 @@ async def delete_family_event(
 ):
     """Delete an event"""
     try:
-        event_oid = safe_object_id(event_id)
+        event_oid = validate_object_id(event_id, "event_id")
         if not event_oid:
             raise HTTPException(status_code=400, detail="Invalid event ID")
         

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Optional
 from bson import ObjectId
 from datetime import datetime
@@ -11,13 +11,9 @@ from app.models.family_albums import (
 from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.db.mongodb import get_collection
+from app.utils.validators import validate_object_id, validate_object_ids
 
 router = APIRouter()
-def safe_object_id(id_str):
-    try:
-        return ObjectId(id_str)
-    except:
-        return None
 
 
 
@@ -28,8 +24,8 @@ async def create_family_album(
 ):
     """Create a new family album"""
     try:
-        family_circle_oids = [safe_object_id(cid) for cid in album.family_circle_ids if safe_object_id(cid)]
-        member_oids = [safe_object_id(mid) for mid in album.member_ids if safe_object_id(mid)]
+        family_circle_oids = validate_object_ids(album.family_circle_ids, "family_circle_ids") if album.family_circle_ids else []
+        member_oids = validate_object_ids(album.member_ids, "member_ids") if album.member_ids else []
         
         album_data = {
             "title": album.title,
@@ -67,9 +63,11 @@ async def create_family_album(
 
 @router.get("/", response_model=List[FamilyAlbumResponse])
 async def list_family_albums(
+    skip: int = Query(0, ge=0, description="Number of records to skip"),
+    limit: int = Query(50, ge=1, le=100, description="Number of records to return"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """List all albums the user has access to"""
+    """List all albums the user has access to with pagination"""
     try:
         user_oid = ObjectId(current_user.id)
         
@@ -79,7 +77,7 @@ async def list_family_albums(
                 {"member_ids": user_oid},
                 {"privacy": "public"}
             ]
-        }).sort("updated_at", -1)
+        }).skip(skip).limit(limit).sort("updated_at", -1)
         
         albums = []
         async for album_doc in albums_cursor:
@@ -112,7 +110,7 @@ async def get_family_album(
 ):
     """Get a specific album"""
     try:
-        album_oid = safe_object_id(album_id)
+        album_oid = validate_object_id(album_id, "album_id")
         if not album_oid:
             raise HTTPException(status_code=400, detail="Invalid album ID")
         
@@ -150,7 +148,7 @@ async def update_family_album(
 ):
     """Update an album"""
     try:
-        album_oid = safe_object_id(album_id)
+        album_oid = validate_object_id(album_id, "album_id")
         if not album_oid:
             raise HTTPException(status_code=400, detail="Invalid album ID")
         
@@ -205,7 +203,7 @@ async def delete_family_album(
 ):
     """Delete an album"""
     try:
-        album_oid = safe_object_id(album_id)
+        album_oid = validate_object_id(album_id, "album_id")
         if not album_oid:
             raise HTTPException(status_code=400, detail="Invalid album ID")
         
@@ -234,7 +232,7 @@ async def add_photo_to_album(
 ):
     """Add a photo to an album"""
     try:
-        album_oid = safe_object_id(album_id)
+        album_oid = validate_object_id(album_id, "album_id")
         if not album_oid:
             raise HTTPException(status_code=400, detail="Invalid album ID")
         
@@ -282,7 +280,7 @@ async def get_album_photos(
 ):
     """Get all photos in an album"""
     try:
-        album_oid = safe_object_id(album_id)
+        album_oid = validate_object_id(album_id, "album_id")
         if not album_oid:
             raise HTTPException(status_code=400, detail="Invalid album ID")
         
@@ -317,8 +315,8 @@ async def delete_photo_from_album(
 ):
     """Delete a photo from an album"""
     try:
-        album_oid = safe_object_id(album_id)
-        photo_oid = safe_object_id(photo_id)
+        album_oid = validate_object_id(album_id, "album_id")
+        photo_oid = validate_object_id(photo_id, "photo_id")
         
         if not album_oid or not photo_oid:
             raise HTTPException(status_code=400, detail="Invalid ID")
@@ -354,8 +352,8 @@ async def like_photo(
 ):
     """Like a photo"""
     try:
-        album_oid = safe_object_id(album_id)
-        photo_oid = safe_object_id(photo_id)
+        album_oid = validate_object_id(album_id, "album_id")
+        photo_oid = validate_object_id(photo_id, "photo_id")
         
         if not album_oid or not photo_oid:
             raise HTTPException(status_code=400, detail="Invalid ID")
@@ -380,8 +378,8 @@ async def unlike_photo(
 ):
     """Unlike a photo"""
     try:
-        album_oid = safe_object_id(album_id)
-        photo_oid = safe_object_id(photo_id)
+        album_oid = validate_object_id(album_id, "album_id")
+        photo_oid = validate_object_id(photo_id, "photo_id")
         
         if not album_oid or not photo_oid:
             raise HTTPException(status_code=400, detail="Invalid ID")

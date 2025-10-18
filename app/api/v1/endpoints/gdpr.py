@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Request
 from fastapi.responses import StreamingResponse, JSONResponse
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
@@ -12,6 +12,7 @@ import os
 from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.db.mongodb import get_collection
+from app.utils.audit_logger import log_data_export, log_data_deletion, log_consent_update, log_privacy_settings_update
 
 router = APIRouter()
 
@@ -38,10 +39,14 @@ class PrivacySettings(BaseModel):
 @router.get("/data-export")
 async def request_data_export(
     background_tasks: BackgroundTasks,
+    request: Request,
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Request a full export of user's data (GDPR Article 20 - Right to Data Portability)"""
     try:
+        # Log audit event
+        await log_data_export(current_user.id, "json", request.client.host if request.client else None)
+        
         # Collect all user data
         user_data = await _collect_user_data(current_user.id)
         
@@ -157,12 +162,16 @@ async def get_consent_settings(current_user: UserInDB = Depends(get_current_user
 @router.put("/consent")
 async def update_consent_settings(
     consent: ConsentUpdate,
+    request: Request,
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Update user's consent settings (GDPR Article 7)"""
     try:
         consent_data = consent.dict()
         consent_data["updated_at"] = datetime.utcnow()
+        
+        # Log audit event
+        await log_consent_update(current_user.id, consent_data, request.client.host if request.client else None)
         
         await get_collection("users").update_one(
             {"_id": ObjectId(current_user.id)},
@@ -199,11 +208,15 @@ async def get_privacy_settings(current_user: UserInDB = Depends(get_current_user
 @router.put("/privacy-settings")
 async def update_privacy_settings(
     privacy: PrivacySettings,
+    request: Request,
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Update user's privacy settings"""
     try:
         privacy_data = privacy.dict()
+        
+        # Log audit event
+        await log_privacy_settings_update(current_user.id, privacy_data, request.client.host if request.client else None)
         
         await get_collection("users").update_one(
             {"_id": ObjectId(current_user.id)},
@@ -218,12 +231,16 @@ async def update_privacy_settings(
 async def request_account_deletion(
     deletion_request: DataDeletionRequest,
     background_tasks: BackgroundTasks,
+    request: Request,
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Request account deletion (GDPR Article 17 - Right to Erasure)"""
     try:
         if not deletion_request.confirmation:
             raise HTTPException(status_code=400, detail="Deletion must be confirmed")
+        
+        # Log audit event
+        await log_data_deletion(current_user.id, "account_deletion_request", deletion_request.feedback, request.client.host if request.client else None)
         
         # Create deletion request
         deletion_doc = {

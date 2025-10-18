@@ -1,0 +1,85 @@
+"""
+Database index management for optimal query performance.
+Creates indexes for frequently queried fields across all collections.
+"""
+from app.db.mongodb import get_collection
+
+
+async def create_all_indexes():
+    """Create all database indexes for optimal performance"""
+    
+    # User collection indexes
+    await get_collection("users").create_index("email", unique=True)
+    await get_collection("users").create_index("username")
+    await get_collection("users").create_index("created_at")
+    
+    # Family relationships indexes
+    await get_collection("family_relationships").create_index([("user_id", 1), ("relation_type", 1)])
+    await get_collection("family_relationships").create_index("related_user_id")
+    await get_collection("family_relationships").create_index("created_at")
+    
+    # Family circles indexes
+    await get_collection("family_circles").create_index("owner_id")
+    await get_collection("family_circles").create_index("member_ids")
+    await get_collection("family_circles").create_index([("owner_id", 1), ("created_at", -1)])
+    await get_collection("family_circles").create_index("circle_type")
+    
+    # Family invitations indexes
+    await get_collection("family_invitations").create_index("token", unique=True)
+    await get_collection("family_invitations").create_index("invited_by")
+    await get_collection("family_invitations").create_index([("expires_at", 1), ("status", 1)])
+    await get_collection("family_invitations").create_index("email")
+    
+    # Family albums indexes
+    await get_collection("family_albums").create_index("created_by")
+    await get_collection("family_albums").create_index("member_ids")
+    await get_collection("family_albums").create_index([("privacy", 1), ("updated_at", -1)])
+    await get_collection("family_albums").create_index("family_circle_ids")
+    
+    # Family calendar events indexes (collection is named "family_events")
+    await get_collection("family_events").create_index("created_by")
+    await get_collection("family_events").create_index("attendee_ids")
+    await get_collection("family_events").create_index([("event_date", 1), ("event_type", 1)])
+    await get_collection("family_events").create_index("family_circle_ids")
+    await get_collection("family_events").create_index([("reminder_sent", 1), ("event_date", 1)])
+    
+    # Memories collection indexes
+    await get_collection("memories").create_index("user_id")
+    await get_collection("memories").create_index([("user_id", 1), ("created_at", -1)])
+    await get_collection("memories").create_index("privacy")
+    await get_collection("memories").create_index("tags")
+    
+    # Collections/Albums indexes
+    await get_collection("collections").create_index("user_id")
+    await get_collection("collections").create_index([("user_id", 1), ("updated_at", -1)])
+    await get_collection("collections").create_index("privacy")
+    
+    # Sharing links indexes
+    await get_collection("share_links").create_index("token", unique=True)
+    await get_collection("share_links").create_index("created_by")
+    await get_collection("share_links").create_index([("expires_at", 1), ("is_active", 1)])
+    
+    # Audit logs indexes (for GDPR compliance)
+    await get_collection("audit_logs").create_index([("user_id", 1), ("timestamp", -1)])
+    await get_collection("audit_logs").create_index("event_type")
+    await get_collection("audit_logs").create_index("timestamp")
+    
+    # Notifications indexes
+    await get_collection("notifications").create_index([("user_id", 1), ("read", 1), ("created_at", -1)])
+    await get_collection("notifications").create_index("created_at")
+    
+    print("✅ All database indexes created successfully")
+
+
+async def drop_all_indexes():
+    """Drop all custom indexes (useful for testing)"""
+    collections = [
+        "users", "family_relationships", "family_circles", "family_invitations",
+        "family_albums", "family_calendar_events", "memories", "collections",
+        "share_links", "audit_logs", "notifications"
+    ]
+    
+    for collection_name in collections:
+        await get_collection(collection_name).drop_indexes()
+    
+    print("✅ All custom indexes dropped")

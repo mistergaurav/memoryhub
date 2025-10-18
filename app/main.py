@@ -6,12 +6,18 @@ from contextlib import asynccontextmanager
 from app.api.v1.api import api_router
 from app.core.config import settings
 from app.db.mongodb import connect_to_mongo, close_mongo_connection
+from app.utils.db_indexes import create_all_indexes
 import os
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     await connect_to_mongo()
+    # Initialize database indexes for optimal performance
+    try:
+        await create_all_indexes()
+    except Exception as e:
+        print(f"Warning: Failed to create indexes: {e}")
     yield
     # Shutdown
     await close_mongo_connection()
