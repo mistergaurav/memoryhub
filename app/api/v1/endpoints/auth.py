@@ -79,3 +79,33 @@ async def register(user: UserCreate):
     
     result = await get_collection("users").insert_one(user_dict)
     return {"id": str(result.inserted_id)}
+
+# Alias endpoints for better API compatibility
+@router.post("/signup", status_code=status.HTTP_201_CREATED)
+async def signup_alias(user: UserCreate):
+    """Alias for /register endpoint"""
+    return await register(user)
+
+@router.post("/login", response_model=TokenResponse)
+async def login_alias(login_data: LoginRequest):
+    """Alias for /token endpoint"""
+    return await login_for_access_token(login_data)
+
+@router.post("/refresh", response_model=TokenResponse)
+async def refresh_alias(refresh_token_str: str):
+    """Alias for /refresh-token endpoint"""
+    try:
+        tokens = await refresh_access_token(refresh_token_str)
+        return tokens
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token"
+        )
+
+@router.post("/logout", status_code=status.HTTP_200_OK)
+async def logout():
+    """Logout endpoint (client-side token invalidation)"""
+    return {"message": "Logged out successfully"}
