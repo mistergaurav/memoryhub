@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../../services/auth_service.dart';
 import '../../config/api_config.dart';
+import '../../widgets/share_bottom_sheet.dart';
 
 class UserProfileViewScreen extends StatefulWidget {
   final String userId;
@@ -42,15 +43,42 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
           _isLoading = false;
         });
       } else {
-        setState(() => _isLoading = false);
+        if (mounted) {
+          setState(() => _isLoading = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to load profile: ${response.statusCode}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading profile: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading profile: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
+  }
+
+  void _shareProfile() {
+    if (_profile == null) return;
+    
+    final profileUrl = '${ApiConfig.baseUrl}/profile/${widget.userId}';
+    final userName = _profile!['full_name'] ?? _profile!['email'];
+    
+    ShareBottomSheet.show(
+      context,
+      shareUrl: profileUrl,
+      title: userName,
+      description: _profile!['bio'] ?? 'Check out this profile on Memory Hub',
+    );
   }
 
   Future<void> _toggleFollow() async {
@@ -142,6 +170,13 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen> {
                 ),
               ),
             ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.share),
+                onPressed: _shareProfile,
+                tooltip: 'Share Profile',
+              ),
+            ],
           ),
           SliverToBoxAdapter(
             child: Column(

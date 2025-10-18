@@ -117,24 +117,6 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Memory'),
-        actions: [
-          if (_isLoading)
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.check),
-              onPressed: _handleCreate,
-            ),
-        ],
       ),
       body: Form(
         key: _formKey,
@@ -272,6 +254,32 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                 padding: const EdgeInsets.all(16),
               ),
             ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _isLoading ? null : _handleCreate,
+                icon: _isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.send),
+                label: Text(_isLoading ? 'Posting...' : 'Post Memory'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.all(16),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),

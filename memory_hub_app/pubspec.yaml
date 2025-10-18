@@ -64,6 +64,12 @@ dependencies:
   
   # Lottie animations
   lottie: ^3.0.0
+  
+  # Share functionality
+  share_plus: ^10.1.4
+  
+  # URL launcher for sharing
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:

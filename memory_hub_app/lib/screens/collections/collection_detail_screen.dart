@@ -3,6 +3,7 @@ import '../../services/collections_service.dart';
 import '../../config/api_config.dart';
 import '../memories/memory_detail_screen.dart';
 import 'package:intl/intl.dart';
+import '../../widgets/share_bottom_sheet.dart';
 
 class CollectionDetailScreen extends StatefulWidget {
   final String collectionId;
@@ -59,6 +60,83 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     } catch (e) {
       return '';
     }
+  }
+
+  void _shareCollection() {
+    if (_collection == null) return;
+    
+    final collectionUrl = '${ApiConfig.baseUrl}/collection/${widget.collectionId}';
+    final collectionName = _collection!['name'] ?? widget.collectionName;
+    final description = _collection!['description'] ?? 'Check out this collection on Memory Hub';
+    
+    ShareBottomSheet.show(
+      context,
+      shareUrl: collectionUrl,
+      title: collectionName,
+      description: description,
+      showShareToHub: true,
+      onShareToHub: _shareToHub,
+    );
+  }
+
+  Future<void> _shareToHub() async {
+    // Show dialog to select a hub to share this collection to
+    final availableHubs = await _getAvailableHubs();
+    
+    if (availableHubs.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No hubs available. Join or create a hub first!')),
+        );
+      }
+      return;
+    }
+    
+    if (!mounted) return;
+    
+    final selectedHub = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Share to Hub'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: availableHubs.length,
+            itemBuilder: (context, index) {
+              final hub = availableHubs[index];
+              return ListTile(
+                leading: const Icon(Icons.workspaces),
+                title: Text(hub['name'] ?? 'Unnamed Hub'),
+                subtitle: Text('${hub['member_count'] ?? 0} members'),
+                onTap: () => Navigator.pop(context, hub),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+    
+    if (selectedHub != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Collection shared to ${selectedHub['name']}'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _getAvailableHubs() async {
+    // This would normally call the API to get user's hubs
+    // For now, return empty list as placeholder
+    return [];
   }
 
   Future<void> _removeMemoryFromCollection(String memoryId) async {
@@ -133,6 +211,11 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
               ),
             ),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.share),
+                tooltip: 'Share Collection',
+                onPressed: _shareCollection,
+              ),
               PopupMenuButton(
                 itemBuilder: (context) => [
                   const PopupMenuItem(

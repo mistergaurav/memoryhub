@@ -215,3 +215,36 @@ async def remove_memory_from_collection(
         return {"message": "Memory not in collection"}
     
     return {"message": "Memory removed from collection"}
+
+@router.get("/{collection_id}/memories", response_model=List[dict])
+async def get_collection_memories(
+    collection_id: str,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Get all memories in a collection"""
+    col_doc = await get_collection("collections").find_one({"_id": ObjectId(collection_id)})
+    if not col_doc:
+        raise HTTPException(status_code=404, detail="Collection not found")
+    
+    memory_links = await get_collection("collection_memories").find({
+        "collection_id": ObjectId(collection_id)
+    }).to_list(length=None)
+    
+    memories = []
+    for link in memory_links:
+        memory_doc = await get_collection("memories").find_one({"_id": link["memory_id"]})
+        if memory_doc:
+            owner = await get_collection("users").find_one({"_id": memory_doc["owner_id"]})
+            
+            memories.append({
+                "id": str(memory_doc["_id"]),
+                "title": memory_doc["title"],
+                "content": memory_doc.get("content", ""),
+                "image_url": memory_doc.get("media_urls", [None])[0] if memory_doc.get("media_urls") else None,
+                "owner_name": owner.get("full_name") if owner else "Unknown",
+                "created_at": memory_doc["created_at"].isoformat(),
+                "privacy": memory_doc.get("privacy", "private"),
+                "tags": memory_doc.get("tags", [])
+            })
+    
+    return memories

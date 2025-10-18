@@ -6,6 +6,7 @@ import '../../services/auth_service.dart';
 import '../../config/api_config.dart';
 import '../memories/memory_detail_screen.dart';
 import 'hub_info_screen.dart';
+import '../../widgets/share_bottom_sheet.dart';
 
 class HubDetailScreen extends StatefulWidget {
   final String hubId;
@@ -80,6 +81,17 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
     }
   }
 
+  void _shareHub() {
+    final hubUrl = '${ApiConfig.baseUrl}/hub/${widget.hubId}';
+    
+    ShareBottomSheet.show(
+      context,
+      shareUrl: hubUrl,
+      title: widget.hubName,
+      description: 'Join this community hub on Memory Hub',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,6 +124,11 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
               ),
             ),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.share),
+                tooltip: 'Share Hub',
+                onPressed: _shareHub,
+              ),
               IconButton(
                 icon: const Icon(Icons.info_outline),
                 tooltip: 'Hub Info',
