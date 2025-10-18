@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/api_service.dart';
-import '../../models/hub_item.dart';
 import '../../widgets/stat_card.dart';
-import '../../widgets/glassmorphic_card.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../widgets/animated_list_item.dart';
 import '../../widgets/gradient_container.dart';
@@ -174,7 +172,7 @@ class _HubScreenState extends State<HubScreen> with TickerProviderStateMixin {
 
   Widget _buildContent() {
     final stats = _dashboardData?['stats'] ?? {};
-    final quickLinks = _dashboardData?['quick_links'] ?? [];
+    // final quickLinks = _dashboardData?['quick_links'] ?? []; // Reserved for future use
     final recentActivity = _dashboardData?['recent_activity'] ?? [];
 
     return SliverPadding(

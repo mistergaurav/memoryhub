@@ -5,7 +5,6 @@ import '../../services/auth_service.dart';
 import '../../models/user.dart';
 import '../../config/api_config.dart';
 import '../../widgets/gradient_container.dart';
-import '../../widgets/glassmorphic_card.dart';
 import '../../widgets/animated_list_item.dart';
 
 class ProfileScreen extends StatefulWidget {

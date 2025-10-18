@@ -24,7 +24,7 @@ class HubDetailScreen extends StatefulWidget {
 class _HubDetailScreenState extends State<HubDetailScreen> {
   final AuthService _authService = AuthService();
   List<dynamic> _memories = [];
-  Map<String, dynamic>? _hubInfo;
+  // Map<String, dynamic>? _hubInfo; // Reserved for future use
   bool _isLoading = true;
 
   @override
@@ -43,9 +43,9 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
         headers: headers,
       );
 
-      if (hubResponse.statusCode == 200) {
-        _hubInfo = jsonDecode(hubResponse.body);
-      }
+      // if (hubResponse.statusCode == 200) {
+      //   _hubInfo = jsonDecode(hubResponse.body);
+      // }
 
       final memoriesResponse = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/social/hubs/${widget.hubId}/memories'),
