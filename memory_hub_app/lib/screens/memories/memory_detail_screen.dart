@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../models/memory.dart';
 import 'package:intl/intl.dart';
+import '../../widgets/share_bottom_sheet.dart';
+import '../../config/api_config.dart';
 
 class MemoryDetailScreen extends StatefulWidget {
   final String memoryId;
@@ -67,6 +69,21 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
     }
   }
 
+  void _shareMemory() {
+    if (_memory == null) return;
+    
+    final memoryUrl = '${ApiConfig.baseUrl}/memory/${widget.memoryId}';
+    
+    ShareBottomSheet.show(
+      context,
+      shareUrl: memoryUrl,
+      title: _memory!.title,
+      description: _memory!.content.length > 100 
+          ? '${_memory!.content.substring(0, 100)}...' 
+          : _memory!.content,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -102,11 +119,17 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
         title: const Text('Memory Details'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: _shareMemory,
+            tooltip: 'Share Memory',
+          ),
+          IconButton(
             icon: Icon(
               _memory!.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
               color: _memory!.isBookmarked ? Colors.amber : null,
             ),
             onPressed: _handleBookmark,
+            tooltip: 'Bookmark',
           ),
         ],
       ),

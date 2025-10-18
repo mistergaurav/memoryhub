@@ -6,6 +6,7 @@ import '../../models/user.dart';
 import '../../config/api_config.dart';
 import '../../widgets/gradient_container.dart';
 import '../../widgets/animated_list_item.dart';
+import '../../widgets/share_bottom_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -55,6 +56,20 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
     if (mounted) {
       Navigator.of(context).pushReplacementNamed('/login');
     }
+  }
+
+  void _shareProfile() {
+    if (_user == null) return;
+    
+    final profileUrl = '${ApiConfig.baseUrl}/profile/${_user!.id}';
+    final userName = _user!.fullName ?? _user!.email;
+    
+    ShareBottomSheet.show(
+      context,
+      shareUrl: profileUrl,
+      title: userName,
+      description: _user!.bio ?? 'Check out my profile on Memory Hub',
+    );
   }
 
   @override
@@ -114,11 +129,22 @@ class _ProfileScreenState extends State<ProfileScreen> with TickerProviderStateM
           Positioned(
             top: 50,
             right: 20,
-            child: IconButton(
-              icon: const Icon(Icons.settings, color: Colors.white),
-              onPressed: () {
-                Navigator.of(context).pushNamed('/profile/settings');
-              },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.share, color: Colors.white),
+                  onPressed: _shareProfile,
+                  tooltip: 'Share Profile',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings, color: Colors.white),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('/profile/settings');
+                  },
+                  tooltip: 'Settings',
+                ),
+              ],
             ),
           ),
           Positioned(
