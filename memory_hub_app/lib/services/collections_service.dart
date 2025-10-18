@@ -28,7 +28,11 @@ class CollectionsService {
     throw Exception('Failed to load collections');
   }
 
-  Future<void> createCollection(String name, String description) async {
+  Future<void> createCollection({
+    required String name,
+    String? description,
+    String privacy = 'private',
+  }) async {
     final headers = await _getHeaders();
     final response = await http.post(
       Uri.parse('$baseUrl/collections/'),
@@ -36,7 +40,7 @@ class CollectionsService {
       body: json.encode({
         'name': name,
         'description': description,
-        'privacy': 'private',
+        'privacy': privacy,
       }),
     );
     
