@@ -1,4 +1,4 @@
-modules = ["cpp-clang14", "swift-5.8", "python-3.9"]
+modules = ["cpp-clang14", "swift-5.8", "python-3.11"]
 [agent]
 expertMode = true
 
@@ -68,6 +68,10 @@ externalPort = 5000
 [[ports]]
 localPort = 8000
 externalPort = 80
+
+[[ports]]
+localPort = 34197
+externalPort = 4200
 
 [[ports]]
 localPort = 35877
