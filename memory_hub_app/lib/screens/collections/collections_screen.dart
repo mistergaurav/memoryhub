@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/collections_service.dart';
+import 'collection_detail_screen.dart';
 
 class CollectionsScreen extends StatefulWidget {
   const CollectionsScreen({super.key});
@@ -66,7 +67,17 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                       return Card(
                         clipBehavior: Clip.antiAlias,
                         child: InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CollectionDetailScreen(
+                                  collectionId: collection['id'],
+                                  collectionName: collection['name'],
+                                ),
+                              ),
+                            ).then((_) => _loadCollections());
+                          },
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

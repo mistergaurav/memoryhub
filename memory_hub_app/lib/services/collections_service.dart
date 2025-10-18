@@ -52,4 +52,54 @@ class CollectionsService {
       headers: headers,
     );
   }
+
+  Future<Map<String, dynamic>> getCollection(String collectionId) async {
+    final headers = await _getHeaders();
+    final response = await http.get(
+      Uri.parse('$baseUrl/collections/$collectionId'),
+      headers: headers,
+    );
+    
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to load collection');
+  }
+
+  Future<List<dynamic>> getCollectionMemories(String collectionId) async {
+    final headers = await _getHeaders();
+    final response = await http.get(
+      Uri.parse('$baseUrl/collections/$collectionId/memories'),
+      headers: headers,
+    );
+    
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to load collection memories');
+  }
+
+  Future<void> removeMemoryFromCollection(String collectionId, String memoryId) async {
+    final headers = await _getHeaders();
+    final response = await http.delete(
+      Uri.parse('$baseUrl/collections/$collectionId/memories/$memoryId'),
+      headers: headers,
+    );
+    
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to remove memory from collection');
+    }
+  }
+
+  Future<void> deleteCollection(String collectionId) async {
+    final headers = await _getHeaders();
+    final response = await http.delete(
+      Uri.parse('$baseUrl/collections/$collectionId'),
+      headers: headers,
+    );
+    
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete collection');
+    }
+  }
 }

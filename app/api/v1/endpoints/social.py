@@ -141,6 +141,51 @@ async def get_hub_members(
     
     return members
 
+@router.get("/hubs/{hub_id}/memories", response_model=List[dict])
+async def get_hub_memories(
+    hub_id: str,
+    page: int = 1,
+    limit: int = 20,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Get all memories shared to a hub"""
+    member = await get_collection("hub_members").find_one({
+        "hub_id": ObjectId(hub_id),
+        "user_id": ObjectId(current_user.id)
+    })
+    
+    hub_doc = await get_collection("hubs").find_one({"_id": ObjectId(hub_id)})
+    if not hub_doc:
+        raise HTTPException(status_code=404, detail="Hub not found")
+    
+    if not member and hub_doc.get("privacy") == "private":
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    query = {"hub_id": ObjectId(hub_id)}
+    skip = (page - 1) * limit
+    cursor = get_collection("memories").find(query).sort("created_at", -1).skip(skip).limit(limit)
+    
+    memories = []
+    async for memory_doc in cursor:
+        owner_doc = await get_collection("users").find_one({"_id": memory_doc["owner_id"]})
+        
+        memories.append({
+            "id": str(memory_doc["_id"]),
+            "title": memory_doc.get("title"),
+            "content": memory_doc.get("content"),
+            "image_url": memory_doc.get("image_url"),
+            "tags": memory_doc.get("tags", []),
+            "owner_id": str(memory_doc["owner_id"]),
+            "owner_name": owner_doc.get("full_name") if owner_doc else None,
+            "owner_avatar": owner_doc.get("avatar_url") if owner_doc else None,
+            "like_count": memory_doc.get("like_count", 0),
+            "comment_count": memory_doc.get("comment_count", 0),
+            "created_at": memory_doc["created_at"].isoformat(),
+            "updated_at": memory_doc.get("updated_at", memory_doc["created_at"]).isoformat()
+        })
+    
+    return memories
+
 @router.post("/hubs/{hub_id}/invitations", response_model=HubInvitationResponse)
 async def create_invitation(
     hub_id: str,

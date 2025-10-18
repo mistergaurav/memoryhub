@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../services/auth_service.dart';
 import '../../config/api_config.dart';
+import 'hub_detail_screen.dart';
 
 class HubsScreen extends StatefulWidget {
   const HubsScreen({super.key});
@@ -175,7 +176,15 @@ class _HubsScreenState extends State<HubsScreen> {
                           ],
                         ),
                         onTap: () {
-                          // Navigate to hub details
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HubDetailScreen(
+                                hubId: hub['id'],
+                                hubName: hub['name'],
+                              ),
+                            ),
+                          ).then((_) => _loadHubs());
                         },
                       ),
                     );
