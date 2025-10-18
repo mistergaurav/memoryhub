@@ -57,6 +57,13 @@ import 'screens/templates/template_editor_screen.dart';
 import 'screens/comments/comments_screen.dart';
 import 'screens/sharing/file_sharing_screen.dart';
 import 'screens/sharing/shared_files_screen.dart';
+import 'screens/sharing/qr_code_screen.dart';
+import 'screens/sharing/share_management_screen.dart';
+import 'screens/gdpr/consent_management_screen.dart';
+import 'screens/gdpr/data_export_screen.dart';
+import 'screens/gdpr/account_deletion_screen.dart';
+import 'screens/reactions/reactions_screen.dart';
+import 'screens/home/dashboard_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -391,6 +398,33 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const FileSharingScreen());
           case '/sharing/shared':
             return MaterialPageRoute(builder: (_) => const SharedFilesScreen());
+          case '/sharing/management':
+            return MaterialPageRoute(builder: (_) => const ShareManagementScreen());
+          case '/sharing/qr-code':
+            final args = settings.arguments as Map<String, String>;
+            return MaterialPageRoute(
+              builder: (_) => QRCodeScreen(
+                shareUrl: args['shareUrl']!,
+                title: args['title']!,
+                description: args['description'],
+              ),
+            );
+          case '/gdpr/consent':
+            return MaterialPageRoute(builder: (_) => const ConsentManagementScreen());
+          case '/gdpr/export':
+            return MaterialPageRoute(builder: (_) => const DataExportScreen());
+          case '/gdpr/delete':
+            return MaterialPageRoute(builder: (_) => const AccountDeletionScreen());
+          case '/reactions':
+            final args = settings.arguments as Map<String, String>;
+            return MaterialPageRoute(
+              builder: (_) => ReactionsScreen(
+                targetId: args['targetId']!,
+                targetType: args['targetType']!,
+              ),
+            );
+          case '/dashboard':
+            return MaterialPageRoute(builder: (_) => const DashboardScreen());
           default:
             return null;
         }
@@ -574,7 +608,7 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = const [
-    HubScreen(),
+    DashboardScreen(),
     MemoriesListScreen(),
     SocialTabScreen(),
     CollectionsScreen(),
