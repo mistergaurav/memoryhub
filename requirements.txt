@@ -198,3 +198,4 @@ python-jose
 python-multipart
 qrcode
 uvicorn
+argon2-cffi

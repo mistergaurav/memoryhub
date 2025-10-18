@@ -404,6 +404,16 @@ async def get_following(
     
     return following
 
+@router.get("/followers", response_model=List[RelationshipResponse])
+async def get_my_followers(current_user: UserInDB = Depends(get_current_user)):
+    """Get current user's followers (convenience endpoint)"""
+    return await get_followers(current_user.id, current_user)
+
+@router.get("/following", response_model=List[RelationshipResponse])
+async def get_my_following(current_user: UserInDB = Depends(get_current_user)):
+    """Get users that current user is following (convenience endpoint)"""
+    return await get_following(current_user.id, current_user)
+
 async def _prepare_hub_response(hub_doc, current_user_id: str):
     """Prepare hub response with additional data"""
     owner_doc = await get_collection("users").find_one({"_id": hub_doc["owner_id"]})

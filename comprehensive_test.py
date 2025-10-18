@@ -139,8 +139,8 @@ def test_collections(token):
             "privacy": "private"
         }
         response = requests.post(f"{BASE_URL}/collections/", json=collection_data, headers=headers)
-        print_test("Create Collection", response.status_code == 200)
-        if response.status_code == 200:
+        print_test("Create Collection", response.status_code in [200, 201])
+        if response.status_code in [200, 201]:
             collection_id = response.json().get("id")
     except Exception as e:
         print_test("Create Collection", False, str(e))

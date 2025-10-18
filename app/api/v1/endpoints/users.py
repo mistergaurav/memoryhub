@@ -164,6 +164,16 @@ async def get_avatar(
     
     return FileResponse(file_path)
 
+@router.get("/settings", response_model=dict)
+async def get_user_settings(current_user: UserInDB = Depends(get_current_user)):
+    """Get current user settings"""
+    user = await get_collection("users").find_one({"_id": ObjectId(current_user.id)})
+    return user.get("settings", {
+        "push_notifications": True,
+        "email_notifications": True,
+        "theme": "light"
+    })
+
 @router.get("/{user_id}", response_model=UserProfileResponse)
 async def get_user(
     user_id: str,
