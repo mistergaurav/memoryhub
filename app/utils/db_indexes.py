@@ -68,6 +68,18 @@ async def create_all_indexes():
     await get_collection("notifications").create_index([("user_id", 1), ("read", 1), ("created_at", -1)])
     await get_collection("notifications").create_index("created_at")
     
+    # Genealogy persons indexes
+    await get_collection("genealogy_persons").create_index("family_id")
+    await get_collection("genealogy_persons").create_index("linked_user_id", unique=True, sparse=True)
+    await get_collection("genealogy_persons").create_index([("family_id", 1), ("created_at", -1)])
+    await get_collection("genealogy_persons").create_index("source")
+    
+    # Genealogy relationships indexes
+    await get_collection("genealogy_relationships").create_index("family_id")
+    await get_collection("genealogy_relationships").create_index([("person_id", 1), ("relationship_type", 1)])
+    await get_collection("genealogy_relationships").create_index("related_person_id")
+    await get_collection("genealogy_relationships").create_index([("family_id", 1), ("created_at", -1)])
+    
     print("✅ All database indexes created successfully")
 
 
@@ -76,7 +88,7 @@ async def drop_all_indexes():
     collections = [
         "users", "family_relationships", "family_circles", "family_invitations",
         "family_albums", "family_calendar_events", "memories", "collections",
-        "share_links", "audit_logs", "notifications"
+        "share_links", "audit_logs", "notifications", "genealogy_persons", "genealogy_relationships"
     ]
     
     for collection_name in collections:
