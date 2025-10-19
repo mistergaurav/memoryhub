@@ -17,22 +17,41 @@ async def create_voice_note(
     audio_file: UploadFile = File(...),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Create a voice note"""
-    db = get_database()
+    """Create a voice note with actual audio file storage"""
+    from app.services import get_storage_service
     
-    # Save audio file
-    filename_str = audio_file.filename or "audio.mp3"
-    file_extension = os.path.splitext(filename_str)[1]
-    filename = f"voice_{ObjectId()}_{audio_file.filename}"
+    db = get_database()
+    storage = get_storage_service()
+    
+    # Validate audio file type
+    if not audio_file.content_type or not audio_file.content_type.startswith("audio/"):
+        raise HTTPException(status_code=400, detail="File must be an audio file")
+    
+    # Save audio file to storage
+    try:
+        file_path, file_url, file_size = await storage.save_file(
+            file=audio_file,
+            user_id=str(current_user.id),
+            category="audio"
+        )
+        
+        # Get audio duration if possible
+        duration = await storage.get_audio_duration(file_path)
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save audio file: {str(e)}")
     
     voice_note_data = {
         "user_id": str(current_user.id),
         "title": title,
         "description": description,
         "tags": tags.split(",") if tags else [],
-        "audio_url": f"/voice-notes/media/{filename}",
-        "duration": 0,  # To be calculated
-        "file_size": 0,
+        "audio_url": file_url,
+        "file_path": file_path,
+        "duration": duration,
+        "file_size": file_size,
+        "original_filename": audio_file.filename,
+        "content_type": audio_file.content_type,
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow()
     }
@@ -104,7 +123,7 @@ async def transcribe_voice_note(
     note_id: str,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Transcribe a voice note to text (placeholder for future integration)"""
+    """Transcribe a voice note to text using Whisper AI or similar service"""
     db = get_database()
     
     note = await db.voice_notes.find_one({"_id": ObjectId(note_id)})
@@ -115,12 +134,62 @@ async def transcribe_voice_note(
     if note["user_id"] != str(current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to transcribe this voice note")
     
-    # Placeholder for transcription service integration
-    transcription = "Transcription feature coming soon..."
+    # Check if already transcribed
+    if note.get("transcription"):
+        return {
+            "transcription": note["transcription"],
+            "transcribed_at": note.get("transcribed_at"),
+            "cached": True
+        }
     
+    # Try to transcribe using OpenAI Whisper API (if configured)
+    transcription = None
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    
+    if openai_api_key and note.get("file_path"):
+        try:
+            import httpx
+            
+            file_path = note.get("file_path")
+            if os.path.exists(file_path):
+                # Call OpenAI Whisper API
+                async with httpx.AsyncClient() as client:
+                    with open(file_path, "rb") as audio_file:
+                        files = {"file": (note.get("original_filename", "audio.mp3"), audio_file, note.get("content_type", "audio/mpeg"))}
+                        data = {"model": "whisper-1"}
+                        
+                        response = await client.post(
+                            "https://api.openai.com/v1/audio/transcriptions",
+                            headers={"Authorization": f"Bearer {openai_api_key}"},
+                            files=files,
+                            data=data,
+                            timeout=60.0
+                        )
+                        
+                        if response.status_code == 200:
+                            result = response.json()
+                            transcription = result.get("text", "")
+        except Exception as e:
+            print(f"Transcription failed: {e}")
+    
+    # Fallback if transcription not available
+    if not transcription:
+        transcription = "[Transcription service not configured. Please add OPENAI_API_KEY to enable automatic transcription.]"
+    
+    # Save transcription
+    transcribed_at = datetime.utcnow()
     await db.voice_notes.update_one(
         {"_id": ObjectId(note_id)},
-        {"$set": {"transcription": transcription}}
+        {
+            "$set": {
+                "transcription": transcription,
+                "transcribed_at": transcribed_at
+            }
+        }
     )
     
-    return {"transcription": transcription}
+    return {
+        "transcription": transcription,
+        "transcribed_at": transcribed_at,
+        "cached": False
+    }

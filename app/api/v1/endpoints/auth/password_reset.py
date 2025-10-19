@@ -42,9 +42,22 @@ async def request_password_reset(data: PasswordResetRequest):
         "created_at": datetime.utcnow()
     })
     
-    # In production, send email with reset link
-    # Email service integration would send the reset_token via email
-    # reset_link = f"https://memoryhub.com/reset-password?token={reset_token}"
+    # Send password reset email
+    from app.services import get_email_service
+    email_service = get_email_service()
+    
+    if email_service.is_configured():
+        # Send email with reset link
+        user_name = user.get("full_name") or user.get("email").split("@")[0]
+        await email_service.send_password_reset_email(
+            to_email=data.email,
+            reset_token=reset_token,
+            user_name=user_name
+        )
+    else:
+        # Log that email service is not configured
+        print(f"Email service not configured - reset token: {reset_token}")
+        # In development, you can see the token in logs
     
     return {
         "message": "If the email exists, a reset link has been sent to your email address"

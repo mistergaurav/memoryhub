@@ -41,6 +41,16 @@ app.add_middleware(
 # Include API routers
 app.include_router(api_router, prefix="/api/v1")
 
+# Serve uploaded media files
+from app.api.v1.endpoints.media import router as media_router
+app.include_router(media_router, tags=["media"])
+
+# Create uploads directory if it doesn't exist
+uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
+os.makedirs(uploads_dir, exist_ok=True)
+for subdir in ["audio", "images", "videos", "documents", "other"]:
+    os.makedirs(os.path.join(uploads_dir, subdir), exist_ok=True)
+
 # Serve Flutter web app
 flutter_build_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "memory_hub_app", "build", "web")
 if os.path.exists(flutter_build_path):

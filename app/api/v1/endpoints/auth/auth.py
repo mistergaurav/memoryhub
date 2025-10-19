@@ -73,12 +73,47 @@ async def register(user: UserCreate):
             detail="Email already registered"
         )
     
+    from datetime import datetime
+    import secrets
+    
     hashed_password = get_password_hash(user.password)
     user_dict = user.dict(exclude={"password"})
     user_dict["hashed_password"] = hashed_password
+    user_dict["email_verified"] = False
+    user_dict["created_at"] = datetime.utcnow()
     
     result = await get_collection("users").insert_one(user_dict)
-    return {"id": str(result.inserted_id)}
+    user_id = str(result.inserted_id)
+    
+    # Generate email verification token
+    verification_token = secrets.token_urlsafe(32)
+    await get_collection("email_verifications").insert_one({
+        "user_id": user_id,
+        "email": user.email,
+        "token": verification_token,
+        "created_at": datetime.utcnow(),
+        "expires_at": datetime.utcnow() + timedelta(days=1),
+        "verified": False
+    })
+    
+    # Send verification email
+    from app.services import get_email_service
+    email_service = get_email_service()
+    
+    if email_service.is_configured():
+        await email_service.send_verification_email(
+            to_email=user.email,
+            verification_token=verification_token,
+            user_name=user.full_name
+        )
+    else:
+        print(f"Email service not configured - verification token: {verification_token}")
+    
+    return {
+        "id": user_id,
+        "message": "Registration successful. Please check your email to verify your account.",
+        "email_sent": email_service.is_configured()
+    }
 
 # Alias endpoints for better API compatibility
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
