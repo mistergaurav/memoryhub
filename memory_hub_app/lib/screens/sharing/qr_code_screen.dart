@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class QRCodeScreen extends StatelessWidget {
   final String shareUrl;
@@ -19,6 +20,7 @@ class QRCodeScreen extends StatelessWidget {
       const SnackBar(
         content: Text('Link copied to clipboard'),
         duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,
       ),
     );
   }
@@ -80,32 +82,19 @@ class QRCodeScreen extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          // Placeholder for QR Code
-                          // TODO: Integrate qr_flutter package
                           Container(
-                            height: 250,
-                            width: 250,
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.qr_code,
-                                  size: 100,
-                                  color: Colors.grey.shade400,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'QR Code',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
+                            child: QrImageView(
+                              data: shareUrl,
+                              version: QrVersions.auto,
+                              size: 250.0,
+                              backgroundColor: Colors.white,
+                              errorCorrectionLevel: QrErrorCorrectLevel.H,
+                              embeddedImage: null,
                             ),
                           ),
                           const SizedBox(height: 16),

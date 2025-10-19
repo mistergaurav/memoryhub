@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/reactions_service.dart';
 
 class ReactionsScreen extends StatefulWidget {
   final String targetId;
@@ -18,6 +19,7 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
   bool _isLoading = true;
   Map<String, List<Map<String, dynamic>>> _reactions = {};
   String _selectedReaction = 'all';
+  final ReactionsService _reactionsService = ReactionsService();
 
   final List<String> _availableReactions = ['❤️', '👍', '😂', '😮', '😢', '🔥', '👏', '💯'];
 
@@ -30,43 +32,50 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
   Future<void> _loadReactions() async {
     setState(() => _isLoading = true);
     try {
-      // TODO: Load from API endpoint /api/v1/reactions/{targetType}/{targetId}
-      await Future.delayed(const Duration(milliseconds: 500));
+      final reactionsData = await _reactionsService.getReactions(
+        widget.targetType,
+        widget.targetId,
+      );
+      
+      final Map<String, List<Map<String, dynamic>>> groupedReactions = {};
+      for (var reaction in reactionsData) {
+        final emoji = reaction['reaction_type'] ?? '👍';
+        if (!groupedReactions.containsKey(emoji)) {
+          groupedReactions[emoji] = [];
+        }
+        groupedReactions[emoji]!.add({
+          'userId': reaction['user_id'] ?? '',
+          'userName': reaction['user_name'] ?? 'Unknown User',
+          'avatar': reaction['avatar_url'],
+        });
+      }
+      
       setState(() {
-        _reactions = {
-          '❤️': [
-            {'userId': '1', 'userName': 'John Doe', 'avatar': null},
-            {'userId': '2', 'userName': 'Jane Smith', 'avatar': null},
-          ],
-          '👍': [
-            {'userId': '3', 'userName': 'Bob Johnson', 'avatar': null},
-          ],
-          '😂': [
-            {'userId': '4', 'userName': 'Alice Brown', 'avatar': null},
-            {'userId': '5', 'userName': 'Charlie Wilson', 'avatar': null},
-            {'userId': '6', 'userName': 'Diana Martinez', 'avatar': null},
-          ],
-          '🔥': [
-            {'userId': '7', 'userName': 'Eve Davis', 'avatar': null},
-          ],
-        };
+        _reactions = groupedReactions;
         _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() {
+        _reactions = {};
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> _addReaction(String emoji) async {
     try {
-      // TODO: Call API endpoint POST /api/v1/reactions/{targetType}/{targetId}
-      await Future.delayed(const Duration(milliseconds: 300));
+      await _reactionsService.addReaction(
+        widget.targetType,
+        widget.targetId,
+        emoji,
+      );
       _loadReactions();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Reacted with $emoji'),
             duration: const Duration(seconds: 1),
+            backgroundColor: Colors.green,
           ),
         );
       }
@@ -81,9 +90,21 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
 
   Future<void> _removeReaction(String emoji) async {
     try {
-      // TODO: Call API endpoint DELETE /api/v1/reactions/{targetType}/{targetId}/{emoji}
-      await Future.delayed(const Duration(milliseconds: 300));
+      await _reactionsService.removeReaction(
+        widget.targetType,
+        widget.targetId,
+        emoji,
+      );
       _loadReactions();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Reaction removed'),
+            duration: Duration(seconds: 1),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

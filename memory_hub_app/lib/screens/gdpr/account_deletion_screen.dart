@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/gdpr_service.dart';
 
 class AccountDeletionScreen extends StatefulWidget {
   const AccountDeletionScreen({Key? key}) : super(key: key);
@@ -12,6 +13,7 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
   bool _hasPendingDeletion = false;
   DateTime? _deletionScheduledDate;
   final TextEditingController _confirmationController = TextEditingController();
+  final GdprService _gdprService = GdprService();
 
   @override
   void initState() {
@@ -27,14 +29,18 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
 
   Future<void> _checkDeletionStatus() async {
     try {
-      // TODO: Check API endpoint /api/v1/gdpr/deletion-status
-      await Future.delayed(const Duration(milliseconds: 500));
+      final status = await _gdprService.getDeletionStatus();
+      setState(() {
+        _hasPendingDeletion = status['pending'] ?? false;
+        if (status['scheduled_date'] != null) {
+          _deletionScheduledDate = DateTime.parse(status['scheduled_date']);
+        }
+      });
+    } catch (e) {
       setState(() {
         _hasPendingDeletion = false;
         _deletionScheduledDate = null;
       });
-    } catch (e) {
-      // Handle error
     }
   }
 
@@ -75,8 +81,7 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
 
     setState(() => _isProcessing = true);
     try {
-      // TODO: Call API endpoint /api/v1/gdpr/delete-account
-      await Future.delayed(const Duration(seconds: 2));
+      await _gdprService.requestAccountDeletion();
       setState(() {
         _hasPendingDeletion = true;
         _deletionScheduledDate = DateTime.now().add(const Duration(days: 30));
@@ -104,8 +109,7 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
   Future<void> _cancelDeletion() async {
     setState(() => _isProcessing = true);
     try {
-      // TODO: Call API endpoint /api/v1/gdpr/cancel-deletion
-      await Future.delayed(const Duration(seconds: 1));
+      await _gdprService.cancelAccountDeletion();
       setState(() {
         _hasPendingDeletion = false;
         _deletionScheduledDate = null;

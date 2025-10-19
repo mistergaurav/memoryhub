@@ -73,6 +73,9 @@ dependencies:
   
   # Table calendar for family calendar feature
   table_calendar: ^3.1.2
+  
+  # QR code generation
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:

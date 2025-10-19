@@ -7,6 +7,8 @@ import '../collections/collections_screen.dart';
 import '../analytics/analytics_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../activity/activity_feed_screen.dart';
+import '../../services/dashboard_service.dart';
+import '../../services/analytics_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -17,10 +19,14 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> with TickerProviderStateMixin {
   bool _isLoading = true;
-  Map<String, int> _stats = {};
+  String _error = '';
+  Map<String, dynamic> _stats = {};
   List<Map<String, dynamic>> _recentActivity = [];
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+  
+  final DashboardService _dashboardService = DashboardService();
+  final AnalyticsService _analyticsService = AnalyticsService();
 
   @override
   void initState() {
@@ -44,46 +50,108 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   Future<void> _loadDashboardData() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _error = '';
+    });
+    
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
+      final statsData = await _analyticsService.getOverview();
+      final activityData = await _dashboardService.getRecentActivity(limit: 10);
+      
       setState(() {
-        _stats = {
-          'memories': 42,
-          'files': 156,
-          'collections': 8,
-          'followers': 23,
-        };
-        _recentActivity = [
-          {
-            'type': 'memory',
-            'title': 'Added new memory',
-            'description': 'Summer Vacation 2024',
-            'time': '2 hours ago',
-            'icon': Icons.photo_library,
-            'color': const Color(0xFF6366F1),
-          },
-          {
-            'type': 'follow',
-            'title': 'New follower',
-            'description': 'John Doe started following you',
-            'time': '5 hours ago',
-            'icon': Icons.person_add,
-            'color': const Color(0xFF10B981),
-          },
-          {
-            'type': 'collection',
-            'title': 'Collection updated',
-            'description': 'Added 3 memories to Family Photos',
-            'time': '1 day ago',
-            'icon': Icons.collections,
-            'color': const Color(0xFF8B5CF6),
-          },
-        ];
+        _stats = statsData;
+        _recentActivity = activityData.map((activity) {
+          return {
+            'type': activity['type'] ?? 'activity',
+            'title': activity['title'] ?? 'Activity',
+            'description': activity['description'] ?? '',
+            'time': _formatTime(activity['timestamp']),
+            'icon': _getIconForType(activity['type']),
+            'color': _getColorForType(activity['type']),
+          };
+        }).toList();
         _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        _error = e.toString();
+        // Set default empty stats on error
+        _stats = {
+          'total_memories': 0,
+          'total_files': 0,
+          'total_collections': 0,
+          'total_followers': 0,
+        };
+        _recentActivity = [];
+      });
+    }
+  }
+
+  String _formatTime(dynamic timestamp) {
+    if (timestamp == null) return 'Just now';
+    try {
+      final dt = DateTime.parse(timestamp.toString());
+      final diff = DateTime.now().difference(dt);
+      
+      if (diff.inMinutes < 60) {
+        return '${diff.inMinutes} minutes ago';
+      } else if (diff.inHours < 24) {
+        return '${diff.inHours} hours ago';
+      } else if (diff.inDays < 7) {
+        return '${diff.inDays} days ago';
+      } else {
+        return '${(diff.inDays / 7).floor()} weeks ago';
+      }
+    } catch (e) {
+      return 'Recently';
+    }
+  }
+
+  IconData _getIconForType(String? type) {
+    switch (type) {
+      case 'memory_created':
+      case 'memory':
+        return Icons.photo_library;
+      case 'file_uploaded':
+      case 'file':
+        return Icons.upload_file;
+      case 'collection_created':
+      case 'collection':
+        return Icons.collections;
+      case 'user_followed':
+      case 'follow':
+        return Icons.person_add;
+      case 'comment':
+        return Icons.comment;
+      case 'like':
+        return Icons.favorite;
+      default:
+        return Icons.notifications;
+    }
+  }
+
+  Color _getColorForType(String? type) {
+    switch (type) {
+      case 'memory_created':
+      case 'memory':
+        return const Color(0xFF6366F1);
+      case 'file_uploaded':
+      case 'file':
+        return const Color(0xFF10B981);
+      case 'collection_created':
+      case 'collection':
+        return const Color(0xFF8B5CF6);
+      case 'user_followed':
+      case 'follow':
+        return const Color(0xFFEC4899);
+      case 'comment':
+        return const Color(0xFFF59E0B);
+      case 'like':
+        return const Color(0xFFEF4444);
+      default:
+        return const Color(0xFF6B7280);
     }
   }
 
@@ -280,11 +348,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 end: Alignment.bottomRight,
                 colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
               ),
-              count: '${_stats['collections'] ?? 8}',
+              count: '${_stats['total_collections'] ?? _stats['collections'] ?? 0}',
               countLabel: 'Collections',
               stats: [
-                {'label': 'Total', 'value': '${_stats['collections'] ?? 8}'},
-                {'label': 'This Month', 'value': '+2'},
+                {'label': 'Total', 'value': '${_stats['total_collections'] ?? _stats['collections'] ?? 0}'},
+                {'label': 'This Month', 'value': '${_stats['collections_this_month'] ?? 0}'},
               ],
               onTap: () => Navigator.pushNamed(context, '/collections'),
             ),
@@ -508,20 +576,24 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             Expanded(
               child: _buildStatCard(
                 'Memories',
-                _stats['memories'] ?? 0,
+                (_stats['total_memories'] ?? _stats['memories'] ?? 0) is int 
+                    ? (_stats['total_memories'] ?? _stats['memories'] ?? 0)
+                    : int.tryParse((_stats['total_memories'] ?? _stats['memories'] ?? 0).toString()) ?? 0,
                 Icons.auto_awesome,
                 const Color(0xFF6366F1),
-                '+12%',
+                _stats['memories_growth'] ?? '+0%',
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _buildStatCard(
                 'Files',
-                _stats['files'] ?? 0,
+                (_stats['total_files'] ?? _stats['files'] ?? 0) is int 
+                    ? (_stats['total_files'] ?? _stats['files'] ?? 0)
+                    : int.tryParse((_stats['total_files'] ?? _stats['files'] ?? 0).toString()) ?? 0,
                 Icons.folder_outlined,
                 const Color(0xFF10B981),
-                '+5',
+                _stats['files_growth'] ?? '+0',
               ),
             ),
           ],

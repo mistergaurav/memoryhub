@@ -1,80 +1,98 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'api_service.dart';
+import 'auth_service.dart';
+import '../config/api_config.dart';
 
-class GDPRService {
-  final ApiService _apiService = ApiService();
+class GdprService {
+  static String get baseUrl => ApiConfig.baseUrl;
+  final AuthService _authService = AuthService();
 
-  Future<Map<String, bool>> getConsentSettings() async {
-    try {
-      final response = await _apiService.get('/gdpr/consent');
-      return Map<String, bool>.from(response['consent_settings']);
-    } catch (e) {
-      rethrow;
+  Future<Map<String, dynamic>> getConsentSettings() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await http.get(
+      Uri.parse('$baseUrl/gdpr/consent'),
+      headers: headers,
+    );
+    
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to load consent settings');
+  }
+
+  Future<void> updateConsentSettings(Map<String, dynamic> settings) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await http.put(
+      Uri.parse('$baseUrl/gdpr/consent'),
+      headers: headers,
+      body: json.encode(settings),
+    );
+    
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update consent settings');
     }
   }
 
-  Future<void> updateConsentSettings(Map<String, bool> settings) async {
-    try {
-      await _apiService.put('/gdpr/consent', body: {
-        'consent_settings': settings,
-      });
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<Map<String, dynamic>> requestDataExport(String format) async {
-    try {
-      final endpoint = format == 'json' ? '/export/json' : '/export/archive';
-      final response = await _apiService.post(endpoint);
-      return response;
-    } catch (e) {
-      rethrow;
+  Future<void> requestDataExport(String format) async {
+    final headers = await _authService.getAuthHeaders();
+    final endpoint = format == 'json' ? '/export/json' : '/export/archive';
+    final response = await http.post(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: headers,
+    );
+    
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to request export');
     }
   }
 
   Future<List<Map<String, dynamic>>> getExportHistory() async {
-    try {
-      final response = await _apiService.get('/export/history');
-      return List<Map<String, dynamic>>.from(response['exports']);
-    } catch (e) {
-      rethrow;
+    final headers = await _authService.getAuthHeaders();
+    final response = await http.get(
+      Uri.parse('$baseUrl/export/history'),
+      headers: headers,
+    );
+    
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(json.decode(response.body));
     }
+    return [];
   }
 
-  Future<Map<String, dynamic>> requestAccountDeletion() async {
-    try {
-      final response = await _apiService.post('/gdpr/delete-account');
-      return response;
-    } catch (e) {
-      rethrow;
+  Future<void> requestAccountDeletion() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await http.post(
+      Uri.parse('$baseUrl/gdpr/delete-account'),
+      headers: headers,
+    );
+    
+    if (response.statusCode != 200) {
+      throw Exception('Failed to request account deletion');
     }
   }
 
   Future<void> cancelAccountDeletion() async {
-    try {
-      await _apiService.post('/gdpr/cancel-deletion');
-    } catch (e) {
-      rethrow;
+    final headers = await _authService.getAuthHeaders();
+    final response = await http.post(
+      Uri.parse('$baseUrl/gdpr/cancel-deletion'),
+      headers: headers,
+    );
+    
+    if (response.statusCode != 200) {
+      throw Exception('Failed to cancel account deletion');
     }
   }
 
   Future<Map<String, dynamic>> getDeletionStatus() async {
-    try {
-      final response = await _apiService.get('/gdpr/deletion-status');
-      return response;
-    } catch (e) {
-      rethrow;
+    final headers = await _authService.getAuthHeaders();
+    final response = await http.get(
+      Uri.parse('$baseUrl/gdpr/deletion-status'),
+      headers: headers,
+    );
+    
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
     }
-  }
-
-  Future<Map<String, dynamic>> getDataProcessingInfo() async {
-    try {
-      final response = await _apiService.get('/gdpr/data-info');
-      return response;
-    } catch (e) {
-      rethrow;
-    }
+    return {'pending': false, 'scheduled_date': null};
   }
 }

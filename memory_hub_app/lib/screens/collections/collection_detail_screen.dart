@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/collections_service.dart';
+import '../../services/hubs_service.dart';
 import '../../config/api_config.dart';
 import '../memories/memory_detail_screen.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +22,7 @@ class CollectionDetailScreen extends StatefulWidget {
 
 class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   final CollectionsService _service = CollectionsService();
+  final HubsService _hubsService = HubsService();
   Map<String, dynamic>? _collection;
   List<dynamic> _memories = [];
   bool _isLoading = true;
@@ -124,19 +126,40 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     );
     
     if (selectedHub != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Collection shared to ${selectedHub['name']}'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      try {
+        await _hubsService.shareToHub(
+          selectedHub['id'],
+          'collection',
+          widget.collectionId,
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Collection shared to ${selectedHub['name']}'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to share: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
   }
 
   Future<List<Map<String, dynamic>>> _getAvailableHubs() async {
-    // This would normally call the API to get user's hubs
-    // For now, return empty list as placeholder
-    return [];
+    try {
+      return await _hubsService.getMyHubs();
+    } catch (e) {
+      debugPrint('Error loading hubs: $e');
+      return [];
+    }
   }
 
   Future<void> _removeMemoryFromCollection(String memoryId) async {

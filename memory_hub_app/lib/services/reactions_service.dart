@@ -1,59 +1,76 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'api_service.dart';
+import 'auth_service.dart';
+import '../config/api_config.dart';
 
 class ReactionsService {
-  final ApiService _apiService = ApiService();
+  static String get baseUrl => ApiConfig.baseUrl;
+  final AuthService _authService = AuthService();
 
-  Future<Map<String, List<Map<String, dynamic>>>> getReactions({
-    required String targetType,
-    required String targetId,
-  }) async {
-    try {
-      final response = await _apiService.get('/reactions/$targetType/$targetId');
-      final reactions = Map<String, List<dynamic>>.from(response['reactions']);
+  Future<List<Map<String, dynamic>>> getReactions(
+    String targetType,
+    String targetId,
+  ) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await http.get(
+      Uri.parse('$baseUrl/reactions/$targetType/$targetId'),
+      headers: headers,
+    );
+    
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
       
-      return reactions.map((emoji, users) => MapEntry(
-        emoji,
-        List<Map<String, dynamic>>.from(users),
-      ));
-    } catch (e) {
-      rethrow;
+      if (data['reactions'] != null && data['reactions'] is Map) {
+        final reactionsMap = Map<String, dynamic>.from(data['reactions']);
+        final List<Map<String, dynamic>> normalizedReactions = [];
+        
+        reactionsMap.forEach((emoji, users) {
+          if (users is List) {
+            for (var user in users) {
+              normalizedReactions.add({
+                ...Map<String, dynamic>.from(user),
+                'reaction_type': emoji,
+              });
+            }
+          }
+        });
+        
+        return normalizedReactions;
+      }
+    }
+    return [];
+  }
+
+  Future<void> addReaction(
+    String targetType,
+    String targetId,
+    String emoji,
+  ) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await http.post(
+      Uri.parse('$baseUrl/reactions/$targetType/$targetId'),
+      headers: headers,
+      body: json.encode({'reaction_type': emoji}),
+    );
+    
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Failed to add reaction');
     }
   }
 
-  Future<void> addReaction({
-    required String targetType,
-    required String targetId,
-    required String emoji,
-  }) async {
-    try {
-      await _apiService.post('/reactions/$targetType/$targetId', body: {
-        'emoji': emoji,
-      });
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> removeReaction({
-    required String targetType,
-    required String targetId,
-    required String emoji,
-  }) async {
-    try {
-      await _apiService.delete('/reactions/$targetType/$targetId/$emoji');
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<Map<String, int>> getUserReactionStats() async {
-    try {
-      final response = await _apiService.get('/reactions/stats');
-      return Map<String, int>.from(response['stats']);
-    } catch (e) {
-      rethrow;
+  Future<void> removeReaction(
+    String targetType,
+    String targetId,
+    String emoji,
+  ) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await http.delete(
+      Uri.parse('$baseUrl/reactions/$targetType/$targetId/$emoji'),
+      headers: headers,
+    );
+    
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to remove reaction');
     }
   }
 }

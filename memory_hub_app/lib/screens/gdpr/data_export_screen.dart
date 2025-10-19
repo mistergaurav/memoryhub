@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../services/gdpr_service.dart';
 
 class DataExportScreen extends StatefulWidget {
   const DataExportScreen({Key? key}) : super(key: key);
@@ -12,6 +13,7 @@ class _DataExportScreenState extends State<DataExportScreen> {
   bool _isLoading = false;
   bool _isExporting = false;
   List<Map<String, dynamic>> _exportHistory = [];
+  final GdprService _gdprService = GdprService();
 
   @override
   void initState() {
@@ -22,35 +24,28 @@ class _DataExportScreenState extends State<DataExportScreen> {
   Future<void> _loadExportHistory() async {
     setState(() => _isLoading = true);
     try {
-      // TODO: Load from API endpoint /api/v1/export/history
-      await Future.delayed(const Duration(milliseconds: 500));
+      final history = await _gdprService.getExportHistory();
       setState(() {
-        _exportHistory = [
-          {
-            'type': 'JSON',
-            'date': DateTime.now().subtract(const Duration(days: 7)),
-            'size': '2.4 MB',
-            'status': 'completed'
-          },
-          {
-            'type': 'Archive',
-            'date': DateTime.now().subtract(const Duration(days: 30)),
-            'size': '156 MB',
-            'status': 'completed'
-          },
-        ];
+        _exportHistory = history;
         _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        _exportHistory = [];
+      });
     }
   }
 
   Future<void> _exportData(String type) async {
     setState(() => _isExporting = true);
     try {
-      // TODO: Call API endpoint /api/v1/export/json or /api/v1/export/archive
-      await Future.delayed(const Duration(seconds: 2));
+      if (type == 'JSON') {
+        await _gdprService.requestDataExport('json');
+      } else {
+        await _gdprService.requestDataExport('archive');
+      }
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

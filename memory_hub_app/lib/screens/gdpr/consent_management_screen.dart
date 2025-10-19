@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/gdpr_service.dart';
 
 class ConsentManagementScreen extends StatefulWidget {
   const ConsentManagementScreen({Key? key}) : super(key: key);
@@ -14,6 +15,7 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
   bool _dataSharingConsent = false;
   bool _isLoading = true;
   bool _isSaving = false;
+  final GdprService _gdprService = GdprService();
 
   @override
   void initState() {
@@ -24,17 +26,22 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
   Future<void> _loadConsentSettings() async {
     setState(() => _isLoading = true);
     try {
-      // TODO: Load from API
-      await Future.delayed(const Duration(milliseconds: 500));
+      final settings = await _gdprService.getConsentSettings();
       setState(() {
-        _analyticsConsent = true;
-        _marketingConsent = false;
-        _personalizationConsent = true;
-        _dataSharingConsent = false;
+        _analyticsConsent = settings['analytics'] ?? false;
+        _marketingConsent = settings['marketing'] ?? false;
+        _personalizationConsent = settings['personalization'] ?? false;
+        _dataSharingConsent = settings['data_sharing'] ?? false;
         _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() {
+        _analyticsConsent = false;
+        _marketingConsent = false;
+        _personalizationConsent = false;
+        _dataSharingConsent = false;
+        _isLoading = false;
+      });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load consent settings: $e')),
@@ -46,8 +53,12 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
   Future<void> _saveConsentSettings() async {
     setState(() => _isSaving = true);
     try {
-      // TODO: Save to API endpoint /api/v1/gdpr/consent
-      await Future.delayed(const Duration(seconds: 1));
+      await _gdprService.updateConsentSettings({
+        'analytics': _analyticsConsent,
+        'marketing': _marketingConsent,
+        'personalization': _personalizationConsent,
+        'data_sharing': _dataSharingConsent,
+      });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
