@@ -1,4 +1,4 @@
-modules = ["python-3.12", "cpp-clang14", "bash"]
+modules = ["cpp-clang14", "bash", "python-3.11"]
 [agent]
 expertMode = true
 
@@ -92,6 +92,10 @@ externalPort = 4200
 [[ports]]
 localPort = 40873
 externalPort = 6800
+
+[[ports]]
+localPort = 42067
+externalPort = 8000
 
 [[ports]]
 localPort = 45729
