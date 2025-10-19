@@ -3,7 +3,7 @@ from typing import List, Optional
 from bson import ObjectId
 from datetime import datetime
 
-from app.models.family_milestones import (
+from app.models.family.family_milestones import (
     FamilyMilestoneCreate, FamilyMilestoneUpdate, FamilyMilestoneResponse
 )
 from app.models.user import UserInDB

@@ -3,7 +3,7 @@ from typing import List, Optional
 from bson import ObjectId
 from datetime import datetime
 
-from app.models.genealogy import (
+from app.models.family.genealogy import (
     GenealogyPersonCreate, GenealogyPersonUpdate, GenealogyPersonResponse,
     GenealogyRelationshipCreate, GenealogyRelationshipResponse,
     FamilyTreeNode

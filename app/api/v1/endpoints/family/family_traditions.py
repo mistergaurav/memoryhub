@@ -3,7 +3,7 @@ from typing import List, Optional
 from bson import ObjectId
 from datetime import datetime
 
-from app.models.family_traditions import (
+from app.models.family.family_traditions import (
     FamilyTraditionCreate, FamilyTraditionUpdate, FamilyTraditionResponse
 )
 from app.models.user import UserInDB

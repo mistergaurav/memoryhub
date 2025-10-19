@@ -3,7 +3,7 @@ from typing import List
 from bson import ObjectId
 from datetime import datetime
 
-from app.models.legacy_letters import (
+from app.models.family.legacy_letters import (
     LegacyLetterCreate, LegacyLetterUpdate, LegacyLetterResponse,
     ReceivedLetterResponse
 )

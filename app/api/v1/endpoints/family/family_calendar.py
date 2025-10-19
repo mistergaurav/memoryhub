@@ -3,7 +3,7 @@ from typing import List, Optional
 from bson import ObjectId
 from datetime import datetime, timedelta
 
-from app.models.family_calendar import (
+from app.models.family.family_calendar import (
     FamilyEventCreate, FamilyEventUpdate, FamilyEventResponse
 )
 from app.models.user import UserInDB

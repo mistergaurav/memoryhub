@@ -3,7 +3,7 @@ from typing import List, Optional
 from bson import ObjectId
 from datetime import datetime
 
-from app.models.health_records import (
+from app.models.family.health_records import (
     HealthRecordCreate, HealthRecordUpdate, HealthRecordResponse,
     VaccinationRecordCreate, VaccinationRecordResponse,
     RecordType

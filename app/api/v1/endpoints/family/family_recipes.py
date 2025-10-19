@@ -3,7 +3,7 @@ from typing import List, Optional
 from bson import ObjectId
 from datetime import datetime
 
-from app.models.family_recipes import (
+from app.models.family.family_recipes import (
     FamilyRecipeCreate, FamilyRecipeUpdate, FamilyRecipeResponse,
     RecipeRatingCreate
 )

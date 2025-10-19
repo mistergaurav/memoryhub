@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from bson import ObjectId
 import secrets
 
-from app.models.family import (
+from app.models.family.family import (
     FamilyRelationshipCreate, FamilyRelationshipResponse,
     FamilyCircleCreate, FamilyCircleUpdate, FamilyCircleResponse,
     FamilyInvitationCreate, FamilyInvitationResponse,

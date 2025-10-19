@@ -3,7 +3,7 @@ from typing import List, Optional
 from bson import ObjectId
 from datetime import datetime
 
-from app.models.family_albums import (
+from app.models.family.family_albums import (
     FamilyAlbumCreate, FamilyAlbumUpdate, FamilyAlbumResponse,
     AlbumPhotoCreate, AlbumPhotoResponse, AlbumCommentCreate,
     AlbumCommentResponse, AlbumPhotoInDB
