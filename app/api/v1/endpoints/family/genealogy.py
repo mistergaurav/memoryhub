@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Optional
 from bson import ObjectId
 from datetime import datetime
@@ -6,11 +6,11 @@ from datetime import datetime
 from app.models.family.genealogy import (
     GenealogyPersonCreate, GenealogyPersonUpdate, GenealogyPersonResponse,
     GenealogyRelationshipCreate, GenealogyRelationshipResponse,
-    FamilyTreeNode
+    FamilyTreeNode, PersonSource, UserSearchResult
 )
 from app.models.user import UserInDB
 from app.core.security import get_current_user
-from app.db.mongodb import get_collection
+from app.db.mongodb import get_collection, get_database
 
 router = APIRouter()
 
@@ -21,13 +21,45 @@ def safe_object_id(id_str):
         return None
 
 
+def compute_is_alive(death_date: Optional[str], is_alive_override: Optional[bool]) -> bool:
+    """Compute is_alive status: use override if provided, otherwise infer from death_date"""
+    if is_alive_override is not None:
+        return is_alive_override
+    return death_date is None or death_date == ""
+
+
 @router.post("/persons", response_model=GenealogyPersonResponse, status_code=status.HTTP_201_CREATED)
 async def create_genealogy_person(
     person: GenealogyPersonCreate,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Create a new genealogy person"""
+    """Create a new genealogy person with optional relationships"""
     try:
+        linked_user_oid = None
+        
+        if person.linked_user_id:
+            linked_user_oid = safe_object_id(person.linked_user_id)
+            if not linked_user_oid:
+                raise HTTPException(status_code=400, detail="Invalid linked_user_id")
+            
+            user_doc = await get_collection("users").find_one({"_id": linked_user_oid})
+            if not user_doc:
+                raise HTTPException(status_code=404, detail="Linked user not found")
+            
+            existing_link = await get_collection("genealogy_persons").find_one({
+                "linked_user_id": linked_user_oid
+            })
+            if existing_link:
+                raise HTTPException(
+                    status_code=400, 
+                    detail="This user is already linked to another genealogy person"
+                )
+            
+            if person.source != PersonSource.PLATFORM_USER:
+                person.source = PersonSource.PLATFORM_USER
+        
+        is_alive = compute_is_alive(person.death_date, person.is_alive)
+        
         person_data = {
             "family_id": ObjectId(current_user.id),
             "first_name": person.first_name,
@@ -38,17 +70,56 @@ async def create_genealogy_person(
             "birth_place": person.birth_place,
             "death_date": person.death_date,
             "death_place": person.death_place,
+            "is_alive": is_alive,
             "biography": person.biography,
             "photo_url": person.photo_url,
             "occupation": person.occupation,
             "notes": person.notes,
+            "linked_user_id": linked_user_oid,
+            "source": person.source,
             "created_by": ObjectId(current_user.id),
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow()
         }
         
-        result = await get_collection("genealogy_persons").insert_one(person_data)
-        person_doc = await get_collection("genealogy_persons").find_one({"_id": result.inserted_id})
+        db = get_database()
+        async with await db.client.start_session() as session:
+            async with session.start_transaction():
+                result = await get_collection("genealogy_persons").insert_one(person_data, session=session)
+                person_id = result.inserted_id
+                
+                if person.relationships:
+                    for rel_spec in person.relationships:
+                        related_person_oid = safe_object_id(rel_spec.person_id)
+                        if not related_person_oid:
+                            raise HTTPException(status_code=400, detail=f"Invalid person_id in relationship: {rel_spec.person_id}")
+                        
+                        related_person = await get_collection("genealogy_persons").find_one(
+                            {"_id": related_person_oid}, session=session
+                        )
+                        if not related_person:
+                            raise HTTPException(status_code=404, detail=f"Related person not found: {rel_spec.person_id}")
+                        
+                        if str(related_person["family_id"]) != current_user.id:
+                            raise HTTPException(
+                                status_code=403, 
+                                detail="Cannot create relationship with person from another family"
+                            )
+                        
+                        relationship_data = {
+                            "family_id": ObjectId(current_user.id),
+                            "person1_id": person_id,
+                            "person2_id": related_person_oid,
+                            "relationship_type": rel_spec.relationship_type,
+                            "notes": rel_spec.notes,
+                            "created_by": ObjectId(current_user.id),
+                            "created_at": datetime.utcnow()
+                        }
+                        await get_collection("genealogy_relationships").insert_one(
+                            relationship_data, session=session
+                        )
+        
+        person_doc = await get_collection("genealogy_persons").find_one({"_id": person_id})
         
         return GenealogyPersonResponse(
             id=str(person_doc["_id"]),
@@ -61,14 +132,19 @@ async def create_genealogy_person(
             birth_place=person_doc.get("birth_place"),
             death_date=person_doc.get("death_date"),
             death_place=person_doc.get("death_place"),
+            is_alive=person_doc.get("is_alive", True),
             biography=person_doc.get("biography"),
             photo_url=person_doc.get("photo_url"),
             occupation=person_doc.get("occupation"),
             notes=person_doc.get("notes"),
+            linked_user_id=str(person_doc["linked_user_id"]) if person_doc.get("linked_user_id") else None,
+            source=person_doc.get("source", PersonSource.MANUAL),
             created_at=person_doc["created_at"],
             updated_at=person_doc["updated_at"],
             created_by=str(person_doc["created_by"])
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create person: {str(e)}")
 
@@ -98,10 +174,13 @@ async def list_genealogy_persons(
                 birth_place=person_doc.get("birth_place"),
                 death_date=person_doc.get("death_date"),
                 death_place=person_doc.get("death_place"),
+                is_alive=person_doc.get("is_alive", True),
                 biography=person_doc.get("biography"),
                 photo_url=person_doc.get("photo_url"),
                 occupation=person_doc.get("occupation"),
                 notes=person_doc.get("notes"),
+                linked_user_id=str(person_doc["linked_user_id"]) if person_doc.get("linked_user_id") else None,
+                source=person_doc.get("source", PersonSource.MANUAL),
                 created_at=person_doc["created_at"],
                 updated_at=person_doc["updated_at"],
                 created_by=str(person_doc["created_by"])
@@ -141,10 +220,13 @@ async def get_genealogy_person(
             birth_place=person_doc.get("birth_place"),
             death_date=person_doc.get("death_date"),
             death_place=person_doc.get("death_place"),
+            is_alive=person_doc.get("is_alive", True),
             biography=person_doc.get("biography"),
             photo_url=person_doc.get("photo_url"),
             occupation=person_doc.get("occupation"),
             notes=person_doc.get("notes"),
+            linked_user_id=str(person_doc["linked_user_id"]) if person_doc.get("linked_user_id") else None,
+            source=person_doc.get("source", PersonSource.MANUAL),
             created_at=person_doc["created_at"],
             updated_at=person_doc["updated_at"],
             created_by=str(person_doc["created_by"])
@@ -174,12 +256,48 @@ async def update_genealogy_person(
         if str(person_doc["family_id"]) != current_user.id:
             raise HTTPException(status_code=403, detail="Not authorized to update this person")
         
-        update_data = {k: v for k, v in person_update.dict(exclude_unset=True).items() if v is not None}
+        person_update_dict = person_update.dict(exclude_unset=True)
+        update_data = {k: v for k, v in person_update_dict.items() if v is not None}
+        unset_data = {}
+        
+        if "linked_user_id" in person_update_dict:
+            if person_update.linked_user_id is None or person_update.linked_user_id == "":
+                unset_data["linked_user_id"] = ""
+                update_data.pop("linked_user_id", None)
+            else:
+                linked_user_oid = safe_object_id(person_update.linked_user_id)
+                if not linked_user_oid:
+                    raise HTTPException(status_code=400, detail="Invalid linked_user_id")
+                
+                user_doc = await get_collection("users").find_one({"_id": linked_user_oid})
+                if not user_doc:
+                    raise HTTPException(status_code=404, detail="Linked user not found")
+                
+                existing_link = await get_collection("genealogy_persons").find_one({
+                    "linked_user_id": linked_user_oid,
+                    "_id": {"$ne": person_oid}
+                })
+                if existing_link:
+                    raise HTTPException(
+                        status_code=400, 
+                        detail="This user is already linked to another genealogy person"
+                    )
+                update_data["linked_user_id"] = linked_user_oid
+        
+        if "death_date" in update_data or "is_alive" in update_data:
+            death_date = update_data.get("death_date", person_doc.get("death_date"))
+            is_alive_override = update_data.get("is_alive")
+            update_data["is_alive"] = compute_is_alive(death_date, is_alive_override)
+        
         update_data["updated_at"] = datetime.utcnow()
+        
+        update_ops = {"$set": update_data}
+        if unset_data:
+            update_ops["$unset"] = unset_data
         
         await get_collection("genealogy_persons").update_one(
             {"_id": person_oid},
-            {"$set": update_data}
+            update_ops
         )
         
         updated_person = await get_collection("genealogy_persons").find_one({"_id": person_oid})
@@ -195,10 +313,13 @@ async def update_genealogy_person(
             birth_place=updated_person.get("birth_place"),
             death_date=updated_person.get("death_date"),
             death_place=updated_person.get("death_place"),
+            is_alive=updated_person.get("is_alive", True),
             biography=updated_person.get("biography"),
             photo_url=updated_person.get("photo_url"),
             occupation=updated_person.get("occupation"),
             notes=updated_person.get("notes"),
+            linked_user_id=str(updated_person["linked_user_id"]) if updated_person.get("linked_user_id") else None,
+            source=updated_person.get("source", PersonSource.MANUAL),
             created_at=updated_person["created_at"],
             updated_at=updated_person["updated_at"],
             created_by=str(updated_person["created_by"])
@@ -240,6 +361,60 @@ async def delete_genealogy_person(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete person: {str(e)}")
+
+
+@router.get("/search-users", response_model=List[UserSearchResult])
+async def search_memory_hub_users(
+    query: str = Query(..., min_length=2, description="Search query for username, email, or name"),
+    limit: int = Query(20, ge=1, le=50, description="Maximum number of results"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Search for verified family members to link to genealogy persons (security: only searches within your family)"""
+    try:
+        family_member_ids = set()
+        family_relationships_cursor = get_collection("family_relationships").find({
+            "user_id": ObjectId(current_user.id)
+        })
+        async for rel_doc in family_relationships_cursor:
+            family_member_ids.add(rel_doc["related_user_id"])
+        
+        if not family_member_ids:
+            return []
+        
+        search_regex = {"$regex": query, "$options": "i"}
+        users_cursor = get_collection("users").find({
+            "_id": {"$in": list(family_member_ids)},
+            "$or": [
+                {"username": search_regex},
+                {"email": search_regex},
+                {"full_name": search_regex}
+            ]
+        }).limit(limit)
+        
+        linked_user_ids = set()
+        linked_persons_cursor = get_collection("genealogy_persons").find(
+            {"family_id": ObjectId(current_user.id), "linked_user_id": {"$exists": True, "$ne": None}},
+            {"linked_user_id": 1}
+        )
+        async for person in linked_persons_cursor:
+            if person.get("linked_user_id"):
+                linked_user_ids.add(str(person["linked_user_id"]))
+        
+        results = []
+        async for user_doc in users_cursor:
+            user_id = str(user_doc["_id"])
+            results.append(UserSearchResult(
+                id=user_id,
+                username=user_doc.get("username", ""),
+                email=user_doc.get("email", ""),
+                full_name=user_doc.get("full_name"),
+                profile_photo=user_doc.get("profile_photo"),
+                already_linked=user_id in linked_user_ids
+            ))
+        
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to search users: {str(e)}")
 
 
 @router.post("/relationships", response_model=GenealogyRelationshipResponse, status_code=status.HTTP_201_CREATED)
@@ -373,10 +548,13 @@ async def get_family_tree(
                 birth_place=person_doc.get("birth_place"),
                 death_date=person_doc.get("death_date"),
                 death_place=person_doc.get("death_place"),
+                is_alive=person_doc.get("is_alive", True),
                 biography=person_doc.get("biography"),
                 photo_url=person_doc.get("photo_url"),
                 occupation=person_doc.get("occupation"),
                 notes=person_doc.get("notes"),
+                linked_user_id=str(person_doc["linked_user_id"]) if person_doc.get("linked_user_id") else None,
+                source=person_doc.get("source", PersonSource.MANUAL),
                 created_at=person_doc["created_at"],
                 updated_at=person_doc["updated_at"],
                 created_by=str(person_doc["created_by"])

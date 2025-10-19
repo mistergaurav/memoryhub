@@ -1,7 +1,8 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator, field_validator
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
+import re
 
 
 class Gender(str, Enum):
@@ -23,6 +24,19 @@ class RelationshipType(str, Enum):
     COUSIN = "cousin"
 
 
+class PersonSource(str, Enum):
+    MANUAL = "manual"
+    PLATFORM_USER = "platform_user"
+    IMPORT = "import"
+    OTHER = "other"
+
+
+class RelationshipSpec(BaseModel):
+    person_id: str
+    relationship_type: RelationshipType
+    notes: Optional[str] = Field(None, max_length=500)
+
+
 class GenealogyPersonCreate(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
@@ -32,10 +46,27 @@ class GenealogyPersonCreate(BaseModel):
     birth_place: Optional[str] = Field(None, max_length=200)
     death_date: Optional[str] = None
     death_place: Optional[str] = Field(None, max_length=200)
+    is_alive: Optional[bool] = None
     biography: Optional[str] = Field(None, max_length=5000)
     photo_url: Optional[str] = None
     occupation: Optional[str] = Field(None, max_length=200)
     notes: Optional[str] = Field(None, max_length=2000)
+    linked_user_id: Optional[str] = None
+    source: Optional[PersonSource] = PersonSource.MANUAL
+    relationships: Optional[List[RelationshipSpec]] = None
+    
+    @validator('birth_date', 'death_date')
+    def validate_date_format(cls, v):
+        if v is None or v == "":
+            return v
+        date_pattern = r'^\d{4}-\d{2}-\d{2}$'
+        if not re.match(date_pattern, v):
+            raise ValueError('Date must be in YYYY-MM-DD format or empty')
+        try:
+            datetime.strptime(v, '%Y-%m-%d')
+        except ValueError:
+            raise ValueError('Invalid date value')
+        return v
 
 
 class GenealogyPersonUpdate(BaseModel):
@@ -47,10 +78,25 @@ class GenealogyPersonUpdate(BaseModel):
     birth_place: Optional[str] = Field(None, max_length=200)
     death_date: Optional[str] = None
     death_place: Optional[str] = Field(None, max_length=200)
+    is_alive: Optional[bool] = None
     biography: Optional[str] = Field(None, max_length=5000)
     photo_url: Optional[str] = None
     occupation: Optional[str] = Field(None, max_length=200)
     notes: Optional[str] = Field(None, max_length=2000)
+    linked_user_id: Optional[str] = None
+    
+    @validator('birth_date', 'death_date')
+    def validate_date_format(cls, v):
+        if v is None or v == "":
+            return v
+        date_pattern = r'^\d{4}-\d{2}-\d{2}$'
+        if not re.match(date_pattern, v):
+            raise ValueError('Date must be in YYYY-MM-DD format or empty')
+        try:
+            datetime.strptime(v, '%Y-%m-%d')
+        except ValueError:
+            raise ValueError('Invalid date value')
+        return v
 
 
 class GenealogyPersonResponse(BaseModel):
@@ -64,10 +110,13 @@ class GenealogyPersonResponse(BaseModel):
     birth_place: Optional[str] = None
     death_date: Optional[str] = None
     death_place: Optional[str] = None
+    is_alive: bool = True
     biography: Optional[str] = None
     photo_url: Optional[str] = None
     occupation: Optional[str] = None
     notes: Optional[str] = None
+    linked_user_id: Optional[str] = None
+    source: Optional[PersonSource] = PersonSource.MANUAL
     created_at: datetime
     updated_at: datetime
     created_by: str
@@ -97,3 +146,12 @@ class FamilyTreeNode(BaseModel):
     children: List[str] = []
     parents: List[str] = []
     spouse: Optional[str] = None
+
+
+class UserSearchResult(BaseModel):
+    id: str
+    username: str
+    email: str
+    full_name: Optional[str] = None
+    profile_photo: Optional[str] = None
+    already_linked: bool = False
