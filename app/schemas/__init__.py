@@ -7,6 +7,7 @@ __all__ = [
     "CollectionCreate",
     "CollectionUpdate",
     "CollectionResponse",
+    "CollectionWithMemories",
     "CommentCreate",
     "CommentUpdate",
     "CommentResponse",
