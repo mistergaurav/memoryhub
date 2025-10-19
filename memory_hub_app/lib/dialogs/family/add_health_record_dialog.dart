@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../services/auth_service.dart';
 
 class AddHealthRecordDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
@@ -15,6 +16,7 @@ class AddHealthRecordDialog extends StatefulWidget {
 
 class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> {
   final _formKey = GlobalKey<FormState>();
+  final _authService = AuthService();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _providerController = TextEditingController();
@@ -68,10 +70,21 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> {
     }
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
+      final userId = await _authService.getCurrentUserId();
+      if (userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Unable to get user information. Please try logging in again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
       final data = {
-        'family_member_id': 'current_user',
+        'family_member_id': userId,
         'record_type': _recordType,
         'title': _titleController.text.trim(),
         'description': _descriptionController.text.trim(),

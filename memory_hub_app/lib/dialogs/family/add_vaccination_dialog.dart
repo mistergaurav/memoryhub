@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../services/auth_service.dart';
 
 class AddVaccinationDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
@@ -15,6 +16,7 @@ class AddVaccinationDialog extends StatefulWidget {
 
 class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
   final _formKey = GlobalKey<FormState>();
+  final _authService = AuthService();
   final _vaccineNameController = TextEditingController();
   final _providerController = TextEditingController();
   final _lotNumberController = TextEditingController();
@@ -60,10 +62,21 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
     }
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
+      final userId = await _authService.getCurrentUserId();
+      if (userId == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Unable to get user information. Please try logging in again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
       final data = {
-        'family_member_id': 'current_user',
+        'family_member_id': userId,
         'vaccine_name': _vaccineNameController.text.trim(),
         'date_administered': DateFormat('yyyy-MM-dd').format(_dateAdministered),
         'provider': _providerController.text.trim(),
