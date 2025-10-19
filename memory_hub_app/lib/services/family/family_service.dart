@@ -533,4 +533,84 @@ class FamilyService {
       throw Exception('Failed to log access');
     }
   }
+
+  Future<Map<String, dynamic>> createMilestone(Map<String, dynamic> milestoneData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/family-milestones/'),
+        headers: headers,
+        body: jsonEncode(milestoneData),
+      ),
+    );
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to create milestone');
+    }
+  }
+
+  Future<Map<String, dynamic>> createRecipe(Map<String, dynamic> recipeData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/family-recipes/'),
+        headers: headers,
+        body: jsonEncode(recipeData),
+      ),
+    );
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to create recipe');
+    }
+  }
+
+  Future<Map<String, dynamic>> createTradition(Map<String, dynamic> traditionData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/family-traditions/'),
+        headers: headers,
+        body: jsonEncode(traditionData),
+      ),
+    );
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to create tradition');
+    }
+  }
+
+  Future<FamilyAlbum> createAlbum(Map<String, dynamic> albumData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/family-albums/'),
+        headers: headers,
+        body: jsonEncode(albumData),
+      ),
+    );
+    if (response.statusCode == 201) {
+      return FamilyAlbum.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to create album');
+    }
+  }
+
+  Future<LegacyLetter> createLegacyLetter(Map<String, dynamic> letterData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/legacy-letters/'),
+        headers: headers,
+        body: jsonEncode(letterData),
+      ),
+    );
+    if (response.statusCode == 201) {
+      return LegacyLetter.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to create legacy letter');
+    }
+  }
 }

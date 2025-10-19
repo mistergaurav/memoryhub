@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/family/family_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
+import '../../dialogs/family/add_person_dialog.dart';
+import '../../dialogs/family/add_relationship_dialog.dart';
 import 'package:intl/intl.dart';
 
 class GenealogyTreeScreen extends StatefulWidget {
@@ -100,7 +102,11 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.search),
-                  onPressed: () {},
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Search feature coming soon')),
+                    );
+                  },
                 ),
               ],
             ),
@@ -147,7 +153,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                   title: 'No Family Members Yet',
                   message: 'Start building your family tree by adding family members.',
                   actionLabel: 'Add Person',
-                  onAction: () {},
+                  onAction: _showAddPersonDialog,
                   gradientColors: const [
                     Color(0xFFF59E0B),
                     Color(0xFFFBBF24),
@@ -181,7 +187,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: _showAddPersonDialog,
         icon: const Icon(Icons.person_add),
         label: const Text('Add Person'),
         backgroundColor: const Color(0xFFF59E0B),
@@ -563,6 +569,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
               title: const Text('Edit'),
               onTap: () {
                 Navigator.pop(context);
+                _showEditPersonDialog(person);
               },
             ),
             ListTile(
@@ -570,6 +577,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
               title: const Text('Add Relationship'),
               onTap: () {
                 Navigator.pop(context);
+                _showAddRelationshipDialog(person);
               },
             ),
             ListTile(
@@ -617,6 +625,110 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
         ),
       ),
     );
+  }
+
+  void _showAddPersonDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddPersonDialog(
+        onSubmit: _handleAddPerson,
+      ),
+    );
+  }
+
+  void _showEditPersonDialog(Map<String, dynamic> person) {
+    showDialog(
+      context: context,
+      builder: (context) => AddPersonDialog(
+        initialData: person,
+        onSubmit: (data) => _handleEditPerson(person['id'], data),
+      ),
+    );
+  }
+
+  void _showAddRelationshipDialog(Map<String, dynamic> person) {
+    showDialog(
+      context: context,
+      builder: (context) => AddRelationshipDialog(
+        persons: _persons,
+        onSubmit: _handleAddRelationship,
+      ),
+    );
+  }
+
+  Future<void> _handleAddPerson(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createPerson(data);
+      _loadData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Person added successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to add person: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> _handleEditPerson(String personId, Map<String, dynamic> data) async {
+    try {
+      await _familyService.updatePerson(personId, data);
+      _loadData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Person updated successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update person: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> _handleAddRelationship(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createRelationship(data);
+      _loadData();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Relationship added successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to add relationship: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      rethrow;
+    }
   }
 }
 

@@ -3,6 +3,7 @@ import '../../services/family/family_service.dart';
 import '../../models/family/family_tradition.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
+import '../../dialogs/family/add_tradition_dialog.dart';
 import 'package:intl/intl.dart';
 
 class FamilyTraditionsScreen extends StatefulWidget {
@@ -123,7 +124,7 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                   title: 'No Traditions Yet',
                   message: 'Preserve your family heritage by documenting cherished traditions.',
                   actionLabel: 'Add Tradition',
-                  onAction: () {},
+                  onAction: _showAddDialog,
                   gradientColors: const [
                     Color(0xFF10B981),
                     Color(0xFF34D399),
@@ -144,7 +145,7 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: _showAddDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Tradition'),
         backgroundColor: const Color(0xFF10B981),
@@ -426,5 +427,31 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
         ),
       ),
     );
+  }
+
+  void _showAddDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddTraditionDialog(onSubmit: _handleAdd),
+    );
+  }
+
+  Future<void> _handleAdd(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createTradition(data);
+      _loadTraditions();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tradition added successfully'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add tradition: $e'), backgroundColor: Colors.red),
+        );
+      }
+      rethrow;
+    }
   }
 }

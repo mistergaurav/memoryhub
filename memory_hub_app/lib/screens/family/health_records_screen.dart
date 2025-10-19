@@ -190,7 +190,11 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
             actions: [
               IconButton(
                 icon: const Icon(Icons.search),
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Search feature coming soon')),
+                  );
+                },
               ),
             ],
             bottom: TabBar(

@@ -3,6 +3,7 @@ import '../../services/family/family_service.dart';
 import '../../models/family/family_timeline.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
+import '../../dialogs/family/add_event_dialog.dart';
 import 'package:intl/intl.dart';
 
 class FamilyTimelineScreen extends StatefulWidget {
@@ -129,7 +130,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> {
                   title: 'No Events Yet',
                   message: 'Start documenting your family journey by adding timeline events.',
                   actionLabel: 'Add Event',
-                  onAction: () {},
+                  onAction: _showAddEventDialog,
                   gradientColors: const [
                     Color(0xFFEC4899),
                     Color(0xFFF472B6),
@@ -147,7 +148,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: _showAddEventDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Event'),
         backgroundColor: const Color(0xFFEC4899),
@@ -432,5 +433,39 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> {
         ],
       ),
     );
+  }
+
+  void _showAddEventDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddEventDialog(
+        onSubmit: _handleAddEvent,
+      ),
+    );
+  }
+
+  Future<void> _handleAddEvent(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createCalendarEvent(data);
+      _loadEvents();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Event added successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to add event: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      rethrow;
+    }
   }
 }

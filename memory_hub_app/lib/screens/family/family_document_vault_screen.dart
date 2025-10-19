@@ -124,7 +124,11 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.search),
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Search feature coming soon')),
+                  );
+                },
               ),
             ],
           ),

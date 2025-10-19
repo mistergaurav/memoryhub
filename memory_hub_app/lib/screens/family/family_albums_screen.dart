@@ -3,6 +3,7 @@ import '../../services/family/family_service.dart';
 import '../../models/family/family_album.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
+import '../../dialogs/family/add_album_dialog.dart';
 
 class FamilyAlbumsScreen extends StatefulWidget {
   const FamilyAlbumsScreen({Key? key}) : super(key: key);
@@ -88,7 +89,11 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
               actions: [
                 IconButton(
                   icon: const Icon(Icons.search),
-                  onPressed: () {},
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Search feature coming soon')),
+                    );
+                  },
                 ),
               ],
             ),
@@ -125,7 +130,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
                   title: 'No Albums Yet',
                   message: 'Create your first family album to start preserving memories together.',
                   actionLabel: 'Create Album',
-                  onAction: () {},
+                  onAction: _showAddDialog,
                   gradientColors: const [
                     Color(0xFF7C3AED),
                     Color(0xFF9333EA),
@@ -152,7 +157,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: _showAddDialog,
         icon: const Icon(Icons.add),
         label: const Text('Create Album'),
         backgroundColor: const Color(0xFF7C3AED),
@@ -430,5 +435,31 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
         backgroundColor: const Color(0xFF7C3AED),
       ),
     );
+  }
+
+  void _showAddDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddAlbumDialog(onSubmit: _handleAdd),
+    );
+  }
+
+  Future<void> _handleAdd(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createAlbum(data);
+      _loadAlbums();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Album created successfully'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create album: $e'), backgroundColor: Colors.red),
+        );
+      }
+      rethrow;
+    }
   }
 }

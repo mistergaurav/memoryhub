@@ -3,6 +3,7 @@ import '../../services/family/family_service.dart';
 import '../../models/family/family_recipe.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
+import '../../dialogs/family/add_recipe_dialog.dart';
 
 class FamilyRecipesScreen extends StatefulWidget {
   const FamilyRecipesScreen({Key? key}) : super(key: key);
@@ -88,7 +89,11 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
               actions: [
                 IconButton(
                   icon: const Icon(Icons.search),
-                  onPressed: () {},
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Search feature coming soon')),
+                    );
+                  },
                 ),
               ],
             ),
@@ -119,7 +124,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                   title: 'No Recipes Yet',
                   message: 'Start preserving your family culinary heritage by adding recipes!',
                   actionLabel: 'Add Recipe',
-                  onAction: () {},
+                  onAction: _showAddDialog,
                   gradientColors: const [
                     Color(0xFFEF4444),
                     Color(0xFFF87171),
@@ -140,7 +145,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: _showAddDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Recipe'),
         backgroundColor: const Color(0xFFEF4444),
@@ -538,5 +543,31 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         ],
       ),
     );
+  }
+
+  void _showAddDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddRecipeDialog(onSubmit: _handleAdd),
+    );
+  }
+
+  Future<void> _handleAdd(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createRecipe(data);
+      _loadRecipes();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Recipe added successfully'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add recipe: $e'), backgroundColor: Colors.red),
+        );
+      }
+      rethrow;
+    }
   }
 }

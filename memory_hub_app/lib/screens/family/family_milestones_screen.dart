@@ -3,6 +3,7 @@ import '../../services/family/family_service.dart';
 import '../../models/family/family_milestone.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
+import '../../dialogs/family/add_milestone_dialog.dart';
 import 'package:intl/intl.dart';
 
 class FamilyMilestonesScreen extends StatefulWidget {
@@ -119,7 +120,11 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
               actions: [
                 IconButton(
                   icon: const Icon(Icons.sort),
-                  onPressed: () {},
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Sort feature coming soon')),
+                    );
+                  },
                 ),
               ],
             ),
@@ -150,7 +155,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                   title: 'No Milestones Yet',
                   message: 'Start celebrating family achievements by adding your first milestone!',
                   actionLabel: 'Add Milestone',
-                  onAction: () {},
+                  onAction: _showAddDialog,
                   gradientColors: const [
                     Color(0xFFF59E0B),
                     Color(0xFFFBBF24),
@@ -171,7 +176,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: _showAddDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Milestone'),
         backgroundColor: const Color(0xFFF59E0B),
@@ -438,5 +443,31 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
         ),
       ),
     );
+  }
+
+  void _showAddDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddMilestoneDialog(onSubmit: _handleAdd),
+    );
+  }
+
+  Future<void> _handleAdd(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createMilestone(data);
+      _loadMilestones();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Milestone added successfully'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add milestone: $e'), backgroundColor: Colors.red),
+        );
+      }
+      rethrow;
+    }
   }
 }

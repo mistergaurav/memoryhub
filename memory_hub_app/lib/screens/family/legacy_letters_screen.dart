@@ -3,6 +3,7 @@ import '../../services/family/family_service.dart';
 import '../../models/family/legacy_letter.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
+import '../../dialogs/family/add_legacy_letter_dialog.dart';
 import 'package:intl/intl.dart';
 
 class LegacyLettersScreen extends StatefulWidget {
@@ -123,7 +124,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> {
                   title: 'No Legacy Letters',
                   message: 'Create heartfelt messages for your loved ones to cherish forever.',
                   actionLabel: 'Write Letter',
-                  onAction: () {},
+                  onAction: _showAddDialog,
                   gradientColors: const [
                     Color(0xFF8B5CF6),
                     Color(0xFFA78BFA),
@@ -144,7 +145,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: _showAddDialog,
         icon: const Icon(Icons.edit),
         label: const Text('Write Letter'),
         backgroundColor: const Color(0xFF8B5CF6),
@@ -371,5 +372,31 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> {
         ),
       ),
     );
+  }
+
+  void _showAddDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddLegacyLetterDialog(onSubmit: _handleAdd),
+    );
+  }
+
+  Future<void> _handleAdd(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createLegacyLetter(data);
+      _loadLetters();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Letter saved successfully'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save letter: $e'), backgroundColor: Colors.red),
+        );
+      }
+      rethrow;
+    }
   }
 }
