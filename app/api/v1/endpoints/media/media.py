@@ -20,8 +20,14 @@ async def serve_uploaded_file(category: str, user_folder: str, filename: str):
     # Security: Prevent path traversal attacks
     try:
         file_path = file_path.resolve()
-        UPLOAD_DIR.resolve() in file_path.parents
-    except:
+        upload_dir_resolved = UPLOAD_DIR.resolve()
+        
+        # Ensure the resolved path is within the upload directory
+        if upload_dir_resolved not in file_path.parents:
+            raise HTTPException(status_code=403, detail="Access denied")
+    except HTTPException:
+        raise
+    except Exception:
         raise HTTPException(status_code=404, detail="File not found")
     
     # Check if file exists
