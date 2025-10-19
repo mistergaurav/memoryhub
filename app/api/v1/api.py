@@ -13,6 +13,7 @@ from app.api.v1.endpoints.family import (
 from app.api.v1.endpoints.social import hub, activity, notifications
 from app.api.v1.endpoints.features import search, analytics, sharing, reminders, scheduled_posts, places
 from app.api.v1.endpoints.admin import admin, export, gdpr
+from app.api.v1.endpoints.media import media
 
 api_router = APIRouter()
 
@@ -64,3 +65,5 @@ api_router.include_router(places.router, prefix="/places", tags=["places"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
 api_router.include_router(export.router, prefix="/export", tags=["export"])
 api_router.include_router(gdpr.router, prefix="/gdpr", tags=["gdpr"])
+
+api_router.include_router(media.router, prefix="/media", tags=["media"])
