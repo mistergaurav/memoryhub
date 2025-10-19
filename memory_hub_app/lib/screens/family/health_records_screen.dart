@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/family/family_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
+import '../../dialogs/family/add_health_record_dialog.dart';
+import '../../dialogs/family/add_vaccination_dialog.dart';
 import 'package:intl/intl.dart';
 
 class HealthRecordsScreen extends StatefulWidget {
@@ -86,6 +88,64 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
     ]);
   }
 
+  void _showAddHealthRecordDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddHealthRecordDialog(
+        onSubmit: _handleAddHealthRecord,
+      ),
+    );
+  }
+
+  void _showAddVaccinationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddVaccinationDialog(
+        onSubmit: _handleAddVaccination,
+      ),
+    );
+  }
+
+  Future<void> _handleAddHealthRecord(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createHealthRecord(data);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Health record added successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      _loadHealthRecords();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add health record: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleAddVaccination(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createVaccination(data);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vaccination added successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      _loadVaccinations();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add vaccination: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,7 +214,9 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           if (_tabController.index == 0) {
+            _showAddHealthRecordDialog();
           } else {
+            _showAddVaccinationDialog();
           }
         },
         icon: const Icon(Icons.add),
@@ -205,7 +267,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
                 title: 'No Health Records Yet',
                 message: 'Start tracking your family\'s health by adding medical records.',
                 actionLabel: 'Add Record',
-                onAction: () {},
+                onAction: _showAddHealthRecordDialog,
                 gradientColors: const [
                   Color(0xFFEF4444),
                   Color(0xFFF87171),
@@ -249,7 +311,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
                   title: 'No Vaccinations Yet',
                   message: 'Keep track of family vaccinations and immunization schedules.',
                   actionLabel: 'Add Vaccination',
-                  onAction: () {},
+                  onAction: _showAddVaccinationDialog,
                   gradientColors: const [
                     Color(0xFFEF4444),
                     Color(0xFFF87171),

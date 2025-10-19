@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/family/family_service.dart';
 import '../../models/family/family_calendar.dart';
 import '../../widgets/enhanced_empty_state.dart';
+import '../../dialogs/family/add_event_dialog.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -48,6 +49,35 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> {
     return _events.where((event) {
       return isSameDay(event.startDate, day);
     }).toList();
+  }
+
+  void _showAddEventDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddEventDialog(
+        onSubmit: _handleAddEvent,
+      ),
+    );
+  }
+
+  Future<void> _handleAddEvent(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createCalendarEvent(data);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Event added successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      _loadEvents();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add event: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -180,7 +210,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> {
                         title: 'No Events',
                         message: 'No events scheduled for this day.',
                         actionLabel: 'Add Event',
-                        onAction: () {},
+                        onAction: _showAddEventDialog,
                         gradientColors: const [
                           Color(0xFF06B6D4),
                           Color(0xFF22D3EE),
@@ -199,7 +229,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: _showAddEventDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Event'),
         backgroundColor: const Color(0xFF06B6D4),
