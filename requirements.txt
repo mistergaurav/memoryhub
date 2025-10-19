@@ -347,3 +347,4 @@ python-multipart
 qrcode
 requests
 uvicorn
+httpx
