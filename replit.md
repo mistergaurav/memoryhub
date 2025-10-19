@@ -4,6 +4,14 @@ The Memory Hub is a full-stack digital legacy platform designed to help families
 
 ## Recent Changes (October 2025)
 
+**Family Management Buttons Functional (October 19, 2025)**: Made family management buttons fully functional with complete form dialogs and API integration:
+- **Dialog Widgets**: Created three comprehensive Flutter dialog widgets (AddHealthRecordDialog, AddVaccinationDialog, AddEventDialog) with form validation and user-friendly interfaces
+- **API Integration**: Added createCalendarEvent method to FamilyService; health record and vaccination creation methods already existed
+- **Button Wiring**: Connected all buttons in health_records_screen.dart and family_calendar_screen.dart to show dialogs and call backend APIs
+- **JWT Authentication**: Enhanced AuthService with getCurrentUserId() method to decode JWT tokens and extract user IDs
+- **User ID Resolution**: Dialogs now correctly use the authenticated user's ID as family_member_id instead of placeholder values
+- **Error Handling**: Proper error messages displayed via SnackBars for successful operations and failures
+
 **Production-Ready Services Implementation (October 19, 2025)**: Replaced all mock/placeholder implementations with real production-ready services:
 - **Email Service Layer**: Comprehensive email service supporting Resend, SendGrid, and SMTP with beautiful HTML templates for password reset, email verification, and welcome emails
 - **Storage Service**: Production-ready file handling with automatic categorization (audio/images/videos/documents), user-based organization, file size tracking, and secure path validation
@@ -85,6 +93,7 @@ Preferred communication style: Simple, everyday language.
 - `cupertino_icons`: iOS-style icons.
 - `table_calendar`: Calendar widget.
 - `shimmer`: Loading state animations.
+- `jwt_decode`: JWT token parsing and user ID extraction.
 
 ## Development Tools
 
