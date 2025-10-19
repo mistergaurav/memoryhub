@@ -153,6 +153,32 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
     );
   }
 
+  void _showAddDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddRecipeDialog(onSubmit: _handleAdd),
+    );
+  }
+
+  Future<void> _handleAdd(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createRecipe(data);
+      _loadRecipes();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Recipe added successfully'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add recipe: $e'), backgroundColor: Colors.red),
+        );
+      }
+      rethrow;
+    }
+  }
+
   Widget _buildRecipeCard(FamilyRecipe recipe) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
@@ -545,29 +571,4 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     );
   }
 
-  void _showAddDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AddRecipeDialog(onSubmit: _handleAdd),
-    );
-  }
-
-  Future<void> _handleAdd(Map<String, dynamic> data) async {
-    try {
-      await _familyService.createRecipe(data);
-      _loadRecipes();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Recipe added successfully'), backgroundColor: Colors.green),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add recipe: $e'), backgroundColor: Colors.red),
-        );
-      }
-      rethrow;
-    }
-  }
 }

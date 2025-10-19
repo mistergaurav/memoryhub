@@ -165,6 +165,32 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
     );
   }
 
+  void _showAddDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AddAlbumDialog(onSubmit: _handleAdd),
+    );
+  }
+
+  Future<void> _handleAdd(Map<String, dynamic> data) async {
+    try {
+      await _familyService.createAlbum(data);
+      _loadAlbums();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Album created successfully'), backgroundColor: Colors.green),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create album: $e'), backgroundColor: Colors.red),
+        );
+      }
+      rethrow;
+    }
+  }
+
   Widget _buildAlbumCard(FamilyAlbum album) {
     return Card(
       elevation: 4,
@@ -437,29 +463,4 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
     );
   }
 
-  void _showAddDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AddAlbumDialog(onSubmit: _handleAdd),
-    );
-  }
-
-  Future<void> _handleAdd(Map<String, dynamic> data) async {
-    try {
-      await _familyService.createAlbum(data);
-      _loadAlbums();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Album created successfully'), backgroundColor: Colors.green),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create album: $e'), backgroundColor: Colors.red),
-        );
-      }
-      rethrow;
-    }
-  }
 }
