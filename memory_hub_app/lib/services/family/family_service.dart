@@ -209,6 +209,22 @@ class FamilyService {
     }
   }
 
+  Future<Map<String, dynamic>> createCalendarEvent(Map<String, dynamic> eventData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/family-calendar/events'),
+        headers: headers,
+        body: jsonEncode(eventData),
+      ),
+    );
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to create calendar event');
+    }
+  }
+
   Future<Map<String, dynamic>> getFamilyDashboard() async {
     final headers = await _authService.getAuthHeaders();
     final response = await _handleRequest(
