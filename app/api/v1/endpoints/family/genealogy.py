@@ -711,11 +711,12 @@ async def send_family_hub_invitation(
         result = await get_collection("family_hub_invitations").insert_one(invitation_data)
         invitation_doc = await get_collection("family_hub_invitations").find_one({"_id": result.inserted_id})
         
+        inviter_name = getattr(current_user, 'username', None) or current_user.full_name or current_user.email
         notification_data = {
             "user_id": invited_user_oid,
             "type": "family_hub_invitation",
             "title": "Family Hub Invitation",
-            "message": f"{current_user.username} invited you to join their family hub",
+            "message": f"{inviter_name} invited you to join their family hub",
             "related_id": str(result.inserted_id),
             "read": False,
             "created_at": datetime.utcnow()
@@ -865,11 +866,12 @@ async def respond_to_invitation(
         
         updated_invitation = await get_collection("family_hub_invitations").find_one({"_id": invitation_oid})
         
+        responder_name = getattr(current_user, 'username', None) or current_user.full_name or current_user.email
         notification_data = {
             "user_id": updated_invitation["inviter_id"],
             "type": "invitation_response",
             "title": f"Invitation {new_status}",
-            "message": f"{current_user.username} {new_status} your family hub invitation",
+            "message": f"{responder_name} {new_status} your family hub invitation",
             "related_id": invitation_id,
             "read": False,
             "created_at": datetime.utcnow()
@@ -1047,11 +1049,12 @@ async def create_tree_membership(
         result = await get_collection("genealogy_tree_memberships").insert_one(membership_data)
         
         # Send notification to the user
+        granter_name = getattr(current_user, 'username', None) or current_user.full_name or current_user.email
         notification_data = {
             "user_id": target_user_oid,
             "type": "tree_access_granted",
             "title": "Family Tree Access Granted",
-            "message": f"{current_user.username} granted you {role} access to their family tree",
+            "message": f"{granter_name} granted you {role} access to their family tree",
             "related_id": str(result.inserted_id),
             "read": False,
             "created_at": datetime.utcnow()
@@ -1251,11 +1254,12 @@ async def redeem_invite_link(
                     }, session=session)
         
         # Send notification to tree owner
+        joiner_name = getattr(current_user, 'username', None) or current_user.full_name or current_user.email
         notification_data = {
             "user_id": invite_doc["family_id"],
             "type": "invitation_accepted",
             "title": "Family Tree Invitation Accepted",
-            "message": f"{current_user.username} joined your family tree",
+            "message": f"{joiner_name} joined your family tree",
             "related_id": str(invite_doc["person_id"]),
             "read": False,
             "created_at": datetime.utcnow()
