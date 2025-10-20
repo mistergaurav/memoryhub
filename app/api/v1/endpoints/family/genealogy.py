@@ -882,3 +882,139 @@ async def cancel_invitation(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to cancel invitation: {str(e)}")
+
+
+# ==============================================================================
+# TREE MEMBERSHIP ENDPOINTS - For shared family tree access control
+# ==============================================================================
+
+@router.get("/tree-memberships", response_model=List[dict])
+async def list_tree_memberships(
+    tree_id: Optional[str] = Query(None, description="Filter by tree_id (family_id)"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """List all tree memberships - either for current user or for a specific tree they own"""
+    try:
+        if tree_id:
+            # Verify user is owner or member of this tree
+            tree_oid = safe_object_id(tree_id)
+            if not tree_oid:
+                raise HTTPException(status_code=400, detail="Invalid tree_id")
+            
+            # Check if user is owner or member
+            membership = await get_collection("genealogy_tree_memberships").find_one({
+                "tree_id": tree_oid,
+                "user_id": ObjectId(current_user.id)
+            })
+            
+            if not membership:
+                raise HTTPException(status_code=403, detail="Not authorized to view this tree's memberships")
+            
+            # Get all memberships for this tree
+            query = {"tree_id": tree_oid}
+        else:
+            # Get all trees where current user is a member
+            query = {"user_id": ObjectId(current_user.id)}
+        
+        memberships_cursor = get_collection("genealogy_tree_memberships").find(query).sort("joined_at", -1)
+        
+        memberships = []
+        async for membership_doc in memberships_cursor:
+            # Get user details
+            user_doc = await get_collection("users").find_one({"_id": membership_doc["user_id"]})
+            
+            membership_data = {
+                "id": str(membership_doc["_id"]),
+                "tree_id": str(membership_doc["tree_id"]),
+                "user_id": str(membership_doc["user_id"]),
+                "username": user_doc.get("username", "") if user_doc else "",
+                "full_name": user_doc.get("full_name") if user_doc else None,
+                "profile_photo": user_doc.get("profile_photo") if user_doc else None,
+                "role": membership_doc["role"],
+                "joined_at": membership_doc["joined_at"],
+                "granted_by": str(membership_doc["granted_by"])
+            }
+            memberships.append(membership_data)
+        
+        return memberships
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list memberships: {str(e)}")
+
+
+@router.post("/tree-memberships", status_code=status.HTTP_201_CREATED)
+async def create_tree_membership(
+    user_id: str = Query(..., description="User ID to grant access to"),
+    role: str = Query("viewer", description="Role: owner, member, or viewer"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Grant tree access to another user (only tree owner can do this)"""
+    try:
+        # Verify the requesting user is the tree owner (tree_id is current_user.id)
+        tree_oid = ObjectId(current_user.id)
+        
+        # Check if requesting user is owner of their own tree
+        owner_membership = await get_collection("genealogy_tree_memberships").find_one({
+            "tree_id": tree_oid,
+            "user_id": tree_oid,
+            "role": "owner"
+        })
+        
+        if not owner_membership:
+            # Create owner membership if it doesn't exist
+            await get_collection("genealogy_tree_memberships").insert_one({
+                "tree_id": tree_oid,
+                "user_id": tree_oid,
+                "role": "owner",
+                "joined_at": datetime.utcnow(),
+                "granted_by": tree_oid
+            })
+        
+        # Validate user_id
+        target_user_oid = safe_object_id(user_id)
+        if not target_user_oid:
+            raise HTTPException(status_code=400, detail="Invalid user_id")
+        
+        # Check if user exists
+        user_exists = await get_collection("users").find_one({"_id": target_user_oid})
+        if not user_exists:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Check if membership already exists
+        existing = await get_collection("genealogy_tree_memberships").find_one({
+            "tree_id": tree_oid,
+            "user_id": target_user_oid
+        })
+        
+        if existing:
+            raise HTTPException(status_code=400, detail="User already has access to this tree")
+        
+        # Create membership
+        membership_data = {
+            "tree_id": tree_oid,
+            "user_id": target_user_oid,
+            "role": role,
+            "joined_at": datetime.utcnow(),
+            "granted_by": ObjectId(current_user.id)
+        }
+        
+        result = await get_collection("genealogy_tree_memberships").insert_one(membership_data)
+        
+        # Send notification to the user
+        notification_data = {
+            "user_id": target_user_oid,
+            "type": "tree_access_granted",
+            "title": "Family Tree Access Granted",
+            "message": f"{current_user.username} granted you {role} access to their family tree",
+            "related_id": str(result.inserted_id),
+            "read": False,
+            "created_at": datetime.utcnow()
+        }
+        await get_collection("notifications").insert_one(notification_data)
+        
+        return {"message": "Tree access granted successfully", "membership_id": str(result.inserted_id)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to grant tree access: {str(e)}")
