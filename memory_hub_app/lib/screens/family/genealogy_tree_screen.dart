@@ -203,6 +203,10 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
     final deathDate = person['death_date'];
     final photoUrl = person['photo_url'];
     final gender = person['gender'];
+    final healthRecordsCount = person['health_records_count'] ?? 0;
+    final hereditaryConditions = person['hereditary_conditions'] as List<dynamic>?;
+    final age = person['age'];
+    final lifespan = person['lifespan'];
 
     return Card(
       elevation: 4,
@@ -324,6 +328,49 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                        ],
+                      ),
+                    ],
+                    if (age != null || lifespan != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        lifespan != null ? 'Lived $lifespan years' : 'Age: $age',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey.shade600,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                    const Spacer(),
+                    if (healthRecordsCount > 0 || (hereditaryConditions != null && hereditaryConditions.isNotEmpty)) ...[
+                      Row(
+                        children: [
+                          if (healthRecordsCount > 0) ...[
+                            Icon(Icons.health_and_safety, size: 12, color: Colors.red.shade400),
+                            const SizedBox(width: 3),
+                            Text(
+                              '$healthRecordsCount',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.red.shade600,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                          if (hereditaryConditions != null && hereditaryConditions.isNotEmpty) ...[
+                            if (healthRecordsCount > 0) const SizedBox(width: 8),
+                            Icon(Icons.family_restroom, size: 12, color: Colors.purple.shade400),
+                            const SizedBox(width: 3),
+                            Text(
+                              '${hereditaryConditions.length}',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.purple.shade600,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ],
