@@ -30,15 +30,20 @@
   - ✅ Backend API fully operational (70+ endpoints)
   - ✅ Database initialized with proper indexes
   - ✅ Application ready for user development and testing
-[x] - **Genealogy Feature Redesign In Progress** (October 20, 2025):
+[x] - **Genealogy Feature Enhancements COMPLETE** (October 20, 2025):
   - ✅ Updated backend genealogy models with new status fields
   - ✅ Added tree membership models (owner/member/viewer roles)
   - ✅ Added invitation link models with token-based system
   - ✅ Added person status tracking (alive vs deceased logic)
-  - 🔄 Implementing backend endpoints for tree memberships and invitations
-  - 🔄 Building invitation system with redemption flow
-  - 🔄 Creating family memories hub integration
-  - 🔄 Implementing memory-to-person timeline associations
+  - ✅ Implemented role-based access control for get/update/delete person endpoints
+  - ✅ Added ensure_tree_access() utility for membership verification (owner/member/viewer)
+  - ✅ Implemented family circle auto-provisioning when users join trees via invitation
+  - ✅ Fixed critical bug in create_genealogy_person relationship validation (now uses tree_oid)
+  - ✅ Created Flutter UI for invitation management (genealogy_invitations_screen.dart)
+  - ✅ Created person timeline view screen in Flutter (person_timeline_screen.dart)
+  - ✅ Added 4 new API methods to FamilyService (getInviteLinks, getPersonTimeline, createInviteLink, redeemInviteLink)
+  - ✅ All shared tree features now working properly (members can add persons and relationships)
+  - ✅ Backend running with genealogy enhancements, frontend updated with new screens
 
 ## October 19, 2025 - Final Flutter Compilation Fixes & Project Completion:
 [x] - **Fixed Critical Flutter Compilation Errors**:
