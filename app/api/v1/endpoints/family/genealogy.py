@@ -150,14 +150,15 @@ async def create_genealogy_person(
                         if not related_person:
                             raise HTTPException(status_code=404, detail=f"Related person not found: {rel_spec.person_id}")
                         
-                        if str(related_person["family_id"]) != current_user.id:
+                        # Ensure related person belongs to the same tree
+                        if str(related_person["family_id"]) != str(tree_oid):
                             raise HTTPException(
                                 status_code=403, 
-                                detail="Cannot create relationship with person from another family"
+                                detail="Cannot create relationship with person from a different family tree"
                             )
                         
                         relationship_data = {
-                            "family_id": ObjectId(current_user.id),
+                            "family_id": tree_oid,
                             "person1_id": person_id,
                             "person2_id": related_person_oid,
                             "relationship_type": rel_spec.relationship_type,
@@ -263,8 +264,8 @@ async def get_genealogy_person(
         if not person_doc:
             raise HTTPException(status_code=404, detail="Person not found")
         
-        if str(person_doc["family_id"]) != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to view this person")
+        # Verify user has access to this tree (any role: owner/member/viewer)
+        await ensure_tree_access(person_doc["family_id"], ObjectId(current_user.id))
         
         return GenealogyPersonResponse(
             id=str(person_doc["_id"]),
@@ -310,8 +311,8 @@ async def update_genealogy_person(
         if not person_doc:
             raise HTTPException(status_code=404, detail="Person not found")
         
-        if str(person_doc["family_id"]) != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to update this person")
+        # Verify user has owner or member access (viewers cannot edit)
+        await ensure_tree_access(person_doc["family_id"], ObjectId(current_user.id), required_roles=["owner", "member"])
         
         person_update_dict = person_update.dict(exclude_unset=True)
         update_data = {k: v for k, v in person_update_dict.items() if v is not None}
@@ -402,8 +403,8 @@ async def delete_genealogy_person(
         if not person_doc:
             raise HTTPException(status_code=404, detail="Person not found")
         
-        if str(person_doc["family_id"]) != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to delete this person")
+        # Only tree owner can delete persons
+        await ensure_tree_access(person_doc["family_id"], ObjectId(current_user.id), required_roles=["owner"])
         
         await get_collection("genealogy_persons").delete_one({"_id": person_oid})
         
@@ -1272,6 +1273,36 @@ async def redeem_invite_link(
             "created_at": datetime.utcnow()
         }
         await get_collection("notifications").insert_one(notification_data)
+        
+        # Auto-provision: Add new member to tree owner's "Family Tree Members" circle
+        # Find or create the circle
+        tree_circle = await get_collection("family_circles").find_one({
+            "owner_id": invite_doc["family_id"],
+            "name": "Family Tree Members"
+        })
+        
+        if tree_circle:
+            # Add new member to existing circle
+            if ObjectId(current_user.id) not in tree_circle.get("member_ids", []):
+                await get_collection("family_circles").update_one(
+                    {"_id": tree_circle["_id"]},
+                    {
+                        "$addToSet": {"member_ids": ObjectId(current_user.id)},
+                        "$set": {"updated_at": datetime.utcnow()}
+                    }
+                )
+        else:
+            # Create new "Family Tree Members" circle
+            circle_data = {
+                "name": "Family Tree Members",
+                "description": "Members who have access to the family genealogy tree",
+                "circle_type": "extended_family",
+                "owner_id": invite_doc["family_id"],
+                "member_ids": [invite_doc["family_id"], ObjectId(current_user.id)],
+                "created_at": datetime.utcnow(),
+                "updated_at": datetime.utcnow()
+            }
+            await get_collection("family_circles").insert_one(circle_data)
         
         return {
             "message": "Successfully joined family tree",

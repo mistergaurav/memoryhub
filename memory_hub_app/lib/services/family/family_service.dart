@@ -704,4 +704,74 @@ class FamilyService {
       throw Exception('Failed to create legacy letter');
     }
   }
+
+  Future<List<Map<String, dynamic>>> getInviteLinks({String? statusFilter}) async {
+    final headers = await _authService.getAuthHeaders();
+    var url = '$baseUrl/genealogy/invite-links';
+    if (statusFilter != null) {
+      url += '?status_filter=$statusFilter';
+    }
+    final response = await _handleRequest(
+      http.get(Uri.parse(url), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load invite links');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPersonTimeline(String personId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(
+        Uri.parse('$baseUrl/genealogy/persons/$personId/timeline'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load person timeline');
+    }
+  }
+
+  Future<Map<String, dynamic>> createInviteLink(String personId, String email, {String? message, int expiresInDays = 7}) async {
+    final headers = await _authService.getAuthHeaders();
+    final inviteData = {
+      'person_id': personId,
+      'email': email,
+      if (message != null && message.isNotEmpty) 'message': message,
+      'expires_in_days': expiresInDays,
+    };
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/genealogy/invite-links'),
+        headers: headers,
+        body: jsonEncode(inviteData),
+      ),
+    );
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to create invite link');
+    }
+  }
+
+  Future<Map<String, dynamic>> redeemInviteLink(String token) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/genealogy/join/$token'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to redeem invite link');
+    }
+  }
 }
