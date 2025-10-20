@@ -4,6 +4,18 @@ The Memory Hub is a full-stack digital legacy platform designed to help families
 
 ## Recent Changes (October 2025)
 
+**Genealogy Tree 5-Step Wizard Implementation (October 20, 2025)**: Implemented comprehensive genealogy feature with a professional multi-step wizard for adding family members:
+- **5-Step Workflow**: Created 889-line wizard with Search/Add → Details → Relationships → Invite → Confirm flow
+- **Universal User Search**: Backend endpoint searches ALL platform users (not limited to existing family) with autocomplete in Flutter UI
+- **Smart Name Handling**: Automatically handles both single-word and multi-word names with intelligent fallback to username
+- **Family Hub Invitations**: Complete invitation system with create/accept/decline/cancel functionality for living family members
+- **Relationship Management**: Visual relationship selector with 9 relationship types (parent, child, spouse, sibling, grandparent, grandchild, aunt/uncle, niece/nephew, cousin)
+- **Robust Error Handling**: User-facing error messages with retry functionality for all API failures
+- **Backend Endpoints**: Added 7 new genealogy endpoints (search users, create/list/respond to invitations)
+- **Production Ready**: Architect-reviewed and verified bug-free with proper validation and edge case handling
+
+## Recent Changes (October 2025)
+
 **Family Management Buttons Functional (October 19, 2025)**: Made family management buttons fully functional with complete form dialogs and API integration:
 - **Dialog Widgets**: Created three comprehensive Flutter dialog widgets (AddHealthRecordDialog, AddVaccinationDialog, AddEventDialog) with form validation and user-friendly interfaces
 - **API Integration**: Added createCalendarEvent method to FamilyService; health record and vaccination creation methods already existed
