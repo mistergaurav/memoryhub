@@ -75,12 +75,22 @@ async def register(user: UserCreate):
     
     from datetime import datetime
     import secrets
+    from app.utils.username_generator import generate_unique_username, is_username_available
     
     hashed_password = get_password_hash(user.password)
     user_dict = user.dict(exclude={"password"})
     user_dict["hashed_password"] = hashed_password
     user_dict["email_verified"] = False
     user_dict["created_at"] = datetime.utcnow()
+    
+    if user_dict.get("username"):
+        if not await is_username_available(user_dict["username"]):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username already taken. Please choose another username."
+            )
+    else:
+        user_dict["username"] = await generate_unique_username()
     
     result = await get_collection("users").insert_one(user_dict)
     user_id = str(result.inserted_id)

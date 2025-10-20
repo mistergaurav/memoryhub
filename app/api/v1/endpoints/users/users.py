@@ -39,6 +39,7 @@ def convert_user_doc(user_doc: dict) -> dict:
     
     # Ensure all required fields are present with defaults
     result.setdefault("email", "")
+    result.setdefault("username", None)
     result.setdefault("full_name", "")
     result.setdefault("avatar_url", None)
     result.setdefault("bio", None)
@@ -68,6 +69,7 @@ async def read_users_me(current_user: UserInDB = Depends(get_current_user)):
         user_dict = {
             "id": str(current_user.id),
             "email": current_user.email or "",
+            "username": getattr(current_user, "username", None),
             "full_name": current_user.full_name or "",
             "avatar_url": current_user.avatar_url,
             "bio": current_user.bio,
@@ -91,6 +93,8 @@ async def update_user_me(
 ):
     """Update current user profile"""
     try:
+        from app.utils.username_generator import is_username_available
+        
         update_data = user_update.dict(exclude_unset=True)
         update_data["updated_at"] = datetime.utcnow()
         
@@ -101,6 +105,13 @@ async def update_user_me(
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Email already registered"
+                )
+        
+        if "username" in update_data and update_data["username"]:
+            if not await is_username_available(update_data["username"], str(current_user.id)):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Username already taken. Please choose another username."
                 )
         
         await get_collection("users").update_one(
@@ -283,6 +294,7 @@ async def list_users(
         if search:
             query["$or"] = [
                 {"email": {"$regex": search, "$options": "i"}},
+                {"username": {"$regex": search, "$options": "i"}},
                 {"full_name": {"$regex": search, "$options": "i"}}
             ]
         
