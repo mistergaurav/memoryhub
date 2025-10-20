@@ -76,9 +76,20 @@ async def create_all_indexes():
     
     # Genealogy relationships indexes
     await get_collection("genealogy_relationships").create_index("family_id")
-    await get_collection("genealogy_relationships").create_index([("person_id", 1), ("relationship_type", 1)])
-    await get_collection("genealogy_relationships").create_index("related_person_id")
+    await get_collection("genealogy_relationships").create_index([("person1_id", 1), ("relationship_type", 1)])
+    await get_collection("genealogy_relationships").create_index([("person2_id", 1), ("relationship_type", 1)])
     await get_collection("genealogy_relationships").create_index([("family_id", 1), ("created_at", -1)])
+    
+    # Genealogy tree memberships indexes (for shared trees)
+    await get_collection("genealogy_tree_memberships").create_index([("tree_id", 1), ("user_id", 1)], unique=True)
+    await get_collection("genealogy_tree_memberships").create_index("user_id")
+    await get_collection("genealogy_tree_memberships").create_index([("tree_id", 1), ("role", 1)])
+    
+    # Genealogy invitation links indexes
+    await get_collection("genealogy_invite_links").create_index("token", unique=True)
+    await get_collection("genealogy_invite_links").create_index([("family_id", 1), ("status", 1)])
+    await get_collection("genealogy_invite_links").create_index("person_id")
+    await get_collection("genealogy_invite_links").create_index([("expires_at", 1), ("status", 1)])
     
     print("✅ All database indexes created successfully")
 

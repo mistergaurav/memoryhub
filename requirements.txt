@@ -103,3 +103,16 @@ python-multipart
 qrcode
 requests
 uvicorn
+aiofiles
+bcrypt
+fastapi
+motor
+passlib
+pillow
+pydantic
+pydantic-settings
+pymongo
+python-jose
+python-multipart
+qrcode
+uvicorn

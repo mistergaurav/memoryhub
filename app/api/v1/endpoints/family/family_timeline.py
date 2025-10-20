@@ -6,15 +6,9 @@ from datetime import datetime
 from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.db.mongodb import get_collection
+from app.utils.genealogy_helpers import safe_object_id
 
 router = APIRouter()
-
-def safe_object_id(id_str):
-    """Safely convert string to ObjectId"""
-    try:
-        return ObjectId(id_str)
-    except:
-        return None
 
 
 

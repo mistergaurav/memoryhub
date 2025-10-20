@@ -12,21 +12,9 @@ from app.models.family.genealogy import (
 from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.db.mongodb import get_collection, get_database
+from app.utils.genealogy_helpers import safe_object_id, compute_is_alive, validate_object_id
 
 router = APIRouter()
-
-def safe_object_id(id_str):
-    try:
-        return ObjectId(id_str)
-    except:
-        return None
-
-
-def compute_is_alive(death_date: Optional[str], is_alive_override: Optional[bool]) -> bool:
-    """Compute is_alive status: use override if provided, otherwise infer from death_date"""
-    if is_alive_override is not None:
-        return is_alive_override
-    return death_date is None or death_date == ""
 
 
 async def get_tree_membership(tree_id: ObjectId, user_id: ObjectId):
