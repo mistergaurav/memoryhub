@@ -282,7 +282,85 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                 ),
               ],
               const SizedBox(height: 16),
-              if (tradition.culturalOrigin != null)
+              if (tradition.originAncestorName != null || tradition.countryOfOrigin != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.amber.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.account_tree, size: 18, color: Colors.amber.shade800),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Family Lineage',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.amber.shade800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      if (tradition.originAncestorName != null) ...[
+                        Row(
+                          children: [
+                            Icon(Icons.person, size: 16, color: Colors.grey.shade700),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'Started by: ${tradition.originAncestorName}',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.grey.shade800,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (tradition.generationsPassed != null) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(Icons.timeline, size: 16, color: Colors.grey.shade700),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Passed down ${tradition.generationsPassed} generation${tradition.generationsPassed! > 1 ? 's' : ''}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (tradition.countryOfOrigin != null) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(Icons.public, size: 16, color: Colors.grey.shade700),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Origin: ${tradition.countryOfOrigin}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ] else if (tradition.culturalOrigin != null)
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
