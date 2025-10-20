@@ -15,6 +15,7 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _fullNameController = TextEditingController();
   final _bioController = TextEditingController();
   final ApiService _apiService = ApiService();
@@ -33,6 +34,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void dispose() {
     _emailController.dispose();
+    _usernameController.dispose();
     _fullNameController.dispose();
     _bioController.dispose();
     super.dispose();
@@ -46,6 +48,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         _currentUser = user;
         _emailController.text = user.email;
+        _usernameController.text = user.username ?? '';
         _fullNameController.text = user.fullName ?? '';
         _bioController.text = user.bio ?? '';
       });
@@ -93,6 +96,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       final userUpdate = UserUpdate(
         email: _emailController.text.trim(),
+        username: _usernameController.text.trim().isEmpty
+            ? null
+            : _usernameController.text.trim(),
         fullName: _fullNameController.text.trim().isEmpty
             ? null
             : _fullNameController.text.trim(),
@@ -193,6 +199,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 }
                 if (!value.contains('@')) {
                   return 'Please enter a valid email';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _usernameController,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                prefixIcon: Icon(Icons.alternate_email),
+                border: OutlineInputBorder(),
+                hintText: 'Choose a unique username',
+              ),
+              validator: (value) {
+                if (value != null && value.trim().isNotEmpty) {
+                  if (value.trim().length < 3) {
+                    return 'Username must be at least 3 characters';
+                  }
+                  if (value.trim().length > 30) {
+                    return 'Username must be less than 30 characters';
+                  }
+                  if (!RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(value.trim())) {
+                    return 'Username can only contain letters, numbers, _ and -';
+                  }
                 }
                 return null;
               },

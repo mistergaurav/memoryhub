@@ -1,6 +1,7 @@
 class User {
   final String id;
   final String email;
+  final String? username;
   final String? fullName;
   final String? avatarUrl;
   final String? bio;
@@ -13,6 +14,7 @@ class User {
   User({
     required this.id,
     required this.email,
+    this.username,
     this.fullName,
     this.avatarUrl,
     this.bio,
@@ -27,6 +29,7 @@ class User {
     return User(
       id: json['id'] ?? json['_id'] ?? '',
       email: json['email'] ?? '',
+      username: json['username'],
       fullName: json['full_name'],
       avatarUrl: json['avatar_url'],
       bio: json['bio'],
@@ -48,6 +51,7 @@ class User {
     return {
       'id': id,
       'email': email,
+      'username': username,
       'full_name': fullName,
       'avatar_url': avatarUrl,
       'bio': bio,
@@ -62,11 +66,13 @@ class User {
 
 class UserUpdate {
   final String? email;
+  final String? username;
   final String? fullName;
   final String? bio;
 
   UserUpdate({
     this.email,
+    this.username,
     this.fullName,
     this.bio,
   });
@@ -74,6 +80,7 @@ class UserUpdate {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
     if (email != null) data['email'] = email;
+    if (username != null) data['username'] = username;
     if (fullName != null) data['full_name'] = fullName;
     if (bio != null) data['bio'] = bio;
     return data;
