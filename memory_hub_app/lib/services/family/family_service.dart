@@ -337,6 +337,97 @@ class FamilyService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> searchPlatformUsers(String query) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(
+        Uri.parse('$baseUrl/genealogy/search-users?query=${Uri.encodeComponent(query)}'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to search users');
+    }
+  }
+
+  Future<Map<String, dynamic>> sendFamilyHubInvitation(
+    String personId,
+    String invitedUserId,
+    String? message,
+  ) async {
+    final headers = await _authService.getAuthHeaders();
+    final invitationData = {
+      'person_id': personId,
+      'invited_user_id': invitedUserId,
+      if (message != null && message.isNotEmpty) 'message': message,
+    };
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/genealogy/invitations'),
+        headers: headers,
+        body: jsonEncode(invitationData),
+      ),
+    );
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to send invitation');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getSentInvitations({String? statusFilter}) async {
+    final headers = await _authService.getAuthHeaders();
+    var url = '$baseUrl/genealogy/invitations/sent';
+    if (statusFilter != null) {
+      url += '?status_filter=$statusFilter';
+    }
+    final response = await _handleRequest(
+      http.get(Uri.parse(url), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load sent invitations');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getReceivedInvitations({String? statusFilter}) async {
+    final headers = await _authService.getAuthHeaders();
+    var url = '$baseUrl/genealogy/invitations/received';
+    if (statusFilter != null) {
+      url += '?status_filter=$statusFilter';
+    }
+    final response = await _handleRequest(
+      http.get(Uri.parse(url), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load received invitations');
+    }
+  }
+
+  Future<Map<String, dynamic>> respondToInvitation(String invitationId, String action) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/genealogy/invitations/$invitationId/respond'),
+        headers: headers,
+        body: jsonEncode({'action': action}),
+      ),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to respond to invitation');
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getHealthRecords({String? memberId, String? recordType}) async {
     final headers = await _authService.getAuthHeaders();
     var url = '$baseUrl/health-records/';

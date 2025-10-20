@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/family/family_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
-import '../../dialogs/family/add_person_dialog.dart';
+import '../../dialogs/family/add_person_wizard.dart';
 import '../../dialogs/family/add_relationship_dialog.dart';
 import 'package:intl/intl.dart';
 
@@ -627,13 +627,14 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
     );
   }
 
-  void _showAddPersonDialog() {
-    showDialog(
+  void _showAddPersonDialog() async {
+    final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AddPersonDialog(
-        onSubmit: _handleAddPerson,
-      ),
+      builder: (context) => const AddPersonWizard(),
     );
+    if (result == true) {
+      _loadData();
+    }
   }
 
   void _showEditPersonDialog(Map<String, dynamic> person) {
