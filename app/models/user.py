@@ -31,6 +31,7 @@ class UserRole(str, Enum):
 
 class UserBase(BaseModel):
     email: EmailStr
+    username: Optional[str] = None
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
     bio: Optional[str] = None
@@ -51,6 +52,7 @@ class UserCreate(UserBase):
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
+    username: Optional[str] = None
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
     bio: Optional[str] = None
@@ -60,7 +62,7 @@ class UserUpdate(BaseModel):
     is_active: Optional[bool] = None
     role: Optional[UserRole] = None
 
-    @field_validator('email', 'full_name', 'bio', 'city', 'country', 'website', mode='before')
+    @field_validator('email', 'username', 'full_name', 'bio', 'city', 'country', 'website', mode='before')
     def empty_str_to_none(cls, v):
         if v == "":
             return None

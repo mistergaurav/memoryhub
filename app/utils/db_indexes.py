@@ -10,7 +10,7 @@ async def create_all_indexes():
     
     # User collection indexes
     await get_collection("users").create_index("email", unique=True)
-    await get_collection("users").create_index("username")
+    await get_collection("users").create_index("username", unique=True, sparse=True)
     await get_collection("users").create_index("created_at")
     
     # Family relationships indexes
