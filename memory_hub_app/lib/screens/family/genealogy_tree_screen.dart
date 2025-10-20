@@ -638,11 +638,10 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
   }
 
   void _showEditPersonDialog(Map<String, dynamic> person) {
-    showDialog(
-      context: context,
-      builder: (context) => AddPersonDialog(
-        initialData: person,
-        onSubmit: (data) => _handleEditPerson(person['id'], data),
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Edit functionality coming soon! For now, please delete and re-add the person.'),
+        duration: Duration(seconds: 3),
       ),
     );
   }

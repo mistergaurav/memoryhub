@@ -70,6 +70,21 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
       });
     } catch (e) {
       print('Error loading persons: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load family members: ${e.toString()}'),
+            action: SnackBarAction(
+              label: 'Retry',
+              onPressed: _loadExistingPersons,
+            ),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+      setState(() {
+        _existingPersons = [];
+      });
     }
   }
   
@@ -106,8 +121,17 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   void _selectExistingUser(Map<String, dynamic> user) {
     setState(() {
       _selectedExistingUser = user;
-      _firstName = user['full_name']?.split(' ').first ?? '';
-      _lastName = user['full_name']?.split(' ').skip(1).join(' ') ?? '';
+      final fullName = user['full_name'] ?? user['username'] ?? '';
+      final nameParts = fullName.split(' ');
+      
+      if (nameParts.length > 1) {
+        _firstName = nameParts.first;
+        _lastName = nameParts.skip(1).join(' ');
+      } else {
+        _firstName = nameParts.first;
+        _lastName = user['username'] ?? 'User';
+      }
+      
       _firstNameController.text = _firstName;
       _lastNameController.text = _lastName;
     });
@@ -755,8 +779,8 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
             children: [
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Select Person'),
-                items: _existingPersons.map((person) {
-                  return DropdownMenuItem(
+                items: _existingPersons.map<DropdownMenuItem<String>>((person) {
+                  return DropdownMenuItem<String>(
                     value: person['id'],
                     child: Text('${person['first_name']} ${person['last_name']}'),
                   );
