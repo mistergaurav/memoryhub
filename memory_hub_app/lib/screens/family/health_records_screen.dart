@@ -378,11 +378,15 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
   Widget _buildHealthRecordCard(Map<String, dynamic> record) {
     final title = record['title'] ?? 'Untitled';
     final recordType = record['record_type'] ?? 'unknown';
-    final date = record['date'];
-    final memberName = record['family_member_name'] ?? 'Unknown Member';
+    final date = record['date'] ?? record['record_date'];
+    final memberName = record['genealogy_person_name'] ?? record['family_member_name'] ?? record['person_name'] ?? 'Unknown Member';
     final severity = record['severity'];
     final provider = record['provider'];
     final description = record['description'];
+    final isHereditary = record['is_hereditary'] ?? false;
+    final inheritancePattern = record['inheritance_pattern'];
+    final affectedRelatives = record['affected_relatives'] as List<dynamic>?;
+    final ageOfOnset = record['age_of_onset'];
 
     Color getSeverityColor() {
       switch (severity) {
@@ -549,6 +553,57 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
                   ],
                 ],
               ),
+              if (isHereditary) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.purple.shade200),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.family_restroom, size: 16, color: Colors.purple.shade700),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Hereditary Condition',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.purple.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (inheritancePattern != null) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          'Pattern: ${_formatInheritancePattern(inheritancePattern)}',
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                        ),
+                      ],
+                      if (ageOfOnset != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'Age of onset: $ageOfOnset years',
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                        ),
+                      ],
+                      if (affectedRelatives != null && affectedRelatives.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'Affected relatives: ${affectedRelatives.length}',
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -799,6 +854,25 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
       return date.toString();
     } catch (e) {
       return date.toString();
+    }
+  }
+
+  String _formatInheritancePattern(String pattern) {
+    switch (pattern) {
+      case 'autosomal_dominant':
+        return 'Autosomal Dominant';
+      case 'autosomal_recessive':
+        return 'Autosomal Recessive';
+      case 'x_linked_dominant':
+        return 'X-Linked Dominant';
+      case 'x_linked_recessive':
+        return 'X-Linked Recessive';
+      case 'mitochondrial':
+        return 'Mitochondrial';
+      case 'multifactorial':
+        return 'Multifactorial';
+      default:
+        return pattern;
     }
   }
 
