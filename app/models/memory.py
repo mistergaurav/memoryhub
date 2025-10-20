@@ -22,6 +22,8 @@ class MemoryBase(BaseModel):
     tagged_family_members: List[Dict[str, str]] = Field(default_factory=list)  # [{"user_id": "xxx", "relation": "mom"}]
     family_circle_ids: List[str] = Field(default_factory=list)  # Family circles this memory is shared with
     relationship_context: Optional[str] = None  # e.g., "Mom's Birthday", "Family Reunion"
+    genealogy_person_ids: List[str] = Field(default_factory=list)  # Genealogy persons tagged in this memory
+    family_tree_id: Optional[str] = None  # Family tree this memory belongs to
     
     @validator('title')
     def title_must_not_be_empty(cls, v):
@@ -46,6 +48,8 @@ class MemoryUpdate(BaseModel):
     privacy: Optional[MemoryPrivacy] = None
     location: Optional[Dict[str, float]] = None
     mood: Optional[str] = None
+    genealogy_person_ids: Optional[List[str]] = None
+    family_tree_id: Optional[str] = None
     
     @field_validator('title', 'content', mode='before')
     def empty_str_to_none(cls, v):

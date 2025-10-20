@@ -29,13 +29,62 @@ def compute_is_alive(death_date: Optional[str], is_alive_override: Optional[bool
     return death_date is None or death_date == ""
 
 
+async def get_tree_membership(tree_id: ObjectId, user_id: ObjectId):
+    """Get user's membership in a family tree (returns None if not a member)"""
+    return await get_collection("genealogy_tree_memberships").find_one({
+        "tree_id": tree_id,
+        "user_id": user_id
+    })
+
+
+async def ensure_tree_access(tree_id: ObjectId, user_id: ObjectId, required_roles: List[str] = None):
+    """
+    Verify user has access to a tree with required role(s).
+    If tree is user's own tree and no membership exists, auto-create owner membership.
+    Raises HTTPException if access denied.
+    """
+    membership = await get_tree_membership(tree_id, user_id)
+    
+    # If user is accessing their own tree and no membership exists, auto-create it
+    if str(tree_id) == str(user_id) and not membership:
+        membership_data = {
+            "tree_id": tree_id,
+            "user_id": user_id,
+            "role": "owner",
+            "joined_at": datetime.utcnow(),
+            "granted_by": user_id
+        }
+        await get_collection("genealogy_tree_memberships").insert_one(membership_data)
+        membership = membership_data
+    
+    if not membership:
+        raise HTTPException(status_code=403, detail="You do not have access to this family tree")
+    
+    if required_roles and membership["role"] not in required_roles:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Access denied. Required role: {'/'.join(required_roles)}, your role: {membership['role']}"
+        )
+    
+    return membership
+
+
 @router.post("/persons", response_model=GenealogyPersonResponse, status_code=status.HTTP_201_CREATED)
 async def create_genealogy_person(
     person: GenealogyPersonCreate,
+    tree_id: Optional[str] = Query(None, description="Tree ID (defaults to user's own tree)"),
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Create a new genealogy person with optional relationships"""
     try:
+        # Determine which tree to add person to (default: user's own tree)
+        tree_oid = safe_object_id(tree_id) if tree_id else ObjectId(current_user.id)
+        if not tree_oid:
+            raise HTTPException(status_code=400, detail="Invalid tree_id")
+        
+        # Verify user has owner or member access to this tree
+        await ensure_tree_access(tree_oid, ObjectId(current_user.id), required_roles=["owner", "member"])
+        
         linked_user_oid = None
         
         if person.linked_user_id:
@@ -62,7 +111,7 @@ async def create_genealogy_person(
         is_alive = compute_is_alive(person.death_date, person.is_alive)
         
         person_data = {
-            "family_id": ObjectId(current_user.id),
+            "family_id": tree_oid,
             "first_name": person.first_name,
             "last_name": person.last_name,
             "maiden_name": person.maiden_name,
@@ -152,14 +201,21 @@ async def create_genealogy_person(
 
 @router.get("/persons", response_model=List[GenealogyPersonResponse])
 async def list_genealogy_persons(
+    tree_id: Optional[str] = Query(None, description="Tree ID (defaults to user's own tree)"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """List all persons in family tree"""
+    """List all persons in family tree (supports shared trees via memberships)"""
     try:
-        user_oid = ObjectId(current_user.id)
+        # Determine which tree to query (default: user's own tree)
+        tree_oid = safe_object_id(tree_id) if tree_id else ObjectId(current_user.id)
+        if not tree_oid:
+            raise HTTPException(status_code=400, detail="Invalid tree_id")
+        
+        # Verify user has access to this tree (any role: owner, member, viewer)
+        await ensure_tree_access(tree_oid, ObjectId(current_user.id))
         
         persons_cursor = get_collection("genealogy_persons").find({
-            "family_id": user_oid
+            "family_id": tree_oid
         }).sort("last_name", 1)
         
         persons = []
@@ -1018,3 +1074,318 @@ async def create_tree_membership(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to grant tree access: {str(e)}")
+
+
+# ==============================================================================
+# INVITATION LINK ENDPOINTS - Token-based invitations for living family members
+# ==============================================================================
+
+@router.post("/invite-links", status_code=status.HTTP_201_CREATED)
+async def create_invite_link(
+    person_id: str = Query(..., description="Genealogy person ID to link invitation to"),
+    email: Optional[str] = Query(None, description="Email to send invitation to"),
+    message: Optional[str] = Query(None, description="Personal message"),
+    expires_in_days: int = Query(30, ge=1, le=365, description="Expiry in days"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Create an invitation link for a living family member to join the platform"""
+    try:
+        import secrets
+        
+        person_oid = safe_object_id(person_id)
+        if not person_oid:
+            raise HTTPException(status_code=400, detail="Invalid person_id")
+        
+        # Verify person exists and belongs to user's tree
+        person_doc = await get_collection("genealogy_persons").find_one({"_id": person_oid})
+        if not person_doc:
+            raise HTTPException(status_code=404, detail="Person not found")
+        
+        if str(person_doc["family_id"]) != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized to invite for this person")
+        
+        # Verify person is alive and not already linked
+        if not person_doc.get("is_alive", True):
+            raise HTTPException(status_code=400, detail="Cannot send invitation for deceased person")
+        
+        if person_doc.get("linked_user_id"):
+            raise HTTPException(status_code=400, detail="Person is already linked to a platform user")
+        
+        # Check if there's already a pending invitation
+        existing_invite = await get_collection("genealogy_invite_links").find_one({
+            "person_id": person_oid,
+            "status": "pending",
+            "expires_at": {"$gt": datetime.utcnow()}
+        })
+        
+        if existing_invite:
+            raise HTTPException(status_code=400, detail="An active invitation already exists for this person")
+        
+        # Generate unique token
+        token = secrets.token_urlsafe(32)
+        expires_at = datetime.utcnow() + __import__('datetime').timedelta(days=expires_in_days)
+        
+        invite_data = {
+            "family_id": ObjectId(current_user.id),
+            "person_id": person_oid,
+            "token": token,
+            "email": email,
+            "message": message,
+            "status": "pending",
+            "created_by": ObjectId(current_user.id),
+            "created_at": datetime.utcnow(),
+            "expires_at": expires_at,
+            "accepted_at": None,
+            "accepted_by": None
+        }
+        
+        result = await get_collection("genealogy_invite_links").insert_one(invite_data)
+        
+        # Update person with invitation details
+        await get_collection("genealogy_persons").update_one(
+            {"_id": person_oid},
+            {
+                "$set": {
+                    "pending_invite_email": email,
+                    "invite_token": token,
+                    "invitation_sent_at": datetime.utcnow(),
+                    "invitation_expires_at": expires_at,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        person_name = f"{person_doc['first_name']} {person_doc['last_name']}"
+        invite_url = f"/genealogy/join/{token}"
+        
+        return {
+            "id": str(result.inserted_id),
+            "family_id": str(current_user.id),
+            "person_id": str(person_oid),
+            "person_name": person_name,
+            "token": token,
+            "email": email,
+            "message": message,
+            "status": "pending",
+            "invite_url": invite_url,
+            "created_by": str(current_user.id),
+            "created_at": invite_data["created_at"],
+            "expires_at": expires_at
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create invitation: {str(e)}")
+
+
+@router.post("/join/{token}", status_code=status.HTTP_200_OK)
+async def redeem_invite_link(
+    token: str,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Redeem an invitation link and link user to genealogy person"""
+    try:
+        # Find invitation by token
+        invite_doc = await get_collection("genealogy_invite_links").find_one({"token": token})
+        if not invite_doc:
+            raise HTTPException(status_code=404, detail="Invitation not found")
+        
+        # Check if expired
+        if invite_doc["expires_at"] < datetime.utcnow():
+            await get_collection("genealogy_invite_links").update_one(
+                {"_id": invite_doc["_id"]},
+                {"$set": {"status": "expired"}}
+            )
+            raise HTTPException(status_code=400, detail="Invitation has expired")
+        
+        # Check if already accepted
+        if invite_doc["status"] != "pending":
+            raise HTTPException(status_code=400, detail=f"Invitation has already been {invite_doc['status']}")
+        
+        # Get person
+        person_doc = await get_collection("genealogy_persons").find_one({"_id": invite_doc["person_id"]})
+        if not person_doc:
+            raise HTTPException(status_code=404, detail="Person not found")
+        
+        # Check if person is already linked
+        if person_doc.get("linked_user_id"):
+            raise HTTPException(status_code=400, detail="This person is already linked to another user")
+        
+        # Link user to person
+        db = get_database()
+        async with await db.client.start_session() as session:
+            async with session.start_transaction():
+                # Update person
+                await get_collection("genealogy_persons").update_one(
+                    {"_id": invite_doc["person_id"]},
+                    {
+                        "$set": {
+                            "linked_user_id": ObjectId(current_user.id),
+                            "source": "platform_user",
+                            "is_alive": True,
+                            "updated_at": datetime.utcnow()
+                        },
+                        "$unset": {
+                            "pending_invite_email": "",
+                            "invite_token": ""
+                        }
+                    },
+                    session=session
+                )
+                
+                # Update invitation
+                await get_collection("genealogy_invite_links").update_one(
+                    {"_id": invite_doc["_id"]},
+                    {
+                        "$set": {
+                            "status": "accepted",
+                            "accepted_at": datetime.utcnow(),
+                            "accepted_by": ObjectId(current_user.id)
+                        }
+                    },
+                    session=session
+                )
+                
+                # Grant tree membership to the new user
+                membership_exists = await get_collection("genealogy_tree_memberships").find_one({
+                    "tree_id": invite_doc["family_id"],
+                    "user_id": ObjectId(current_user.id)
+                }, session=session)
+                
+                if not membership_exists:
+                    await get_collection("genealogy_tree_memberships").insert_one({
+                        "tree_id": invite_doc["family_id"],
+                        "user_id": ObjectId(current_user.id),
+                        "role": "member",
+                        "joined_at": datetime.utcnow(),
+                        "granted_by": invite_doc["created_by"]
+                    }, session=session)
+        
+        # Send notification to tree owner
+        notification_data = {
+            "user_id": invite_doc["family_id"],
+            "type": "invitation_accepted",
+            "title": "Family Tree Invitation Accepted",
+            "message": f"{current_user.username} joined your family tree",
+            "related_id": str(invite_doc["person_id"]),
+            "read": False,
+            "created_at": datetime.utcnow()
+        }
+        await get_collection("notifications").insert_one(notification_data)
+        
+        return {
+            "message": "Successfully joined family tree",
+            "person_id": str(invite_doc["person_id"]),
+            "tree_id": str(invite_doc["family_id"])
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to redeem invitation: {str(e)}")
+
+
+@router.get("/invite-links", response_model=List[dict])
+async def list_invite_links(
+    status_filter: Optional[str] = Query(None, description="Filter by status"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """List all invitation links created by current user"""
+    try:
+        query = {"family_id": ObjectId(current_user.id)}
+        if status_filter:
+            query["status"] = status_filter
+        
+        invites_cursor = get_collection("genealogy_invite_links").find(query).sort("created_at", -1)
+        
+        invites = []
+        async for invite_doc in invites_cursor:
+            person_doc = await get_collection("genealogy_persons").find_one({"_id": invite_doc["person_id"]})
+            person_name = f"{person_doc['first_name']} {person_doc['last_name']}" if person_doc else "Unknown"
+            
+            invite_data = {
+                "id": str(invite_doc["_id"]),
+                "family_id": str(invite_doc["family_id"]),
+                "person_id": str(invite_doc["person_id"]),
+                "person_name": person_name,
+                "token": invite_doc["token"],
+                "email": invite_doc.get("email"),
+                "message": invite_doc.get("message"),
+                "status": invite_doc["status"],
+                "invite_url": f"/genealogy/join/{invite_doc['token']}",
+                "created_by": str(invite_doc["created_by"]),
+                "created_at": invite_doc["created_at"],
+                "expires_at": invite_doc["expires_at"],
+                "accepted_at": invite_doc.get("accepted_at"),
+                "accepted_by": str(invite_doc["accepted_by"]) if invite_doc.get("accepted_by") else None
+            }
+            invites.append(invite_data)
+        
+        return invites
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list invitations: {str(e)}")
+
+
+# ==============================================================================
+# PERSON TIMELINE ENDPOINT - For viewing memories associated with a person
+# ==============================================================================
+
+@router.get("/persons/{person_id}/timeline", response_model=List[dict])
+async def get_person_timeline(
+    person_id: str,
+    skip: int = Query(0, ge=0, description="Skip N memories"),
+    limit: int = Query(20, ge=1, le=100, description="Limit results"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Get timeline of all memories associated with this genealogy person (Facebook-style)"""
+    try:
+        person_oid = safe_object_id(person_id)
+        if not person_oid:
+            raise HTTPException(status_code=400, detail="Invalid person_id")
+        
+        # Verify person exists
+        person_doc = await get_collection("genealogy_persons").find_one({"_id": person_oid})
+        if not person_doc:
+            raise HTTPException(status_code=404, detail="Person not found")
+        
+        # Check if user has access to this tree
+        tree_id = person_doc["family_id"]
+        membership = await get_collection("genealogy_tree_memberships").find_one({
+            "tree_id": tree_id,
+            "user_id": ObjectId(current_user.id)
+        })
+        
+        if not membership and str(tree_id) != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized to view this person's timeline")
+        
+        # Find all memories that reference this person in genealogy_person_ids
+        memories_cursor = get_collection("memories").find({
+            "genealogy_person_ids": str(person_oid)
+        }).sort("created_at", -1).skip(skip).limit(limit)
+        
+        memories = []
+        async for memory_doc in memories_cursor:
+            # Get owner info
+            owner_doc = await get_collection("users").find_one({"_id": memory_doc["owner_id"]})
+            
+            memory_data = {
+                "id": str(memory_doc["_id"]),
+                "title": memory_doc.get("title", ""),
+                "content": memory_doc.get("content", ""),
+                "media_urls": memory_doc.get("media_urls", []),
+                "tags": memory_doc.get("tags", []),
+                "created_at": memory_doc["created_at"],
+                "owner_id": str(memory_doc["owner_id"]),
+                "owner_username": owner_doc.get("username", "") if owner_doc else "",
+                "owner_full_name": owner_doc.get("full_name") if owner_doc else None,
+                "like_count": memory_doc.get("like_count", 0),
+                "comment_count": memory_doc.get("comment_count", 0)
+            }
+            memories.append(memory_data)
+        
+        return memories
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get timeline: {str(e)}")
