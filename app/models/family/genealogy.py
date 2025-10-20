@@ -120,6 +120,10 @@ class GenealogyPersonResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     created_by: str
+    age: Optional[int] = None
+    lifespan: Optional[int] = None
+    health_records_count: int = 0
+    hereditary_conditions: List[str] = []
 
 
 class GenealogyRelationshipCreate(BaseModel):

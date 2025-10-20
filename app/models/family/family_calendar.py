@@ -10,9 +10,11 @@ from app.models.user import PyObjectId
 class EventType(str, Enum):
     BIRTHDAY = "birthday"
     ANNIVERSARY = "anniversary"
+    DEATH_ANNIVERSARY = "death_anniversary"
     GATHERING = "gathering"
     HOLIDAY = "holiday"
     REMINDER = "reminder"
+    HISTORICAL_EVENT = "historical_event"
     OTHER = "other"
 
 
@@ -37,7 +39,9 @@ class FamilyEventBase(BaseModel):
 class FamilyEventCreate(FamilyEventBase):
     family_circle_ids: List[str] = Field(default_factory=list)
     attendee_ids: List[str] = Field(default_factory=list)
-    reminder_minutes: Optional[int] = None  # Minutes before event to send reminder
+    reminder_minutes: Optional[int] = None
+    genealogy_person_id: Optional[str] = None
+    auto_generated: bool = False
 
 
 class FamilyEventUpdate(BaseModel):
@@ -67,6 +71,8 @@ class FamilyEventInDB(BaseModel):
     attendee_ids: List[PyObjectId] = Field(default_factory=list)
     reminder_minutes: Optional[int] = None
     reminder_sent: bool = False
+    genealogy_person_id: Optional[PyObjectId] = None
+    auto_generated: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     
@@ -91,5 +97,8 @@ class FamilyEventResponse(BaseModel):
     attendee_ids: List[str]
     attendee_names: List[str] = Field(default_factory=list)
     reminder_minutes: Optional[int] = None
+    genealogy_person_id: Optional[str] = None
+    genealogy_person_name: Optional[str] = None
+    auto_generated: bool = False
     created_at: datetime
     updated_at: datetime

@@ -13,6 +13,8 @@ class RecordType(str, Enum):
     PROCEDURE = "procedure"
     LAB_RESULT = "lab_result"
     APPOINTMENT = "appointment"
+    GENETIC_CONDITION = "genetic_condition"
+    FAMILY_HISTORY = "family_history"
 
 
 class Severity(str, Enum):
@@ -22,8 +24,19 @@ class Severity(str, Enum):
     CRITICAL = "critical"
 
 
+class Inheritance(str, Enum):
+    AUTOSOMAL_DOMINANT = "autosomal_dominant"
+    AUTOSOMAL_RECESSIVE = "autosomal_recessive"
+    X_LINKED = "x_linked"
+    Y_LINKED = "y_linked"
+    MITOCHONDRIAL = "mitochondrial"
+    MULTIFACTORIAL = "multifactorial"
+    UNKNOWN = "unknown"
+
+
 class HealthRecordCreate(BaseModel):
-    family_member_id: str
+    family_member_id: Optional[str] = None
+    genealogy_person_id: Optional[str] = None
     record_type: RecordType
     title: str = Field(..., min_length=1, max_length=200)
     description: Optional[str] = Field(None, max_length=2000)
@@ -35,6 +48,11 @@ class HealthRecordCreate(BaseModel):
     notes: Optional[str] = Field(None, max_length=1000)
     medications: List[str] = []
     is_confidential: bool = True
+    is_hereditary: bool = False
+    inheritance_pattern: Optional[Inheritance] = None
+    age_of_onset: Optional[int] = None
+    affected_relatives: List[str] = []
+    genetic_test_results: Optional[str] = Field(None, max_length=2000)
 
 
 class HealthRecordUpdate(BaseModel):
@@ -49,13 +67,20 @@ class HealthRecordUpdate(BaseModel):
     notes: Optional[str] = Field(None, max_length=1000)
     medications: Optional[List[str]] = None
     is_confidential: Optional[bool] = None
+    is_hereditary: Optional[bool] = None
+    inheritance_pattern: Optional[Inheritance] = None
+    age_of_onset: Optional[int] = None
+    affected_relatives: Optional[List[str]] = None
+    genetic_test_results: Optional[str] = Field(None, max_length=2000)
 
 
 class HealthRecordResponse(BaseModel):
     id: str
     family_id: str
-    family_member_id: str
+    family_member_id: Optional[str] = None
     family_member_name: Optional[str] = None
+    genealogy_person_id: Optional[str] = None
+    genealogy_person_name: Optional[str] = None
     record_type: RecordType
     title: str
     description: Optional[str] = None
@@ -67,6 +92,12 @@ class HealthRecordResponse(BaseModel):
     notes: Optional[str] = None
     medications: List[str] = []
     is_confidential: bool
+    is_hereditary: bool = False
+    inheritance_pattern: Optional[Inheritance] = None
+    age_of_onset: Optional[int] = None
+    affected_relatives: List[str] = []
+    affected_relatives_names: List[str] = []
+    genetic_test_results: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     created_by: str
@@ -95,3 +126,22 @@ class VaccinationRecordResponse(BaseModel):
     notes: Optional[str] = None
     created_at: datetime
     created_by: str
+
+
+class FamilyHealthPattern(BaseModel):
+    condition_name: str
+    affected_count: int
+    affected_persons: List[str] = []
+    inheritance_pattern: Optional[Inheritance] = None
+    severity_distribution: dict = {}
+    earliest_age_of_onset: Optional[int] = None
+    average_age_of_onset: Optional[int] = None
+
+
+class FamilyHealthInsights(BaseModel):
+    total_records: int
+    hereditary_conditions_count: int
+    genetic_patterns: List[FamilyHealthPattern] = []
+    common_conditions: List[dict] = []
+    most_affected_generation: Optional[str] = None
+    health_risk_factors: List[str] = []
