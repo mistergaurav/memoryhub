@@ -155,3 +155,32 @@ class UserSearchResult(BaseModel):
     full_name: Optional[str] = None
     profile_photo: Optional[str] = None
     already_linked: bool = False
+
+
+class InvitationStatus(str, Enum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    DECLINED = "declined"
+    CANCELLED = "cancelled"
+
+
+class FamilyHubInvitationCreate(BaseModel):
+    person_id: str
+    invited_user_id: str
+    message: Optional[str] = Field(None, max_length=500)
+
+
+class FamilyHubInvitationResponse(BaseModel):
+    id: str
+    family_id: str
+    person_id: str
+    inviter_id: str
+    invited_user_id: str
+    message: Optional[str] = None
+    status: InvitationStatus
+    created_at: datetime
+    responded_at: Optional[datetime] = None
+
+
+class InvitationAction(BaseModel):
+    action: str = Field(..., pattern="^(accept|decline)$")

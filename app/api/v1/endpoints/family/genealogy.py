@@ -6,7 +6,8 @@ from datetime import datetime
 from app.models.family.genealogy import (
     GenealogyPersonCreate, GenealogyPersonUpdate, GenealogyPersonResponse,
     GenealogyRelationshipCreate, GenealogyRelationshipResponse,
-    FamilyTreeNode, PersonSource, UserSearchResult
+    FamilyTreeNode, PersonSource, UserSearchResult,
+    FamilyHubInvitationCreate, FamilyHubInvitationResponse, InvitationAction, InvitationStatus
 )
 from app.models.user import UserInDB
 from app.core.security import get_current_user
@@ -364,26 +365,16 @@ async def delete_genealogy_person(
 
 
 @router.get("/search-users", response_model=List[UserSearchResult])
-async def search_memory_hub_users(
+async def search_platform_users(
     query: str = Query(..., min_length=2, description="Search query for username, email, or name"),
     limit: int = Query(20, ge=1, le=50, description="Maximum number of results"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Search for verified family members to link to genealogy persons (security: only searches within your family)"""
+    """Search for any platform user to link to genealogy persons or invite to family hub"""
     try:
-        family_member_ids = set()
-        family_relationships_cursor = get_collection("family_relationships").find({
-            "user_id": ObjectId(current_user.id)
-        })
-        async for rel_doc in family_relationships_cursor:
-            family_member_ids.add(rel_doc["related_user_id"])
-        
-        if not family_member_ids:
-            return []
-        
         search_regex = {"$regex": query, "$options": "i"}
         users_cursor = get_collection("users").find({
-            "_id": {"$in": list(family_member_ids)},
+            "_id": {"$ne": ObjectId(current_user.id)},
             "$or": [
                 {"username": search_regex},
                 {"email": search_regex},
@@ -618,3 +609,276 @@ async def get_family_tree(
         return tree_nodes
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get family tree: {str(e)}")
+
+
+@router.post("/invitations", response_model=FamilyHubInvitationResponse, status_code=status.HTTP_201_CREATED)
+async def send_family_hub_invitation(
+    invitation: FamilyHubInvitationCreate,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Send an invitation to a user to join your family hub and link to a genealogy person"""
+    try:
+        person_oid = safe_object_id(invitation.person_id)
+        invited_user_oid = safe_object_id(invitation.invited_user_id)
+        
+        if not person_oid or not invited_user_oid:
+            raise HTTPException(status_code=400, detail="Invalid person or user ID")
+        
+        person_doc = await get_collection("genealogy_persons").find_one({"_id": person_oid})
+        if not person_doc:
+            raise HTTPException(status_code=404, detail="Person not found")
+        
+        if str(person_doc["family_id"]) != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized to invite for this person")
+        
+        if not person_doc.get("is_alive", True):
+            raise HTTPException(status_code=400, detail="Cannot invite for deceased persons")
+        
+        invited_user = await get_collection("users").find_one({"_id": invited_user_oid})
+        if not invited_user:
+            raise HTTPException(status_code=404, detail="Invited user not found")
+        
+        if str(invited_user_oid) == current_user.id:
+            raise HTTPException(status_code=400, detail="Cannot invite yourself")
+        
+        existing_invitation = await get_collection("family_hub_invitations").find_one({
+            "person_id": person_oid,
+            "invited_user_id": invited_user_oid,
+            "status": InvitationStatus.PENDING
+        })
+        if existing_invitation:
+            raise HTTPException(status_code=400, detail="Pending invitation already exists for this user and person")
+        
+        if person_doc.get("linked_user_id"):
+            raise HTTPException(status_code=400, detail="This person is already linked to a user")
+        
+        invitation_data = {
+            "family_id": ObjectId(current_user.id),
+            "person_id": person_oid,
+            "inviter_id": ObjectId(current_user.id),
+            "invited_user_id": invited_user_oid,
+            "message": invitation.message,
+            "status": InvitationStatus.PENDING,
+            "created_at": datetime.utcnow(),
+            "responded_at": None
+        }
+        
+        result = await get_collection("family_hub_invitations").insert_one(invitation_data)
+        invitation_doc = await get_collection("family_hub_invitations").find_one({"_id": result.inserted_id})
+        
+        notification_data = {
+            "user_id": invited_user_oid,
+            "type": "family_hub_invitation",
+            "title": "Family Hub Invitation",
+            "message": f"{current_user.username} invited you to join their family hub",
+            "related_id": str(result.inserted_id),
+            "read": False,
+            "created_at": datetime.utcnow()
+        }
+        await get_collection("notifications").insert_one(notification_data)
+        
+        return FamilyHubInvitationResponse(
+            id=str(invitation_doc["_id"]),
+            family_id=str(invitation_doc["family_id"]),
+            person_id=str(invitation_doc["person_id"]),
+            inviter_id=str(invitation_doc["inviter_id"]),
+            invited_user_id=str(invitation_doc["invited_user_id"]),
+            message=invitation_doc.get("message"),
+            status=invitation_doc["status"],
+            created_at=invitation_doc["created_at"],
+            responded_at=invitation_doc.get("responded_at")
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to send invitation: {str(e)}")
+
+
+@router.get("/invitations/sent", response_model=List[FamilyHubInvitationResponse])
+async def list_sent_invitations(
+    status_filter: Optional[str] = Query(None, description="Filter by status: pending, accepted, declined"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """List invitations sent by current user"""
+    try:
+        query_filter = {"inviter_id": ObjectId(current_user.id)}
+        if status_filter:
+            query_filter["status"] = status_filter
+        
+        invitations_cursor = get_collection("family_hub_invitations").find(query_filter).sort("created_at", -1)
+        
+        invitations = []
+        async for inv_doc in invitations_cursor:
+            invitations.append(FamilyHubInvitationResponse(
+                id=str(inv_doc["_id"]),
+                family_id=str(inv_doc["family_id"]),
+                person_id=str(inv_doc["person_id"]),
+                inviter_id=str(inv_doc["inviter_id"]),
+                invited_user_id=str(inv_doc["invited_user_id"]),
+                message=inv_doc.get("message"),
+                status=inv_doc["status"],
+                created_at=inv_doc["created_at"],
+                responded_at=inv_doc.get("responded_at")
+            ))
+        
+        return invitations
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list sent invitations: {str(e)}")
+
+
+@router.get("/invitations/received", response_model=List[FamilyHubInvitationResponse])
+async def list_received_invitations(
+    status_filter: Optional[str] = Query(None, description="Filter by status: pending, accepted, declined"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """List invitations received by current user"""
+    try:
+        query_filter = {"invited_user_id": ObjectId(current_user.id)}
+        if status_filter:
+            query_filter["status"] = status_filter
+        
+        invitations_cursor = get_collection("family_hub_invitations").find(query_filter).sort("created_at", -1)
+        
+        invitations = []
+        async for inv_doc in invitations_cursor:
+            invitations.append(FamilyHubInvitationResponse(
+                id=str(inv_doc["_id"]),
+                family_id=str(inv_doc["family_id"]),
+                person_id=str(inv_doc["person_id"]),
+                inviter_id=str(inv_doc["inviter_id"]),
+                invited_user_id=str(inv_doc["invited_user_id"]),
+                message=inv_doc.get("message"),
+                status=inv_doc["status"],
+                created_at=inv_doc["created_at"],
+                responded_at=inv_doc.get("responded_at")
+            ))
+        
+        return invitations
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list received invitations: {str(e)}")
+
+
+@router.post("/invitations/{invitation_id}/respond", response_model=FamilyHubInvitationResponse)
+async def respond_to_invitation(
+    invitation_id: str,
+    action: InvitationAction,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Accept or decline a family hub invitation"""
+    try:
+        invitation_oid = safe_object_id(invitation_id)
+        if not invitation_oid:
+            raise HTTPException(status_code=400, detail="Invalid invitation ID")
+        
+        invitation_doc = await get_collection("family_hub_invitations").find_one({"_id": invitation_oid})
+        if not invitation_doc:
+            raise HTTPException(status_code=404, detail="Invitation not found")
+        
+        if str(invitation_doc["invited_user_id"]) != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized to respond to this invitation")
+        
+        if invitation_doc["status"] != InvitationStatus.PENDING:
+            raise HTTPException(status_code=400, detail="Invitation has already been responded to")
+        
+        new_status = InvitationStatus.ACCEPTED if action.action == "accept" else InvitationStatus.DECLINED
+        
+        db = get_database()
+        async with await db.client.start_session() as session:
+            async with session.start_transaction():
+                if action.action == "accept":
+                    person_doc = await get_collection("genealogy_persons").find_one(
+                        {"_id": invitation_doc["person_id"]}, session=session
+                    )
+                    if not person_doc:
+                        raise HTTPException(status_code=404, detail="Person not found")
+                    
+                    if person_doc.get("linked_user_id"):
+                        raise HTTPException(status_code=400, detail="Person is already linked to another user")
+                    
+                    await get_collection("genealogy_persons").update_one(
+                        {"_id": invitation_doc["person_id"]},
+                        {
+                            "$set": {
+                                "linked_user_id": ObjectId(current_user.id),
+                                "source": PersonSource.PLATFORM_USER,
+                                "updated_at": datetime.utcnow()
+                            }
+                        },
+                        session=session
+                    )
+                
+                await get_collection("family_hub_invitations").update_one(
+                    {"_id": invitation_oid},
+                    {
+                        "$set": {
+                            "status": new_status,
+                            "responded_at": datetime.utcnow()
+                        }
+                    },
+                    session=session
+                )
+        
+        updated_invitation = await get_collection("family_hub_invitations").find_one({"_id": invitation_oid})
+        
+        notification_data = {
+            "user_id": updated_invitation["inviter_id"],
+            "type": "invitation_response",
+            "title": f"Invitation {new_status}",
+            "message": f"{current_user.username} {new_status} your family hub invitation",
+            "related_id": invitation_id,
+            "read": False,
+            "created_at": datetime.utcnow()
+        }
+        await get_collection("notifications").insert_one(notification_data)
+        
+        return FamilyHubInvitationResponse(
+            id=str(updated_invitation["_id"]),
+            family_id=str(updated_invitation["family_id"]),
+            person_id=str(updated_invitation["person_id"]),
+            inviter_id=str(updated_invitation["inviter_id"]),
+            invited_user_id=str(updated_invitation["invited_user_id"]),
+            message=updated_invitation.get("message"),
+            status=updated_invitation["status"],
+            created_at=updated_invitation["created_at"],
+            responded_at=updated_invitation.get("responded_at")
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to respond to invitation: {str(e)}")
+
+
+@router.delete("/invitations/{invitation_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def cancel_invitation(
+    invitation_id: str,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Cancel a pending invitation (only by inviter)"""
+    try:
+        invitation_oid = safe_object_id(invitation_id)
+        if not invitation_oid:
+            raise HTTPException(status_code=400, detail="Invalid invitation ID")
+        
+        invitation_doc = await get_collection("family_hub_invitations").find_one({"_id": invitation_oid})
+        if not invitation_doc:
+            raise HTTPException(status_code=404, detail="Invitation not found")
+        
+        if str(invitation_doc["inviter_id"]) != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized to cancel this invitation")
+        
+        if invitation_doc["status"] != InvitationStatus.PENDING:
+            raise HTTPException(status_code=400, detail="Can only cancel pending invitations")
+        
+        await get_collection("family_hub_invitations").update_one(
+            {"_id": invitation_oid},
+            {
+                "$set": {
+                    "status": InvitationStatus.CANCELLED,
+                    "responded_at": datetime.utcnow()
+                }
+            }
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to cancel invitation: {str(e)}")
