@@ -17,6 +17,46 @@ from app.utils.genealogy_helpers import safe_object_id, compute_is_alive, valida
 router = APIRouter()
 
 
+def person_doc_to_response(person_doc: dict) -> GenealogyPersonResponse:
+    """Convert MongoDB person document to response model"""
+    return GenealogyPersonResponse(
+        id=str(person_doc["_id"]),
+        family_id=str(person_doc["family_id"]),
+        first_name=person_doc["first_name"],
+        last_name=person_doc["last_name"],
+        maiden_name=person_doc.get("maiden_name"),
+        gender=person_doc["gender"],
+        birth_date=person_doc.get("birth_date"),
+        birth_place=person_doc.get("birth_place"),
+        death_date=person_doc.get("death_date"),
+        death_place=person_doc.get("death_place"),
+        is_alive=person_doc.get("is_alive", True),
+        biography=person_doc.get("biography"),
+        photo_url=person_doc.get("photo_url"),
+        occupation=person_doc.get("occupation"),
+        notes=person_doc.get("notes"),
+        linked_user_id=str(person_doc["linked_user_id"]) if person_doc.get("linked_user_id") else None,
+        source=person_doc.get("source", PersonSource.MANUAL),
+        created_at=person_doc["created_at"],
+        updated_at=person_doc["updated_at"],
+        created_by=str(person_doc["created_by"])
+    )
+
+
+def relationship_doc_to_response(relationship_doc: dict) -> GenealogyRelationshipResponse:
+    """Convert MongoDB relationship document to response model"""
+    return GenealogyRelationshipResponse(
+        id=str(relationship_doc["_id"]),
+        family_id=str(relationship_doc["family_id"]),
+        person1_id=str(relationship_doc["person1_id"]),
+        person2_id=str(relationship_doc["person2_id"]),
+        relationship_type=relationship_doc["relationship_type"],
+        notes=relationship_doc.get("notes"),
+        created_at=relationship_doc["created_at"],
+        created_by=str(relationship_doc["created_by"])
+    )
+
+
 async def get_tree_membership(tree_id: ObjectId, user_id: ObjectId):
     """Get user's membership in a family tree (returns None if not a member)"""
     return await get_collection("genealogy_tree_memberships").find_one({
@@ -25,7 +65,7 @@ async def get_tree_membership(tree_id: ObjectId, user_id: ObjectId):
     })
 
 
-async def ensure_tree_access(tree_id: ObjectId, user_id: ObjectId, required_roles: List[str] = None):
+async def ensure_tree_access(tree_id: ObjectId, user_id: ObjectId, required_roles: Optional[List[str]] = None):
     """
     Verify user has access to a tree with required role(s).
     If tree is user's own tree and no membership exists, auto-create owner membership.
@@ -113,75 +153,56 @@ async def create_genealogy_person(
             "photo_url": person.photo_url,
             "occupation": person.occupation,
             "notes": person.notes,
-            "linked_user_id": linked_user_oid,
             "source": person.source,
             "created_by": ObjectId(current_user.id),
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow()
         }
         
-        db = get_database()
-        async with await db.client.start_session() as session:
-            async with session.start_transaction():
-                result = await get_collection("genealogy_persons").insert_one(person_data, session=session)
-                person_id = result.inserted_id
+        # Only include linked_user_id if it's not None (sparse unique index requirement)
+        if linked_user_oid:
+            person_data["linked_user_id"] = linked_user_oid
+        
+        # Create person (no transaction needed for standalone MongoDB)
+        result = await get_collection("genealogy_persons").insert_one(person_data)
+        person_id = result.inserted_id
+        
+        # Create relationships if specified
+        if person.relationships:
+            for rel_spec in person.relationships:
+                related_person_oid = safe_object_id(rel_spec.person_id)
+                if not related_person_oid:
+                    raise HTTPException(status_code=400, detail=f"Invalid person_id in relationship: {rel_spec.person_id}")
                 
-                if person.relationships:
-                    for rel_spec in person.relationships:
-                        related_person_oid = safe_object_id(rel_spec.person_id)
-                        if not related_person_oid:
-                            raise HTTPException(status_code=400, detail=f"Invalid person_id in relationship: {rel_spec.person_id}")
-                        
-                        related_person = await get_collection("genealogy_persons").find_one(
-                            {"_id": related_person_oid}, session=session
-                        )
-                        if not related_person:
-                            raise HTTPException(status_code=404, detail=f"Related person not found: {rel_spec.person_id}")
-                        
-                        # Ensure related person belongs to the same tree
-                        if str(related_person["family_id"]) != str(tree_oid):
-                            raise HTTPException(
-                                status_code=403, 
-                                detail="Cannot create relationship with person from a different family tree"
-                            )
-                        
-                        relationship_data = {
-                            "family_id": tree_oid,
-                            "person1_id": person_id,
-                            "person2_id": related_person_oid,
-                            "relationship_type": rel_spec.relationship_type,
-                            "notes": rel_spec.notes,
-                            "created_by": ObjectId(current_user.id),
-                            "created_at": datetime.utcnow()
-                        }
-                        await get_collection("genealogy_relationships").insert_one(
-                            relationship_data, session=session
-                        )
+                related_person = await get_collection("genealogy_persons").find_one(
+                    {"_id": related_person_oid}
+                )
+                if not related_person:
+                    raise HTTPException(status_code=404, detail=f"Related person not found: {rel_spec.person_id}")
+                
+                # Ensure related person belongs to the same tree
+                if str(related_person["family_id"]) != str(tree_oid):
+                    raise HTTPException(
+                        status_code=403, 
+                        detail="Cannot create relationship with person from a different family tree"
+                    )
+                
+                relationship_data = {
+                    "family_id": tree_oid,
+                    "person1_id": person_id,
+                    "person2_id": related_person_oid,
+                    "relationship_type": rel_spec.relationship_type,
+                    "notes": rel_spec.notes,
+                    "created_by": ObjectId(current_user.id),
+                    "created_at": datetime.utcnow()
+                }
+                await get_collection("genealogy_relationships").insert_one(relationship_data)
         
         person_doc = await get_collection("genealogy_persons").find_one({"_id": person_id})
+        if not person_doc:
+            raise HTTPException(status_code=500, detail="Failed to retrieve created person")
         
-        return GenealogyPersonResponse(
-            id=str(person_doc["_id"]),
-            family_id=str(person_doc["family_id"]),
-            first_name=person_doc["first_name"],
-            last_name=person_doc["last_name"],
-            maiden_name=person_doc.get("maiden_name"),
-            gender=person_doc["gender"],
-            birth_date=person_doc.get("birth_date"),
-            birth_place=person_doc.get("birth_place"),
-            death_date=person_doc.get("death_date"),
-            death_place=person_doc.get("death_place"),
-            is_alive=person_doc.get("is_alive", True),
-            biography=person_doc.get("biography"),
-            photo_url=person_doc.get("photo_url"),
-            occupation=person_doc.get("occupation"),
-            notes=person_doc.get("notes"),
-            linked_user_id=str(person_doc["linked_user_id"]) if person_doc.get("linked_user_id") else None,
-            source=person_doc.get("source", PersonSource.MANUAL),
-            created_at=person_doc["created_at"],
-            updated_at=person_doc["updated_at"],
-            created_by=str(person_doc["created_by"])
-        )
+        return person_doc_to_response(person_doc)
     except HTTPException:
         raise
     except Exception as e:
@@ -207,31 +228,7 @@ async def list_genealogy_persons(
             "family_id": tree_oid
         }).sort("last_name", 1)
         
-        persons = []
-        async for person_doc in persons_cursor:
-            persons.append(GenealogyPersonResponse(
-                id=str(person_doc["_id"]),
-                family_id=str(person_doc["family_id"]),
-                first_name=person_doc["first_name"],
-                last_name=person_doc["last_name"],
-                maiden_name=person_doc.get("maiden_name"),
-                gender=person_doc["gender"],
-                birth_date=person_doc.get("birth_date"),
-                birth_place=person_doc.get("birth_place"),
-                death_date=person_doc.get("death_date"),
-                death_place=person_doc.get("death_place"),
-                is_alive=person_doc.get("is_alive", True),
-                biography=person_doc.get("biography"),
-                photo_url=person_doc.get("photo_url"),
-                occupation=person_doc.get("occupation"),
-                notes=person_doc.get("notes"),
-                linked_user_id=str(person_doc["linked_user_id"]) if person_doc.get("linked_user_id") else None,
-                source=person_doc.get("source", PersonSource.MANUAL),
-                created_at=person_doc["created_at"],
-                updated_at=person_doc["updated_at"],
-                created_by=str(person_doc["created_by"])
-            ))
-        
+        persons = [person_doc_to_response(doc) async for doc in persons_cursor]
         return persons
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list persons: {str(e)}")
@@ -255,28 +252,7 @@ async def get_genealogy_person(
         # Verify user has access to this tree (any role: owner/member/viewer)
         await ensure_tree_access(person_doc["family_id"], ObjectId(current_user.id))
         
-        return GenealogyPersonResponse(
-            id=str(person_doc["_id"]),
-            family_id=str(person_doc["family_id"]),
-            first_name=person_doc["first_name"],
-            last_name=person_doc["last_name"],
-            maiden_name=person_doc.get("maiden_name"),
-            gender=person_doc["gender"],
-            birth_date=person_doc.get("birth_date"),
-            birth_place=person_doc.get("birth_place"),
-            death_date=person_doc.get("death_date"),
-            death_place=person_doc.get("death_place"),
-            is_alive=person_doc.get("is_alive", True),
-            biography=person_doc.get("biography"),
-            photo_url=person_doc.get("photo_url"),
-            occupation=person_doc.get("occupation"),
-            notes=person_doc.get("notes"),
-            linked_user_id=str(person_doc["linked_user_id"]) if person_doc.get("linked_user_id") else None,
-            source=person_doc.get("source", PersonSource.MANUAL),
-            created_at=person_doc["created_at"],
-            updated_at=person_doc["updated_at"],
-            created_by=str(person_doc["created_by"])
-        )
+        return person_doc_to_response(person_doc)
     except HTTPException:
         raise
     except Exception as e:
@@ -347,29 +323,10 @@ async def update_genealogy_person(
         )
         
         updated_person = await get_collection("genealogy_persons").find_one({"_id": person_oid})
+        if not updated_person:
+            raise HTTPException(status_code=404, detail="Person not found after update")
         
-        return GenealogyPersonResponse(
-            id=str(updated_person["_id"]),
-            family_id=str(updated_person["family_id"]),
-            first_name=updated_person["first_name"],
-            last_name=updated_person["last_name"],
-            maiden_name=updated_person.get("maiden_name"),
-            gender=updated_person["gender"],
-            birth_date=updated_person.get("birth_date"),
-            birth_place=updated_person.get("birth_place"),
-            death_date=updated_person.get("death_date"),
-            death_place=updated_person.get("death_place"),
-            is_alive=updated_person.get("is_alive", True),
-            biography=updated_person.get("biography"),
-            photo_url=updated_person.get("photo_url"),
-            occupation=updated_person.get("occupation"),
-            notes=updated_person.get("notes"),
-            linked_user_id=str(updated_person["linked_user_id"]) if updated_person.get("linked_user_id") else None,
-            source=updated_person.get("source", PersonSource.MANUAL),
-            created_at=updated_person["created_at"],
-            updated_at=updated_person["updated_at"],
-            created_by=str(updated_person["created_by"])
-        )
+        return person_doc_to_response(updated_person)
     except HTTPException:
         raise
     except Exception as e:
@@ -472,11 +429,17 @@ async def create_genealogy_relationship(
         if not person1 or not person2:
             raise HTTPException(status_code=404, detail="One or both persons not found")
         
-        if str(person1["family_id"]) != current_user.id or str(person2["family_id"]) != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to create this relationship")
+        # Check if both persons belong to the same tree
+        if str(person1["family_id"]) != str(person2["family_id"]):
+            raise HTTPException(status_code=400, detail="Cannot create relationship between persons from different trees")
+        
+        tree_id = person1["family_id"]
+        
+        # Verify user has member or owner access to this tree
+        await ensure_tree_access(tree_id, ObjectId(current_user.id), required_roles=["owner", "member"])
         
         relationship_data = {
-            "family_id": ObjectId(current_user.id),
+            "family_id": tree_id,
             "person1_id": person1_oid,
             "person2_id": person2_oid,
             "relationship_type": relationship.relationship_type,
@@ -487,17 +450,10 @@ async def create_genealogy_relationship(
         
         result = await get_collection("genealogy_relationships").insert_one(relationship_data)
         relationship_doc = await get_collection("genealogy_relationships").find_one({"_id": result.inserted_id})
+        if not relationship_doc:
+            raise HTTPException(status_code=500, detail="Failed to retrieve created relationship")
         
-        return GenealogyRelationshipResponse(
-            id=str(relationship_doc["_id"]),
-            family_id=str(relationship_doc["family_id"]),
-            person1_id=str(relationship_doc["person1_id"]),
-            person2_id=str(relationship_doc["person2_id"]),
-            relationship_type=relationship_doc["relationship_type"],
-            notes=relationship_doc.get("notes"),
-            created_at=relationship_doc["created_at"],
-            created_by=str(relationship_doc["created_by"])
-        )
+        return relationship_doc_to_response(relationship_doc)
     except HTTPException:
         raise
     except Exception as e:
@@ -506,30 +462,27 @@ async def create_genealogy_relationship(
 
 @router.get("/relationships", response_model=List[GenealogyRelationshipResponse])
 async def list_genealogy_relationships(
+    tree_id: Optional[str] = Query(None, description="Tree ID (defaults to user's own tree)"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """List all relationships"""
+    """List all relationships in a family tree"""
     try:
-        user_oid = ObjectId(current_user.id)
+        # Determine which tree to query (default: user's own tree)
+        tree_oid = safe_object_id(tree_id) if tree_id else ObjectId(current_user.id)
+        if not tree_oid:
+            raise HTTPException(status_code=400, detail="Invalid tree_id")
+        
+        # Verify user has access to this tree
+        await ensure_tree_access(tree_oid, ObjectId(current_user.id), required_roles=["owner", "member", "viewer"])
         
         relationships_cursor = get_collection("genealogy_relationships").find({
-            "family_id": user_oid
+            "family_id": tree_oid
         }).sort("created_at", -1)
         
-        relationships = []
-        async for rel_doc in relationships_cursor:
-            relationships.append(GenealogyRelationshipResponse(
-                id=str(rel_doc["_id"]),
-                family_id=str(rel_doc["family_id"]),
-                person1_id=str(rel_doc["person1_id"]),
-                person2_id=str(rel_doc["person2_id"]),
-                relationship_type=rel_doc["relationship_type"],
-                notes=rel_doc.get("notes"),
-                created_at=rel_doc["created_at"],
-                created_by=str(rel_doc["created_by"])
-            ))
-        
+        relationships = [relationship_doc_to_response(doc) async for doc in relationships_cursor]
         return relationships
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list relationships: {str(e)}")
 
@@ -549,8 +502,10 @@ async def delete_genealogy_relationship(
         if not relationship_doc:
             raise HTTPException(status_code=404, detail="Relationship not found")
         
-        if str(relationship_doc["family_id"]) != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to delete this relationship")
+        tree_id = relationship_doc["family_id"]
+        
+        # Verify user has member or owner access to this tree
+        await ensure_tree_access(tree_id, ObjectId(current_user.id), required_roles=["owner", "member"])
         
         await get_collection("genealogy_relationships").delete_one({"_id": relationship_oid})
         
@@ -562,39 +517,25 @@ async def delete_genealogy_relationship(
 
 @router.get("/tree", response_model=List[FamilyTreeNode])
 async def get_family_tree(
+    tree_id: Optional[str] = Query(None, description="Tree ID (defaults to user's own tree)"),
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Get complete family tree structure"""
     try:
-        user_oid = ObjectId(current_user.id)
+        # Determine which tree to query (default: user's own tree)
+        tree_oid = safe_object_id(tree_id) if tree_id else ObjectId(current_user.id)
+        if not tree_oid:
+            raise HTTPException(status_code=400, detail="Invalid tree_id")
         
-        persons_cursor = get_collection("genealogy_persons").find({"family_id": user_oid})
-        relationships_cursor = get_collection("genealogy_relationships").find({"family_id": user_oid})
+        # Verify user has access to this tree
+        await ensure_tree_access(tree_oid, ObjectId(current_user.id), required_roles=["owner", "member", "viewer"])
+        
+        persons_cursor = get_collection("genealogy_persons").find({"family_id": tree_oid})
+        relationships_cursor = get_collection("genealogy_relationships").find({"family_id": tree_oid})
         
         persons_dict = {}
         async for person_doc in persons_cursor:
-            person_response = GenealogyPersonResponse(
-                id=str(person_doc["_id"]),
-                family_id=str(person_doc["family_id"]),
-                first_name=person_doc["first_name"],
-                last_name=person_doc["last_name"],
-                maiden_name=person_doc.get("maiden_name"),
-                gender=person_doc["gender"],
-                birth_date=person_doc.get("birth_date"),
-                birth_place=person_doc.get("birth_place"),
-                death_date=person_doc.get("death_date"),
-                death_place=person_doc.get("death_place"),
-                is_alive=person_doc.get("is_alive", True),
-                biography=person_doc.get("biography"),
-                photo_url=person_doc.get("photo_url"),
-                occupation=person_doc.get("occupation"),
-                notes=person_doc.get("notes"),
-                linked_user_id=str(person_doc["linked_user_id"]) if person_doc.get("linked_user_id") else None,
-                source=person_doc.get("source", PersonSource.MANUAL),
-                created_at=person_doc["created_at"],
-                updated_at=person_doc["updated_at"],
-                created_by=str(person_doc["created_by"])
-            )
+            person_response = person_doc_to_response(person_doc)
             persons_dict[str(person_doc["_id"])] = {
                 "person": person_response,
                 "relationships": [],
@@ -605,16 +546,7 @@ async def get_family_tree(
         
         relationships_list = []
         async for rel_doc in relationships_cursor:
-            rel_response = GenealogyRelationshipResponse(
-                id=str(rel_doc["_id"]),
-                family_id=str(rel_doc["family_id"]),
-                person1_id=str(rel_doc["person1_id"]),
-                person2_id=str(rel_doc["person2_id"]),
-                relationship_type=rel_doc["relationship_type"],
-                notes=rel_doc.get("notes"),
-                created_at=rel_doc["created_at"],
-                created_by=str(rel_doc["created_by"])
-            )
+            rel_response = relationship_doc_to_response(rel_doc)
             relationships_list.append(rel_response)
             
             person1_id = str(rel_doc["person1_id"])
