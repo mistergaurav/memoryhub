@@ -705,6 +705,57 @@ class FamilyService {
     }
   }
 
+  Future<List<LegacyLetter>> getSentLetters() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/legacy-letters/sent'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => LegacyLetter.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load sent letters');
+    }
+  }
+
+  Future<List<ReceivedLetter>> getReceivedLetters() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/legacy-letters/received'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => ReceivedLetter.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load received letters');
+    }
+  }
+
+  Future<LegacyLetter> getLetterDetail(String id) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/legacy-letters/$id'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      return LegacyLetter.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load letter detail');
+    }
+  }
+
+  Future<void> markLetterAsRead(String id) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/legacy-letters/$id/mark-read'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to mark letter as read');
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getInviteLinks({String? statusFilter}) async {
     final headers = await _authService.getAuthHeaders();
     var url = '$baseUrl/genealogy/invite-links';
