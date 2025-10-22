@@ -14,9 +14,31 @@ from app.models.family.family import (
 from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.db.mongodb import get_collection
-from app.utils.validators import validate_object_id, validate_object_ids, validate_user_has_access
+from app.repositories.family_repository import (
+    FamilyRepository,
+    FamilyRelationshipRepository,
+    FamilyInvitationRepository
+)
+from app.utils.family_validators import (
+    validate_family_ownership,
+    validate_family_member_access,
+    validate_object_id_list,
+    validate_user_exists,
+    validate_relationship_ownership,
+    validate_invitation_token,
+    validate_invitation_for_user,
+    validate_circle_ownership_for_invitations,
+    validate_no_duplicate_relationship,
+    validate_user_not_owner,
+    validate_user_not_in_circle
+)
+from app.models.responses import create_message_response
 
 router = APIRouter()
+
+family_repo = FamilyRepository()
+relationship_repo = FamilyRelationshipRepository()
+invitation_repo = FamilyInvitationRepository()
 
 
 @router.post("/relationships", response_model=FamilyRelationshipResponse, status_code=status.HTTP_201_CREATED)
@@ -26,23 +48,16 @@ async def create_family_relationship(
 ):
     """Create a family relationship"""
     try:
-        related_user_oid = validate_object_id(relationship.related_user_id, "related_user_id")
+        related_user = await validate_user_exists(relationship.related_user_id, "related user")
         
-        related_user = await get_collection("users").find_one({"_id": related_user_oid})
-        if not related_user:
-            raise HTTPException(status_code=404, detail="Related user not found")
-        
-        existing = await get_collection("family_relationships").find_one({
-            "user_id": ObjectId(current_user.id),
-            "related_user_id": related_user_oid
-        })
-        
-        if existing:
-            raise HTTPException(status_code=400, detail="Relationship already exists")
+        await validate_no_duplicate_relationship(
+            str(current_user.id),
+            relationship.related_user_id
+        )
         
         relationship_data = {
             "user_id": ObjectId(current_user.id),
-            "related_user_id": related_user_oid,
+            "related_user_id": ObjectId(relationship.related_user_id),
             "relation_type": relationship.relation_type,
             "relation_label": relationship.relation_label,
             "notes": relationship.notes,
@@ -50,8 +65,7 @@ async def create_family_relationship(
             "updated_at": datetime.utcnow()
         }
         
-        result = await get_collection("family_relationships").insert_one(relationship_data)
-        relationship_doc = await get_collection("family_relationships").find_one({"_id": result.inserted_id})
+        relationship_doc = await relationship_repo.create(relationship_data)
         
         return FamilyRelationshipResponse(
             id=str(relationship_doc["_id"]),
@@ -81,14 +95,15 @@ async def list_family_relationships(
 ):
     """List all family relationships for the current user with pagination"""
     try:
-        query = {"user_id": ObjectId(current_user.id)}
-        if relation_type:
-            query["relation_type"] = relation_type.value
+        relationships_docs = await relationship_repo.find_by_user(
+            str(current_user.id),
+            relation_type=relation_type.value if relation_type else None,
+            skip=skip,
+            limit=limit
+        )
         
-        cursor = get_collection("family_relationships").find(query).skip(skip).limit(limit).sort("created_at", -1)
         relationships = []
-        
-        async for rel_doc in cursor:
+        for rel_doc in relationships_docs:
             related_user = await get_collection("users").find_one({"_id": rel_doc["related_user_id"]})
             relationships.append(FamilyRelationshipResponse(
                 id=str(rel_doc["_id"]),
@@ -116,18 +131,11 @@ async def delete_family_relationship(
 ):
     """Delete a family relationship"""
     try:
-        relationship_oid = validate_object_id(relationship_id, "relationship_id")
+        await validate_relationship_ownership(str(current_user.id), relationship_id)
         
-        relationship = await get_collection("family_relationships").find_one({
-            "_id": relationship_oid,
-            "user_id": ObjectId(current_user.id)
-        })
+        await relationship_repo.delete_by_id(relationship_id)
         
-        if not relationship:
-            raise HTTPException(status_code=404, detail="Relationship not found")
-        
-        await get_collection("family_relationships").delete_one({"_id": relationship_oid})
-        return {"message": "Relationship deleted successfully"}
+        return create_message_response("Relationship deleted successfully")
     except HTTPException:
         raise
     except Exception as e:
@@ -141,7 +149,7 @@ async def create_family_circle(
 ):
     """Create a family circle"""
     try:
-        member_oids = validate_object_ids(circle.member_ids, "member_ids") if circle.member_ids else []
+        member_oids = validate_object_id_list(circle.member_ids, "member_ids") if circle.member_ids else []
         
         member_oids.append(ObjectId(current_user.id))
         member_oids = list(set(member_oids))
@@ -158,8 +166,7 @@ async def create_family_circle(
             "updated_at": datetime.utcnow()
         }
         
-        result = await get_collection("family_circles").insert_one(circle_data)
-        circle_doc = await get_collection("family_circles").find_one({"_id": result.inserted_id})
+        circle_doc = await family_repo.create(circle_data)
         
         members = []
         for member_id in circle_doc["member_ids"]:
@@ -184,6 +191,8 @@ async def create_family_circle(
             created_at=circle_doc["created_at"],
             updated_at=circle_doc["updated_at"]
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create circle: {str(e)}")
 
@@ -194,11 +203,10 @@ async def list_family_circles(
 ):
     """List all family circles for the current user"""
     try:
-        query = {"member_ids": ObjectId(current_user.id)}
-        cursor = get_collection("family_circles").find(query)
+        circles_docs = await family_repo.find_by_member(str(current_user.id))
         circles = []
         
-        async for circle_doc in cursor:
+        for circle_doc in circles_docs:
             members = []
             for member_id in circle_doc.get("member_ids", []):
                 user = await get_collection("users").find_one({"_id": member_id})
@@ -236,32 +244,19 @@ async def add_member_to_circle(
 ):
     """Add a member to a family circle"""
     try:
-        circle_oid = validate_object_id(circle_id, "circle_id")
-        user_oid = validate_object_id(user_id, "user_id")
-        
-        circle = await get_collection("family_circles").find_one({"_id": circle_oid})
-        if not circle:
-            raise HTTPException(status_code=404, detail="Circle not found")
-        
-        if circle["owner_id"] != ObjectId(current_user.id):
-            raise HTTPException(status_code=403, detail="Only circle owner can add members")
-        
-        user = await get_collection("users").find_one({"_id": user_oid})
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        if user_oid in circle.get("member_ids", []):
-            raise HTTPException(status_code=400, detail="User is already a member")
-        
-        await get_collection("family_circles").update_one(
-            {"_id": circle_oid},
-            {
-                "$push": {"member_ids": user_oid},
-                "$set": {"updated_at": datetime.utcnow()}
-            }
+        circle = await validate_family_ownership(
+            str(current_user.id),
+            circle_id,
+            "family_circles"
         )
         
-        return {"message": "Member added successfully"}
+        await validate_user_exists(user_id, "user")
+        
+        await validate_user_not_in_circle(circle, user_id)
+        
+        await family_repo.add_member(circle_id, user_id, str(current_user.id))
+        
+        return create_message_response("Member added successfully")
     except HTTPException:
         raise
     except Exception as e:
@@ -276,28 +271,17 @@ async def remove_member_from_circle(
 ):
     """Remove a member from a family circle"""
     try:
-        circle_oid = validate_object_id(circle_id, "circle_id")
-        user_oid = validate_object_id(user_id, "user_id")
-        
-        circle = await get_collection("family_circles").find_one({"_id": circle_oid})
-        if not circle:
-            raise HTTPException(status_code=404, detail="Circle not found")
-        
-        if circle["owner_id"] != ObjectId(current_user.id):
-            raise HTTPException(status_code=403, detail="Only circle owner can remove members")
-        
-        if circle["owner_id"] == user_oid:
-            raise HTTPException(status_code=400, detail="Cannot remove circle owner")
-        
-        await get_collection("family_circles").update_one(
-            {"_id": circle_oid},
-            {
-                "$pull": {"member_ids": user_oid},
-                "$set": {"updated_at": datetime.utcnow()}
-            }
+        circle = await validate_family_ownership(
+            str(current_user.id),
+            circle_id,
+            "family_circles"
         )
         
-        return {"message": "Member removed successfully"}
+        await validate_user_not_owner(circle, user_id)
+        
+        await family_repo.remove_member(circle_id, user_id, str(current_user.id))
+        
+        return create_message_response("Member removed successfully")
     except HTTPException:
         raise
     except Exception as e:
@@ -311,14 +295,13 @@ async def create_family_invitation(
 ):
     """Create a family invitation"""
     try:
-        circle_oids = validate_object_ids(invitation.circle_ids, "circle_ids")
-        circle_names = []
-        for circle_oid in circle_oids:
-            circle = await get_collection("family_circles").find_one({"_id": circle_oid})
-            if circle and circle.get("owner_id") == ObjectId(current_user.id):
-                circle_names.append(circle.get("name", ""))
-            else:
-                raise HTTPException(status_code=403, detail="Can only create invitations for circles you own")
+        circles = await validate_circle_ownership_for_invitations(
+            str(current_user.id),
+            invitation.circle_ids
+        )
+        
+        circle_names = [circle.get("name", "") for circle in circles]
+        circle_oids = [circle["_id"] for circle in circles]
         
         token = secrets.token_urlsafe(32)
         
@@ -335,8 +318,7 @@ async def create_family_invitation(
             "expires_at": datetime.utcnow() + timedelta(days=7)
         }
         
-        result = await get_collection("family_invitations").insert_one(invitation_data)
-        invitation_doc = await get_collection("family_invitations").find_one({"_id": result.inserted_id})
+        invitation_doc = await invitation_repo.create(invitation_data)
         
         from os import getenv
         base_url = getenv("REPLIT_DOMAINS", "localhost:5000").split(",")[0]
@@ -360,6 +342,8 @@ async def create_family_invitation(
             created_at=invitation_doc["created_at"],
             expires_at=invitation_doc["expires_at"]
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create invitation: {str(e)}")
 
@@ -371,22 +355,9 @@ async def accept_family_invitation(
 ):
     """Accept a family invitation"""
     try:
-        invitation = await get_collection("family_invitations").find_one({"token": token})
-        if not invitation:
-            raise HTTPException(status_code=404, detail="Invitation not found")
+        invitation = await validate_invitation_token(token)
         
-        if invitation["status"] != "pending":
-            raise HTTPException(status_code=400, detail="Invitation already processed")
-        
-        if invitation["expires_at"] < datetime.utcnow():
-            await get_collection("family_invitations").update_one(
-                {"_id": invitation["_id"]},
-                {"$set": {"status": "expired"}}
-            )
-            raise HTTPException(status_code=410, detail="Invitation expired")
-        
-        if current_user.email.lower() != invitation["invitee_email"]:
-            raise HTTPException(status_code=403, detail="This invitation is not for you")
+        await validate_invitation_for_user(invitation, current_user.email)
         
         relationship_data = {
             "user_id": invitation["inviter_id"],
@@ -397,7 +368,7 @@ async def accept_family_invitation(
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow()
         }
-        await get_collection("family_relationships").insert_one(relationship_data)
+        await relationship_repo.create(relationship_data)
         
         for circle_id in invitation.get("circle_ids", []):
             await get_collection("family_circles").update_one(
@@ -408,17 +379,15 @@ async def accept_family_invitation(
                 }
             )
         
-        await get_collection("family_invitations").update_one(
+        await invitation_repo.update(
             {"_id": invitation["_id"]},
             {
-                "$set": {
-                    "status": "accepted",
-                    "accepted_at": datetime.utcnow()
-                }
+                "status": "accepted",
+                "accepted_at": datetime.utcnow()
             }
         )
         
-        return {"message": "Invitation accepted successfully"}
+        return create_message_response("Invitation accepted successfully")
     except HTTPException:
         raise
     except Exception as e:
@@ -431,10 +400,10 @@ async def get_family_tree(
 ):
     """Get the family tree for the current user"""
     try:
-        cursor = get_collection("family_relationships").find({"user_id": ObjectId(current_user.id)})
+        relationships_docs = await relationship_repo.find_by_user(str(current_user.id))
         tree_nodes = []
         
-        async for rel in cursor:
+        for rel in relationships_docs:
             user = await get_collection("users").find_one({"_id": rel["related_user_id"]})
             if user:
                 tree_nodes.append(FamilyTreeNode(
@@ -461,12 +430,12 @@ async def add_family_member(
         user = await get_collection("users").find_one({"email": request.email.lower()})
         
         if user:
-            existing = await get_collection("family_relationships").find_one({
-                "user_id": ObjectId(current_user.id),
-                "related_user_id": user["_id"]
-            })
+            relationship_exists = await relationship_repo.check_relationship_exists(
+                str(current_user.id),
+                str(user["_id"])
+            )
             
-            if existing:
+            if relationship_exists:
                 return {
                     "status": "already_exists",
                     "message": "Family relationship already exists",
@@ -482,7 +451,7 @@ async def add_family_member(
                 "created_at": datetime.utcnow(),
                 "updated_at": datetime.utcnow()
             }
-            await get_collection("family_relationships").insert_one(relationship_data)
+            await relationship_repo.create(relationship_data)
             
             return {
                 "status": "added",
@@ -511,7 +480,7 @@ async def add_family_member(
                 "created_at": datetime.utcnow(),
                 "expires_at": datetime.utcnow() + timedelta(days=7)
             }
-            result = await get_collection("family_invitations").insert_one(invitation_data)
+            invitation_doc = await invitation_repo.create(invitation_data)
             
             from os import getenv
             base_url = getenv("REPLIT_DOMAINS", "localhost:5000").split(",")[0]
@@ -522,9 +491,11 @@ async def add_family_member(
             return {
                 "status": "invited",
                 "message": "Invitation sent successfully",
-                "invitation_id": str(result.inserted_id),
+                "invitation_id": str(invitation_doc["_id"]),
                 "invite_url": invite_url,
                 "email": request.email
             }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to add family member: {str(e)}")

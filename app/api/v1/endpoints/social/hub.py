@@ -41,8 +41,8 @@ async def get_hub_dashboard(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Get hub dashboard with stats and recent activity"""
-    stats = await get_hub_stats(current_user.id)
-    recent_activity = await get_recent_activity(current_user.id)
+    stats = await get_hub_stats(str(current_user.id))
+    recent_activity = await get_recent_activity(str(current_user.id))
     
     return {
         "stats": stats,
@@ -66,7 +66,7 @@ async def list_hub_items(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """List hub items with filtering and pagination"""
-    query = {"owner_id": ObjectId(current_user.id)}
+    query: Dict[str, Any] = {"owner_id": ObjectId(current_user.id)}
     
     if item_type:
         query["item_type"] = item_type
@@ -101,6 +101,9 @@ async def create_hub_item(
     
     result = await get_collection("hub_items").insert_one(item_data)
     created_item = await get_collection("hub_items").find_one({"_id": result.inserted_id})
+    
+    if not created_item:
+        raise HTTPException(status_code=500, detail="Failed to create hub item")
     
     created_item["id"] = str(created_item["_id"])
     created_item["owner_id"] = str(created_item["owner_id"])
@@ -152,6 +155,9 @@ async def update_hub_item(
     )
     
     updated_item = await get_collection("hub_items").find_one({"_id": ObjectId(item_id)})
+    if not updated_item:
+        raise HTTPException(status_code=404, detail="Item not found after update")
+    
     updated_item["id"] = str(updated_item["_id"])
     updated_item["owner_id"] = str(updated_item["owner_id"])
     return updated_item
@@ -181,10 +187,11 @@ async def search_hub(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Search across all hub items"""
+    item_type_strs = [str(it.value) for it in item_types] if item_types else None
     return await search_hub_items(
-        user_id=current_user.id,
+        user_id=str(current_user.id),
         query=query,
-        item_types=item_types,
+        item_types=item_type_strs,
         tags=tags,
         limit=limit
     )
@@ -194,7 +201,7 @@ async def get_hub_statistics(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Get hub statistics"""
-    stats = await get_hub_stats(current_user.id)
+    stats = await get_hub_stats(str(current_user.id))
     return HubStats(**stats)
 
 @router.get("/activity", response_model=List[Dict[str, Any]])
@@ -203,4 +210,4 @@ async def get_recent_hub_activity(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Get recent activity in the hub"""
-    return await get_recent_activity(current_user.id, limit)
+    return await get_recent_activity(str(current_user.id), limit)

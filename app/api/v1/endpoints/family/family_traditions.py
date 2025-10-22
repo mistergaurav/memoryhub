@@ -44,6 +44,9 @@ async def create_tradition(
         result = await get_collection("family_traditions").insert_one(tradition_data)
         tradition_doc = await get_collection("family_traditions").find_one({"_id": result.inserted_id})
         
+        if not tradition_doc:
+            raise HTTPException(status_code=500, detail="Failed to create tradition")
+        
         return FamilyTraditionResponse(
             id=str(tradition_doc["_id"]),
             title=tradition_doc["title"],
@@ -184,6 +187,9 @@ async def update_tradition(
         )
         
         updated_tradition = await get_collection("family_traditions").find_one({"_id": tradition_oid})
+        if not updated_tradition:
+            raise HTTPException(status_code=404, detail="Tradition not found after update")
+        
         creator = await get_collection("users").find_one({"_id": updated_tradition["created_by"]})
         
         return FamilyTraditionResponse(

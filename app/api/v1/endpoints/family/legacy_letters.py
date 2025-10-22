@@ -46,6 +46,9 @@ async def create_legacy_letter(
         result = await get_collection("legacy_letters").insert_one(letter_data)
         letter_doc = await get_collection("legacy_letters").find_one({"_id": result.inserted_id})
         
+        if not letter_doc:
+            raise HTTPException(status_code=500, detail="Failed to create letter")
+        
         recipient_names = []
         for recipient_id in letter_doc.get("recipient_ids", []):
             user = await get_collection("users").find_one({"_id": recipient_id})
@@ -239,6 +242,9 @@ async def update_legacy_letter(
         )
         
         updated_letter = await get_collection("legacy_letters").find_one({"_id": letter_oid})
+        if not updated_letter:
+            raise HTTPException(status_code=404, detail="Letter not found after update")
+        
         author = await get_collection("users").find_one({"_id": updated_letter["author_id"]})
         
         recipient_names = []
