@@ -176,6 +176,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'family_milestones_fab',
         onPressed: _showAddDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Milestone'),

@@ -145,6 +145,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'family_recipes_fab',
         onPressed: _showAddDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Recipe'),

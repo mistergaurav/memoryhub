@@ -229,6 +229,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'family_calendar_fab',
         onPressed: _showAddEventDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Event'),

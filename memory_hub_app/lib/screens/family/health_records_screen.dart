@@ -279,6 +279,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'health_records_fab',
         onPressed: () {
           if (_tabController.index == 0) {
             _showQuickAddHealthRecordDialog();

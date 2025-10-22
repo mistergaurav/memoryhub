@@ -126,6 +126,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'family_albums_main_fab',
         onPressed: _showAddDialog,
         icon: const Icon(Icons.add),
         label: const Text('Create Album'),
@@ -400,6 +401,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                   },
                 ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'family_albums_fab',
         onPressed: () {},
         child: const Icon(Icons.add_a_photo),
       ),

@@ -187,6 +187,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'genealogy_tree_fab',
         onPressed: _showAddPersonDialog,
         icon: const Icon(Icons.person_add),
         label: const Text('Add Person'),

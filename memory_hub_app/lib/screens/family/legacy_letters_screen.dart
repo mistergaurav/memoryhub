@@ -151,6 +151,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'legacy_letters_fab',
         onPressed: _showAddDialog,
         icon: const Icon(Icons.edit),
         label: const Text('Write Letter'),

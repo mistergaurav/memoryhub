@@ -555,6 +555,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           const SizedBox(height: MemoryHubSpacing.md),
         ],
         FloatingActionButton(
+          heroTag: 'family_hub_main_fab',
           onPressed: _toggleFab,
           child: AnimatedIcon(
             icon: AnimatedIcons.menu_close,
@@ -582,12 +583,17 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               horizontal: MemoryHubSpacing.md,
               vertical: MemoryHubSpacing.sm,
             ),
-            child: Text(label),
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: 14),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
         const SizedBox(width: MemoryHubSpacing.sm),
         FloatingActionButton.small(
-          heroTag: label,
+          heroTag: 'family_hub_fab_$label',
           onPressed: () {
             _toggleFab();
             onTap();

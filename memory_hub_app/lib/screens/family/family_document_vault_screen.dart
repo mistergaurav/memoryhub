@@ -245,6 +245,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'family_document_vault_fab',
         onPressed: () {},
         icon: const Icon(Icons.add),
         label: const Text('Upload Document'),
@@ -387,6 +388,7 @@ class FolderDetailScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'folder_detail_fab_$folderName',
         onPressed: () {},
         backgroundColor: folderColor,
         child: const Icon(Icons.add),

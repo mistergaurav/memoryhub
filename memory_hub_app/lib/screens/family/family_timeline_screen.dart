@@ -148,6 +148,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'family_timeline_fab',
         onPressed: _showAddEventDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Event'),

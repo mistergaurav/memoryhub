@@ -145,6 +145,7 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'family_traditions_fab',
         onPressed: _showAddDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Tradition'),
