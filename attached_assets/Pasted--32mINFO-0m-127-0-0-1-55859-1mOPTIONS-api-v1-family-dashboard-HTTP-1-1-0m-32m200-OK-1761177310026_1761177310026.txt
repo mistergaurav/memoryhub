@@ -1,0 +1,29 @@
+←[32mINFO←[0m:     127.0.0.1:55859 - "←[1mOPTIONS /api/v1/family/dashboard HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55860 - "←[1mOPTIONS /api/v1/family-timeline/ HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55860 - "←[1mGET /api/v1/family-timeline/ HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55859 - "←[1mGET /api/v1/family/dashboard HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55866 - "←[1mGET /api/v1/family-timeline/ HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55865 - "←[1mGET /api/v1/family/dashboard HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55894 - "←[1mGET /api/v1/family-timeline/ HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55893 - "←[1mGET /api/v1/family/dashboard HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55895 - "←[1mOPTIONS /api/v1/social/hubs HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55895 - "←[1mGET /api/v1/social/hubs HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55900 - "←[1mPOST /api/v1/social/hubs HTTP/1.1←[0m" ←[32m201 Created←[0m
+←[32mINFO←[0m:     127.0.0.1:55900 - "←[1mGET /api/v1/social/hubs HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55901 - "←[1mOPTIONS /api/v1/social/hubs/68f96d27a27d26a532cd3e24 HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55901 - "←[1mGET /api/v1/social/hubs/68f96d27a27d26a532cd3e24 HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55901 - "←[1mOPTIONS /api/v1/social/hubs/68f96d27a27d26a532cd3e24/memories HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55901 - "←[1mGET /api/v1/social/hubs/68f96d27a27d26a532cd3e24/memories HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55906 - "←[1mOPTIONS /api/v1/social/hubs/68f96d27a27d26a532cd3e24/members HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55907 - "←[1mGET /api/v1/social/hubs/68f96d27a27d26a532cd3e24 HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55906 - "←[1mGET /api/v1/social/hubs/68f96d27a27d26a532cd3e24/members HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55908 - "←[1mGET /api/v1/social/hubs HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55913 - "←[1mGET /api/v1/family-timeline/ HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     127.0.0.1:55912 - "←[1mGET /api/v1/family/dashboard HTTP/1.1←[0m" ←[32m200 OK←[0m
+←[32mINFO←[0m:     Shutting down
+←[32mINFO←[0m:     Waiting for application shutdown.
+←[32mINFO←[0m:     Application shutdown complete.
+←[32mINFO←[0m:     Finished server process [←[36m1300←[0m]
+←[32mINFO←[0m:     Stopping reloader process [←[36m←[1m3312←[0m]
+
+G:\memoryhub>
