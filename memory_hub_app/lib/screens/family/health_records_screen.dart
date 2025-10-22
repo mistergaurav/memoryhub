@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/family/family_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
-import '../../dialogs/family/add_health_record_dialog.dart';
+import '../../dialogs/family/quick_add_health_record_dialog.dart';
 import '../../dialogs/family/add_vaccination_dialog.dart';
 import 'package:intl/intl.dart';
 
@@ -23,14 +23,16 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
   bool _isLoadingVaccinations = true;
   String _error = '';
   String? _selectedRecordType;
+  String? _lastAddedRecordId;
 
   final List<Map<String, dynamic>> _recordTypes = [
-    {'label': 'All', 'value': null, 'icon': Icons.all_inclusive},
-    {'label': 'Checkup', 'value': 'checkup', 'icon': Icons.health_and_safety},
-    {'label': 'Illness', 'value': 'illness', 'icon': Icons.sick},
-    {'label': 'Surgery', 'value': 'surgery', 'icon': Icons.local_hospital},
-    {'label': 'Medication', 'value': 'medication', 'icon': Icons.medication},
-    {'label': 'Test', 'value': 'test', 'icon': Icons.biotech},
+    {'label': 'All', 'value': null, 'icon': Icons.all_inclusive, 'color': Colors.grey},
+    {'label': 'Medical', 'value': 'medical', 'icon': Icons.medical_services, 'color': Color(0xFF3B82F6)},
+    {'label': 'Allergies', 'value': 'allergy', 'icon': Icons.coronavirus, 'color': Color(0xFFEF4444)},
+    {'label': 'Conditions', 'value': 'condition', 'icon': Icons.sick, 'color': Color(0xFFF59E0B)},
+    {'label': 'Surgery', 'value': 'surgery', 'icon': Icons.local_hospital, 'color': Color(0xFF8B5CF6)},
+    {'label': 'Emergency', 'value': 'emergency', 'icon': Icons.emergency, 'color': Color(0xFFDC2626)},
+    {'label': 'Vaccination', 'value': 'vaccination', 'icon': Icons.vaccines, 'color': Color(0xFF10B981)},
   ];
 
   @override
@@ -88,10 +90,10 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
     ]);
   }
 
-  void _showAddHealthRecordDialog() {
+  void _showQuickAddHealthRecordDialog() {
     showDialog(
       context: context,
-      builder: (context) => AddHealthRecordDialog(
+      builder: (context) => QuickAddHealthRecordDialog(
         onSubmit: _handleAddHealthRecord,
       ),
     );
@@ -108,11 +110,31 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
 
   Future<void> _handleAddHealthRecord(Map<String, dynamic> data) async {
     try {
-      await _familyService.createHealthRecord(data);
+      final result = await _familyService.createHealthRecord(data);
+      
+      setState(() {
+        _lastAddedRecordId = result['id'] ?? result['_id'];
+      });
+      
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Health record added successfully'),
+        SnackBar(
+          content: const Text('Health record added successfully'),
           backgroundColor: Colors.green,
+          action: SnackBarAction(
+            label: 'View',
+            textColor: Colors.white,
+            onPressed: () {
+              _loadHealthRecords().then((_) {
+                final record = _healthRecords.firstWhere(
+                  (r) => (r['id'] ?? r['_id']) == _lastAddedRecordId,
+                  orElse: () => {},
+                );
+                if (record.isNotEmpty) {
+                  _showRecordDetails(record);
+                }
+              });
+            },
+          ),
         ),
       );
       _loadHealthRecords();
@@ -143,6 +165,47 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
           backgroundColor: Colors.red,
         ),
       );
+    }
+  }
+
+  Future<void> _deleteHealthRecord(String recordId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Record'),
+        content: const Text('Are you sure you want to delete this health record?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _familyService.deleteHealthRecord(recordId);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Health record deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _loadHealthRecords();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete record: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -218,13 +281,13 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           if (_tabController.index == 0) {
-            _showAddHealthRecordDialog();
+            _showQuickAddHealthRecordDialog();
           } else {
             _showAddVaccinationDialog();
           }
         },
         icon: const Icon(Icons.add),
-        label: Text(_tabController.index == 0 ? 'Add Record' : 'Add Vaccination'),
+        label: Text(_tabController.index == 0 ? 'Quick Add' : 'Add Vaccination'),
         backgroundColor: const Color(0xFFEF4444),
       ),
     );
@@ -268,10 +331,10 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
             SliverFillRemaining(
               child: EnhancedEmptyState(
                 icon: Icons.health_and_safety,
-                title: 'No Health Records Yet',
-                message: 'Start tracking your family\'s health by adding medical records.',
-                actionLabel: 'Add Record',
-                onAction: _showAddHealthRecordDialog,
+                title: 'Start Your Health Journey',
+                message: 'Keep your family\'s health records organized and accessible. Tap the button below to add your first record in just 30 seconds!',
+                actionLabel: 'Add First Record',
+                onAction: _showQuickAddHealthRecordDialog,
                 gradientColors: const [
                   Color(0xFFEF4444),
                   Color(0xFFF87171),
@@ -279,18 +342,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
               ),
             )
           else
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12.0),
-                    child: _buildHealthRecordCard(_healthRecords[index]),
-                  ),
-                  childCount: _healthRecords.length,
-                ),
-              ),
-            ),
+            ..._buildGroupedRecords(),
           const SliverToBoxAdapter(child: SizedBox(height: 80)),
         ],
       ),
@@ -313,7 +365,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
               ? EnhancedEmptyState(
                   icon: Icons.vaccines,
                   title: 'No Vaccinations Yet',
-                  message: 'Keep track of family vaccinations and immunization schedules.',
+                  message: 'Keep track of family vaccinations and immunization schedules to stay healthy and protected.',
                   actionLabel: 'Add Vaccination',
                   onAction: _showAddVaccinationDialog,
                   gradientColors: const [
@@ -333,46 +385,156 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
   }
 
   Widget _buildFilterChips() {
-    return SizedBox(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _recordTypes.length,
-        itemBuilder: (context, index) {
-          final filter = _recordTypes[index];
-          final isSelected = _selectedRecordType == filter['value'];
-          return Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: FilterChip(
-              selected: isSelected,
-              label: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    filter['icon'] as IconData,
-                    size: 18,
-                    color: isSelected ? Colors.white : Colors.grey.shade700,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(filter['label'] as String),
-                ],
-              ),
-              onSelected: (selected) {
-                setState(() {
-                  _selectedRecordType = filter['value'] as String?;
-                });
-                _loadHealthRecords();
-              },
-              selectedColor: const Color(0xFFEF4444),
-              checkmarkColor: Colors.white,
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey.shade700,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.filter_list, size: 20, color: Colors.grey.shade700),
+            const SizedBox(width: 8),
+            Text(
+              'Filter by Type',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade700,
               ),
             ),
-          );
-        },
-      ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 50,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _recordTypes.length,
+            itemBuilder: (context, index) {
+              final filter = _recordTypes[index];
+              final isSelected = _selectedRecordType == filter['value'];
+              final color = filter['color'] as Color;
+              
+              return Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: FilterChip(
+                  selected: isSelected,
+                  label: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        filter['icon'] as IconData,
+                        size: 18,
+                        color: isSelected ? Colors.white : color,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(filter['label'] as String),
+                    ],
+                  ),
+                  onSelected: (selected) {
+                    setState(() {
+                      _selectedRecordType = filter['value'] as String?;
+                    });
+                    _loadHealthRecords();
+                  },
+                  selectedColor: color,
+                  checkmarkColor: Colors.white,
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : Colors.grey.shade700,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                  elevation: isSelected ? 2 : 0,
+                  pressElevation: 4,
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
+  }
+
+  List<Widget> _buildGroupedRecords() {
+    final groupedByMember = <String, List<Map<String, dynamic>>>{};
+    
+    for (var record in _healthRecords) {
+      final memberName = record['genealogy_person_name'] ?? 
+                        record['family_member_name'] ?? 
+                        record['person_name'] ?? 
+                        'Unknown Member';
+      
+      if (!groupedByMember.containsKey(memberName)) {
+        groupedByMember[memberName] = [];
+      }
+      groupedByMember[memberName]!.add(record);
+    }
+    
+    final widgets = <Widget>[];
+    
+    groupedByMember.forEach((memberName, records) {
+      widgets.add(
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEF4444).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.person,
+                    size: 18,
+                    color: const Color(0xFFEF4444),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  memberName,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${records.length}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      
+      widgets.add(
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: _buildHealthRecordCard(records[index]),
+              ),
+              childCount: records.length,
+            ),
+          ),
+        ),
+      );
+    });
+    
+    return widgets;
   }
 
   Widget _buildHealthRecordCard(Map<String, dynamic> record) {
@@ -387,6 +549,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
     final inheritancePattern = record['inheritance_pattern'];
     final affectedRelatives = record['affected_relatives'] as List<dynamic>?;
     final ageOfOnset = record['age_of_onset'];
+    final recordId = record['id'] ?? record['_id'] ?? '';
 
     Color getSeverityColor() {
       switch (severity) {
@@ -394,7 +557,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
           return Colors.red;
         case 'high':
           return Colors.orange;
-        case 'medium':
+        case 'moderate':
           return Colors.yellow.shade700;
         default:
           return Colors.green;
@@ -403,208 +566,289 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
 
     IconData getRecordTypeIcon() {
       switch (recordType) {
-        case 'checkup':
-          return Icons.health_and_safety;
-        case 'illness':
+        case 'medical':
+          return Icons.medical_services;
+        case 'allergy':
+          return Icons.coronavirus;
+        case 'condition':
           return Icons.sick;
         case 'surgery':
           return Icons.local_hospital;
-        case 'medication':
-          return Icons.medication;
-        case 'test':
-          return Icons.biotech;
+        case 'emergency':
+          return Icons.emergency;
+        case 'vaccination':
+          return Icons.vaccines;
         default:
           return Icons.medical_services;
       }
     }
 
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+    Color getRecordTypeColor() {
+      final type = _recordTypes.firstWhere(
+        (t) => t['value'] == recordType,
+        orElse: () => _recordTypes[1],
+      );
+      return type['color'] as Color;
+    }
+
+    return Dismissible(
+      key: Key(recordId),
+      background: Container(
+        decoration: BoxDecoration(
+          color: Colors.blue,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(left: 20),
+        child: const Icon(Icons.edit, color: Colors.white, size: 28),
       ),
-      child: InkWell(
-        onTap: () => _showRecordDetails(record),
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+      secondaryBackground: Container(
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.delete, color: Colors.white, size: 28),
+      ),
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.endToStart) {
+          return await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Delete Record'),
+              content: const Text('Are you sure you want to delete this health record?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  child: const Text('Delete'),
+                ),
+              ],
+            ),
+          );
+        } else if (direction == DismissDirection.startToEnd) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Edit feature coming soon')),
+          );
+          return false;
+        }
+        return false;
+      },
+      onDismissed: (direction) {
+        if (direction == DismissDirection.endToStart) {
+          _familyService.deleteHealthRecord(recordId);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Health record deleted'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      },
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: InkWell(
+          onTap: () => _showRecordDetails(record),
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border(
+                left: BorderSide(
+                  color: getRecordTypeColor(),
+                  width: 4,
+                ),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEF4444).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      getRecordTypeIcon(),
-                      color: const Color(0xFFEF4444),
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: getRecordTypeColor().withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        const SizedBox(height: 4),
-                        Row(
+                        child: Icon(
+                          getRecordTypeIcon(),
+                          color: getRecordTypeColor(),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.person,
-                              size: 14,
-                              color: Colors.grey.shade600,
-                            ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                memberName,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade600,
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: getRecordTypeColor().withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    recordType.toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: getRecordTypeColor(),
+                                    ),
+                                  ),
                                 ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                  if (severity != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
                       ),
-                      decoration: BoxDecoration(
-                        color: getSeverityColor().withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        severity.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: getSeverityColor(),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              if (description != null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade700,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  if (date != null) ...[
-                    Icon(
-                      Icons.calendar_today,
-                      size: 14,
-                      color: Colors.grey.shade600,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      _formatDate(date),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                  if (provider != null) ...[
-                    const SizedBox(width: 16),
-                    Icon(
-                      Icons.local_hospital,
-                      size: 14,
-                      color: Colors.grey.shade600,
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        provider,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              if (isHereditary) ...[
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.purple.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.purple.shade200),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.family_restroom, size: 16, color: Colors.purple.shade700),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Hereditary Condition',
+                      if (severity != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: getSeverityColor().withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            severity.toUpperCase(),
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 11,
                               fontWeight: FontWeight.bold,
-                              color: Colors.purple.shade700,
+                              color: getSeverityColor(),
                             ),
                           ),
-                        ],
+                        ),
+                    ],
+                  ),
+                  if (description != null) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade700,
                       ),
-                      if (inheritancePattern != null) ...[
-                        const SizedBox(height: 6),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      if (date != null) ...[
+                        Icon(
+                          Icons.calendar_today,
+                          size: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                        const SizedBox(width: 4),
                         Text(
-                          'Pattern: ${_formatInheritancePattern(inheritancePattern)}',
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                          _formatDate(date),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                       ],
-                      if (ageOfOnset != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          'Age of onset: $ageOfOnset years',
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                      if (provider != null) ...[
+                        const SizedBox(width: 16),
+                        Icon(
+                          Icons.local_hospital,
+                          size: 14,
+                          color: Colors.grey.shade600,
                         ),
-                      ],
-                      if (affectedRelatives != null && affectedRelatives.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          'Affected relatives: ${affectedRelatives.length}',
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            provider,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ],
                   ),
-                ),
-              ],
-            ],
+                  if (isHereditary) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.purple.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.purple.shade200),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.family_restroom, size: 16, color: Colors.purple.shade700),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Hereditary Condition',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.purple.shade700,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (inheritancePattern != null) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              'Pattern: ${_formatInheritancePattern(inheritancePattern)}',
+                              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                            ),
+                          ],
+                          if (ageOfOnset != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              'Age of onset: $ageOfOnset years',
+                              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                            ),
+                          ],
+                          if (affectedRelatives != null && affectedRelatives.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              'Affected relatives: ${affectedRelatives.length}',
+                              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -935,7 +1179,11 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Edit feature coming soon')),
+                        );
+                      },
                       icon: const Icon(Icons.edit),
                       label: const Text('Edit'),
                       style: ElevatedButton.styleFrom(
@@ -950,7 +1198,10 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
                   const SizedBox(width: 12),
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _deleteHealthRecord(record['id'] ?? record['_id'] ?? '');
+                      },
                       icon: const Icon(Icons.delete),
                       label: const Text('Delete'),
                       style: OutlinedButton.styleFrom(
@@ -1009,7 +1260,11 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Edit feature coming soon')),
+                  );
+                },
                 icon: const Icon(Icons.edit),
                 label: const Text('Edit Details'),
                 style: ElevatedButton.styleFrom(

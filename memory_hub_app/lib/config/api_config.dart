@@ -88,14 +88,14 @@ class ApiConfig {
       // Check if running on Replit
       if (hostname.contains('replit.dev') || hostname.contains('.repl.co')) {
         String backendHostname;
-        if (hostname.startsWith('5000-')) {
-          // Port-prefixed hostname: replace 5000- with 8000-
-          backendHostname = hostname.replaceFirst('5000-', '8000-');
-        } else if (hostname.contains('-')) {
-          // Already port-prefixed but not 5000-, might be direct access
+        // Check if hostname starts with a port number prefix (e.g., 5000-, 8000-, 3000-)
+        final portPrefixMatch = RegExp(r'^(\d+)-').firstMatch(hostname);
+        
+        if (portPrefixMatch != null) {
+          // Hostname has port prefix, replace it with 8000-
           backendHostname = hostname.replaceFirst(RegExp(r'^\d+-'), '8000-');
         } else {
-          // Non-port-prefixed hostname: prepend 8000-
+          // No port prefix, prepend 8000-
           backendHostname = '8000-$hostname';
         }
         return '$protocol//$backendHostname/api/v1';
@@ -121,11 +121,14 @@ class ApiConfig {
       
       if (hostname.contains('replit.dev') || hostname.contains('.repl.co')) {
         String backendHostname;
-        if (hostname.startsWith('5000-')) {
-          backendHostname = hostname.replaceFirst('5000-', '8000-');
-        } else if (hostname.contains('-')) {
+        // Check if hostname starts with a port number prefix
+        final portPrefixMatch = RegExp(r'^(\d+)-').firstMatch(hostname);
+        
+        if (portPrefixMatch != null) {
+          // Hostname has port prefix, replace it with 8000-
           backendHostname = hostname.replaceFirst(RegExp(r'^\d+-'), '8000-');
         } else {
+          // No port prefix, prepend 8000-
           backendHostname = '8000-$hostname';
         }
         return '$wsProtocol://$backendHostname/ws';
@@ -147,11 +150,14 @@ class ApiConfig {
       
       if (hostname.contains('replit.dev') || hostname.contains('.repl.co')) {
         String backendHostname;
-        if (hostname.startsWith('5000-')) {
-          backendHostname = hostname.replaceFirst('5000-', '8000-');
-        } else if (hostname.contains('-')) {
+        // Check if hostname starts with a port number prefix
+        final portPrefixMatch = RegExp(r'^(\d+)-').firstMatch(hostname);
+        
+        if (portPrefixMatch != null) {
+          // Hostname has port prefix, replace it with 8000-
           backendHostname = hostname.replaceFirst(RegExp(r'^\d+-'), '8000-');
         } else {
+          // No port prefix, prepend 8000-
           backendHostname = '8000-$hostname';
         }
         return '$protocol//$backendHostname';
