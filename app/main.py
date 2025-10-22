@@ -1,12 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from contextlib import asynccontextmanager
 from app.api.v1.api import api_router
 from app.core.config import settings
 from app.db.mongodb import connect_to_mongo, close_mongo_connection
 from app.utils.db_indexes import create_all_indexes
+from app.middleware.rate_limit import limiter, RateLimitExceeded, _rate_limit_exceeded_handler
+from slowapi.middleware import SlowAPIMiddleware
 import os
 
 @asynccontextmanager
@@ -29,21 +31,41 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware
+# Add rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Add SlowAPI middleware to enforce rate limits
+if settings.RATE_LIMIT_ENABLED:
+    app.add_middleware(SlowAPIMiddleware)
+
+# CORS middleware - configurable for production
+# In production, set ALLOWED_ORIGINS environment variable to comma-separated domains
+allowed_origins = settings.ALLOWED_ORIGINS
+if settings.ENVIRONMENT == "production" and os.getenv("ALLOWED_ORIGINS"):
+    allowed_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
+    max_age=3600,
 )
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring."""
+    return {
+        "status": "healthy",
+        "version": settings.VERSION,
+        "environment": settings.ENVIRONMENT,
+    }
 
 # Include API routers
 app.include_router(api_router, prefix="/api/v1")
-
-# Serve uploaded media files
-from app.api.v1.endpoints.media import router as media_router
-app.include_router(media_router, tags=["media"])
 
 # Create uploads directory if it doesn't exist
 uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")

@@ -233,7 +233,8 @@ class EmailService:
     async def send_password_reset_email(self, to_email: str, reset_token: str, user_name: Optional[str] = None) -> bool:
         """Send password reset email"""
         if not self.provider:
-            print("Email service not configured - skipping password reset email")
+            print("⚠️  Email service not configured - skipping password reset email")
+            print("💡 To enable emails, configure EMAIL_PROVIDER and EMAIL_API_KEY in your .env file")
             return False
         
         reset_link = f"{self.app_url}/reset-password?token={reset_token}"
@@ -303,7 +304,8 @@ class EmailService:
     async def send_verification_email(self, to_email: str, verification_token: str, user_name: Optional[str] = None) -> bool:
         """Send email verification email"""
         if not self.provider:
-            print("Email service not configured - skipping verification email")
+            print("⚠️  Email service not configured - skipping verification email")
+            print("💡 To enable emails, configure EMAIL_PROVIDER and EMAIL_API_KEY in your .env file")
             return False
         
         verification_link = f"{self.app_url}/verify-email?token={verification_token}"
