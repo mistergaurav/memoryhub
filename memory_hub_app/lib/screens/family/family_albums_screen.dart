@@ -3,6 +3,8 @@ import '../../services/family/family_service.dart';
 import '../../models/family/family_album.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
+import '../../widgets/hero_header.dart';
+import '../../design_system/design_tokens.dart';
 import '../../dialogs/family/add_album_dialog.dart';
 
 class FamilyAlbumsScreen extends StatefulWidget {
@@ -50,42 +52,11 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
         onRefresh: _loadAlbums,
         child: CustomScrollView(
           slivers: [
-            SliverAppBar(
-              expandedHeight: 200,
-              floating: false,
-              pinned: true,
-              flexibleSpace: FlexibleSpaceBar(
-                title: const Text(
-                  'Family Albums',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                background: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFF7C3AED),
-                        Color(0xFF9333EA),
-                        Color(0xFFA855F7),
-                      ],
-                    ),
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        right: -30,
-                        bottom: -30,
-                        child: Icon(
-                          Icons.photo_library,
-                          size: 150,
-                          color: Colors.white.withOpacity(0.1),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            HeroHeader(
+              title: 'Family Albums',
+              subtitle: 'Preserve precious memories together',
+              icon: Icons.photo_library,
+              gradientColors: MemoryHubGradients.albums.colors,
               actions: [
                 IconButton(
                   icon: const Icon(Icons.search),
@@ -99,12 +70,12 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
             ),
             if (_isLoading)
               SliverPadding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(MemoryHubSpacing.lg),
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
+                    crossAxisSpacing: MemoryHubSpacing.lg,
+                    mainAxisSpacing: MemoryHubSpacing.lg,
                     childAspectRatio: 0.75,
                   ),
                   delegate: SliverChildBuilderDelegate(
@@ -121,6 +92,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
                   message: 'Failed to load family albums. Pull to retry.',
                   actionLabel: 'Retry',
                   onAction: _loadAlbums,
+                  gradientColors: MemoryHubGradients.error.colors,
                 ),
               )
             else if (_albums.isEmpty)
@@ -131,20 +103,17 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
                   message: 'Create your first family album to start preserving memories together.',
                   actionLabel: 'Create Album',
                   onAction: _showAddDialog,
-                  gradientColors: const [
-                    Color(0xFF7C3AED),
-                    Color(0xFF9333EA),
-                  ],
+                  gradientColors: MemoryHubGradients.albums.colors,
                 ),
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(MemoryHubSpacing.lg),
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
+                    crossAxisSpacing: MemoryHubSpacing.lg,
+                    mainAxisSpacing: MemoryHubSpacing.lg,
                     childAspectRatio: 0.75,
                   ),
                   delegate: SliverChildBuilderDelegate(
@@ -160,7 +129,6 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
         onPressed: _showAddDialog,
         icon: const Icon(Icons.add),
         label: const Text('Create Album'),
-        backgroundColor: const Color(0xFF7C3AED),
       ),
     );
   }
@@ -178,13 +146,13 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
       _loadAlbums();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Album created successfully'), backgroundColor: Colors.green),
+          const SnackBar(content: Text('Album created successfully')),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create album: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Failed to create album: $e')),
         );
       }
       rethrow;
@@ -193,10 +161,6 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
 
   Widget _buildAlbumCard(FamilyAlbum album) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
@@ -224,16 +188,16 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
                         )
                       : _buildDefaultCover(),
                   Positioned(
-                    top: 8,
-                    right: 8,
+                    top: MemoryHubSpacing.sm,
+                    right: MemoryHubSpacing.sm,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                        horizontal: MemoryHubSpacing.sm,
+                        vertical: MemoryHubSpacing.xs,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.black54,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: MemoryHubBorderRadius.mdRadius,
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -243,14 +207,13 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
                             size: 16,
                             color: Colors.white,
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: MemoryHubSpacing.xs),
                           Text(
                             album.photosCount.toString(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: MemoryHubTypography.bold,
+                                ),
                           ),
                         ],
                       ),
@@ -260,47 +223,38 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(MemoryHubSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     album.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.titleMedium,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (album.description != null) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: MemoryHubSpacing.xs),
                     Text(
                       album.description!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
-                  const SizedBox(height: 8),
+                  const SizedBox(height: MemoryHubSpacing.sm),
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.person,
                         size: 14,
-                        color: Colors.grey.shade600,
+                        color: MemoryHubColors.gray500,
                       ),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: MemoryHubSpacing.xs),
                       Expanded(
                         child: Text(
                           album.createdByName ?? 'Unknown',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey.shade600,
-                          ),
+                          style: Theme.of(context).textTheme.labelSmall,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -318,15 +272,8 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
 
   Widget _buildDefaultCover() {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF7C3AED),
-            Color(0xFF9333EA),
-          ],
-        ),
+      decoration: BoxDecoration(
+        gradient: MemoryHubGradients.albums,
       ),
       child: const Center(
         child: Icon(
@@ -340,10 +287,6 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
 
   Widget _buildShimmerCard() {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -351,21 +294,21 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
             child: ShimmerBox(
               width: double.infinity,
               borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+                topLeft: Radius.circular(MemoryHubBorderRadius.xl),
+                topRight: Radius.circular(MemoryHubBorderRadius.xl),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(MemoryHubSpacing.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ShimmerBox(width: 120, height: 16, borderRadius: BorderRadius.circular(4)),
-                const SizedBox(height: 8),
-                ShimmerBox(width: double.infinity, height: 12, borderRadius: BorderRadius.circular(4)),
-                const SizedBox(height: 4),
-                ShimmerBox(width: 100, height: 12, borderRadius: BorderRadius.circular(4)),
+                ShimmerBox(width: 120, height: 16, borderRadius: MemoryHubBorderRadius.xsRadius),
+                const SizedBox(height: MemoryHubSpacing.sm),
+                ShimmerBox(width: double.infinity, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
+                const SizedBox(height: MemoryHubSpacing.xs),
+                ShimmerBox(width: 100, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
               ],
             ),
           ),
@@ -429,25 +372,26 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                   message: 'Add photos to this album to start building memories.',
                   actionLabel: 'Add Photo',
                   onAction: () {},
+                  gradientColors: MemoryHubGradients.albums.colors,
                 )
               : GridView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(MemoryHubSpacing.lg),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
+                    crossAxisSpacing: MemoryHubSpacing.sm,
+                    mainAxisSpacing: MemoryHubSpacing.sm,
                   ),
                   itemCount: _photos.length,
                   itemBuilder: (context, index) {
                     final photo = _photos[index];
                     return ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: MemoryHubBorderRadius.mdRadius,
                       child: Image.network(
                         photo.photoUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
-                            color: Colors.grey.shade200,
+                            color: MemoryHubColors.gray200,
                             child: const Icon(Icons.broken_image),
                           );
                         },
@@ -458,9 +402,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         child: const Icon(Icons.add_a_photo),
-        backgroundColor: const Color(0xFF7C3AED),
       ),
     );
   }
-
 }

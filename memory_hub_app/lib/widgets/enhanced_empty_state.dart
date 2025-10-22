@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../design_system/design_tokens.dart';
 
 class EnhancedEmptyState extends StatelessWidget {
   final IconData icon;
@@ -8,6 +9,7 @@ class EnhancedEmptyState extends StatelessWidget {
   final String? actionLabel;
   final VoidCallback? onAction;
   final List<Color>? gradientColors;
+  final IconData? actionIcon;
 
   const EnhancedEmptyState({
     super.key,
@@ -17,10 +19,12 @@ class EnhancedEmptyState extends StatelessWidget {
     this.actionLabel,
     this.onAction,
     this.gradientColors,
+    this.actionIcon,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final colors = gradientColors ?? [
       Theme.of(context).colorScheme.primary.withOpacity(0.1),
       Theme.of(context).colorScheme.secondary.withOpacity(0.1),
@@ -28,7 +32,7 @@ class EnhancedEmptyState extends StatelessWidget {
 
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(MemoryHubSpacing.xxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -42,6 +46,13 @@ class EnhancedEmptyState extends StatelessWidget {
                   colors: colors,
                 ),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
               child: Icon(
                 icon,
@@ -49,41 +60,33 @@ class EnhancedEmptyState extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: MemoryHubSpacing.xl),
             Text(
               title,
               style: GoogleFonts.inter(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white
-                    : const Color(0xFF1F2937),
+                fontSize: MemoryHubTypography.h2,
+                fontWeight: MemoryHubTypography.bold,
+                color: isDark ? Colors.white : MemoryHubColors.gray900,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MemoryHubSpacing.md),
             Text(
               message,
               style: GoogleFonts.inter(
-                fontSize: 16,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.grey[400]
-                    : Colors.grey[600],
+                fontSize: MemoryHubTypography.h5,
+                color: isDark ? MemoryHubColors.gray400 : MemoryHubColors.gray600,
+                height: 1.5,
               ),
               textAlign: TextAlign.center,
+              maxLines: 3,
             ),
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 32),
+              const SizedBox(height: MemoryHubSpacing.xxl),
               ElevatedButton.icon(
                 onPressed: onAction,
-                icon: const Icon(Icons.add),
+                icon: Icon(actionIcon ?? Icons.add),
                 label: Text(actionLabel!),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 16,
-                  ),
-                ),
               ),
             ],
           ],

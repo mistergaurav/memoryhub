@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
+import '../design_system/design_tokens.dart';
 
 class StatCard extends StatefulWidget {
   final String label;
@@ -34,16 +35,22 @@ class _StatCardState extends State<StatCard>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 600),
+      duration: MemoryHubAnimations.slow,
       vsync: this,
     );
     
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+      CurvedAnimation(
+        parent: _controller,
+        curve: MemoryHubAnimations.elasticOut,
+      ),
     );
     
     _rotationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+      CurvedAnimation(
+        parent: _controller,
+        curve: MemoryHubAnimations.easeOut,
+      ),
     );
     
     _controller.forward();
@@ -68,7 +75,7 @@ class _StatCardState extends State<StatCard>
               end: Alignment.bottomRight,
               colors: widget.gradientColors,
             ),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: MemoryHubBorderRadius.xxlRadius,
             boxShadow: [
               BoxShadow(
                 color: widget.gradientColors.first.withOpacity(0.3),
@@ -97,16 +104,16 @@ class _StatCardState extends State<StatCard>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(MemoryHubSpacing.xl),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(MemoryHubSpacing.md),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: MemoryHubBorderRadius.mdRadius,
                       ),
                       child: Icon(
                         widget.icon,
@@ -120,21 +127,21 @@ class _StatCardState extends State<StatCard>
                         Text(
                           widget.value,
                           style: GoogleFonts.inter(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
+                            fontSize: MemoryHubTypography.h1,
+                            fontWeight: MemoryHubTypography.bold,
                             color: Colors.white,
                             height: 1.0,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: MemoryHubSpacing.xs),
                         Row(
                           children: [
                             Expanded(
                               child: Text(
                                 widget.label,
                                 style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
+                                  fontSize: MemoryHubTypography.bodyMedium,
+                                  fontWeight: MemoryHubTypography.medium,
                                   color: Colors.white.withOpacity(0.9),
                                 ),
                               ),
@@ -142,18 +149,18 @@ class _StatCardState extends State<StatCard>
                             if (widget.trend != null)
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
+                                  horizontal: MemoryHubSpacing.sm,
+                                  vertical: MemoryHubSpacing.xs,
                                 ),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: MemoryHubBorderRadius.smRadius,
                                 ),
                                 child: Text(
                                   widget.trend!,
                                   style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: MemoryHubTypography.caption,
+                                    fontWeight: MemoryHubTypography.bold,
                                     color: Colors.white,
                                   ),
                                 ),

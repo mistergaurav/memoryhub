@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from typing import List, Optional, Dict, Any
 from bson import ObjectId
 from datetime import datetime
 
@@ -9,246 +9,267 @@ from app.models.family.family_milestones import (
 from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.db.mongodb import get_collection
-from app.utils.validators import safe_object_id
+from app.repositories.family_repository import FamilyMilestonesRepository
+from app.utils.validators import validate_object_ids
+from app.utils.audit_logger import log_audit_event
+from app.models.responses import create_success_response, create_paginated_response, create_message_response
 
 router = APIRouter()
+milestones_repo = FamilyMilestonesRepository()
 
 
+async def get_person_name(person_id: Optional[ObjectId]) -> Optional[str]:
+    """Helper function to get person name"""
+    if not person_id:
+        return None
+    person = await get_collection("users").find_one({"_id": person_id})
+    return person.get("full_name") if person else None
 
-@router.post("/", response_model=FamilyMilestoneResponse, status_code=status.HTTP_201_CREATED)
+
+async def get_creator_name(created_by_id: ObjectId) -> Optional[str]:
+    """Helper function to get creator name"""
+    creator = await get_collection("users").find_one({"_id": created_by_id})
+    return creator.get("full_name") if creator else None
+
+
+def build_milestone_response(milestone_doc: Dict[str, Any], creator_name: Optional[str] = None) -> FamilyMilestoneResponse:
+    """Helper function to build milestone response"""
+    return FamilyMilestoneResponse(
+        id=str(milestone_doc["_id"]),
+        title=milestone_doc["title"],
+        description=milestone_doc.get("description"),
+        milestone_type=milestone_doc["milestone_type"],
+        milestone_date=milestone_doc["milestone_date"],
+        person_id=str(milestone_doc["person_id"]) if milestone_doc.get("person_id") else None,
+        person_name=milestone_doc.get("person_name"),
+        genealogy_person_id=str(milestone_doc["genealogy_person_id"]) if milestone_doc.get("genealogy_person_id") else None,
+        genealogy_person_name=milestone_doc.get("genealogy_person_name"),
+        photos=milestone_doc.get("photos", []),
+        created_by=str(milestone_doc["created_by"]),
+        created_by_name=creator_name,
+        family_circle_ids=[str(cid) for cid in milestone_doc.get("family_circle_ids", [])],
+        likes_count=len(milestone_doc.get("likes", [])),
+        auto_generated=milestone_doc.get("auto_generated", False),
+        generation=milestone_doc.get("generation"),
+        created_at=milestone_doc["created_at"],
+        updated_at=milestone_doc["updated_at"]
+    )
+
+
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_milestone(
     milestone: FamilyMilestoneCreate,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Create a new family milestone"""
-    try:
-        family_circle_oids = [safe_object_id(cid) for cid in milestone.family_circle_ids if safe_object_id(cid)]
-        person_oid = safe_object_id(milestone.person_id) if milestone.person_id else None
-        
-        person_name = None
-        if person_oid:
-            person = await get_collection("users").find_one({"_id": person_oid})
-            if person:
-                person_name = person.get("full_name")
-        
-        milestone_data = {
+    """
+    Create a new family milestone.
+    
+    - Supports various milestone types (birth, graduation, wedding, etc.)
+    - Can link to specific family members
+    - Supports photo attachments
+    - Tracks genealogy integration
+    """
+    family_circle_oids = validate_object_ids(milestone.family_circle_ids, "family_circle_ids") if milestone.family_circle_ids else []
+    
+    person_oid = None
+    person_name = None
+    if milestone.person_id:
+        person_oid = ObjectId(milestone.person_id)
+        person_name = await get_person_name(person_oid)
+    
+    genealogy_person_oid = None
+    if milestone.genealogy_person_id:
+        genealogy_person_oid = ObjectId(milestone.genealogy_person_id)
+    
+    milestone_data = {
+        "title": milestone.title,
+        "description": milestone.description,
+        "milestone_type": milestone.milestone_type,
+        "milestone_date": milestone.milestone_date,
+        "person_id": person_oid,
+        "person_name": person_name,
+        "genealogy_person_id": genealogy_person_oid,
+        "photos": milestone.photos,
+        "created_by": ObjectId(current_user.id),
+        "family_circle_ids": family_circle_oids,
+        "likes": [],
+        "auto_generated": milestone.auto_generated,
+        "generation": milestone.generation,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    milestone_doc = await milestones_repo.create(milestone_data)
+    
+    await log_audit_event(
+        user_id=str(current_user.id),
+        event_type="milestone_created",
+        event_details={
+            "milestone_id": str(milestone_doc["_id"]),
             "title": milestone.title,
-            "description": milestone.description,
             "milestone_type": milestone.milestone_type,
-            "milestone_date": milestone.milestone_date,
-            "person_id": person_oid,
-            "person_name": person_name,
-            "photos": milestone.photos,
-            "created_by": ObjectId(current_user.id),
-            "family_circle_ids": family_circle_oids,
-            "likes": [],
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
+            "auto_generated": milestone.auto_generated
         }
-        
-        result = await get_collection("family_milestones").insert_one(milestone_data)
-        milestone_doc = await get_collection("family_milestones").find_one({"_id": result.inserted_id})
-        
-        return FamilyMilestoneResponse(
-            id=str(milestone_doc["_id"]),
-            title=milestone_doc["title"],
-            description=milestone_doc.get("description"),
-            milestone_type=milestone_doc["milestone_type"],
-            milestone_date=milestone_doc["milestone_date"],
-            person_id=str(milestone_doc["person_id"]) if milestone_doc.get("person_id") else None,
-            person_name=milestone_doc.get("person_name"),
-            photos=milestone_doc.get("photos", []),
-            created_by=str(milestone_doc["created_by"]),
-            created_by_name=current_user.full_name,
-            family_circle_ids=[str(cid) for cid in milestone_doc.get("family_circle_ids", [])],
-            likes_count=len(milestone_doc.get("likes", [])),
-            created_at=milestone_doc["created_at"],
-            updated_at=milestone_doc["updated_at"]
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create milestone: {str(e)}")
+    )
+    
+    response = build_milestone_response(milestone_doc, current_user.full_name)
+    
+    return create_success_response(
+        message="Milestone created successfully",
+        data=response.model_dump()
+    )
 
 
-@router.get("/", response_model=List[FamilyMilestoneResponse])
+@router.get("/")
 async def list_milestones(
-    person_id: Optional[str] = None,
-    milestone_type: Optional[str] = None,
+    page: int = Query(1, ge=1, description="Page number (1-indexed)"),
+    page_size: int = Query(50, ge=1, le=100, description="Number of milestones per page"),
+    person_id: Optional[str] = Query(None, description="Filter by person ID"),
+    milestone_type: Optional[str] = Query(None, description="Filter by milestone type"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """List family milestones"""
-    try:
-        user_oid = ObjectId(current_user.id)
-        
-        query = {
-            "$or": [
-                {"created_by": user_oid},
-                {"family_circle_ids": {"$exists": True}}
-            ]
-        }
-        
-        if person_id:
-            person_oid = safe_object_id(person_id)
-            if person_oid:
-                query["person_id"] = person_oid
-        
-        if milestone_type:
-            query["milestone_type"] = milestone_type
-        
-        milestones_cursor = get_collection("family_milestones").find(query).sort("milestone_date", -1)
-        
-        milestones = []
-        async for milestone_doc in milestones_cursor:
-            creator = await get_collection("users").find_one({"_id": milestone_doc["created_by"]})
-            
-            milestones.append(FamilyMilestoneResponse(
-                id=str(milestone_doc["_id"]),
-                title=milestone_doc["title"],
-                description=milestone_doc.get("description"),
-                milestone_type=milestone_doc["milestone_type"],
-                milestone_date=milestone_doc["milestone_date"],
-                person_id=str(milestone_doc["person_id"]) if milestone_doc.get("person_id") else None,
-                person_name=milestone_doc.get("person_name"),
-                photos=milestone_doc.get("photos", []),
-                created_by=str(milestone_doc["created_by"]),
-                created_by_name=creator.get("full_name") if creator else None,
-                family_circle_ids=[str(cid) for cid in milestone_doc.get("family_circle_ids", [])],
-                likes_count=len(milestone_doc.get("likes", [])),
-                created_at=milestone_doc["created_at"],
-                updated_at=milestone_doc["updated_at"]
-            ))
-        
-        return milestones
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to list milestones: {str(e)}")
+    """
+    List family milestones with pagination and filtering.
+    
+    - Returns milestones created by user or in their family circles
+    - Supports filtering by person and milestone type
+    - Sorted by milestone date (newest first)
+    """
+    skip = (page - 1) * page_size
+    
+    milestones = await milestones_repo.find_user_milestones(
+        user_id=str(current_user.id),
+        person_id=person_id,
+        milestone_type=milestone_type,
+        skip=skip,
+        limit=page_size
+    )
+    
+    total = await milestones_repo.count_user_milestones(
+        user_id=str(current_user.id),
+        person_id=person_id,
+        milestone_type=milestone_type
+    )
+    
+    milestone_responses = []
+    for milestone_doc in milestones:
+        creator_name = await get_creator_name(milestone_doc["created_by"])
+        milestone_responses.append(build_milestone_response(milestone_doc, creator_name))
+    
+    return create_paginated_response(
+        items=[m.model_dump() for m in milestone_responses],
+        total=total,
+        page=page,
+        page_size=page_size,
+        message="Milestones retrieved successfully"
+    )
 
 
-@router.get("/{milestone_id}", response_model=FamilyMilestoneResponse)
+@router.get("/{milestone_id}")
 async def get_milestone(
     milestone_id: str,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Get a specific milestone"""
-    try:
-        milestone_oid = safe_object_id(milestone_id)
-        if not milestone_oid:
-            raise HTTPException(status_code=400, detail="Invalid milestone ID")
-        
-        milestone_doc = await get_collection("family_milestones").find_one({"_id": milestone_oid})
-        if not milestone_doc:
-            raise HTTPException(status_code=404, detail="Milestone not found")
-        
-        creator = await get_collection("users").find_one({"_id": milestone_doc["created_by"]})
-        
-        return FamilyMilestoneResponse(
-            id=str(milestone_doc["_id"]),
-            title=milestone_doc["title"],
-            description=milestone_doc.get("description"),
-            milestone_type=milestone_doc["milestone_type"],
-            milestone_date=milestone_doc["milestone_date"],
-            person_id=str(milestone_doc["person_id"]) if milestone_doc.get("person_id") else None,
-            person_name=milestone_doc.get("person_name"),
-            photos=milestone_doc.get("photos", []),
-            created_by=str(milestone_doc["created_by"]),
-            created_by_name=creator.get("full_name") if creator else None,
-            family_circle_ids=[str(cid) for cid in milestone_doc.get("family_circle_ids", [])],
-            likes_count=len(milestone_doc.get("likes", [])),
-            created_at=milestone_doc["created_at"],
-            updated_at=milestone_doc["updated_at"]
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get milestone: {str(e)}")
+    """
+    Get a specific milestone with full details.
+    
+    - Returns complete milestone information
+    - Includes creator name and like count
+    """
+    milestone_doc = await milestones_repo.find_by_id(
+        milestone_id,
+        raise_404=True,
+        error_message="Milestone not found"
+    )
+    assert milestone_doc is not None
+    
+    creator_name = await get_creator_name(milestone_doc["created_by"])
+    response = build_milestone_response(milestone_doc, creator_name)
+    
+    return create_success_response(
+        message="Milestone retrieved successfully",
+        data=response.model_dump()
+    )
 
 
-@router.put("/{milestone_id}", response_model=FamilyMilestoneResponse)
+@router.put("/{milestone_id}")
 async def update_milestone(
     milestone_id: str,
     milestone_update: FamilyMilestoneUpdate,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Update a milestone"""
-    try:
-        milestone_oid = safe_object_id(milestone_id)
-        if not milestone_oid:
-            raise HTTPException(status_code=400, detail="Invalid milestone ID")
-        
-        milestone_doc = await get_collection("family_milestones").find_one({"_id": milestone_oid})
-        if not milestone_doc:
-            raise HTTPException(status_code=404, detail="Milestone not found")
-        
-        if str(milestone_doc["created_by"]) != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to update this milestone")
-        
-        update_data = {k: v for k, v in milestone_update.dict(exclude_unset=True).items() if v is not None}
-        
-        if "family_circle_ids" in update_data:
-            update_data["family_circle_ids"] = [safe_object_id(cid) for cid in update_data["family_circle_ids"] if safe_object_id(cid)]
-        
-        if "person_id" in update_data:
-            person_oid = safe_object_id(update_data["person_id"])
-            if person_oid:
-                update_data["person_id"] = person_oid
-                person = await get_collection("users").find_one({"_id": person_oid})
-                if person:
-                    update_data["person_name"] = person.get("full_name")
-        
-        update_data["updated_at"] = datetime.utcnow()
-        
-        await get_collection("family_milestones").update_one(
-            {"_id": milestone_oid},
-            {"$set": update_data}
-        )
-        
-        updated_milestone = await get_collection("family_milestones").find_one({"_id": milestone_oid})
-        creator = await get_collection("users").find_one({"_id": updated_milestone["created_by"]})
-        
-        return FamilyMilestoneResponse(
-            id=str(updated_milestone["_id"]),
-            title=updated_milestone["title"],
-            description=updated_milestone.get("description"),
-            milestone_type=updated_milestone["milestone_type"],
-            milestone_date=updated_milestone["milestone_date"],
-            person_id=str(updated_milestone["person_id"]) if updated_milestone.get("person_id") else None,
-            person_name=updated_milestone.get("person_name"),
-            photos=updated_milestone.get("photos", []),
-            created_by=str(updated_milestone["created_by"]),
-            created_by_name=creator.get("full_name") if creator else None,
-            family_circle_ids=[str(cid) for cid in updated_milestone.get("family_circle_ids", [])],
-            likes_count=len(updated_milestone.get("likes", [])),
-            created_at=updated_milestone["created_at"],
-            updated_at=updated_milestone["updated_at"]
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update milestone: {str(e)}")
+    """
+    Update a milestone (owner only).
+    
+    - Only milestone creator can update
+    - Validates IDs if provided
+    - Updates person name if person_id changes
+    - Logs update for audit trail
+    """
+    await milestones_repo.check_milestone_ownership(milestone_id, str(current_user.id), raise_error=True)
+    
+    update_data = {k: v for k, v in milestone_update.model_dump(exclude_unset=True).items() if v is not None}
+    
+    if "family_circle_ids" in update_data:
+        update_data["family_circle_ids"] = validate_object_ids(update_data["family_circle_ids"], "family_circle_ids")
+    
+    if "person_id" in update_data:
+        person_oid = ObjectId(update_data["person_id"])
+        update_data["person_id"] = person_oid
+        update_data["person_name"] = await get_person_name(person_oid)
+    
+    update_data["updated_at"] = datetime.utcnow()
+    
+    updated_milestone = await milestones_repo.update_by_id(milestone_id, update_data)
+    assert updated_milestone is not None
+    
+    await log_audit_event(
+        user_id=str(current_user.id),
+        event_type="milestone_updated",
+        event_details={
+            "milestone_id": milestone_id,
+            "updated_fields": list(update_data.keys())
+        }
+    )
+    
+    creator_name = await get_creator_name(updated_milestone["created_by"])
+    response = build_milestone_response(updated_milestone, creator_name)
+    
+    return create_success_response(
+        message="Milestone updated successfully",
+        data=response.model_dump()
+    )
 
 
-@router.delete("/{milestone_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{milestone_id}", status_code=status.HTTP_200_OK)
 async def delete_milestone(
     milestone_id: str,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Delete a milestone"""
-    try:
-        milestone_oid = safe_object_id(milestone_id)
-        if not milestone_oid:
-            raise HTTPException(status_code=400, detail="Invalid milestone ID")
-        
-        milestone_doc = await get_collection("family_milestones").find_one({"_id": milestone_oid})
-        if not milestone_doc:
-            raise HTTPException(status_code=404, detail="Milestone not found")
-        
-        if str(milestone_doc["created_by"]) != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to delete this milestone")
-        
-        await get_collection("family_milestones").delete_one({"_id": milestone_oid})
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete milestone: {str(e)}")
+    """
+    Delete a milestone (owner only).
+    
+    - Only milestone creator can delete
+    - Logs deletion for audit trail
+    """
+    milestone_doc = await milestones_repo.find_by_id(milestone_id, raise_404=True)
+    assert milestone_doc is not None
+    
+    await milestones_repo.check_milestone_ownership(milestone_id, str(current_user.id), raise_error=True)
+    
+    await milestones_repo.delete_by_id(milestone_id)
+    
+    await log_audit_event(
+        user_id=str(current_user.id),
+        event_type="milestone_deleted",
+        event_details={
+            "milestone_id": milestone_id,
+            "title": milestone_doc.get("title"),
+            "milestone_type": milestone_doc.get("milestone_type")
+        }
+    )
+    
+    return create_message_response("Milestone deleted successfully")
 
 
 @router.post("/{milestone_id}/like", status_code=status.HTTP_200_OK)
@@ -256,22 +277,28 @@ async def like_milestone(
     milestone_id: str,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Like a milestone"""
-    try:
-        milestone_oid = safe_object_id(milestone_id)
-        if not milestone_oid:
-            raise HTTPException(status_code=400, detail="Invalid milestone ID")
-        
-        user_oid = ObjectId(current_user.id)
-        
-        await get_collection("family_milestones").update_one(
-            {"_id": milestone_oid},
-            {"$addToSet": {"likes": user_oid}}
-        )
-        
-        return {"message": "Milestone liked successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to like milestone: {str(e)}")
+    """
+    Like a milestone.
+    
+    - Adds user to likes array (prevents duplicates)
+    - Returns updated like count
+    """
+    success = await milestones_repo.toggle_like(
+        milestone_id=milestone_id,
+        user_id=str(current_user.id),
+        add_like=True
+    )
+    
+    if not success:
+        raise HTTPException(status_code=404, detail="Milestone not found or already liked")
+    
+    milestone_doc = await milestones_repo.find_by_id(milestone_id)
+    likes_count = len(milestone_doc.get("likes", [])) if milestone_doc else 0
+    
+    return create_success_response(
+        message="Milestone liked successfully",
+        data={"likes_count": likes_count}
+    )
 
 
 @router.delete("/{milestone_id}/like", status_code=status.HTTP_200_OK)
@@ -279,19 +306,25 @@ async def unlike_milestone(
     milestone_id: str,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Unlike a milestone"""
-    try:
-        milestone_oid = safe_object_id(milestone_id)
-        if not milestone_oid:
-            raise HTTPException(status_code=400, detail="Invalid milestone ID")
-        
-        user_oid = ObjectId(current_user.id)
-        
-        await get_collection("family_milestones").update_one(
-            {"_id": milestone_oid},
-            {"$pull": {"likes": user_oid}}
-        )
-        
-        return {"message": "Milestone unliked successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to unlike milestone: {str(e)}")
+    """
+    Unlike a milestone.
+    
+    - Removes user from likes array
+    - Returns updated like count
+    """
+    success = await milestones_repo.toggle_like(
+        milestone_id=milestone_id,
+        user_id=str(current_user.id),
+        add_like=False
+    )
+    
+    if not success:
+        raise HTTPException(status_code=404, detail="Milestone not found or not liked")
+    
+    milestone_doc = await milestones_repo.find_by_id(milestone_id)
+    likes_count = len(milestone_doc.get("likes", [])) if milestone_doc else 0
+    
+    return create_success_response(
+        message="Milestone unliked successfully",
+        data={"likes_count": likes_count}
+    )

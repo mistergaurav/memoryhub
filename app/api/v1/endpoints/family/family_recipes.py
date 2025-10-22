@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from typing import List, Optional, Dict, Any
 from bson import ObjectId
 from datetime import datetime
 
@@ -10,280 +10,259 @@ from app.models.family.family_recipes import (
 from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.db.mongodb import get_collection
-from app.utils.validators import safe_object_id
+from app.repositories.family_repository import FamilyRecipesRepository
+from app.utils.validators import validate_object_ids
+from app.utils.audit_logger import log_audit_event
+from app.models.responses import create_success_response, create_paginated_response, create_message_response
 
 router = APIRouter()
+recipes_repo = FamilyRecipesRepository()
 
 
+async def get_creator_name(created_by_id: ObjectId) -> Optional[str]:
+    """Helper function to get creator name"""
+    creator = await get_collection("users").find_one({"_id": created_by_id})
+    return creator.get("full_name") if creator else None
 
-@router.post("/", response_model=FamilyRecipeResponse, status_code=status.HTTP_201_CREATED)
+
+def calculate_average_rating(ratings: List[Dict[str, Any]]) -> float:
+    """Helper function to calculate average rating"""
+    if not ratings:
+        return 0.0
+    total_rating = sum(r.get("rating", 0) for r in ratings)
+    return round(total_rating / len(ratings), 1)
+
+
+def build_recipe_response(recipe_doc: Dict[str, Any], creator_name: Optional[str] = None) -> FamilyRecipeResponse:
+    """Helper function to build recipe response"""
+    return FamilyRecipeResponse(
+        id=str(recipe_doc["_id"]),
+        title=recipe_doc["title"],
+        description=recipe_doc.get("description"),
+        category=recipe_doc["category"],
+        difficulty=recipe_doc["difficulty"],
+        prep_time_minutes=recipe_doc.get("prep_time_minutes"),
+        cook_time_minutes=recipe_doc.get("cook_time_minutes"),
+        servings=recipe_doc.get("servings"),
+        ingredients=recipe_doc["ingredients"],
+        steps=recipe_doc["steps"],
+        photos=recipe_doc.get("photos", []),
+        family_notes=recipe_doc.get("family_notes"),
+        origin_story=recipe_doc.get("origin_story"),
+        created_by=str(recipe_doc["created_by"]),
+        created_by_name=creator_name,
+        family_circle_ids=[str(cid) for cid in recipe_doc.get("family_circle_ids", [])],
+        average_rating=calculate_average_rating(recipe_doc.get("ratings", [])),
+        times_made=recipe_doc.get("times_made", 0),
+        favorites_count=len(recipe_doc.get("favorites", [])),
+        created_at=recipe_doc["created_at"],
+        updated_at=recipe_doc["updated_at"]
+    )
+
+
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_recipe(
     recipe: FamilyRecipeCreate,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Create a new family recipe"""
-    try:
-        family_circle_oids = [safe_object_id(cid) for cid in recipe.family_circle_ids if safe_object_id(cid)]
-        
-        recipe_data = {
+    """
+    Create a new family recipe.
+    
+    - Validates circle IDs
+    - Creates recipe with ingredients and steps
+    - Logs creation for audit trail
+    """
+    family_circle_oids = validate_object_ids(recipe.family_circle_ids, "family_circle_ids") if recipe.family_circle_ids else []
+    
+    recipe_data = {
+        "title": recipe.title,
+        "description": recipe.description,
+        "category": recipe.category,
+        "difficulty": recipe.difficulty,
+        "prep_time_minutes": recipe.prep_time_minutes,
+        "cook_time_minutes": recipe.cook_time_minutes,
+        "servings": recipe.servings,
+        "ingredients": [ing.model_dump() for ing in recipe.ingredients],
+        "steps": [step.model_dump() for step in recipe.steps],
+        "photos": recipe.photos,
+        "family_notes": recipe.family_notes,
+        "origin_story": recipe.origin_story,
+        "created_by": ObjectId(current_user.id),
+        "family_circle_ids": family_circle_oids,
+        "ratings": [],
+        "times_made": 0,
+        "favorites": [],
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow()
+    }
+    
+    recipe_doc = await recipes_repo.create(recipe_data)
+    
+    await log_audit_event(
+        user_id=str(current_user.id),
+        event_type="recipe_created",
+        event_details={
+            "recipe_id": str(recipe_doc["_id"]),
             "title": recipe.title,
-            "description": recipe.description,
-            "category": recipe.category,
-            "difficulty": recipe.difficulty,
-            "prep_time_minutes": recipe.prep_time_minutes,
-            "cook_time_minutes": recipe.cook_time_minutes,
-            "servings": recipe.servings,
-            "ingredients": [ing.dict() for ing in recipe.ingredients],
-            "steps": [step.dict() for step in recipe.steps],
-            "photos": recipe.photos,
-            "family_notes": recipe.family_notes,
-            "origin_story": recipe.origin_story,
-            "created_by": ObjectId(current_user.id),
-            "family_circle_ids": family_circle_oids,
-            "ratings": [],
-            "times_made": 0,
-            "favorites": [],
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow()
+            "category": recipe.category
         }
-        
-        result = await get_collection("family_recipes").insert_one(recipe_data)
-        recipe_doc = await get_collection("family_recipes").find_one({"_id": result.inserted_id})
-        
-        return FamilyRecipeResponse(
-            id=str(recipe_doc["_id"]),
-            title=recipe_doc["title"],
-            description=recipe_doc.get("description"),
-            category=recipe_doc["category"],
-            difficulty=recipe_doc["difficulty"],
-            prep_time_minutes=recipe_doc.get("prep_time_minutes"),
-            cook_time_minutes=recipe_doc.get("cook_time_minutes"),
-            servings=recipe_doc.get("servings"),
-            ingredients=recipe_doc["ingredients"],
-            steps=recipe_doc["steps"],
-            photos=recipe_doc.get("photos", []),
-            family_notes=recipe_doc.get("family_notes"),
-            origin_story=recipe_doc.get("origin_story"),
-            created_by=str(recipe_doc["created_by"]),
-            created_by_name=current_user.full_name,
-            family_circle_ids=[str(cid) for cid in recipe_doc.get("family_circle_ids", [])],
-            average_rating=0.0,
-            times_made=recipe_doc.get("times_made", 0),
-            favorites_count=len(recipe_doc.get("favorites", [])),
-            created_at=recipe_doc["created_at"],
-            updated_at=recipe_doc["updated_at"]
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create recipe: {str(e)}")
+    )
+    
+    response = build_recipe_response(recipe_doc, current_user.full_name)
+    
+    return create_success_response(
+        message="Recipe created successfully",
+        data=response.model_dump()
+    )
 
 
-@router.get("/", response_model=List[FamilyRecipeResponse])
+@router.get("/")
 async def list_recipes(
-    category: Optional[str] = None,
-    difficulty: Optional[str] = None,
+    page: int = Query(1, ge=1, description="Page number (1-indexed)"),
+    page_size: int = Query(20, ge=1, le=100, description="Number of recipes per page"),
+    category: Optional[str] = Query(None, description="Filter by category"),
+    difficulty: Optional[str] = Query(None, description="Filter by difficulty"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """List family recipes"""
-    try:
-        user_oid = ObjectId(current_user.id)
-        
-        query = {}
-        
-        if category:
-            query["category"] = category
-        if difficulty:
-            query["difficulty"] = difficulty
-        
-        recipes_cursor = get_collection("family_recipes").find(query).sort("created_at", -1)
-        
-        recipes = []
-        async for recipe_doc in recipes_cursor:
-            creator = await get_collection("users").find_one({"_id": recipe_doc["created_by"]})
-            
-            avg_rating = 0.0
-            if recipe_doc.get("ratings"):
-                total_rating = sum(r.get("rating", 0) for r in recipe_doc["ratings"])
-                avg_rating = total_rating / len(recipe_doc["ratings"])
-            
-            recipes.append(FamilyRecipeResponse(
-                id=str(recipe_doc["_id"]),
-                title=recipe_doc["title"],
-                description=recipe_doc.get("description"),
-                category=recipe_doc["category"],
-                difficulty=recipe_doc["difficulty"],
-                prep_time_minutes=recipe_doc.get("prep_time_minutes"),
-                cook_time_minutes=recipe_doc.get("cook_time_minutes"),
-                servings=recipe_doc.get("servings"),
-                ingredients=recipe_doc["ingredients"],
-                steps=recipe_doc["steps"],
-                photos=recipe_doc.get("photos", []),
-                family_notes=recipe_doc.get("family_notes"),
-                origin_story=recipe_doc.get("origin_story"),
-                created_by=str(recipe_doc["created_by"]),
-                created_by_name=creator.get("full_name") if creator else None,
-                family_circle_ids=[str(cid) for cid in recipe_doc.get("family_circle_ids", [])],
-                average_rating=avg_rating,
-                times_made=recipe_doc.get("times_made", 0),
-                favorites_count=len(recipe_doc.get("favorites", [])),
-                created_at=recipe_doc["created_at"],
-                updated_at=recipe_doc["updated_at"]
-            ))
-        
-        return recipes
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to list recipes: {str(e)}")
+    """
+    List all recipes with pagination and optional filtering.
+    
+    - Supports pagination with configurable page size
+    - Filters by category and difficulty
+    - Includes creator information and ratings
+    """
+    skip = (page - 1) * page_size
+    
+    recipes = await recipes_repo.find_user_recipes(
+        user_id=str(current_user.id),
+        category=category,
+        difficulty=difficulty,
+        skip=skip,
+        limit=page_size
+    )
+    
+    total = await recipes_repo.count_user_recipes(
+        user_id=str(current_user.id),
+        category=category,
+        difficulty=difficulty
+    )
+    
+    recipe_responses = []
+    for recipe_doc in recipes:
+        creator_name = await get_creator_name(recipe_doc["created_by"])
+        recipe_responses.append(build_recipe_response(recipe_doc, creator_name))
+    
+    return create_paginated_response(
+        items=[r.model_dump() for r in recipe_responses],
+        total=total,
+        page=page,
+        page_size=page_size,
+        message="Recipes retrieved successfully"
+    )
 
 
-@router.get("/{recipe_id}", response_model=FamilyRecipeResponse)
+@router.get("/{recipe_id}")
 async def get_recipe(
     recipe_id: str,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Get a specific recipe"""
-    try:
-        recipe_oid = safe_object_id(recipe_id)
-        if not recipe_oid:
-            raise HTTPException(status_code=400, detail="Invalid recipe ID")
-        
-        recipe_doc = await get_collection("family_recipes").find_one({"_id": recipe_oid})
-        if not recipe_doc:
-            raise HTTPException(status_code=404, detail="Recipe not found")
-        
-        creator = await get_collection("users").find_one({"_id": recipe_doc["created_by"]})
-        
-        avg_rating = 0.0
-        if recipe_doc.get("ratings"):
-            total_rating = sum(r.get("rating", 0) for r in recipe_doc["ratings"])
-            avg_rating = total_rating / len(recipe_doc["ratings"])
-        
-        return FamilyRecipeResponse(
-            id=str(recipe_doc["_id"]),
-            title=recipe_doc["title"],
-            description=recipe_doc.get("description"),
-            category=recipe_doc["category"],
-            difficulty=recipe_doc["difficulty"],
-            prep_time_minutes=recipe_doc.get("prep_time_minutes"),
-            cook_time_minutes=recipe_doc.get("cook_time_minutes"),
-            servings=recipe_doc.get("servings"),
-            ingredients=recipe_doc["ingredients"],
-            steps=recipe_doc["steps"],
-            photos=recipe_doc.get("photos", []),
-            family_notes=recipe_doc.get("family_notes"),
-            origin_story=recipe_doc.get("origin_story"),
-            created_by=str(recipe_doc["created_by"]),
-            created_by_name=creator.get("full_name") if creator else None,
-            family_circle_ids=[str(cid) for cid in recipe_doc.get("family_circle_ids", [])],
-            average_rating=avg_rating,
-            times_made=recipe_doc.get("times_made", 0),
-            favorites_count=len(recipe_doc.get("favorites", [])),
-            created_at=recipe_doc["created_at"],
-            updated_at=recipe_doc["updated_at"]
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get recipe: {str(e)}")
+    """
+    Get a specific recipe by ID.
+    
+    - Returns complete recipe details including ingredients and steps
+    - Includes ratings and favorites count
+    """
+    recipe_doc = await recipes_repo.find_by_id(
+        recipe_id,
+        raise_404=True,
+        error_message="Recipe not found"
+    )
+    assert recipe_doc is not None
+    
+    creator_name = await get_creator_name(recipe_doc["created_by"])
+    response = build_recipe_response(recipe_doc, creator_name)
+    
+    return create_success_response(
+        message="Recipe retrieved successfully",
+        data=response.model_dump()
+    )
 
 
-@router.put("/{recipe_id}", response_model=FamilyRecipeResponse)
+@router.put("/{recipe_id}")
 async def update_recipe(
     recipe_id: str,
     recipe_update: FamilyRecipeUpdate,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Update a recipe"""
-    try:
-        recipe_oid = safe_object_id(recipe_id)
-        if not recipe_oid:
-            raise HTTPException(status_code=400, detail="Invalid recipe ID")
-        
-        recipe_doc = await get_collection("family_recipes").find_one({"_id": recipe_oid})
-        if not recipe_doc:
-            raise HTTPException(status_code=404, detail="Recipe not found")
-        
-        if str(recipe_doc["created_by"]) != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to update this recipe")
-        
-        update_data = {}
-        for key, value in recipe_update.dict(exclude_unset=True).items():
-            if value is not None:
-                if key == "ingredients":
-                    update_data[key] = [ing.dict() for ing in value]
-                elif key == "steps":
-                    update_data[key] = [step.dict() for step in value]
-                elif key == "family_circle_ids":
-                    update_data[key] = [safe_object_id(cid) for cid in value if safe_object_id(cid)]
-                else:
-                    update_data[key] = value
-        
-        update_data["updated_at"] = datetime.utcnow()
-        
-        await get_collection("family_recipes").update_one(
-            {"_id": recipe_oid},
-            {"$set": update_data}
-        )
-        
-        updated_recipe = await get_collection("family_recipes").find_one({"_id": recipe_oid})
-        creator = await get_collection("users").find_one({"_id": updated_recipe["created_by"]})
-        
-        avg_rating = 0.0
-        if updated_recipe.get("ratings"):
-            total_rating = sum(r.get("rating", 0) for r in updated_recipe["ratings"])
-            avg_rating = total_rating / len(updated_recipe["ratings"])
-        
-        return FamilyRecipeResponse(
-            id=str(updated_recipe["_id"]),
-            title=updated_recipe["title"],
-            description=updated_recipe.get("description"),
-            category=updated_recipe["category"],
-            difficulty=updated_recipe["difficulty"],
-            prep_time_minutes=updated_recipe.get("prep_time_minutes"),
-            cook_time_minutes=updated_recipe.get("cook_time_minutes"),
-            servings=updated_recipe.get("servings"),
-            ingredients=updated_recipe["ingredients"],
-            steps=updated_recipe["steps"],
-            photos=updated_recipe.get("photos", []),
-            family_notes=updated_recipe.get("family_notes"),
-            origin_story=updated_recipe.get("origin_story"),
-            created_by=str(updated_recipe["created_by"]),
-            created_by_name=creator.get("full_name") if creator else None,
-            family_circle_ids=[str(cid) for cid in updated_recipe.get("family_circle_ids", [])],
-            average_rating=avg_rating,
-            times_made=updated_recipe.get("times_made", 0),
-            favorites_count=len(updated_recipe.get("favorites", [])),
-            created_at=updated_recipe["created_at"],
-            updated_at=updated_recipe["updated_at"]
-        )
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update recipe: {str(e)}")
+    """
+    Update a recipe (owner only).
+    
+    - Only recipe creator can update
+    - Validates IDs if provided
+    - Logs update for audit trail
+    """
+    await recipes_repo.check_recipe_ownership(recipe_id, str(current_user.id), raise_error=True)
+    
+    update_data = {k: v for k, v in recipe_update.model_dump(exclude_unset=True).items() if v is not None}
+    
+    if "ingredients" in update_data:
+        update_data["ingredients"] = [ing.model_dump() for ing in recipe_update.ingredients]
+    if "steps" in update_data:
+        update_data["steps"] = [step.model_dump() for step in recipe_update.steps]
+    if "family_circle_ids" in update_data:
+        update_data["family_circle_ids"] = validate_object_ids(update_data["family_circle_ids"], "family_circle_ids")
+    
+    update_data["updated_at"] = datetime.utcnow()
+    
+    updated_recipe = await recipes_repo.update_by_id(recipe_id, update_data)
+    assert updated_recipe is not None
+    
+    await log_audit_event(
+        user_id=str(current_user.id),
+        event_type="recipe_updated",
+        event_details={
+            "recipe_id": recipe_id,
+            "updated_fields": list(update_data.keys())
+        }
+    )
+    
+    creator_name = await get_creator_name(updated_recipe["created_by"])
+    response = build_recipe_response(updated_recipe, creator_name)
+    
+    return create_success_response(
+        message="Recipe updated successfully",
+        data=response.model_dump()
+    )
 
 
-@router.delete("/{recipe_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{recipe_id}", status_code=status.HTTP_200_OK)
 async def delete_recipe(
     recipe_id: str,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Delete a recipe"""
-    try:
-        recipe_oid = safe_object_id(recipe_id)
-        if not recipe_oid:
-            raise HTTPException(status_code=400, detail="Invalid recipe ID")
-        
-        recipe_doc = await get_collection("family_recipes").find_one({"_id": recipe_oid})
-        if not recipe_doc:
-            raise HTTPException(status_code=404, detail="Recipe not found")
-        
-        if str(recipe_doc["created_by"]) != current_user.id:
-            raise HTTPException(status_code=403, detail="Not authorized to delete this recipe")
-        
-        await get_collection("family_recipes").delete_one({"_id": recipe_oid})
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to delete recipe: {str(e)}")
+    """
+    Delete a recipe (owner only).
+    
+    - Only recipe creator can delete
+    - Logs deletion for audit trail (GDPR compliance)
+    """
+    recipe_doc = await recipes_repo.find_by_id(recipe_id, raise_404=True)
+    assert recipe_doc is not None
+    
+    await recipes_repo.check_recipe_ownership(recipe_id, str(current_user.id), raise_error=True)
+    
+    await recipes_repo.delete_by_id(recipe_id)
+    
+    await log_audit_event(
+        user_id=str(current_user.id),
+        event_type="recipe_deleted",
+        event_details={
+            "recipe_id": recipe_id,
+            "title": recipe_doc.get("title")
+        }
+    )
+    
+    return create_message_response("Recipe deleted successfully")
 
 
 @router.post("/{recipe_id}/rate", status_code=status.HTTP_200_OK)
@@ -292,38 +271,22 @@ async def rate_recipe(
     rating_data: RecipeRatingCreate,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Rate a recipe"""
-    try:
-        recipe_oid = safe_object_id(recipe_id)
-        if not recipe_oid:
-            raise HTTPException(status_code=400, detail="Invalid recipe ID")
-        
-        user_oid = ObjectId(current_user.id)
-        
-        await get_collection("family_recipes").update_one(
-            {"_id": recipe_oid},
-            {
-                "$pull": {"ratings": {"user_id": user_oid}},
-            }
-        )
-        
-        await get_collection("family_recipes").update_one(
-            {"_id": recipe_oid},
-            {
-                "$push": {
-                    "ratings": {
-                        "user_id": user_oid,
-                        "rating": rating_data.rating,
-                        "comment": rating_data.comment,
-                        "created_at": datetime.utcnow()
-                    }
-                }
-            }
-        )
-        
-        return {"message": "Recipe rated successfully"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to rate recipe: {str(e)}")
+    """
+    Rate a recipe (1-5 stars with optional comment).
+    
+    - Updates existing rating if user already rated
+    - Validates rating value
+    """
+    await recipes_repo.find_by_id(recipe_id, raise_404=True, error_message="Recipe not found")
+    
+    await recipes_repo.add_rating(
+        recipe_id=recipe_id,
+        user_id=str(current_user.id),
+        rating=rating_data.rating,
+        comment=rating_data.comment
+    )
+    
+    return create_message_response("Recipe rated successfully")
 
 
 @router.post("/{recipe_id}/favorite", status_code=status.HTTP_200_OK)
@@ -332,21 +295,15 @@ async def favorite_recipe(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Add recipe to favorites"""
-    try:
-        recipe_oid = safe_object_id(recipe_id)
-        if not recipe_oid:
-            raise HTTPException(status_code=400, detail="Invalid recipe ID")
-        
-        user_oid = ObjectId(current_user.id)
-        
-        await get_collection("family_recipes").update_one(
-            {"_id": recipe_oid},
-            {"$addToSet": {"favorites": user_oid}}
-        )
-        
-        return {"message": "Recipe added to favorites"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to favorite recipe: {str(e)}")
+    await recipes_repo.find_by_id(recipe_id, raise_404=True, error_message="Recipe not found")
+    
+    await recipes_repo.toggle_favorite(
+        recipe_id=recipe_id,
+        user_id=str(current_user.id),
+        add_favorite=True
+    )
+    
+    return create_message_response("Recipe added to favorites")
 
 
 @router.delete("/{recipe_id}/favorite", status_code=status.HTTP_200_OK)
@@ -355,21 +312,15 @@ async def unfavorite_recipe(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Remove recipe from favorites"""
-    try:
-        recipe_oid = safe_object_id(recipe_id)
-        if not recipe_oid:
-            raise HTTPException(status_code=400, detail="Invalid recipe ID")
-        
-        user_oid = ObjectId(current_user.id)
-        
-        await get_collection("family_recipes").update_one(
-            {"_id": recipe_oid},
-            {"$pull": {"favorites": user_oid}}
-        )
-        
-        return {"message": "Recipe removed from favorites"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to unfavorite recipe: {str(e)}")
+    await recipes_repo.find_by_id(recipe_id, raise_404=True, error_message="Recipe not found")
+    
+    await recipes_repo.toggle_favorite(
+        recipe_id=recipe_id,
+        user_id=str(current_user.id),
+        add_favorite=False
+    )
+    
+    return create_message_response("Recipe removed from favorites")
 
 
 @router.post("/{recipe_id}/made", status_code=status.HTTP_200_OK)
@@ -377,17 +328,14 @@ async def mark_recipe_made(
     recipe_id: str,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Mark that recipe was made"""
-    try:
-        recipe_oid = safe_object_id(recipe_id)
-        if not recipe_oid:
-            raise HTTPException(status_code=400, detail="Invalid recipe ID")
-        
-        await get_collection("family_recipes").update_one(
-            {"_id": recipe_oid},
-            {"$inc": {"times_made": 1}}
-        )
-        
-        return {"message": "Recipe marked as made"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to mark recipe as made: {str(e)}")
+    """
+    Mark that a recipe was made.
+    
+    - Increments the times_made counter
+    - Tracks recipe popularity
+    """
+    await recipes_repo.find_by_id(recipe_id, raise_404=True, error_message="Recipe not found")
+    
+    await recipes_repo.increment_times_made(recipe_id)
+    
+    return create_message_response("Recipe marked as made")

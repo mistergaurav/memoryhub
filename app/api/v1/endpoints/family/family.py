@@ -499,3 +499,119 @@ async def add_family_member(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to add family member: {str(e)}")
+
+
+@router.get("/dashboard")
+async def get_family_dashboard(
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """
+    Get family dashboard with aggregated stats and recent activity.
+    
+    Uses repository layer to ensure proper access control:
+    - Recent albums (user-accessible only)
+    - Upcoming events (user is creator or attendee)
+    - Recent milestones (user-accessible only)
+    - Family circle stats (user is owner or member)
+    
+    Returns data with proper response envelope and audit trail.
+    """
+    from app.repositories.family_repository import (
+        FamilyAlbumsRepository,
+        FamilyCalendarRepository,
+        FamilyMilestonesRepository
+    )
+    from app.models.responses import create_success_response
+    from app.utils.audit_logger import log_audit_event
+    
+    try:
+        albums_repo = FamilyAlbumsRepository()
+        calendar_repo = FamilyCalendarRepository()
+        milestones_repo = FamilyMilestonesRepository()
+        
+        recent_albums_docs = await albums_repo.find_accessible_albums(
+            user_id=str(current_user.id),
+            skip=0,
+            limit=5
+        )
+        recent_albums = [
+            {
+                "id": str(album["_id"]),
+                "title": album["title"],
+                "photo_count": len(album.get("photos", [])),
+                "created_at": album["created_at"]
+            }
+            for album in recent_albums_docs
+        ]
+        
+        end_date = datetime.utcnow() + timedelta(days=30)
+        upcoming_events_docs = await calendar_repo.find_user_events(
+            user_id=str(current_user.id),
+            start_date=datetime.utcnow(),
+            end_date=end_date,
+            skip=0,
+            limit=10
+        )
+        upcoming_events = [
+            {
+                "id": str(event["_id"]),
+                "title": event["title"],
+                "event_type": event["event_type"],
+                "event_date": event["event_date"]
+            }
+            for event in upcoming_events_docs
+        ]
+        
+        recent_milestones_docs = await milestones_repo.find_user_milestones(
+            user_id=str(current_user.id),
+            skip=0,
+            limit=5
+        )
+        recent_milestones = [
+            {
+                "id": str(milestone["_id"]),
+                "title": milestone["title"],
+                "milestone_type": milestone["milestone_type"],
+                "milestone_date": milestone["milestone_date"]
+            }
+            for milestone in recent_milestones_docs
+        ]
+        
+        user_oid = ObjectId(current_user.id)
+        family_circles_count = await get_collection("family_circles").count_documents({
+            "$or": [
+                {"created_by": user_oid},
+                {"member_ids": user_oid}
+            ]
+        })
+        
+        relationships_count = await get_collection("family_relationships").count_documents({
+            "user_id": user_oid
+        })
+        
+        await log_audit_event(
+            user_id=str(current_user.id),
+            event_type="dashboard_accessed",
+            event_details={
+                "albums_count": len(recent_albums),
+                "events_count": len(upcoming_events),
+                "milestones_count": len(recent_milestones)
+            }
+        )
+        
+        return create_success_response(
+            message="Dashboard loaded successfully",
+            data={
+                "recent_albums": recent_albums,
+                "upcoming_events": upcoming_events,
+                "recent_milestones": recent_milestones,
+                "stats": {
+                    "family_circles": family_circles_count,
+                    "relationships": relationships_count,
+                    "albums": len(recent_albums),
+                    "upcoming_events": len(upcoming_events)
+                }
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load dashboard: {str(e)}")

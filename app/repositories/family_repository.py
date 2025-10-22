@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Optional
 from bson import ObjectId
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi import HTTPException
 from .base_repository import BaseRepository
 
@@ -1016,3 +1016,1321 @@ class FamilyAlbumsRepository(BaseRepository):
         )
         
         return result.modified_count > 0
+
+
+class FamilyCalendarRepository(BaseRepository):
+    """
+    Repository for family calendar events with recurrence and conflict detection.
+    Provides timezone-aware queries and attendee management.
+    """
+    
+    def __init__(self):
+        super().__init__("family_events")
+    
+    async def find_user_events(
+        self,
+        user_id: str,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
+        event_type: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[Dict[str, Any]]:
+        """
+        Find all events for a user (created or attending).
+        
+        Args:
+            user_id: String representation of user ID
+            start_date: Optional filter by start date
+            end_date: Optional filter by end date
+            event_type: Optional filter by event type
+            skip: Number of documents to skip
+            limit: Maximum number to return
+            
+        Returns:
+            List of events
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {
+            "$or": [
+                {"created_by": user_oid},
+                {"attendee_ids": user_oid}
+            ]
+        }
+        
+        if start_date:
+            filter_dict["event_date"] = {"$gte": start_date}
+        if end_date:
+            if "event_date" in filter_dict:
+                filter_dict["event_date"]["$lte"] = end_date
+            else:
+                filter_dict["event_date"] = {"$lte": end_date}
+        if event_type:
+            filter_dict["event_type"] = event_type
+        
+        return await self.find_many(
+            filter_dict,
+            skip=skip,
+            limit=limit,
+            sort_by="event_date",
+            sort_order=1
+        )
+    
+    async def count_user_events(
+        self,
+        user_id: str,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
+        event_type: Optional[str] = None
+    ) -> int:
+        """Count events matching criteria."""
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {
+            "$or": [
+                {"created_by": user_oid},
+                {"attendee_ids": user_oid}
+            ]
+        }
+        
+        if start_date:
+            filter_dict["event_date"] = {"$gte": start_date}
+        if end_date:
+            if "event_date" in filter_dict:
+                filter_dict["event_date"]["$lte"] = end_date
+            else:
+                filter_dict["event_date"] = {"$lte": end_date}
+        if event_type:
+            filter_dict["event_type"] = event_type
+        
+        return await self.count(filter_dict)
+    
+    async def check_event_ownership(
+        self,
+        event_id: str,
+        user_id: str,
+        raise_error: bool = True
+    ) -> bool:
+        """
+        Check if user owns an event.
+        
+        Args:
+            event_id: String representation of event ID
+            user_id: String representation of user ID
+            raise_error: Whether to raise HTTPException if not owner
+            
+        Returns:
+            True if user is owner
+            
+        Raises:
+            HTTPException: If user is not owner and raise_error=True
+        """
+        event_oid = self.validate_object_id(event_id, "event_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        event = await self.find_one(
+            {"_id": event_oid},
+            raise_404=True,
+            error_message="Event not found"
+        )
+        assert event is not None
+        
+        is_owner = event.get("created_by") == user_oid
+        
+        if not is_owner and raise_error:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the event creator can perform this action"
+            )
+        
+        return is_owner
+    
+    async def detect_conflicts(
+        self,
+        user_id: str,
+        event_date: datetime,
+        end_date: Optional[datetime] = None,
+        exclude_event_id: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Detect scheduling conflicts for a user.
+        
+        Args:
+            user_id: String representation of user ID
+            event_date: Start date/time of the event
+            end_date: Optional end date/time
+            exclude_event_id: Optional event ID to exclude from conflict check
+            
+        Returns:
+            List of conflicting events
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        event_end = end_date or event_date
+        
+        filter_dict: Dict[str, Any] = {
+            "$or": [
+                {"created_by": user_oid},
+                {"attendee_ids": user_oid}
+            ],
+            "$or": [
+                {
+                    "event_date": {"$lte": event_date},
+                    "end_date": {"$gte": event_date}
+                },
+                {
+                    "event_date": {"$lte": event_end},
+                    "end_date": {"$gte": event_end}
+                },
+                {
+                    "event_date": {"$gte": event_date},
+                    "event_date": {"$lte": event_end}
+                }
+            ]
+        }
+        
+        if exclude_event_id:
+            exclude_oid = self.validate_object_id(exclude_event_id, "exclude_event_id")
+            filter_dict["_id"] = {"$ne": exclude_oid}
+        
+        return await self.find_many(filter_dict, limit=10)
+    
+    async def get_upcoming_birthdays(
+        self,
+        user_id: str,
+        days_ahead: int = 30
+    ) -> List[Dict[str, Any]]:
+        """
+        Get upcoming birthdays for a user.
+        
+        Args:
+            user_id: String representation of user ID
+            days_ahead: Number of days to look ahead
+            
+        Returns:
+            List of birthday events
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        end_date = datetime.utcnow() + timedelta(days=days_ahead)
+        
+        return await self.find_many(
+            {
+                "event_type": "birthday",
+                "event_date": {"$lte": end_date},
+                "$or": [
+                    {"created_by": user_oid},
+                    {"attendee_ids": user_oid}
+                ]
+            },
+            sort_by="event_date",
+            sort_order=1,
+            limit=50
+        )
+
+
+class FamilyMilestonesRepository(BaseRepository):
+    """
+    Repository for family milestones with photo management and like functionality.
+    Provides queries for milestone tracking and social engagement.
+    """
+    
+    def __init__(self):
+        super().__init__("family_milestones")
+    
+    async def find_user_milestones(
+        self,
+        user_id: str,
+        person_id: Optional[str] = None,
+        milestone_type: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """
+        Find milestones for a user with optional filtering.
+        
+        Args:
+            user_id: String representation of user ID
+            person_id: Optional filter by person ID
+            milestone_type: Optional filter by milestone type
+            skip: Number of documents to skip
+            limit: Maximum number to return
+            
+        Returns:
+            List of milestones
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {
+            "$or": [
+                {"created_by": user_oid},
+                {"family_circle_ids": {"$exists": True}}
+            ]
+        }
+        
+        if person_id:
+            person_oid = self.validate_object_id(person_id, "person_id")
+            filter_dict["person_id"] = person_oid
+        
+        if milestone_type:
+            filter_dict["milestone_type"] = milestone_type
+        
+        return await self.find_many(
+            filter_dict,
+            skip=skip,
+            limit=limit,
+            sort_by="milestone_date",
+            sort_order=-1
+        )
+    
+    async def count_user_milestones(
+        self,
+        user_id: str,
+        person_id: Optional[str] = None,
+        milestone_type: Optional[str] = None
+    ) -> int:
+        """Count milestones matching criteria."""
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {
+            "$or": [
+                {"created_by": user_oid},
+                {"family_circle_ids": {"$exists": True}}
+            ]
+        }
+        
+        if person_id:
+            person_oid = self.validate_object_id(person_id, "person_id")
+            filter_dict["person_id"] = person_oid
+        
+        if milestone_type:
+            filter_dict["milestone_type"] = milestone_type
+        
+        return await self.count(filter_dict)
+    
+    async def check_milestone_ownership(
+        self,
+        milestone_id: str,
+        user_id: str,
+        raise_error: bool = True
+    ) -> bool:
+        """
+        Check if user owns a milestone.
+        
+        Args:
+            milestone_id: String representation of milestone ID
+            user_id: String representation of user ID
+            raise_error: Whether to raise HTTPException if not owner
+            
+        Returns:
+            True if user is owner
+            
+        Raises:
+            HTTPException: If user is not owner and raise_error=True
+        """
+        milestone_oid = self.validate_object_id(milestone_id, "milestone_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        milestone = await self.find_one(
+            {"_id": milestone_oid},
+            raise_404=True,
+            error_message="Milestone not found"
+        )
+        assert milestone is not None
+        
+        is_owner = milestone.get("created_by") == user_oid
+        
+        if not is_owner and raise_error:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the milestone creator can perform this action"
+            )
+        
+        return is_owner
+    
+    async def toggle_like(
+        self,
+        milestone_id: str,
+        user_id: str,
+        add_like: bool = True
+    ) -> bool:
+        """
+        Toggle like on a milestone.
+        
+        Args:
+            milestone_id: String representation of milestone ID
+            user_id: String representation of user ID
+            add_like: True to add like, False to remove
+            
+        Returns:
+            True if operation successful
+        """
+        milestone_oid = self.validate_object_id(milestone_id, "milestone_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        operation = "$addToSet" if add_like else "$pull"
+        
+        result = await self.collection.update_one(
+            {"_id": milestone_oid},
+            {operation: {"likes": user_oid}}
+        )
+        
+        return result.modified_count > 0
+
+
+class FamilyRecipesRepository(BaseRepository):
+    """
+    Repository for family recipes with ratings and favorites management.
+    Provides queries for recipe tracking and social engagement.
+    """
+    
+    def __init__(self):
+        super().__init__("family_recipes")
+    
+    async def find_user_recipes(
+        self,
+        user_id: str,
+        category: Optional[str] = None,
+        difficulty: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """
+        Find recipes accessible to a user with optional filtering.
+        
+        Args:
+            user_id: String representation of user ID
+            category: Optional filter by category
+            difficulty: Optional filter by difficulty
+            skip: Number of documents to skip
+            limit: Maximum number to return
+            
+        Returns:
+            List of recipes
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {}
+        
+        if category:
+            filter_dict["category"] = category
+        if difficulty:
+            filter_dict["difficulty"] = difficulty
+        
+        return await self.find_many(
+            filter_dict,
+            skip=skip,
+            limit=limit,
+            sort_by="created_at",
+            sort_order=-1
+        )
+    
+    async def count_user_recipes(
+        self,
+        user_id: str,
+        category: Optional[str] = None,
+        difficulty: Optional[str] = None
+    ) -> int:
+        """Count recipes matching criteria."""
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {}
+        
+        if category:
+            filter_dict["category"] = category
+        if difficulty:
+            filter_dict["difficulty"] = difficulty
+        
+        return await self.count(filter_dict)
+    
+    async def check_recipe_ownership(
+        self,
+        recipe_id: str,
+        user_id: str,
+        raise_error: bool = True
+    ) -> bool:
+        """
+        Check if user owns a recipe.
+        
+        Args:
+            recipe_id: String representation of recipe ID
+            user_id: String representation of user ID
+            raise_error: Whether to raise HTTPException if not owner
+            
+        Returns:
+            True if user is owner
+            
+        Raises:
+            HTTPException: If user is not owner and raise_error=True
+        """
+        recipe_oid = self.validate_object_id(recipe_id, "recipe_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        recipe = await self.find_one(
+            {"_id": recipe_oid},
+            raise_404=True,
+            error_message="Recipe not found"
+        )
+        assert recipe is not None
+        
+        is_owner = recipe.get("created_by") == user_oid
+        
+        if not is_owner and raise_error:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the recipe creator can perform this action"
+            )
+        
+        return is_owner
+    
+    async def toggle_favorite(
+        self,
+        recipe_id: str,
+        user_id: str,
+        add_favorite: bool = True
+    ) -> bool:
+        """
+        Toggle favorite on a recipe.
+        
+        Args:
+            recipe_id: String representation of recipe ID
+            user_id: String representation of user ID
+            add_favorite: True to add favorite, False to remove
+            
+        Returns:
+            True if operation successful
+        """
+        recipe_oid = self.validate_object_id(recipe_id, "recipe_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        operation = "$addToSet" if add_favorite else "$pull"
+        
+        result = await self.collection.update_one(
+            {"_id": recipe_oid},
+            {operation: {"favorites": user_oid}}
+        )
+        
+        return result.modified_count > 0
+    
+    async def add_rating(
+        self,
+        recipe_id: str,
+        user_id: str,
+        rating: int,
+        comment: Optional[str] = None
+    ) -> bool:
+        """
+        Add or update a rating for a recipe.
+        
+        Args:
+            recipe_id: String representation of recipe ID
+            user_id: String representation of user ID
+            rating: Rating value (1-5)
+            comment: Optional comment
+            
+        Returns:
+            True if operation successful
+        """
+        recipe_oid = self.validate_object_id(recipe_id, "recipe_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        await self.collection.update_one(
+            {"_id": recipe_oid},
+            {"$pull": {"ratings": {"user_id": user_oid}}}
+        )
+        
+        result = await self.collection.update_one(
+            {"_id": recipe_oid},
+            {
+                "$push": {
+                    "ratings": {
+                        "user_id": user_oid,
+                        "rating": rating,
+                        "comment": comment,
+                        "created_at": datetime.utcnow()
+                    }
+                }
+            }
+        )
+        
+        return result.modified_count > 0
+    
+    async def increment_times_made(
+        self,
+        recipe_id: str
+    ) -> bool:
+        """
+        Increment the times_made counter for a recipe.
+        
+        Args:
+            recipe_id: String representation of recipe ID
+            
+        Returns:
+            True if operation successful
+        """
+        recipe_oid = self.validate_object_id(recipe_id, "recipe_id")
+        
+        result = await self.collection.update_one(
+            {"_id": recipe_oid},
+            {"$inc": {"times_made": 1}}
+        )
+        
+        return result.modified_count > 0
+
+
+class FamilyTraditionsRepository(BaseRepository):
+    """
+    Repository for family traditions with follower management.
+    Provides queries for tradition tracking and social engagement.
+    """
+    
+    def __init__(self):
+        super().__init__("family_traditions")
+    
+    async def find_user_traditions(
+        self,
+        user_id: str,
+        category: Optional[str] = None,
+        frequency: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """
+        Find traditions accessible to a user with optional filtering.
+        
+        Args:
+            user_id: String representation of user ID
+            category: Optional filter by category
+            frequency: Optional filter by frequency
+            skip: Number of documents to skip
+            limit: Maximum number to return
+            
+        Returns:
+            List of traditions
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {}
+        
+        if category:
+            filter_dict["category"] = category
+        if frequency:
+            filter_dict["frequency"] = frequency
+        
+        return await self.find_many(
+            filter_dict,
+            skip=skip,
+            limit=limit,
+            sort_by="created_at",
+            sort_order=-1
+        )
+    
+    async def count_user_traditions(
+        self,
+        user_id: str,
+        category: Optional[str] = None,
+        frequency: Optional[str] = None
+    ) -> int:
+        """Count traditions matching criteria."""
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {}
+        
+        if category:
+            filter_dict["category"] = category
+        if frequency:
+            filter_dict["frequency"] = frequency
+        
+        return await self.count(filter_dict)
+    
+    async def check_tradition_ownership(
+        self,
+        tradition_id: str,
+        user_id: str,
+        raise_error: bool = True
+    ) -> bool:
+        """
+        Check if user owns a tradition.
+        
+        Args:
+            tradition_id: String representation of tradition ID
+            user_id: String representation of user ID
+            raise_error: Whether to raise HTTPException if not owner
+            
+        Returns:
+            True if user is owner
+            
+        Raises:
+            HTTPException: If user is not owner and raise_error=True
+        """
+        tradition_oid = self.validate_object_id(tradition_id, "tradition_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        tradition = await self.find_one(
+            {"_id": tradition_oid},
+            raise_404=True,
+            error_message="Tradition not found"
+        )
+        assert tradition is not None
+        
+        is_owner = tradition.get("created_by") == user_oid
+        
+        if not is_owner and raise_error:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the tradition creator can perform this action"
+            )
+        
+        return is_owner
+    
+    async def toggle_follow(
+        self,
+        tradition_id: str,
+        user_id: str,
+        add_follow: bool = True
+    ) -> bool:
+        """
+        Toggle follow on a tradition.
+        
+        Args:
+            tradition_id: String representation of tradition ID
+            user_id: String representation of user ID
+            add_follow: True to follow, False to unfollow
+            
+        Returns:
+            True if operation successful
+        """
+        tradition_oid = self.validate_object_id(tradition_id, "tradition_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        operation = "$addToSet" if add_follow else "$pull"
+        
+        result = await self.collection.update_one(
+            {"_id": tradition_oid},
+            {operation: {"followers": user_oid}}
+        )
+        
+        return result.modified_count > 0
+
+
+class LegacyLettersRepository(BaseRepository):
+    """
+    Repository for legacy letters with delivery and read tracking.
+    Provides queries for sent and received letters with privacy controls.
+    """
+    
+    def __init__(self):
+        super().__init__("legacy_letters")
+    
+    async def find_sent_letters(
+        self,
+        author_id: str,
+        skip: int = 0,
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """
+        Find all letters sent by a user.
+        
+        Args:
+            author_id: String representation of author user ID
+            skip: Number of documents to skip
+            limit: Maximum number to return
+            
+        Returns:
+            List of sent letters
+        """
+        author_oid = self.validate_object_id(author_id, "author_id")
+        
+        return await self.find_many(
+            {"author_id": author_oid},
+            skip=skip,
+            limit=limit,
+            sort_by="created_at",
+            sort_order=-1
+        )
+    
+    async def count_sent_letters(
+        self,
+        author_id: str
+    ) -> int:
+        """Count letters sent by a user."""
+        author_oid = self.validate_object_id(author_id, "author_id")
+        
+        return await self.count({"author_id": author_oid})
+    
+    async def find_received_letters(
+        self,
+        recipient_id: str,
+        skip: int = 0,
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """
+        Find all delivered letters received by a user.
+        
+        Args:
+            recipient_id: String representation of recipient user ID
+            skip: Number of documents to skip
+            limit: Maximum number to return
+            
+        Returns:
+            List of received letters
+        """
+        recipient_oid = self.validate_object_id(recipient_id, "recipient_id")
+        
+        return await self.find_many(
+            {
+                "recipient_ids": recipient_oid,
+                "status": {"$in": ["delivered", "read"]}
+            },
+            skip=skip,
+            limit=limit,
+            sort_by="delivered_at",
+            sort_order=-1
+        )
+    
+    async def count_received_letters(
+        self,
+        recipient_id: str
+    ) -> int:
+        """Count delivered letters received by a user."""
+        recipient_oid = self.validate_object_id(recipient_id, "recipient_id")
+        
+        return await self.count({
+            "recipient_ids": recipient_oid,
+            "status": {"$in": ["delivered", "read"]}
+        })
+    
+    async def check_letter_ownership(
+        self,
+        letter_id: str,
+        user_id: str,
+        raise_error: bool = True
+    ) -> bool:
+        """
+        Check if user is the author of a letter.
+        
+        Args:
+            letter_id: String representation of letter ID
+            user_id: String representation of user ID
+            raise_error: Whether to raise HTTPException if not author
+            
+        Returns:
+            True if user is author
+            
+        Raises:
+            HTTPException: If user is not author and raise_error=True
+        """
+        letter_oid = self.validate_object_id(letter_id, "letter_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        letter = await self.find_one(
+            {"_id": letter_oid},
+            raise_404=True,
+            error_message="Letter not found"
+        )
+        assert letter is not None
+        
+        is_author = letter.get("author_id") == user_oid
+        
+        if not is_author and raise_error:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the letter author can perform this action"
+            )
+        
+        return is_author
+    
+    async def mark_as_read(
+        self,
+        letter_id: str,
+        user_id: str
+    ) -> bool:
+        """
+        Mark a letter as read by a recipient.
+        
+        Args:
+            letter_id: String representation of letter ID
+            user_id: String representation of user ID
+            
+        Returns:
+            True if operation successful
+        """
+        letter_oid = self.validate_object_id(letter_id, "letter_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        result = await self.collection.update_one(
+            {"_id": letter_oid},
+            {
+                "$addToSet": {"read_by": user_oid},
+                "$set": {"status": "read"}
+            }
+        )
+        
+        return result.modified_count > 0
+    
+    async def check_recipient_access(
+        self,
+        letter_id: str,
+        user_id: str,
+        raise_error: bool = True
+    ) -> bool:
+        """
+        Check if user is a recipient of a letter.
+        
+        Args:
+            letter_id: String representation of letter ID
+            user_id: String representation of user ID
+            raise_error: Whether to raise HTTPException if not recipient
+            
+        Returns:
+            True if user is recipient
+            
+        Raises:
+            HTTPException: If user is not recipient and raise_error=True
+        """
+        letter_oid = self.validate_object_id(letter_id, "letter_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        letter = await self.find_one(
+            {"_id": letter_oid},
+            raise_404=True,
+            error_message="Letter not found"
+        )
+        assert letter is not None
+        
+        is_recipient = user_oid in letter.get("recipient_ids", [])
+        
+        if not is_recipient and raise_error:
+            raise HTTPException(
+                status_code=403,
+                detail="You are not a recipient of this letter"
+            )
+        
+        return is_recipient
+
+
+class HubItemsRepository(BaseRepository):
+    """
+    Repository for collaborative hub items with privacy controls and social features.
+    Provides access control, view tracking, and engagement features (likes, bookmarks).
+    """
+    
+    def __init__(self):
+        super().__init__("hub_items")
+    
+    async def find_user_items(
+        self,
+        user_id: str,
+        item_type: Optional[str] = None,
+        privacy: Optional[str] = None,
+        tag: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """
+        Find all hub items owned by a user with optional filtering.
+        
+        Args:
+            user_id: String representation of user ID
+            item_type: Optional filter by item type
+            privacy: Optional filter by privacy level
+            tag: Optional filter by tag
+            skip: Number of documents to skip
+            limit: Maximum number to return
+            
+        Returns:
+            List of hub items
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {"owner_id": user_oid}
+        
+        if item_type:
+            filter_dict["item_type"] = item_type
+        if privacy:
+            filter_dict["privacy"] = privacy
+        if tag:
+            filter_dict["tags"] = tag
+        
+        return await self.find_many(
+            filter_dict,
+            skip=skip,
+            limit=limit,
+            sort_by="updated_at",
+            sort_order=-1
+        )
+    
+    async def find_accessible_items(
+        self,
+        user_id: str,
+        item_type: Optional[str] = None,
+        privacy: Optional[str] = None,
+        tag: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """
+        Find all hub items accessible to a user (owned or public).
+        
+        Args:
+            user_id: String representation of user ID
+            item_type: Optional filter by item type
+            privacy: Optional filter by privacy level
+            tag: Optional filter by tag
+            skip: Number of documents to skip
+            limit: Maximum number to return
+            
+        Returns:
+            List of accessible hub items
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {
+            "$or": [
+                {"owner_id": user_oid},
+                {"privacy": "public"}
+            ]
+        }
+        
+        if item_type:
+            filter_dict["item_type"] = item_type
+        if privacy:
+            filter_dict["privacy"] = privacy
+        if tag:
+            filter_dict["tags"] = tag
+        
+        return await self.find_many(
+            filter_dict,
+            skip=skip,
+            limit=limit,
+            sort_by="updated_at",
+            sort_order=-1
+        )
+    
+    async def count_user_items(
+        self,
+        user_id: str,
+        item_type: Optional[str] = None,
+        privacy: Optional[str] = None,
+        tag: Optional[str] = None
+    ) -> int:
+        """Count items owned by user matching criteria."""
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {"owner_id": user_oid}
+        
+        if item_type:
+            filter_dict["item_type"] = item_type
+        if privacy:
+            filter_dict["privacy"] = privacy
+        if tag:
+            filter_dict["tags"] = tag
+        
+        return await self.count(filter_dict)
+    
+    async def count_accessible_items(
+        self,
+        user_id: str,
+        item_type: Optional[str] = None,
+        privacy: Optional[str] = None,
+        tag: Optional[str] = None
+    ) -> int:
+        """Count items accessible to user matching criteria."""
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {
+            "$or": [
+                {"owner_id": user_oid},
+                {"privacy": "public"}
+            ]
+        }
+        
+        if item_type:
+            filter_dict["item_type"] = item_type
+        if privacy:
+            filter_dict["privacy"] = privacy
+        if tag:
+            filter_dict["tags"] = tag
+        
+        return await self.count(filter_dict)
+    
+    async def check_item_ownership(
+        self,
+        item_id: str,
+        user_id: str,
+        raise_error: bool = True
+    ) -> bool:
+        """
+        Check if user owns a hub item.
+        
+        Args:
+            item_id: String representation of item ID
+            user_id: String representation of user ID
+            raise_error: Whether to raise HTTPException if not owner
+            
+        Returns:
+            True if user is owner
+            
+        Raises:
+            HTTPException: If user is not owner and raise_error=True
+        """
+        item_oid = self.validate_object_id(item_id, "item_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        item = await self.find_one(
+            {"_id": item_oid},
+            raise_404=True,
+            error_message="Hub item not found"
+        )
+        assert item is not None
+        
+        is_owner = item.get("owner_id") == user_oid
+        
+        if not is_owner and raise_error:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the item owner can perform this action"
+            )
+        
+        return is_owner
+    
+    async def check_item_access(
+        self,
+        item_id: str,
+        user_id: str,
+        raise_error: bool = True
+    ) -> bool:
+        """
+        Check if user has access to view a hub item.
+        
+        Args:
+            item_id: String representation of item ID
+            user_id: String representation of user ID
+            raise_error: Whether to raise HTTPException if no access
+            
+        Returns:
+            True if user has access
+            
+        Raises:
+            HTTPException: If user has no access and raise_error=True
+        """
+        item_oid = self.validate_object_id(item_id, "item_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        item = await self.find_one(
+            {"_id": item_oid},
+            raise_404=True,
+            error_message="Hub item not found"
+        )
+        assert item is not None
+        
+        is_owner = item.get("owner_id") == user_oid
+        is_public = item.get("privacy") == "public"
+        has_access = is_owner or is_public
+        
+        if not has_access and raise_error:
+            raise HTTPException(
+                status_code=403,
+                detail="You do not have access to this hub item"
+            )
+        
+        return has_access
+    
+    async def increment_view_count(
+        self,
+        item_id: str
+    ) -> bool:
+        """
+        Increment the view count for a hub item.
+        
+        Args:
+            item_id: String representation of item ID
+            
+        Returns:
+            True if operation successful
+        """
+        item_oid = self.validate_object_id(item_id, "item_id")
+        
+        result = await self.collection.update_one(
+            {"_id": item_oid},
+            {"$inc": {"view_count": 1}}
+        )
+        
+        return result.modified_count > 0
+    
+    async def toggle_like(
+        self,
+        item_id: str,
+        user_id: str,
+        add_like: bool = True
+    ) -> bool:
+        """
+        Toggle like on a hub item.
+        
+        Args:
+            item_id: String representation of item ID
+            user_id: String representation of user ID
+            add_like: True to add like, False to remove
+            
+        Returns:
+            True if operation successful
+        """
+        item_oid = self.validate_object_id(item_id, "item_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        operation = "$addToSet" if add_like else "$pull"
+        
+        result = await self.collection.update_one(
+            {"_id": item_oid},
+            {operation: {"likes": user_oid}}
+        )
+        
+        return result.modified_count > 0
+    
+    async def toggle_bookmark(
+        self,
+        item_id: str,
+        user_id: str,
+        add_bookmark: bool = True
+    ) -> bool:
+        """
+        Toggle bookmark on a hub item.
+        
+        Args:
+            item_id: String representation of item ID
+            user_id: String representation of user ID
+            add_bookmark: True to add bookmark, False to remove
+            
+        Returns:
+            True if operation successful
+        """
+        item_oid = self.validate_object_id(item_id, "item_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        operation = "$addToSet" if add_bookmark else "$pull"
+        
+        result = await self.collection.update_one(
+            {"_id": item_oid},
+            {operation: {"bookmarks": user_oid}}
+        )
+        
+        return result.modified_count > 0
+    
+    async def search_items(
+        self,
+        user_id: str,
+        query: str,
+        item_types: Optional[List[str]] = None,
+        tags: Optional[List[str]] = None,
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """
+        Search hub items with text search and filters.
+        
+        Args:
+            user_id: String representation of user ID
+            query: Text search query
+            item_types: Optional filter by item types
+            tags: Optional filter by tags
+            limit: Maximum number of results
+            
+        Returns:
+            List of matching hub items
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {
+            "$or": [
+                {"owner_id": user_oid},
+                {"privacy": "public"}
+            ],
+            "$text": {"$search": query}
+        }
+        
+        if item_types:
+            filter_dict["item_type"] = {"$in": item_types}
+        if tags:
+            filter_dict["tags"] = {"$in": tags}
+        
+        return await self.find_many(
+            filter_dict,
+            limit=limit,
+            sort_by="updated_at",
+            sort_order=-1
+        )
+    
+    async def get_stats(
+        self,
+        user_id: str
+    ) -> Dict[str, Any]:
+        """
+        Get statistics for user's hub items.
+        
+        Args:
+            user_id: String representation of user ID
+            
+        Returns:
+            Dictionary with statistics
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        pipeline = [
+            {"$match": {"owner_id": user_oid}},
+            {
+                "$group": {
+                    "_id": "$item_type",
+                    "count": {"$sum": 1}
+                }
+            }
+        ]
+        
+        items_by_type = await self.aggregate(pipeline)
+        
+        total_items = sum(item["count"] for item in items_by_type)
+        items_by_type_dict = {item["_id"]: item["count"] for item in items_by_type}
+        
+        total_views_pipeline = [
+            {"$match": {"owner_id": user_oid}},
+            {
+                "$group": {
+                    "_id": None,
+                    "total_views": {"$sum": "$view_count"},
+                    "total_likes": {"$sum": {"$size": {"$ifNull": ["$likes", []]}}}
+                }
+            }
+        ]
+        
+        engagement = await self.aggregate(total_views_pipeline)
+        total_views = engagement[0]["total_views"] if engagement else 0
+        total_likes = engagement[0]["total_likes"] if engagement else 0
+        
+        return {
+            "total_items": total_items,
+            "items_by_type": items_by_type_dict,
+            "total_views": total_views,
+            "total_likes": total_likes
+        }
+    
+    async def get_recent_activity(
+        self,
+        user_id: str,
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """
+        Get recent activity for user's hub items.
+        
+        Args:
+            user_id: String representation of user ID
+            limit: Maximum number of activity items
+            
+        Returns:
+            List of recent activity items
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        return await self.find_many(
+            {"owner_id": user_oid},
+            limit=limit,
+            sort_by="updated_at",
+            sort_order=-1
+        )
