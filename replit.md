@@ -1,51 +1,6 @@
 # Overview
 
-The Memory Hub is a full-stack digital legacy platform designed to help families preserve and share memories, files, and personal content. It features a FastAPI backend, a Flutter web frontend, and MongoDB for data storage. The platform offers a comprehensive suite of features including personal journaling, secure file storage, a customizable dashboard, robust user management, and advanced social functionalities like comments, notifications, activity feeds, and ephemeral "Stories." Recent expansions include content organization through collections, advanced search, analytics, privacy controls, voice notes, custom categories, emoji reactions, memory templates, two-factor authentication, password reset, geolocation-based features, scheduled posts, and a full suite of family-oriented features. The platform aims to create a rich, secure, and collaborative environment for digital remembrance and legacy building.
-
-## Recent Changes (October 2025)
-
-**Deep Genealogy Integration Across Family Features (October 20, 2025)**: Completed comprehensive genealogy integration connecting health records, calendar, traditions, milestones, and genealogy tree with deep cross-feature relationships:
-- **Health Records Enhancement**: Display hereditary conditions with inheritance patterns (autosomal dominant/recessive, X-linked, mitochondrial), age of onset, and affected relatives count with purple highlighted sections for genetic conditions
-- **Calendar Integration**: Auto-generated event markers (birthdays, death anniversaries, historical events) sourced from genealogy data with blue "Auto" badges and genealogy person name display
-- **Traditions Lineage Tracking**: Family lineage section showing origin ancestor names, generations passed (with proper pluralization), and country of origin with amber-highlighted genealogy info boxes
-- **Milestones Generation Tracking**: Display generation numbers and genealogy person links with indigo-highlighted sections and auto-generated badges for genealogy-sourced milestones
-- **Genealogy Health Summaries**: Person cards show health records count, hereditary conditions count, age/lifespan information with health and family icon indicators
-- **Flutter Model Updates**: Added optional genealogy fields to HealthRecord, FamilyEvent, FamilyTradition, and FamilyMilestone models maintaining backward compatibility
-- **Production Ready**: All genealogy fields remain optional, UI enhancements maintain existing layouts while adding genealogy information through badges, chips, and info sections
-
-**Genealogy Tree 5-Step Wizard Implementation (October 20, 2025)**: Implemented comprehensive genealogy feature with a professional multi-step wizard for adding family members:
-- **5-Step Workflow**: Created 889-line wizard with Search/Add → Details → Relationships → Invite → Confirm flow
-- **Universal User Search**: Backend endpoint searches ALL platform users (not limited to existing family) with autocomplete in Flutter UI
-- **Smart Name Handling**: Automatically handles both single-word and multi-word names with intelligent fallback to username
-- **Family Hub Invitations**: Complete invitation system with create/accept/decline/cancel functionality for living family members
-- **Relationship Management**: Visual relationship selector with 9 relationship types (parent, child, spouse, sibling, grandparent, grandchild, aunt/uncle, niece/nephew, cousin)
-- **Robust Error Handling**: User-facing error messages with retry functionality for all API failures
-- **Backend Endpoints**: Added 7 new genealogy endpoints (search users, create/list/respond to invitations)
-- **Production Ready**: Architect-reviewed and verified bug-free with proper validation and edge case handling
-
-## Recent Changes (October 2025)
-
-**Family Management Buttons Functional (October 19, 2025)**: Made family management buttons fully functional with complete form dialogs and API integration:
-- **Dialog Widgets**: Created three comprehensive Flutter dialog widgets (AddHealthRecordDialog, AddVaccinationDialog, AddEventDialog) with form validation and user-friendly interfaces
-- **API Integration**: Added createCalendarEvent method to FamilyService; health record and vaccination creation methods already existed
-- **Button Wiring**: Connected all buttons in health_records_screen.dart and family_calendar_screen.dart to show dialogs and call backend APIs
-- **JWT Authentication**: Enhanced AuthService with getCurrentUserId() method to decode JWT tokens and extract user IDs
-- **User ID Resolution**: Dialogs now correctly use the authenticated user's ID as family_member_id instead of placeholder values
-- **Error Handling**: Proper error messages displayed via SnackBars for successful operations and failures
-
-**Production-Ready Services Implementation (October 19, 2025)**: Replaced all mock/placeholder implementations with real production-ready services:
-- **Email Service Layer**: Comprehensive email service supporting Resend, SendGrid, and SMTP with beautiful HTML templates for password reset, email verification, and welcome emails
-- **Storage Service**: Production-ready file handling with automatic categorization (audio/images/videos/documents), user-based organization, file size tracking, and secure path validation
-- **Voice Notes Enhancement**: Real audio file storage with file size/duration calculation and OpenAI Whisper integration for automatic transcription with caching
-- **Email Verification**: Complete verification flow with secure token generation, 24-hour expiration, automatic welcome emails, and resend capability
-- **Password Reset**: Real email sending with secure 1-hour tokens and professional email templates
-- **Media Serving**: Secure file serving endpoint with MIME type detection and path traversal protection
-
-**World-Class UI Redesign with Glassmorphic Effects (October 19, 2025)**: Complete redesign of Dashboard and Hub screens with modern, attractive layouts featuring glassmorphic effects. Dashboard now prominently features Collections and Family Hub in a "My Hubs" section with large beautiful cards showcasing counts, stats, and engaging visuals. Hub screen reorganized with categorized sections (Stats, Quick Actions, My Hubs, Explore, Recent Activity). All hub cards use true glassmorphism with semi-transparent surfaces (0.2-0.05 opacity), backdrop blur (sigma 10), frosted borders (0.3 opacity), and text shadows for enhanced legibility. Consistent Material 3 design with gradient color scheme (Indigo #6366F1, Purple #8B5CF6, Pink #EC4899) and Google Fonts (Inter) throughout.
-
-**Modular Settings Architecture (October 2025)**: Settings redesigned with 6 category cards and 4 dedicated detail screens (Privacy, Security, Content, Account) for better organization. Built 4 reusable widget components (category cards, collapsible groups, list tiles, stat cards). Profile screen redesigned to focus on identity showcase with animated stats.
-
-**Complete UI Navigation Integration**: All 70+ Flutter screens are now fully integrated with comprehensive navigation from Dashboard and Settings screens, ensuring all 40+ backend API endpoints are discoverable through the primary user interface surfaces. Dashboard features 6 quick actions and 20 feature links (including social hubs, collections, activity feed, and all family features). Settings provides 50+ organized links across 10 sections (Security, Privacy, GDPR, Content Creation, Organization, Social & Community, Sharing, Family Hub, Data Storage, About).
+The Memory Hub is a full-stack digital legacy platform designed to help families preserve and share memories, files, and personal content. It features a FastAPI backend, a Flutter web frontend, and MongoDB for data storage. The platform offers a comprehensive suite of features including personal journaling, secure file storage, a customizable dashboard, robust user management, and advanced social functionalities. Recent expansions include content organization, advanced search, analytics, privacy controls, voice notes, custom categories, emoji reactions, memory templates, two-factor authentication, password reset, geolocation-based features, scheduled posts, and a full suite of family-oriented features including deep genealogy integration. The platform aims to create a rich, secure, and collaborative environment for digital remembrance and legacy building, with a strong focus on GDPR compliance and a modern Material 3 design system.
 
 # User Preferences
 
@@ -56,15 +11,16 @@ Preferred communication style: Simple, everyday language.
 ## Backend Architecture
 
 **Framework**: FastAPI, utilizing async/await for concurrency.
-**API Structure**: RESTful APIs with versioned endpoints (`/api/v1/`), organized into modular feature modules covering core functionalities, social features, sharing, GDPR compliance, and comprehensive family features. Authentication is JWT-based with access/refresh tokens and OAuth2 password bearer.
+**API Structure**: RESTful APIs with versioned endpoints (`/api/v1/`), organized into modular feature modules. Authentication is JWT-based with access/refresh tokens and OAuth2 password bearer.
 **Authentication & Security**: Bcrypt for password hashing, JWT for token management, and role-based access control (USER/ADMIN).
-**Data Models**: Pydantic v2 for request/response validation, custom ObjectId handling, Enum-based privacy levels, and validator decorators.
+**Data Models**: Pydantic v2 for request/response validation, custom ObjectId handling, Enum-based privacy levels, and validator decorators. Comprehensive audit logging for GDPR compliance is integrated across all family modules.
 
 ## Frontend Architecture
 
-**Framework**: Flutter, enabling cross-platform web, mobile, and desktop deployment.
+**Framework**: Flutter, enabling cross-platform web deployment.
 **Build System**: Flutter web compiles to JavaScript using the CanvasKit renderer, with service worker integration for offline capabilities.
 **Deployment**: The backend serves the compiled Flutter web application alongside its APIs.
+**State Management**: Provider-based state management with SharedPreferences persistence for theme/user session data.
 
 ## Data Storage
 
@@ -75,10 +31,10 @@ Preferred communication style: Simple, everyday language.
 
 ## System Design Choices
 
-**UI/UX Decisions**: Modern Material 3 design and vibrant color schemes (purple, pink, cyan) are utilized for a consistent and enhanced user interface.
+**UI/UX Decisions**: Modern Material 3 design system with design tokens (colors, typography, spacing), light/dark theme support, reusable component library, and vibrant gradient color schemes (Indigo, Purple, Pink) with Google Fonts (Inter). Features glassmorphic effects for modern aesthetics.
 **Feature Specifications**:
 - **Admin Panel**: Dashboard with statistics, user management, and activity tracking.
-- **Social Features**: User search, follow/unfollow, enhanced profiles, and consistent avatar rendering.
+- **Social Features**: User search, follow/unfollow, enhanced profiles, consistent avatar rendering, comments, notifications, activity feeds, and ephemeral "Stories."
 - **Enhanced Configuration**: Platform-aware API configuration with robust error handling and CORS support.
 - **2FA**: TOTP-based authentication with QR code generation and backup codes.
 - **Password Reset**: Secure token-based system with email verification.
@@ -86,8 +42,9 @@ Preferred communication style: Simple, everyday language.
 - **Geolocation**: Saving favorite places, attaching memories to locations, and browsing nearby places.
 - **Scheduled Posts**: Scheduling memories, stories, and updates for future publication.
 - **Sharing System**: Universal sharing for all content types with QR codes, password protection, expiration dates, max uses tracking, and access analytics. Security-hardened with 32-character tokens and exact-match validation.
-- **GDPR Compliance**: Full compliance with EU GDPR regulations including data portability (JSON/ZIP export), consent management, right to erasure (30-day grace period), and transparency in data processing. Includes comprehensive audit logging.
-- **Family Features**: Collaborative photo albums, aggregated family timeline, shared event calendar, milestone tracking, digital cookbook, time-locked legacy letters, documentation of family traditions, parental controls, visual genealogy tree, medical history tracking, and secure document vault.
+- **GDPR Compliance**: Full compliance including data portability (JSON/ZIP export), consent management, right to erasure (30-day grace period), and transparency in data processing. Includes comprehensive audit logging.
+- **Family Features**: Collaborative photo albums, aggregated family timeline, shared event calendar, milestone tracking, digital cookbook, time-locked legacy letters, documentation of family traditions, parental controls, visual genealogy tree (5-step wizard with invitation system), medical history tracking (hereditary conditions), and secure document vault.
+- **Modular Settings**: Redesigned settings with category cards and dedicated detail screens (Privacy, Security, Content, Account).
 
 # External Dependencies
 
@@ -103,6 +60,7 @@ Preferred communication style: Simple, everyday language.
 - `python-dotenv`: Environment variable management.
 - `pyotp`, `qrcode`: Two-factor authentication and QR code generation.
 - `requests`: HTTP client.
+- `openai`: For Whisper integration (voice notes transcription).
 
 ## Frontend Dart Packages
 
@@ -116,11 +74,6 @@ Preferred communication style: Simple, everyday language.
 - `shimmer`: Loading state animations.
 - `jwt_decode`: JWT token parsing and user ID extraction.
 
-## Development Tools
-
-- `pytest`, `httpx`: Testing framework and async HTTP client.
-- `flutter_lints`: Dart linting rules.
-
 ## Third-Party Services
 
-- None explicitly integrated; the architecture is designed for local deployment.
+- Email Service Providers: Resend, SendGrid, SMTP (support for various providers through an email service layer).
