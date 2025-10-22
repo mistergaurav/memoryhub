@@ -4,6 +4,16 @@ The Memory Hub is a full-stack digital legacy platform designed to help families
 
 ## Recent Changes (October 2025)
 
+**Critical Production Improvements (October 22, 2025)**: Implemented essential production-ready improvements for security, reliability, and monitoring:
+- **Rate Limiting Protection**: SlowAPI middleware enforces 100 requests per 60 seconds across all endpoints with verified 429 response on rate limit exceeded
+- **CORS Security**: Environment-based CORS configuration with restricted origins, methods, and headers for production security
+- **Health Check Endpoint**: `/health` endpoint provides status, version, and environment information for monitoring and uptime checks
+- **Bug Fix**: Resolved critical media router duplication causing duplicate endpoint registration
+- **Dependencies Cleanup**: Deduplicated requirements.txt from 163 to 38 lines for cleaner dependency management
+- **Email Service Enhancement**: Graceful error handling with helpful configuration hints when email provider not configured
+- **Configuration Template**: Comprehensive .env.example with 50+ environment variables covering all services (database, email, storage, security, rate limiting)
+- **Production Status**: All improvements architect-reviewed and tested; workflows verified running successfully
+
 **Deep Genealogy Integration Across Family Features (October 20, 2025)**: Completed comprehensive genealogy integration connecting health records, calendar, traditions, milestones, and genealogy tree with deep cross-feature relationships:
 - **Health Records Enhancement**: Display hereditary conditions with inheritance patterns (autosomal dominant/recessive, X-linked, mitochondrial), age of onset, and affected relatives count with purple highlighted sections for genetic conditions
 - **Calendar Integration**: Auto-generated event markers (birthdays, death anniversaries, historical events) sourced from genealogy data with blue "Auto" badges and genealogy person name display

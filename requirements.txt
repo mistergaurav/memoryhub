@@ -36,4 +36,3 @@ slowapi>=0.1.9
 
 # Testing
 pytest>=7.4.2
-slowapi
