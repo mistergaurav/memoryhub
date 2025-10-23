@@ -27,7 +27,7 @@ async def get_family_timeline(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Get a comprehensive family timeline combining memories, milestones, events, and more with pagination"""
-    user_id = current_user.id
+    user_id = str(current_user.id)
     
     if circle_id:
         await family_repo.check_member_access(circle_id, user_id, raise_error=True)

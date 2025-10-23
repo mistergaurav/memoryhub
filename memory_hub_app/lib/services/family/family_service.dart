@@ -66,8 +66,18 @@ class FamilyService {
       http.get(Uri.parse(url), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => TimelineEvent.fromJson(json)).toList();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items;
+      
+      if (responseBody is Map<String, dynamic> && responseBody['items'] != null) {
+        items = responseBody['items'] as List<dynamic>;
+      } else if (responseBody is List) {
+        items = responseBody;
+      } else {
+        items = [];
+      }
+      
+      return items.map((json) => TimelineEvent.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load timeline events');
     }
@@ -231,7 +241,11 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/family/dashboard'), headers: headers),
     );
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final responseBody = jsonDecode(response.body);
+      if (responseBody['data'] != null) {
+        return responseBody['data'] as Map<String, dynamic>;
+      }
+      return responseBody;
     } else {
       throw Exception('Failed to load family dashboard');
     }

@@ -101,6 +101,68 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
     }
   }
 
+  int _getStat(String category, {String? subKey}) {
+    try {
+      if (_dashboardData.isEmpty) return 0;
+      
+      final stats = _dashboardData['stats'] as Map<String, dynamic>?;
+      if (stats == null) return 0;
+      
+      if (subKey != null) {
+        final categoryData = stats[category];
+        if (categoryData is Map<String, dynamic>) {
+          return (categoryData[subKey] as num?)?.toInt() ?? 0;
+        }
+        return 0;
+      }
+      
+      return (stats[category] as num?)?.toInt() ?? 0;
+    } catch (e) {
+      debugPrint('Error getting stat $category: $e');
+      return 0;
+    }
+  }
+
+  List<dynamic> _getRecentItems(String key) {
+    try {
+      if (_dashboardData.isEmpty) return [];
+      final items = _dashboardData[key];
+      if (items is List) return items;
+      return [];
+    } catch (e) {
+      debugPrint('Error getting recent items $key: $e');
+      return [];
+    }
+  }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? MemoryHubColors.red500 : null,
+        behavior: SnackBarBehavior.floating,
+        action: SnackBarAction(
+          label: 'Dismiss',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _handleAction(Future<void> Function() action, String successMessage, String errorPrefix) async {
+    try {
+      await action();
+      await _loadDashboard();
+      _showSnackBar(successMessage);
+    } catch (e) {
+      _showSnackBar('$errorPrefix: $e', isError: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,6 +194,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                 else ...[
                   SliverToBoxAdapter(child: _buildQuickActionSection()),
                   SliverToBoxAdapter(child: _buildStatsSection()),
+                  SliverToBoxAdapter(child: _buildRecentItemsSection()),
                   SliverToBoxAdapter(child: _buildWhatsNewSection()),
                   SliverToBoxAdapter(child: _buildFeaturesSection()),
                   const SliverToBoxAdapter(child: SizedBox(height: 80)),
@@ -245,7 +308,9 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
         children: [
           Text(
             'At a Glance',
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: MemoryHubSpacing.md),
           GridView.count(
@@ -256,44 +321,59 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             mainAxisSpacing: MemoryHubSpacing.md,
             childAspectRatio: 1.4,
             children: [
-              StatCard(
-                label: 'Albums',
-                value: _dashboardData['albums_count']?.toString() ?? '0',
-                icon: Icons.photo_library,
-                gradientColors: MemoryHubGradients.albums.colors,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const FamilyAlbumsScreen()),
+              Semantics(
+                label: 'Albums count: ${_getStat('albums')}',
+                button: true,
+                child: StatCard(
+                  label: 'Albums',
+                  value: _getStat('albums').toString(),
+                  icon: Icons.photo_library,
+                  gradientColors: MemoryHubGradients.albums.colors,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const FamilyAlbumsScreen()),
+                  ),
                 ),
               ),
-              StatCard(
-                label: 'Events',
-                value: _dashboardData['events_count']?.toString() ?? '0',
-                icon: Icons.event,
-                gradientColors: MemoryHubGradients.secondary.colors,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const FamilyCalendarScreen()),
+              Semantics(
+                label: 'Upcoming events count: ${_getStat('upcoming_events')}',
+                button: true,
+                child: StatCard(
+                  label: 'Events',
+                  value: _getStat('upcoming_events').toString(),
+                  icon: Icons.event,
+                  gradientColors: MemoryHubGradients.secondary.colors,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const FamilyCalendarScreen()),
+                  ),
                 ),
               ),
-              StatCard(
-                label: 'Milestones',
-                value: _dashboardData['milestones_count']?.toString() ?? '0',
-                icon: Icons.celebration,
-                gradientColors: MemoryHubGradients.milestones.colors,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const FamilyMilestonesScreen()),
+              Semantics(
+                label: 'Family circles count: ${_getStat('family_circles')}',
+                button: true,
+                child: StatCard(
+                  label: 'Circles',
+                  value: _getStat('family_circles').toString(),
+                  icon: Icons.groups,
+                  gradientColors: MemoryHubGradients.milestones.colors,
+                  onTap: () {
+                    _showSnackBar('Family Circles feature coming soon!');
+                  },
                 ),
               ),
-              StatCard(
-                label: 'Recipes',
-                value: _dashboardData['recipes_count']?.toString() ?? '0',
-                icon: Icons.restaurant_menu,
-                gradientColors: MemoryHubGradients.recipes.colors,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const FamilyRecipesScreen()),
+              Semantics(
+                label: 'Relationships count: ${_getStat('relationships')}',
+                button: true,
+                child: StatCard(
+                  label: 'Relations',
+                  value: _getStat('relationships').toString(),
+                  icon: Icons.account_tree,
+                  gradientColors: MemoryHubGradients.recipes.colors,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const GenealogyTreeScreen()),
+                  ),
                 ),
               ),
             ],
@@ -303,9 +383,185 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
     );
   }
 
+  Widget _buildRecentItemsSection() {
+    final recentAlbums = _getRecentItems('recent_albums');
+    final upcomingEvents = _getRecentItems('upcoming_events');
+    final recentMilestones = _getRecentItems('recent_milestones');
+
+    if (recentAlbums.isEmpty && upcomingEvents.isEmpty && recentMilestones.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Recent Activity',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: MemoryHubSpacing.md),
+          if (recentAlbums.isNotEmpty) ...[
+            _buildRecentSection(
+              title: 'Recent Albums',
+              items: recentAlbums,
+              icon: Icons.photo_library,
+              color: MemoryHubColors.purple600,
+              onViewAll: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FamilyAlbumsScreen()),
+              ),
+            ),
+            const SizedBox(height: MemoryHubSpacing.md),
+          ],
+          if (upcomingEvents.isNotEmpty) ...[
+            _buildRecentSection(
+              title: 'Upcoming Events',
+              items: upcomingEvents,
+              icon: Icons.event,
+              color: MemoryHubColors.cyan500,
+              onViewAll: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FamilyCalendarScreen()),
+              ),
+            ),
+            const SizedBox(height: MemoryHubSpacing.md),
+          ],
+          if (recentMilestones.isNotEmpty) ...[
+            _buildRecentSection(
+              title: 'Recent Milestones',
+              items: recentMilestones,
+              icon: Icons.celebration,
+              color: MemoryHubColors.amber500,
+              onViewAll: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FamilyMilestonesScreen()),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentSection({
+    required String title,
+    required List<dynamic> items,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onViewAll,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color, size: 20),
+                const SizedBox(width: MemoryHubSpacing.sm),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            TextButton(
+              onPressed: onViewAll,
+              child: const Text('View All'),
+            ),
+          ],
+        ),
+        const SizedBox(height: MemoryHubSpacing.sm),
+        SizedBox(
+          height: 100,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index] as Map<String, dynamic>;
+              return _buildRecentItemCard(item, color);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecentItemCard(Map<String, dynamic> item, Color color) {
+    final title = item['title'] as String? ?? 'Untitled';
+    
+    return Container(
+      width: 200,
+      margin: const EdgeInsets.only(right: MemoryHubSpacing.md),
+      child: Card(
+        elevation: MemoryHubElevation.sm,
+        shape: RoundedRectangleBorder(
+          borderRadius: MemoryHubBorderRadius.mdRadius,
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(MemoryHubSpacing.md),
+          decoration: BoxDecoration(
+            borderRadius: MemoryHubBorderRadius.mdRadius,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withOpacity(0.1),
+                color.withOpacity(0.05),
+              ],
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (item['photo_count'] != null) ...[
+                const SizedBox(height: MemoryHubSpacing.xs),
+                Text(
+                  '${item['photo_count']} photos',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildWhatsNewSection() {
     if (_recentActivities.isEmpty) {
-      return const SizedBox.shrink();
+      return Padding(
+        padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+        child: EnhancedEmptyState(
+          icon: Icons.event_note,
+          title: 'No Recent Activity',
+          message: 'Start creating albums, events, and milestones to see them here.',
+          actionLabel: 'Create Something',
+          onAction: _toggleFab,
+          gradientColors: const [
+            MemoryHubColors.purple500,
+            MemoryHubColors.pink500,
+          ],
+        ),
+      );
     }
 
     return Padding(
@@ -318,18 +574,24 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             children: [
               Text(
                 "What's New",
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const FamilyTimelineScreen(),
-                    ),
-                  );
-                },
-                child: const Text('View All'),
+              Semantics(
+                label: 'View all timeline events',
+                button: true,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const FamilyTimelineScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text('View All'),
+                ),
               ),
             ],
           ),
@@ -340,12 +602,15 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             itemCount: _recentActivities.length,
             itemBuilder: (context, index) {
               final event = _recentActivities[index];
-              return TimelineCard(
-                title: event.title,
-                subtitle: event.description,
-                date: event.eventDate,
-                icon: _getEventIcon(event.eventType),
-                gradientColors: _getEventGradient(event.eventType),
+              return Semantics(
+                label: '${event.title}, ${event.description ?? ''}, ${DateFormat.yMMMd().format(event.eventDate)}',
+                child: TimelineCard(
+                  title: event.title,
+                  subtitle: event.description,
+                  date: event.eventDate,
+                  icon: _getEventIcon(event.eventType),
+                  gradientColors: _getEventGradient(event.eventType),
+                ),
               );
             },
           ),
@@ -362,39 +627,53 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
         children: [
           Text(
             'More Features',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: MemoryHubSpacing.md),
-          _buildFeatureCard(
-            title: 'Document Vault',
-            subtitle: 'Secure family documents',
-            icon: Icons.folder_special,
-            gradientColors: const [MemoryHubColors.teal500, MemoryHubColors.teal400],
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const FamilyDocumentVaultScreen()),
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: MemoryHubSpacing.md),
-          _buildFeatureCard(
-            title: 'Genealogy Tree',
-            subtitle: 'Build your family tree',
-            icon: Icons.account_tree,
-            gradientColors: const [MemoryHubColors.amber500, MemoryHubColors.amber400],
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const GenealogyTreeScreen()),
+          Semantics(
+            label: 'Document Vault - Secure family documents',
+            button: true,
+            child: _buildFeatureCard(
+              title: 'Document Vault',
+              subtitle: 'Secure family documents',
+              icon: Icons.folder_special,
+              gradientColors: const [MemoryHubColors.teal500, MemoryHubColors.teal400],
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FamilyDocumentVaultScreen()),
+              ),
             ),
           ),
           const SizedBox(height: MemoryHubSpacing.md),
-          _buildFeatureCard(
-            title: 'Parental Controls',
-            subtitle: 'Manage family settings',
-            icon: Icons.shield,
-            gradientColors: const [MemoryHubColors.indigo500, MemoryHubColors.indigo400],
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ParentalControlsScreen()),
+          Semantics(
+            label: 'Genealogy Tree - Build your family tree',
+            button: true,
+            child: _buildFeatureCard(
+              title: 'Genealogy Tree',
+              subtitle: 'Build your family tree',
+              icon: Icons.account_tree,
+              gradientColors: const [MemoryHubColors.amber500, MemoryHubColors.amber400],
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const GenealogyTreeScreen()),
+              ),
+            ),
+          ),
+          const SizedBox(height: MemoryHubSpacing.md),
+          Semantics(
+            label: 'Parental Controls - Manage family settings',
+            button: true,
+            child: _buildFeatureCard(
+              title: 'Parental Controls',
+              subtitle: 'Manage family settings',
+              icon: Icons.shield,
+              gradientColors: const [MemoryHubColors.indigo500, MemoryHubColors.indigo400],
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ParentalControlsScreen()),
+              ),
             ),
           ),
         ],
@@ -410,6 +689,10 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
     required VoidCallback onTap,
   }) {
     return Card(
+      elevation: MemoryHubElevation.md,
+      shape: RoundedRectangleBorder(
+        borderRadius: MemoryHubBorderRadius.xlRadius,
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: MemoryHubBorderRadius.xlRadius,
@@ -446,8 +729,10 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                       title,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             color: Colors.white,
+                            fontWeight: FontWeight.w600,
                           ),
                     ),
+                    const SizedBox(height: MemoryHubSpacing.xs),
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -457,10 +742,13 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                   ],
                 ),
               ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.white70,
-                size: 20,
+              Tooltip(
+                message: 'Navigate to $title',
+                child: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white70,
+                  size: 20,
+                ),
               ),
             ],
           ),
@@ -470,22 +758,41 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
   }
 
   Widget _buildLoadingState() {
-    return const Center(
-      child: CircularProgressIndicator(),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          const SizedBox(height: MemoryHubSpacing.lg),
+          Text(
+            'Loading your family hub...',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildErrorState() {
-    return EnhancedEmptyState(
-      icon: Icons.error_outline,
-      title: 'Error Loading Dashboard',
-      message: 'Failed to load family dashboard. Pull down to retry.',
-      actionLabel: 'Retry',
-      onAction: _loadDashboard,
-      gradientColors: const [
-        MemoryHubColors.red500,
-        MemoryHubColors.red400,
-      ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+        child: EnhancedEmptyState(
+          icon: Icons.error_outline,
+          title: 'Unable to Load Dashboard',
+          message: _errorMessage.contains('401') || _errorMessage.contains('Unauthorized')
+              ? 'Your session has expired. Please log in again.'
+              : 'We encountered an issue loading your family hub. Please check your connection and try again.',
+          actionLabel: 'Retry',
+          onAction: _loadDashboard,
+          gradientColors: const [
+            MemoryHubColors.red500,
+            MemoryHubColors.red400,
+          ],
+        ),
+      ),
     );
   }
 
@@ -529,37 +836,78 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         if (_isFabExpanded) ...[
-          _buildFABOption(
-            label: 'Album',
-            icon: Icons.photo_library,
-            onTap: () => _showDialog('album'),
+          Semantics(
+            label: 'Create new album',
+            button: true,
+            child: _buildFABOption(
+              label: 'Album',
+              icon: Icons.photo_library,
+              onTap: () => _showDialog('album'),
+            ),
           ),
           const SizedBox(height: MemoryHubSpacing.sm),
-          _buildFABOption(
-            label: 'Event',
-            icon: Icons.event,
-            onTap: () => _showDialog('event'),
+          Semantics(
+            label: 'Create new event',
+            button: true,
+            child: _buildFABOption(
+              label: 'Event',
+              icon: Icons.event,
+              onTap: () => _showDialog('event'),
+            ),
           ),
           const SizedBox(height: MemoryHubSpacing.sm),
-          _buildFABOption(
-            label: 'Milestone',
-            icon: Icons.celebration,
-            onTap: () => _showDialog('milestone'),
+          Semantics(
+            label: 'Create new milestone',
+            button: true,
+            child: _buildFABOption(
+              label: 'Milestone',
+              icon: Icons.celebration,
+              onTap: () => _showDialog('milestone'),
+            ),
           ),
           const SizedBox(height: MemoryHubSpacing.sm),
-          _buildFABOption(
-            label: 'Recipe',
-            icon: Icons.restaurant_menu,
-            onTap: () => _showDialog('recipe'),
+          Semantics(
+            label: 'Create new recipe',
+            button: true,
+            child: _buildFABOption(
+              label: 'Recipe',
+              icon: Icons.restaurant_menu,
+              onTap: () => _showDialog('recipe'),
+            ),
+          ),
+          const SizedBox(height: MemoryHubSpacing.sm),
+          Semantics(
+            label: 'Add health record',
+            button: true,
+            child: _buildFABOption(
+              label: 'Health',
+              icon: Icons.health_and_safety,
+              onTap: () => _showDialog('health'),
+            ),
+          ),
+          const SizedBox(height: MemoryHubSpacing.sm),
+          Semantics(
+            label: 'Create legacy letter',
+            button: true,
+            child: _buildFABOption(
+              label: 'Letter',
+              icon: Icons.mail,
+              onTap: () => _showDialog('letter'),
+            ),
           ),
           const SizedBox(height: MemoryHubSpacing.md),
         ],
-        FloatingActionButton(
-          heroTag: 'family_hub_main_fab',
-          onPressed: _toggleFab,
-          child: AnimatedIcon(
-            icon: AnimatedIcons.menu_close,
-            progress: _fabController,
+        Semantics(
+          label: _isFabExpanded ? 'Close create menu' : 'Open create menu',
+          button: true,
+          child: FloatingActionButton(
+            heroTag: 'family_hub_main_fab',
+            onPressed: _toggleFab,
+            tooltip: 'Create new item',
+            child: AnimatedIcon(
+              icon: AnimatedIcons.menu_close,
+              progress: _fabController,
+            ),
           ),
         ),
       ],
@@ -585,7 +933,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             ),
             child: Text(
               label,
-              style: const TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -598,6 +946,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             _toggleFab();
             onTap();
           },
+          tooltip: 'Create $label',
           child: Icon(icon),
         ),
       ],
@@ -605,7 +954,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
   }
 
   Future<void> _showDialog(String type) async {
-    Widget dialog;
+    Widget? dialog;
     
     switch (type) {
       case 'album':
@@ -620,85 +969,69 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
       case 'recipe':
         dialog = AddRecipeDialog(onSubmit: _createRecipe);
         break;
+      case 'health':
+        dialog = AddHealthRecordDialog(onSubmit: _createHealthRecord);
+        break;
+      case 'letter':
+        dialog = AddLegacyLetterDialog(onSubmit: _createLegacyLetter);
+        break;
       default:
         return;
     }
 
-    await showDialog(
-      context: context,
-      builder: (context) => dialog,
-    );
+    if (dialog != null) {
+      await showDialog(
+        context: context,
+        builder: (context) => dialog!,
+      );
+    }
   }
 
   Future<void> _createAlbum(Map<String, dynamic> data) async {
-    try {
-      await _familyService.createAlbum(data);
-      _loadDashboard();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Album created successfully')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create album: $e')),
-        );
-      }
-    }
+    await _handleAction(
+      () => _familyService.createAlbum(data),
+      'Album created successfully',
+      'Failed to create album',
+    );
   }
 
   Future<void> _createEvent(Map<String, dynamic> data) async {
-    try {
-      await _familyService.createCalendarEvent(data);
-      _loadDashboard();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Event created successfully')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create event: $e')),
-        );
-      }
-    }
+    await _handleAction(
+      () => _familyService.createCalendarEvent(data),
+      'Event created successfully',
+      'Failed to create event',
+    );
   }
 
   Future<void> _createMilestone(Map<String, dynamic> data) async {
-    try {
-      await _familyService.createMilestone(data);
-      _loadDashboard();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Milestone created successfully')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create milestone: $e')),
-        );
-      }
-    }
+    await _handleAction(
+      () => _familyService.createMilestone(data),
+      'Milestone created successfully',
+      'Failed to create milestone',
+    );
   }
 
   Future<void> _createRecipe(Map<String, dynamic> data) async {
-    try {
-      await _familyService.createRecipe(data);
-      _loadDashboard();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Recipe created successfully')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create recipe: $e')),
-        );
-      }
-    }
+    await _handleAction(
+      () => _familyService.createRecipe(data),
+      'Recipe created successfully',
+      'Failed to create recipe',
+    );
+  }
+
+  Future<void> _createHealthRecord(Map<String, dynamic> data) async {
+    await _handleAction(
+      () => _familyService.createHealthRecord(data),
+      'Health record added successfully',
+      'Failed to add health record',
+    );
+  }
+
+  Future<void> _createLegacyLetter(Map<String, dynamic> data) async {
+    await _handleAction(
+      () => _familyService.createLegacyLetter(data),
+      'Legacy letter created successfully',
+      'Failed to create legacy letter',
+    );
   }
 }
