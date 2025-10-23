@@ -221,7 +221,7 @@ class EmailService:
         smtp_user = os.getenv("SMTP_USERNAME")
         smtp_pass = os.getenv("SMTP_PASSWORD")
         
-        if all([smtp_host, smtp_port, smtp_user, smtp_pass]):
+        if smtp_host and smtp_port and smtp_user and smtp_pass:
             return SMTPEmailProvider(smtp_host, int(smtp_port), smtp_user, smtp_pass)
         
         return None
