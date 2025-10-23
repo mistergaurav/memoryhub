@@ -5,14 +5,24 @@ from datetime import datetime
 
 from app.models.user import UserInDB
 from app.core.security import get_current_user
-from app.db.mongodb import get_collection
-from app.repositories.family_repository import FamilyTimelineRepository, FamilyRepository
+from app.repositories.family_repository import (
+    FamilyTimelineRepository, FamilyRepository, FamilyMilestonesRepository,
+    FamilyRecipesRepository, FamilyTraditionsRepository, FamilyAlbumsRepository,
+    FamilyCalendarRepository
+)
+from app.repositories.base_repository import BaseRepository
 from app.models.responses import create_success_response, create_paginated_response
 
 router = APIRouter()
 
 timeline_repo = FamilyTimelineRepository()
 family_repo = FamilyRepository()
+memories_repo = BaseRepository("memories")
+milestones_repo = FamilyMilestonesRepository()
+events_repo = FamilyCalendarRepository()
+recipes_repo = FamilyRecipesRepository()
+traditions_repo = FamilyTraditionsRepository()
+albums_repo = FamilyAlbumsRepository()
 
 
 @router.get("/")
@@ -49,7 +59,16 @@ async def get_family_timeline(
         end_date=end_date
     )
     
-    return result
+    if isinstance(result, dict) and "items" in result and "total" in result:
+        return create_paginated_response(
+            items=result["items"],
+            total=result["total"],
+            page=page,
+            page_size=page_size,
+            message="Timeline events retrieved successfully"
+        )
+    else:
+        return result
 
 
 @router.get("/stats")
@@ -59,12 +78,12 @@ async def get_timeline_stats(
     """Get statistics for the family timeline"""
     user_oid = ObjectId(current_user.id)
     
-    memories_count = await get_collection("memories").count_documents({"user_id": user_oid})
-    milestones_count = await get_collection("family_milestones").count_documents({"created_by": user_oid})
-    events_count = await get_collection("family_events").count_documents({"created_by": user_oid})
-    recipes_count = await get_collection("family_recipes").count_documents({"created_by": user_oid})
-    traditions_count = await get_collection("family_traditions").count_documents({"created_by": user_oid})
-    albums_count = await get_collection("family_albums").count_documents({"created_by": user_oid})
+    memories_count = await memories_repo.count({"user_id": user_oid})
+    milestones_count = await milestones_repo.count({"created_by": user_oid})
+    events_count = await events_repo.count({"created_by": user_oid})
+    recipes_count = await recipes_repo.count({"created_by": user_oid})
+    traditions_count = await traditions_repo.count({"created_by": user_oid})
+    albums_count = await albums_repo.count({"created_by": user_oid})
     
     total_count = memories_count + milestones_count + events_count + recipes_count + traditions_count + albums_count
     

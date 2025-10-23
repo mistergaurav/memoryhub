@@ -9,14 +9,14 @@ from app.models.family.legacy_letters import (
 )
 from app.models.user import UserInDB
 from app.core.security import get_current_user
-from app.db.mongodb import get_collection
-from app.repositories.family_repository import LegacyLettersRepository
+from app.repositories.family_repository import LegacyLettersRepository, UserRepository
 from app.utils.validators import validate_object_ids
 from app.utils.audit_logger import log_audit_event
 from app.models.responses import create_success_response, create_paginated_response, create_message_response
 
 router = APIRouter()
 letters_repo = LegacyLettersRepository()
+user_repo = UserRepository()
 
 
 async def get_recipient_names(recipient_ids: List[ObjectId]) -> List[str]:
@@ -24,17 +24,14 @@ async def get_recipient_names(recipient_ids: List[ObjectId]) -> List[str]:
     if not recipient_ids:
         return []
     
-    users_cursor = get_collection("users").find({"_id": {"$in": recipient_ids}})
-    recipient_names = []
-    async for user in users_cursor:
-        recipient_names.append(user.get("full_name", ""))
-    return recipient_names
+    user_id_strs = [str(rid) for rid in recipient_ids]
+    user_names_dict = await user_repo.get_user_names(user_id_strs)
+    return [user_names_dict.get(uid, "") for uid in user_id_strs]
 
 
 async def get_author_name(author_id: ObjectId) -> Optional[str]:
     """Helper function to get author name"""
-    author = await get_collection("users").find_one({"_id": author_id})
-    return author.get("full_name") if author else None
+    return await user_repo.get_user_name(str(author_id))
 
 
 def build_letter_response(letter_doc: Dict[str, Any], author_name: Optional[str] = None, recipient_names: Optional[List[str]] = None, include_content: bool = False) -> LegacyLetterResponse:
@@ -129,6 +126,43 @@ async def create_legacy_letter(
     return create_success_response(
         message="Legacy letter created successfully",
         data=response.model_dump()
+    )
+
+
+@router.get("/")
+async def list_legacy_letters(
+    page: int = Query(1, ge=1, description="Page number (1-indexed)"),
+    page_size: int = Query(20, ge=1, le=100, description="Number of letters per page"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """
+    List all legacy letters for the current user with pagination.
+    
+    - Returns all letters authored by the user (sent letters)
+    - Includes recipient information
+    - Content is hidden for privacy until delivered
+    """
+    skip = (page - 1) * page_size
+    
+    letters = await letters_repo.find_sent_letters(
+        author_id=str(current_user.id),
+        skip=skip,
+        limit=page_size
+    )
+    
+    total = await letters_repo.count_sent_letters(str(current_user.id))
+    
+    letter_responses = []
+    for letter_doc in letters:
+        recipient_names = await get_recipient_names(letter_doc.get("recipient_ids", []))
+        letter_responses.append(build_letter_response(letter_doc, current_user.full_name, recipient_names))
+    
+    return create_paginated_response(
+        items=[l.model_dump() for l in letter_responses],
+        total=total,
+        page=page,
+        page_size=page_size,
+        message="Legacy letters retrieved successfully"
     )
 
 

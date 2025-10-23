@@ -5,6 +5,251 @@ from fastapi import HTTPException
 from .base_repository import BaseRepository
 
 
+class UserRepository(BaseRepository):
+    """
+    Repository for user operations.
+    Provides user lookup and query methods.
+    """
+    
+    def __init__(self):
+        super().__init__("users")
+    
+    async def find_by_email(
+        self,
+        email: str,
+        raise_404: bool = False
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Find user by email address.
+        
+        Args:
+            email: Email address (case-insensitive)
+            raise_404: Whether to raise 404 if not found
+            
+        Returns:
+            User document if found
+        """
+        return await self.find_one(
+            {"email": email.lower()},
+            raise_404=raise_404,
+            error_message="User not found"
+        )
+    
+    async def get_user_name(
+        self,
+        user_id: str
+    ) -> Optional[str]:
+        """
+        Get user's full name by ID.
+        
+        Args:
+            user_id: String representation of user ID
+            
+        Returns:
+            User's full name if found, None otherwise
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        user = await self.find_one({"_id": user_oid}, raise_404=False)
+        return user.get("full_name") if user else None
+    
+    async def get_user_names(
+        self,
+        user_ids: List[str]
+    ) -> Dict[str, str]:
+        """
+        Get multiple users' names by IDs.
+        
+        Args:
+            user_ids: List of user ID strings
+            
+        Returns:
+            Dictionary mapping user_id to full_name
+        """
+        user_oids = [self.validate_object_id(uid, "user_id") for uid in user_ids]
+        users = await self.find_many(
+            {"_id": {"$in": user_oids}},
+            limit=len(user_oids)
+        )
+        return {str(user["_id"]): user.get("full_name", "") for user in users}
+    
+    async def search_users(
+        self,
+        query: str,
+        exclude_user_id: Optional[str] = None,
+        limit: int = 20
+    ) -> List[Dict[str, Any]]:
+        """
+        Search for users by username, email, or full name.
+        
+        Args:
+            query: Search query
+            exclude_user_id: Optional user ID to exclude from results
+            limit: Maximum number of results
+            
+        Returns:
+            List of matching users
+        """
+        search_regex = {"$regex": query, "$options": "i"}
+        filter_dict: Dict[str, Any] = {
+            "$or": [
+                {"username": search_regex},
+                {"email": search_regex},
+                {"full_name": search_regex}
+            ]
+        }
+        
+        if exclude_user_id:
+            exclude_oid = self.validate_object_id(exclude_user_id, "exclude_user_id")
+            filter_dict["_id"] = {"$ne": exclude_oid}
+        
+        return await self.find_many(filter_dict, limit=limit)
+
+
+class GenealogTreeMembershipRepository(BaseRepository):
+    """
+    Repository for genealogy tree memberships.
+    Manages user access and roles within family trees.
+    """
+    
+    def __init__(self):
+        super().__init__("genealogy_tree_memberships")
+    
+    async def find_by_tree_and_user(
+        self,
+        tree_id: str,
+        user_id: str
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Find membership for a specific user in a tree.
+        
+        Args:
+            tree_id: String representation of tree ID
+            user_id: String representation of user ID
+            
+        Returns:
+            Membership document if found
+        """
+        tree_oid = self.validate_object_id(tree_id, "tree_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        return await self.find_one(
+            {"tree_id": tree_oid, "user_id": user_oid},
+            raise_404=False
+        )
+    
+    async def find_by_tree(
+        self,
+        tree_id: str,
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[Dict[str, Any]]:
+        """
+        Find all members of a tree.
+        
+        Args:
+            tree_id: String representation of tree ID
+            skip: Number of documents to skip
+            limit: Maximum number to return
+            
+        Returns:
+            List of tree memberships
+        """
+        tree_oid = self.validate_object_id(tree_id, "tree_id")
+        return await self.find_many(
+            {"tree_id": tree_oid},
+            skip=skip,
+            limit=limit,
+            sort_by="joined_at",
+            sort_order=-1
+        )
+    
+    async def create_membership(
+        self,
+        tree_id: str,
+        user_id: str,
+        role: str = "member",
+        granted_by: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Create a new tree membership.
+        
+        Args:
+            tree_id: String representation of tree ID
+            user_id: String representation of user ID
+            role: User's role in the tree (owner, member, viewer)
+            granted_by: Optional user ID who granted access
+            
+        Returns:
+            Created membership document
+        """
+        tree_oid = self.validate_object_id(tree_id, "tree_id")
+        user_oid = self.validate_object_id(user_id, "user_id")
+        granted_by_oid = self.validate_object_id(granted_by, "granted_by") if granted_by else user_oid
+        
+        membership_data = {
+            "tree_id": tree_oid,
+            "user_id": user_oid,
+            "role": role,
+            "joined_at": datetime.utcnow(),
+            "granted_by": granted_by_oid
+        }
+        
+        return await self.create(membership_data)
+
+
+class FamilyMembersRepository(BaseRepository):
+    """
+    Repository for family members.
+    Manages family member records for health tracking and other family features.
+    """
+    
+    def __init__(self):
+        super().__init__("family_members")
+    
+    async def find_by_family(
+        self,
+        family_id: str,
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[Dict[str, Any]]:
+        """
+        Find all members in a family.
+        
+        Args:
+            family_id: String representation of family ID
+            skip: Number of documents to skip
+            limit: Maximum number to return
+            
+        Returns:
+            List of family members
+        """
+        family_oid = self.validate_object_id(family_id, "family_id")
+        return await self.find_many(
+            {"family_id": family_oid},
+            skip=skip,
+            limit=limit,
+            sort_by="name",
+            sort_order=1
+        )
+    
+    async def get_member_name(
+        self,
+        member_id: str
+    ) -> Optional[str]:
+        """
+        Get family member's name by ID.
+        
+        Args:
+            member_id: String representation of member ID
+            
+        Returns:
+            Member's name if found, None otherwise
+        """
+        member_oid = self.validate_object_id(member_id, "member_id")
+        member = await self.find_one({"_id": member_oid}, raise_404=False)
+        return member.get("name") if member else None
+
+
 class FamilyRepository(BaseRepository):
     """
     Repository for Family Hub operations.
@@ -2332,5 +2577,172 @@ class HubItemsRepository(BaseRepository):
             {"owner_id": user_oid},
             limit=limit,
             sort_by="updated_at",
+            sort_order=-1
+        )
+
+
+class NotificationRepository(BaseRepository):
+    """
+    Repository for user notifications.
+    Manages notification creation, retrieval, and status updates.
+    """
+    
+    def __init__(self):
+        super().__init__("notifications")
+    
+    async def create_notification(
+        self,
+        user_id: str,
+        notification_type: str,
+        title: str,
+        message: str,
+        related_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Create a new notification for a user.
+        
+        Args:
+            user_id: String representation of user ID
+            notification_type: Type of notification
+            title: Notification title
+            message: Notification message
+            related_id: Optional related resource ID
+            
+        Returns:
+            Created notification document
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        notification_data = {
+            "user_id": user_oid,
+            "type": notification_type,
+            "title": title,
+            "message": message,
+            "related_id": related_id,
+            "read": False,
+            "created_at": datetime.utcnow()
+        }
+        
+        return await self.create(notification_data)
+
+
+class GenealogyInviteLinksRepository(BaseRepository):
+    """
+    Repository for genealogy invitation links.
+    Manages invite creation, validation, and redemption.
+    """
+    
+    def __init__(self):
+        super().__init__("genealogy_invite_links")
+    
+    async def find_by_token(
+        self,
+        token: str,
+        raise_404: bool = True
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Find invitation by token.
+        
+        Args:
+            token: Invitation token
+            raise_404: Whether to raise 404 if not found
+            
+        Returns:
+            Invitation document if found
+        """
+        return await self.find_one(
+            {"token": token},
+            raise_404=raise_404,
+            error_message="Invitation not found"
+        )
+    
+    async def find_active_by_person(
+        self,
+        person_id: str
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Find active (pending, not expired) invitation for a person.
+        
+        Args:
+            person_id: String representation of person ID
+            
+        Returns:
+            Active invitation if exists
+        """
+        person_oid = self.validate_object_id(person_id, "person_id")
+        return await self.find_one(
+            {
+                "person_id": person_oid,
+                "status": "pending",
+                "expires_at": {"$gt": datetime.utcnow()}
+            },
+            raise_404=False
+        )
+    
+    async def find_by_family(
+        self,
+        family_id: str,
+        status_filter: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """
+        Find all invitations for a family tree.
+        
+        Args:
+            family_id: String representation of family ID
+            status_filter: Optional filter by status
+            skip: Number of documents to skip
+            limit: Maximum number to return
+            
+        Returns:
+            List of invitations
+        """
+        family_oid = self.validate_object_id(family_id, "family_id")
+        
+        filter_dict: Dict[str, Any] = {"family_id": family_oid}
+        if status_filter:
+            filter_dict["status"] = status_filter
+        
+        return await self.find_many(
+            filter_dict,
+            skip=skip,
+            limit=limit,
+            sort_by="created_at",
+            sort_order=-1
+        )
+
+
+class MemoryRepository(BaseRepository):
+    """
+    Repository for memories.
+    Manages memory queries and associations with genealogy persons.
+    """
+    
+    def __init__(self):
+        super().__init__("memories")
+    
+    async def find_by_genealogy_person(
+        self,
+        person_id: str,
+        skip: int = 0,
+        limit: int = 20
+    ) -> List[Dict[str, Any]]:
+        """
+        Find all memories associated with a genealogy person.
+        
+        Args:
+            person_id: String representation of person ID
+            skip: Number of documents to skip
+            limit: Maximum number to return
+            
+        Returns:
+            List of memories
+        """
+        return await self.find_many(
+            {"genealogy_person_ids": person_id},
+            skip=skip,
+            limit=limit,
+            sort_by="created_at",
             sort_order=-1
         )

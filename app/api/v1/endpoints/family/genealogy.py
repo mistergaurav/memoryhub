@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Optional, Dict, Any
 from bson import ObjectId
-from datetime import datetime
+from datetime import datetime, timedelta
+import secrets
 
 from app.models.family.genealogy import (
     GenealogyPersonCreate, GenealogyPersonUpdate, GenealogyPersonResponse,
@@ -11,12 +12,18 @@ from app.models.family.genealogy import (
 )
 from app.models.user import UserInDB
 from app.core.security import get_current_user
-from app.db.mongodb import get_collection, get_database
-from app.utils.genealogy_helpers import safe_object_id, compute_is_alive, validate_object_id
+from app.db.mongodb import get_database
+from app.utils.genealogy_helpers import safe_object_id, compute_is_alive
 from app.repositories.family_repository import (
     GenealogyPersonRepository,
     GenealogyRelationshipRepository,
-    GenealogyTreeRepository
+    GenealogyTreeRepository,
+    GenealogTreeMembershipRepository,
+    UserRepository,
+    NotificationRepository,
+    GenealogyInviteLinksRepository,
+    MemoryRepository,
+    FamilyRepository
 )
 from app.models.responses import create_success_response, create_paginated_response
 from app.utils.audit_logger import log_audit_event
@@ -26,6 +33,12 @@ router = APIRouter()
 genealogy_person_repo = GenealogyPersonRepository()
 genealogy_relationship_repo = GenealogyRelationshipRepository()
 genealogy_tree_repo = GenealogyTreeRepository()
+tree_membership_repo = GenealogTreeMembershipRepository()
+user_repo = UserRepository()
+notification_repo = NotificationRepository()
+invite_links_repo = GenealogyInviteLinksRepository()
+memory_repo = MemoryRepository()
+family_repo = FamilyRepository()
 
 
 def person_doc_to_response(person_doc: dict) -> GenealogyPersonResponse:
@@ -70,10 +83,10 @@ def relationship_doc_to_response(relationship_doc: dict) -> GenealogyRelationshi
 
 async def get_tree_membership(tree_id: ObjectId, user_id: ObjectId):
     """Get user's membership in a family tree (returns None if not a member)"""
-    return await get_collection("genealogy_tree_memberships").find_one({
-        "tree_id": tree_id,
-        "user_id": user_id
-    })
+    return await tree_membership_repo.find_by_tree_and_user(
+        tree_id=str(tree_id),
+        user_id=str(user_id)
+    )
 
 
 async def ensure_tree_access(tree_id: ObjectId, user_id: ObjectId, required_roles: Optional[List[str]] = None):
@@ -85,15 +98,12 @@ async def ensure_tree_access(tree_id: ObjectId, user_id: ObjectId, required_role
     membership = await get_tree_membership(tree_id, user_id)
     
     if str(tree_id) == str(user_id) and not membership:
-        membership_data = {
-            "tree_id": tree_id,
-            "user_id": user_id,
-            "role": "owner",
-            "joined_at": datetime.utcnow(),
-            "granted_by": user_id
-        }
-        await get_collection("genealogy_tree_memberships").insert_one(membership_data)
-        membership = membership_data
+        membership = await tree_membership_repo.create_membership(
+            tree_id=str(tree_id),
+            user_id=str(user_id),
+            role="owner",
+            granted_by=str(user_id)
+        )
     
     if not membership:
         raise HTTPException(status_code=403, detail="You do not have access to this family tree")
@@ -105,6 +115,22 @@ async def ensure_tree_access(tree_id: ObjectId, user_id: ObjectId, required_role
         )
     
     return membership
+
+
+async def validate_user_exists(user_id: str) -> Dict[str, Any]:
+    """Validate that a user exists, raise 404 if not"""
+    user_oid = user_repo.validate_object_id(user_id, "user_id")
+    user_doc = await user_repo.find_one(
+        {"_id": user_oid},
+        raise_404=True,
+        error_message="User not found"
+    )
+    return user_doc
+
+
+async def get_user_display_name(user_doc: Dict[str, Any]) -> str:
+    """Get display name from user document"""
+    return user_doc.get("username") or user_doc.get("full_name") or user_doc.get("email", "Unknown")
 
 
 @router.post("/persons", status_code=status.HTTP_201_CREATED)
@@ -125,9 +151,7 @@ async def create_genealogy_person(
     if person.linked_user_id:
         linked_user_oid = genealogy_person_repo.validate_object_id(person.linked_user_id, "linked_user_id")
         
-        user_doc = await get_collection("users").find_one({"_id": linked_user_oid})
-        if not user_doc:
-            raise HTTPException(status_code=404, detail="Linked user not found")
+        await validate_user_exists(person.linked_user_id)
         
         existing_link = await genealogy_person_repo.find_one(
             {"linked_user_id": linked_user_oid},
@@ -197,10 +221,14 @@ async def create_genealogy_person(
     
     await log_audit_event(
         user_id=current_user.id,
-        action="CREATE_GENEALOGY_PERSON",
-        resource_type="genealogy_person",
-        resource_id=str(person_id),
-        details={"tree_id": str(tree_oid), "first_name": person.first_name, "last_name": person.last_name}
+        event_type="CREATE_GENEALOGY_PERSON",
+        event_details={
+            "resource_type": "genealogy_person",
+            "resource_id": str(person_id),
+            "tree_id": str(tree_oid),
+            "first_name": person.first_name,
+            "last_name": person.last_name
+        }
     )
     
     return create_success_response(
@@ -289,9 +317,7 @@ async def update_genealogy_person(
         else:
             linked_user_oid = genealogy_person_repo.validate_object_id(person_update.linked_user_id, "linked_user_id")
             
-            user_doc = await get_collection("users").find_one({"_id": linked_user_oid})
-            if not user_doc:
-                raise HTTPException(status_code=404, detail="Linked user not found")
+            await validate_user_exists(person_update.linked_user_id)
             
             existing_link = await genealogy_person_repo.find_one({
                 "linked_user_id": linked_user_oid,
@@ -310,18 +336,16 @@ async def update_genealogy_person(
         is_alive_override = update_data.get("is_alive")
         update_data["is_alive"] = compute_is_alive(death_date, is_alive_override)
     
-    update_ops = {"$set": update_data}
-    if unset_data:
-        update_ops["$unset"] = unset_data
-    
     updated_person = await genealogy_person_repo.update_by_id(person_id, update_data)
     
     await log_audit_event(
         user_id=current_user.id,
-        action="UPDATE_GENEALOGY_PERSON",
-        resource_type="genealogy_person",
-        resource_id=person_id,
-        details={"updates": list(update_data.keys())}
+        event_type="UPDATE_GENEALOGY_PERSON",
+        event_details={
+            "resource_type": "genealogy_person",
+            "resource_id": person_id,
+            "updates": list(update_data.keys())
+        }
     )
     
     return create_success_response(
@@ -355,10 +379,13 @@ async def delete_genealogy_person(
     
     await log_audit_event(
         user_id=current_user.id,
-        action="DELETE_GENEALOGY_PERSON",
-        resource_type="genealogy_person",
-        resource_id=person_id,
-        details={"first_name": person_doc.get("first_name"), "last_name": person_doc.get("last_name")}
+        event_type="DELETE_GENEALOGY_PERSON",
+        event_details={
+            "resource_type": "genealogy_person",
+            "resource_id": person_id,
+            "first_name": person_doc.get("first_name"),
+            "last_name": person_doc.get("last_name")
+        }
     )
     
     return create_success_response(message="Person deleted successfully")
@@ -371,27 +398,20 @@ async def search_platform_users(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Search for any platform user to link to genealogy persons or invite to family hub"""
-    search_regex = {"$regex": query, "$options": "i"}
-    users_cursor = get_collection("users").find({
-        "_id": {"$ne": ObjectId(current_user.id)},
-        "$or": [
-            {"username": search_regex},
-            {"email": search_regex},
-            {"full_name": search_regex}
-        ]
-    }).limit(limit)
-    
-    linked_user_ids = set()
-    linked_persons_cursor = genealogy_person_repo.collection.find(
-        {"family_id": ObjectId(current_user.id), "linked_user_id": {"$exists": True, "$ne": None}},
-        {"linked_user_id": 1}
+    users = await user_repo.search_users(
+        query=query,
+        exclude_user_id=current_user.id,
+        limit=limit
     )
-    async for person in linked_persons_cursor:
-        if person.get("linked_user_id"):
-            linked_user_ids.add(str(person["linked_user_id"]))
+    
+    linked_persons = await genealogy_person_repo.find_many(
+        {"family_id": ObjectId(current_user.id), "linked_user_id": {"$exists": True, "$ne": None}},
+        limit=1000
+    )
+    linked_user_ids = {str(person.get("linked_user_id")) for person in linked_persons if person.get("linked_user_id")}
     
     results = []
-    async for user_doc in users_cursor:
+    for user_doc in users:
         user_id = str(user_doc["_id"])
         results.append({
             "id": user_id,
@@ -448,10 +468,14 @@ async def create_genealogy_relationship(
     
     await log_audit_event(
         user_id=current_user.id,
-        action="CREATE_GENEALOGY_RELATIONSHIP",
-        resource_type="genealogy_relationship",
-        resource_id=str(relationship_doc["_id"]),
-        details={"relationship_type": relationship.relationship_type}
+        event_type="CREATE_GENEALOGY_RELATIONSHIP",
+        event_details={
+            "resource_type": "genealogy_relationship",
+            "resource_id": str(relationship_doc["_id"]),
+            "relationship_type": relationship.relationship_type,
+            "person1_id": relationship.person1_id,
+            "person2_id": relationship.person2_id
+        }
     )
     
     return create_success_response(
@@ -514,10 +538,12 @@ async def delete_genealogy_relationship(
     
     await log_audit_event(
         user_id=current_user.id,
-        action="DELETE_GENEALOGY_RELATIONSHIP",
-        resource_type="genealogy_relationship",
-        resource_id=relationship_id,
-        details={"relationship_type": relationship_doc.get("relationship_type")}
+        event_type="DELETE_GENEALOGY_RELATIONSHIP",
+        event_details={
+            "resource_type": "genealogy_relationship",
+            "resource_id": relationship_id,
+            "relationship_type": relationship_doc.get("relationship_type")
+        }
     )
     
     return create_success_response(message="Relationship deleted successfully")
@@ -600,16 +626,19 @@ async def get_tree_members(
     
     await ensure_tree_access(tree_oid, ObjectId(current_user.id))
     
-    memberships_cursor = get_collection("genealogy_tree_memberships").find({
-        "tree_id": tree_oid
-    }).sort("joined_at", -1)
+    memberships = await tree_membership_repo.find_by_tree(tree_id=str(tree_oid), limit=100)
+    
+    user_ids = [str(m["user_id"]) for m in memberships]
+    user_names = await user_repo.get_user_names(user_ids) if user_ids else {}
     
     members = []
-    async for membership in memberships_cursor:
-        user_doc = await get_collection("users").find_one({"_id": membership["user_id"]})
+    for membership in memberships:
+        user_id = str(membership["user_id"])
+        user_doc = await user_repo.find_one({"_id": membership["user_id"]}, raise_404=False)
+        
         if user_doc:
             members.append({
-                "user_id": str(membership["user_id"]),
+                "user_id": user_id,
                 "username": user_doc.get("username", ""),
                 "full_name": user_doc.get("full_name"),
                 "profile_photo": user_doc.get("profile_photo"),
@@ -644,47 +673,50 @@ async def grant_tree_access(
     if not target_user_oid:
         raise HTTPException(status_code=400, detail="Invalid user_id")
     
-    user_doc = await get_collection("users").find_one({"_id": target_user_oid})
-    if not user_doc:
-        raise HTTPException(status_code=404, detail="User not found")
+    user_doc = await validate_user_exists(user_id)
     
-    existing = await get_tree_membership(tree_oid, target_user_oid)
+    existing = await tree_membership_repo.find_by_tree_and_user(
+        tree_id=str(tree_oid),
+        user_id=user_id
+    )
     if existing:
         raise HTTPException(status_code=400, detail="User already has access to this tree")
     
-    membership_data = {
-        "tree_id": tree_oid,
-        "user_id": target_user_oid,
-        "role": role,
-        "joined_at": datetime.utcnow(),
-        "granted_by": ObjectId(current_user.id)
-    }
+    membership = await tree_membership_repo.create_membership(
+        tree_id=str(tree_oid),
+        user_id=user_id,
+        role=role,
+        granted_by=current_user.id
+    )
     
-    result = await get_collection("genealogy_tree_memberships").insert_one(membership_data)
+    granter_name = await get_user_display_name(
+        {"username": getattr(current_user, 'username', None),
+         "full_name": current_user.full_name,
+         "email": current_user.email}
+    )
     
-    granter_name = getattr(current_user, 'username', None) or current_user.full_name or current_user.email
-    notification_data = {
-        "user_id": target_user_oid,
-        "type": "tree_access_granted",
-        "title": "Family Tree Access Granted",
-        "message": f"{granter_name} granted you {role} access to their family tree",
-        "related_id": str(result.inserted_id),
-        "read": False,
-        "created_at": datetime.utcnow()
-    }
-    await get_collection("notifications").insert_one(notification_data)
+    await notification_repo.create_notification(
+        user_id=user_id,
+        notification_type="tree_access_granted",
+        title="Family Tree Access Granted",
+        message=f"{granter_name} granted you {role} access to their family tree",
+        related_id=str(membership["_id"])
+    )
     
     await log_audit_event(
         user_id=current_user.id,
-        action="GRANT_TREE_ACCESS",
-        resource_type="genealogy_tree",
-        resource_id=str(tree_oid),
-        details={"granted_to": user_id, "role": role}
+        event_type="GRANT_TREE_ACCESS",
+        event_details={
+            "resource_type": "genealogy_tree",
+            "resource_id": str(tree_oid),
+            "granted_to": user_id,
+            "role": role
+        }
     )
     
     return create_success_response(
         message="Tree access granted successfully",
-        data={"membership_id": str(result.inserted_id)}
+        data={"membership_id": str(membership["_id"])}
     )
 
 
@@ -697,8 +729,6 @@ async def create_invite_link(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Create an invitation link for a living family member to join the platform"""
-    import secrets
-    
     person_oid = safe_object_id(person_id)
     if not person_oid:
         raise HTTPException(status_code=400, detail="Invalid person_id")
@@ -718,17 +748,13 @@ async def create_invite_link(
     if person_doc.get("linked_user_id"):
         raise HTTPException(status_code=400, detail="Person is already linked to a platform user")
     
-    existing_invite = await get_collection("genealogy_invite_links").find_one({
-        "person_id": person_oid,
-        "status": "pending",
-        "expires_at": {"$gt": datetime.utcnow()}
-    })
+    existing_invite = await invite_links_repo.find_active_by_person(person_id)
     
     if existing_invite:
         raise HTTPException(status_code=400, detail="An active invitation already exists for this person")
     
     token = secrets.token_urlsafe(32)
-    expires_at = datetime.utcnow() + __import__('datetime').timedelta(days=expires_in_days)
+    expires_at = datetime.utcnow() + timedelta(days=expires_in_days)
     
     invite_data = {
         "family_id": ObjectId(current_user.id),
@@ -744,7 +770,7 @@ async def create_invite_link(
         "accepted_by": None
     }
     
-    result = await get_collection("genealogy_invite_links").insert_one(invite_data)
+    invite_doc = await invite_links_repo.create(invite_data)
     
     await genealogy_person_repo.collection.update_one(
         {"_id": person_oid},
@@ -764,16 +790,19 @@ async def create_invite_link(
     
     await log_audit_event(
         user_id=current_user.id,
-        action="CREATE_INVITE_LINK",
-        resource_type="genealogy_invite",
-        resource_id=str(result.inserted_id),
-        details={"person_id": person_id, "email": email}
+        event_type="CREATE_INVITE_LINK",
+        event_details={
+            "resource_type": "genealogy_invite",
+            "resource_id": str(invite_doc["_id"]),
+            "person_id": person_id,
+            "email": email
+        }
     )
     
     return create_success_response(
         message="Invitation link created successfully",
         data={
-            "id": str(result.inserted_id),
+            "id": str(invite_doc["_id"]),
             "family_id": str(current_user.id),
             "person_id": str(person_oid),
             "person_name": person_name,
@@ -795,14 +824,12 @@ async def redeem_invite_link(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Redeem an invitation link and link user to genealogy person"""
-    invite_doc = await get_collection("genealogy_invite_links").find_one({"token": token})
-    if not invite_doc:
-        raise HTTPException(status_code=404, detail="Invitation not found")
+    invite_doc = await invite_links_repo.find_by_token(token, raise_404=True)
     
     if invite_doc["expires_at"] < datetime.utcnow():
-        await get_collection("genealogy_invite_links").update_one(
-            {"_id": invite_doc["_id"]},
-            {"$set": {"status": "expired"}}
+        await invite_links_repo.update_by_id(
+            str(invite_doc["_id"]),
+            {"status": "expired"}
         )
         raise HTTPException(status_code=400, detail="Invitation has expired")
     
@@ -838,7 +865,7 @@ async def redeem_invite_link(
                 session=session
             )
             
-            await get_collection("genealogy_invite_links").update_one(
+            await invite_links_repo.collection.update_one(
                 {"_id": invite_doc["_id"]},
                 {
                     "$set": {
@@ -850,40 +877,41 @@ async def redeem_invite_link(
                 session=session
             )
             
-            membership_exists = await get_collection("genealogy_tree_memberships").find_one({
-                "tree_id": invite_doc["family_id"],
-                "user_id": ObjectId(current_user.id)
-            }, session=session)
+            membership_exists = await tree_membership_repo.find_by_tree_and_user(
+                tree_id=str(invite_doc["family_id"]),
+                user_id=current_user.id
+            )
             
             if not membership_exists:
-                await get_collection("genealogy_tree_memberships").insert_one({
-                    "tree_id": invite_doc["family_id"],
-                    "user_id": ObjectId(current_user.id),
-                    "role": "member",
-                    "joined_at": datetime.utcnow(),
-                    "granted_by": invite_doc["created_by"]
-                }, session=session)
+                await tree_membership_repo.create_membership(
+                    tree_id=str(invite_doc["family_id"]),
+                    user_id=current_user.id,
+                    role="member",
+                    granted_by=str(invite_doc["created_by"])
+                )
     
-    joiner_name = getattr(current_user, 'username', None) or current_user.full_name or current_user.email
-    notification_data = {
-        "user_id": invite_doc["family_id"],
-        "type": "invitation_accepted",
-        "title": "Family Tree Invitation Accepted",
-        "message": f"{joiner_name} joined your family tree",
-        "related_id": str(invite_doc["person_id"]),
-        "read": False,
-        "created_at": datetime.utcnow()
-    }
-    await get_collection("notifications").insert_one(notification_data)
+    joiner_name = await get_user_display_name(
+        {"username": getattr(current_user, 'username', None),
+         "full_name": current_user.full_name,
+         "email": current_user.email}
+    )
     
-    tree_circle = await get_collection("family_circles").find_one({
+    await notification_repo.create_notification(
+        user_id=str(invite_doc["family_id"]),
+        notification_type="invitation_accepted",
+        title="Family Tree Invitation Accepted",
+        message=f"{joiner_name} joined your family tree",
+        related_id=str(invite_doc["person_id"])
+    )
+    
+    tree_circle = await family_repo.find_one({
         "owner_id": invite_doc["family_id"],
         "name": "Family Tree Members"
-    })
+    }, raise_404=False)
     
     if tree_circle:
         if ObjectId(current_user.id) not in tree_circle.get("member_ids", []):
-            await get_collection("family_circles").update_one(
+            await family_repo.collection.update_one(
                 {"_id": tree_circle["_id"]},
                 {
                     "$addToSet": {"member_ids": ObjectId(current_user.id)},
@@ -900,14 +928,17 @@ async def redeem_invite_link(
             "created_at": datetime.utcnow(),
             "updated_at": datetime.utcnow()
         }
-        await get_collection("family_circles").insert_one(circle_data)
+        await family_repo.create(circle_data)
     
     await log_audit_event(
         user_id=current_user.id,
-        action="REDEEM_INVITE_LINK",
-        resource_type="genealogy_invite",
-        resource_id=str(invite_doc["_id"]),
-        details={"person_id": str(invite_doc["person_id"]), "tree_id": str(invite_doc["family_id"])}
+        event_type="REDEEM_INVITE_LINK",
+        event_details={
+            "resource_type": "genealogy_invite",
+            "resource_id": str(invite_doc["_id"]),
+            "person_id": str(invite_doc["person_id"]),
+            "tree_id": str(invite_doc["family_id"])
+        }
     )
     
     return create_success_response(
@@ -925,14 +956,14 @@ async def list_invite_links(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """List all invitation links created by current user"""
-    query: Dict[str, Any] = {"family_id": ObjectId(current_user.id)}
-    if status_filter:
-        query["status"] = status_filter
+    invites = await invite_links_repo.find_by_family(
+        family_id=current_user.id,
+        status_filter=status_filter,
+        limit=100
+    )
     
-    invites_cursor = get_collection("genealogy_invite_links").find(query).sort("created_at", -1)
-    
-    invites = []
-    async for invite_doc in invites_cursor:
+    invite_responses = []
+    for invite_doc in invites:
         person_doc = await genealogy_person_repo.find_one({"_id": invite_doc["person_id"]}, raise_404=False)
         person_name = f"{person_doc['first_name']} {person_doc['last_name']}" if person_doc else "Unknown"
         
@@ -952,11 +983,11 @@ async def list_invite_links(
             "accepted_at": invite_doc.get("accepted_at"),
             "accepted_by": str(invite_doc["accepted_by"]) if invite_doc.get("accepted_by") else None
         }
-        invites.append(invite_data)
+        invite_responses.append(invite_data)
     
     return create_success_response(
         message="Invite links retrieved successfully",
-        data=invites
+        data=invite_responses
     )
 
 
@@ -979,21 +1010,27 @@ async def get_person_timeline(
     )
     
     tree_id = person_doc["family_id"]
-    membership = await get_collection("genealogy_tree_memberships").find_one({
-        "tree_id": tree_id,
-        "user_id": ObjectId(current_user.id)
-    })
+    membership = await tree_membership_repo.find_by_tree_and_user(
+        tree_id=str(tree_id),
+        user_id=current_user.id
+    )
     
     if not membership and str(tree_id) != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to view this person's timeline")
     
-    memories_cursor = get_collection("memories").find({
-        "genealogy_person_ids": str(person_oid)
-    }).sort("created_at", -1).skip(skip).limit(limit)
+    memories = await memory_repo.find_by_genealogy_person(
+        person_id=str(person_oid),
+        skip=skip,
+        limit=limit
+    )
     
-    memories = []
-    async for memory_doc in memories_cursor:
-        owner_doc = await get_collection("users").find_one({"_id": memory_doc["owner_id"]})
+    owner_ids = list({str(m["owner_id"]) for m in memories})
+    owner_names = await user_repo.get_user_names(owner_ids) if owner_ids else {}
+    
+    memory_responses = []
+    for memory_doc in memories:
+        owner_id = str(memory_doc["owner_id"])
+        owner_doc = await user_repo.find_one({"_id": memory_doc["owner_id"]}, raise_404=False)
         
         memory_data = {
             "id": str(memory_doc["_id"]),
@@ -1002,15 +1039,15 @@ async def get_person_timeline(
             "media_urls": memory_doc.get("media_urls", []),
             "tags": memory_doc.get("tags", []),
             "created_at": memory_doc["created_at"],
-            "owner_id": str(memory_doc["owner_id"]),
+            "owner_id": owner_id,
             "owner_username": owner_doc.get("username", "") if owner_doc else "",
             "owner_full_name": owner_doc.get("full_name") if owner_doc else None,
             "like_count": memory_doc.get("like_count", 0),
             "comment_count": memory_doc.get("comment_count", 0)
         }
-        memories.append(memory_data)
+        memory_responses.append(memory_data)
     
     return create_success_response(
         message="Person timeline retrieved successfully",
-        data=memories
+        data=memory_responses
     )

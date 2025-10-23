@@ -8,28 +8,26 @@ from app.models.family.family_milestones import (
 )
 from app.models.user import UserInDB
 from app.core.security import get_current_user
-from app.db.mongodb import get_collection
-from app.repositories.family_repository import FamilyMilestonesRepository
+from app.repositories.family_repository import FamilyMilestonesRepository, UserRepository
 from app.utils.validators import validate_object_ids
 from app.utils.audit_logger import log_audit_event
 from app.models.responses import create_success_response, create_paginated_response, create_message_response
 
 router = APIRouter()
 milestones_repo = FamilyMilestonesRepository()
+user_repo = UserRepository()
 
 
 async def get_person_name(person_id: Optional[ObjectId]) -> Optional[str]:
     """Helper function to get person name"""
     if not person_id:
         return None
-    person = await get_collection("users").find_one({"_id": person_id})
-    return person.get("full_name") if person else None
+    return await user_repo.get_user_name(str(person_id))
 
 
 async def get_creator_name(created_by_id: ObjectId) -> Optional[str]:
     """Helper function to get creator name"""
-    creator = await get_collection("users").find_one({"_id": created_by_id})
-    return creator.get("full_name") if creator else None
+    return await user_repo.get_user_name(str(created_by_id))
 
 
 def build_milestone_response(milestone_doc: Dict[str, Any], creator_name: Optional[str] = None) -> FamilyMilestoneResponse:

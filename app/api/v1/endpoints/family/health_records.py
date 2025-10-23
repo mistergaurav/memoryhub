@@ -10,8 +10,7 @@ from app.models.family.health_records import (
 )
 from app.models.user import UserInDB
 from app.core.security import get_current_user
-from app.db.mongodb import get_collection
-from app.repositories.family_repository import HealthRecordsRepository
+from app.repositories.family_repository import HealthRecordsRepository, FamilyMembersRepository
 from app.repositories.base_repository import BaseRepository
 from app.models.responses import create_success_response, create_paginated_response
 from app.utils.audit_logger import log_audit_event
@@ -20,6 +19,7 @@ router = APIRouter()
 
 health_records_repo = HealthRecordsRepository()
 vaccination_repo = BaseRepository("vaccination_records")
+family_members_repo = FamilyMembersRepository()
 
 
 def health_record_to_response(record_doc: dict, member_name: Optional[str] = None) -> HealthRecordResponse:
@@ -66,8 +66,7 @@ def vaccination_to_response(vacc_doc: dict, member_name: Optional[str] = None) -
 
 async def get_member_name(member_id: ObjectId) -> Optional[str]:
     """Get family member name by ID"""
-    member = await get_collection("family_members").find_one({"_id": member_id})
-    return member.get("name") if member else None
+    return await family_members_repo.get_member_name(str(member_id))
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -368,7 +367,7 @@ async def get_health_summary(
             "next_dose_date": vacc_doc.get("next_dose_date")
         })
     
-    member = await get_collection("family_members").find_one({"_id": member_oid})
+    member_name = await family_members_repo.get_member_name(member_id)
     
     records_by_type = {}
     for record in health_records:
@@ -377,7 +376,7 @@ async def get_health_summary(
     
     summary = {
         "member_id": member_id,
-        "member_name": member.get("name") if member else None,
+        "member_name": member_name,
         "total_health_records": len(health_records),
         "total_vaccinations": len(vaccinations),
         "recent_health_records": health_records_summary,

@@ -13,11 +13,11 @@ from app.models.family.family import (
 )
 from app.models.user import UserInDB
 from app.core.security import get_current_user
-from app.db.mongodb import get_collection
 from app.repositories.family_repository import (
     FamilyRepository,
     FamilyRelationshipRepository,
-    FamilyInvitationRepository
+    FamilyInvitationRepository,
+    UserRepository
 )
 from app.utils.family_validators import (
     validate_family_ownership,
@@ -32,16 +32,31 @@ from app.utils.family_validators import (
     validate_user_not_owner,
     validate_user_not_in_circle
 )
-from app.models.responses import create_message_response
+from app.models.responses import create_message_response, create_success_response, create_paginated_response
+from app.utils.audit_logger import log_audit_event
 
 router = APIRouter()
 
 family_repo = FamilyRepository()
 relationship_repo = FamilyRelationshipRepository()
 invitation_repo = FamilyInvitationRepository()
+user_repo = UserRepository()
 
 
-@router.post("/relationships", response_model=FamilyRelationshipResponse, status_code=status.HTTP_201_CREATED)
+async def get_user_data(user_id: ObjectId) -> dict:
+    """Helper function to get user data by ID"""
+    user = await user_repo.find_one({"_id": user_id}, raise_404=False)
+    if user:
+        return {
+            "id": str(user["_id"]),
+            "name": user.get("full_name"),
+            "avatar": user.get("avatar_url"),
+            "email": user.get("email")
+        }
+    return {"id": str(user_id), "name": None, "avatar": None, "email": None}
+
+
+@router.post("/relationships", status_code=status.HTTP_201_CREATED)
 async def create_family_relationship(
     relationship: FamilyRelationshipCreate,
     current_user: UserInDB = Depends(get_current_user)
@@ -67,7 +82,17 @@ async def create_family_relationship(
         
         relationship_doc = await relationship_repo.create(relationship_data)
         
-        return FamilyRelationshipResponse(
+        await log_audit_event(
+            user_id=str(current_user.id),
+            event_type="family_relationship_created",
+            event_details={
+                "relationship_id": str(relationship_doc["_id"]),
+                "related_user_id": relationship.related_user_id,
+                "relation_type": relationship.relation_type
+            }
+        )
+        
+        relationship_response = FamilyRelationshipResponse(
             id=str(relationship_doc["_id"]),
             user_id=str(relationship_doc["user_id"]),
             related_user_id=str(relationship_doc["related_user_id"]),
@@ -80,38 +105,50 @@ async def create_family_relationship(
             created_at=relationship_doc["created_at"],
             updated_at=relationship_doc["updated_at"]
         )
+        
+        return create_success_response(
+            message="Relationship created successfully",
+            data=relationship_response.model_dump()
+        )
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create relationship: {str(e)}")
 
 
-@router.get("/relationships", response_model=List[FamilyRelationshipResponse])
+@router.get("/relationships")
 async def list_family_relationships(
     relation_type: Optional[FamilyRelationType] = None,
-    skip: int = Query(0, ge=0, description="Number of records to skip"),
-    limit: int = Query(50, ge=1, le=100, description="Number of records to return"),
+    page: int = Query(1, ge=1, description="Page number (1-indexed)"),
+    page_size: int = Query(50, ge=1, le=100, description="Number of records per page"),
     current_user: UserInDB = Depends(get_current_user)
 ):
     """List all family relationships for the current user with pagination"""
     try:
+        skip = (page - 1) * page_size
+        
         relationships_docs = await relationship_repo.find_by_user(
             str(current_user.id),
             relation_type=relation_type.value if relation_type else None,
             skip=skip,
-            limit=limit
+            limit=page_size
+        )
+        
+        total = await relationship_repo.count_by_user(
+            str(current_user.id),
+            relation_type=relation_type.value if relation_type else None
         )
         
         relationships = []
         for rel_doc in relationships_docs:
-            related_user = await get_collection("users").find_one({"_id": rel_doc["related_user_id"]})
+            user_data = await get_user_data(rel_doc["related_user_id"])
             relationships.append(FamilyRelationshipResponse(
                 id=str(rel_doc["_id"]),
                 user_id=str(rel_doc["user_id"]),
                 related_user_id=str(rel_doc["related_user_id"]),
-                related_user_name=related_user.get("full_name") if related_user else None,
-                related_user_avatar=related_user.get("avatar_url") if related_user else None,
-                related_user_email=related_user.get("email") if related_user else None,
+                related_user_name=user_data.get("name"),
+                related_user_avatar=user_data.get("avatar"),
+                related_user_email=user_data.get("email"),
                 relation_type=rel_doc["relation_type"],
                 relation_label=rel_doc.get("relation_label"),
                 notes=rel_doc.get("notes"),
@@ -119,7 +156,13 @@ async def list_family_relationships(
                 updated_at=rel_doc["updated_at"]
             ))
         
-        return relationships
+        return create_paginated_response(
+            items=[r.model_dump() for r in relationships],
+            total=total,
+            page=page,
+            page_size=page_size,
+            message="Relationships retrieved successfully"
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list relationships: {str(e)}")
 
@@ -135,6 +178,12 @@ async def delete_family_relationship(
         
         await relationship_repo.delete_by_id(relationship_id)
         
+        await log_audit_event(
+            user_id=str(current_user.id),
+            event_type="family_relationship_deleted",
+            event_details={"relationship_id": relationship_id}
+        )
+        
         return create_message_response("Relationship deleted successfully")
     except HTTPException:
         raise
@@ -142,7 +191,7 @@ async def delete_family_relationship(
         raise HTTPException(status_code=500, detail=f"Failed to delete relationship: {str(e)}")
 
 
-@router.post("/circles", response_model=FamilyCircleResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/circles", status_code=status.HTTP_201_CREATED)
 async def create_family_circle(
     circle: FamilyCircleCreate,
     current_user: UserInDB = Depends(get_current_user)
@@ -168,17 +217,28 @@ async def create_family_circle(
         
         circle_doc = await family_repo.create(circle_data)
         
+        await log_audit_event(
+            user_id=str(current_user.id),
+            event_type="family_circle_created",
+            event_details={
+                "circle_id": str(circle_doc["_id"]),
+                "name": circle.name,
+                "circle_type": circle.circle_type,
+                "member_count": len(circle_doc["member_ids"])
+            }
+        )
+        
         members = []
         for member_id in circle_doc["member_ids"]:
-            user = await get_collection("users").find_one({"_id": member_id})
-            if user:
+            user_data = await get_user_data(member_id)
+            if user_data.get("name"):
                 members.append({
-                    "id": str(user["_id"]),
-                    "name": user.get("full_name"),
-                    "avatar": user.get("avatar_url")
+                    "id": user_data["id"],
+                    "name": user_data["name"],
+                    "avatar": user_data["avatar"]
                 })
         
-        return FamilyCircleResponse(
+        circle_response = FamilyCircleResponse(
             id=str(circle_doc["_id"]),
             name=circle_doc["name"],
             description=circle_doc.get("description"),
@@ -191,30 +251,39 @@ async def create_family_circle(
             created_at=circle_doc["created_at"],
             updated_at=circle_doc["updated_at"]
         )
+        
+        return create_success_response(
+            message="Circle created successfully",
+            data=circle_response.model_dump()
+        )
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create circle: {str(e)}")
 
 
-@router.get("/circles", response_model=List[FamilyCircleResponse])
+@router.get("/circles")
 async def list_family_circles(
+    page: int = Query(1, ge=1, description="Page number (1-indexed)"),
+    page_size: int = Query(50, ge=1, le=100, description="Number of circles per page"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """List all family circles for the current user"""
+    """List all family circles for the current user with pagination"""
     try:
-        circles_docs = await family_repo.find_by_member(str(current_user.id))
+        skip = (page - 1) * page_size
+        circles_docs = await family_repo.find_by_member(str(current_user.id), skip=skip, limit=page_size)
+        total = await family_repo.count_by_member(str(current_user.id))
         circles = []
         
         for circle_doc in circles_docs:
             members = []
             for member_id in circle_doc.get("member_ids", []):
-                user = await get_collection("users").find_one({"_id": member_id})
-                if user:
+                user_data = await get_user_data(member_id)
+                if user_data.get("name"):
                     members.append({
-                        "id": str(user["_id"]),
-                        "name": user.get("full_name"),
-                        "avatar": user.get("avatar_url")
+                        "id": user_data["id"],
+                        "name": user_data["name"],
+                        "avatar": user_data["avatar"]
                     })
             
             circles.append(FamilyCircleResponse(
@@ -231,7 +300,13 @@ async def list_family_circles(
                 updated_at=circle_doc["updated_at"]
             ))
         
-        return circles
+        return create_paginated_response(
+            items=[c.model_dump() for c in circles],
+            total=total,
+            page=page,
+            page_size=page_size,
+            message="Circles retrieved successfully"
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to list circles: {str(e)}")
 
@@ -255,6 +330,12 @@ async def add_member_to_circle(
         await validate_user_not_in_circle(circle, user_id)
         
         await family_repo.add_member(circle_id, user_id, str(current_user.id))
+        
+        await log_audit_event(
+            user_id=str(current_user.id),
+            event_type="family_circle_member_added",
+            event_details={"circle_id": circle_id, "member_id": user_id}
+        )
         
         return create_message_response("Member added successfully")
     except HTTPException:
@@ -281,6 +362,12 @@ async def remove_member_from_circle(
         
         await family_repo.remove_member(circle_id, user_id, str(current_user.id))
         
+        await log_audit_event(
+            user_id=str(current_user.id),
+            event_type="family_circle_member_removed",
+            event_details={"circle_id": circle_id, "member_id": user_id}
+        )
+        
         return create_message_response("Member removed successfully")
     except HTTPException:
         raise
@@ -288,7 +375,7 @@ async def remove_member_from_circle(
         raise HTTPException(status_code=500, detail=f"Failed to remove member: {str(e)}")
 
 
-@router.post("/invitations", response_model=FamilyInvitationResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/invitations", status_code=status.HTTP_201_CREATED)
 async def create_family_invitation(
     invitation: FamilyInvitationCreate,
     current_user: UserInDB = Depends(get_current_user)
@@ -320,13 +407,23 @@ async def create_family_invitation(
         
         invitation_doc = await invitation_repo.create(invitation_data)
         
+        await log_audit_event(
+            user_id=str(current_user.id),
+            event_type="family_invitation_created",
+            event_details={
+                "invitation_id": str(invitation_doc["_id"]),
+                "invitee_email": invitation.invitee_email,
+                "circle_count": len(circle_oids)
+            }
+        )
+        
         from os import getenv
         base_url = getenv("REPLIT_DOMAINS", "localhost:5000").split(",")[0]
         if not base_url.startswith("http"):
             base_url = f"https://{base_url}"
         invite_url = f"{base_url}/accept-family-invite?token={token}"
         
-        return FamilyInvitationResponse(
+        invitation_response = FamilyInvitationResponse(
             id=str(invitation_doc["_id"]),
             inviter_id=str(invitation_doc["inviter_id"]),
             inviter_name=current_user.full_name,
@@ -341,6 +438,11 @@ async def create_family_invitation(
             invite_url=invite_url,
             created_at=invitation_doc["created_at"],
             expires_at=invitation_doc["expires_at"]
+        )
+        
+        return create_success_response(
+            message="Invitation created successfully",
+            data=invitation_response.model_dump()
         )
     except HTTPException:
         raise
@@ -371,12 +473,10 @@ async def accept_family_invitation(
         await relationship_repo.create(relationship_data)
         
         for circle_id in invitation.get("circle_ids", []):
-            await get_collection("family_circles").update_one(
-                {"_id": circle_id},
-                {
-                    "$addToSet": {"member_ids": ObjectId(current_user.id)},
-                    "$set": {"updated_at": datetime.utcnow()}
-                }
+            await family_repo.add_member(
+                str(circle_id),
+                str(current_user.id),
+                str(invitation["inviter_id"])
             )
         
         await invitation_repo.update(
@@ -387,6 +487,15 @@ async def accept_family_invitation(
             }
         )
         
+        await log_audit_event(
+            user_id=str(current_user.id),
+            event_type="family_invitation_accepted",
+            event_details={
+                "invitation_id": str(invitation["_id"]),
+                "inviter_id": str(invitation["inviter_id"])
+            }
+        )
+        
         return create_message_response("Invitation accepted successfully")
     except HTTPException:
         raise
@@ -394,28 +503,38 @@ async def accept_family_invitation(
         raise HTTPException(status_code=500, detail=f"Failed to accept invitation: {str(e)}")
 
 
-@router.get("/tree", response_model=List[FamilyTreeNode])
+@router.get("/tree")
 async def get_family_tree(
+    page: int = Query(1, ge=1, description="Page number (1-indexed)"),
+    page_size: int = Query(100, ge=1, le=500, description="Number of nodes per page"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Get the family tree for the current user"""
+    """Get the family tree for the current user with pagination"""
     try:
-        relationships_docs = await relationship_repo.find_by_user(str(current_user.id))
+        skip = (page - 1) * page_size
+        relationships_docs = await relationship_repo.find_by_user(str(current_user.id), skip=skip, limit=page_size)
+        total = await relationship_repo.count_by_user(str(current_user.id))
         tree_nodes = []
         
         for rel in relationships_docs:
-            user = await get_collection("users").find_one({"_id": rel["related_user_id"]})
-            if user:
+            user_data = await get_user_data(rel["related_user_id"])
+            if user_data.get("name"):
                 tree_nodes.append(FamilyTreeNode(
-                    user_id=str(user["_id"]),
-                    name=user.get("full_name", "Unknown"),
-                    avatar_url=user.get("avatar_url"),
+                    user_id=user_data["id"],
+                    name=user_data.get("name", "Unknown"),
+                    avatar_url=user_data.get("avatar"),
                     relation_type=rel["relation_type"],
                     relation_label=rel.get("relation_label"),
                     children=[]
                 ))
         
-        return tree_nodes
+        return create_paginated_response(
+            items=[node.model_dump() for node in tree_nodes],
+            total=total,
+            page=page,
+            page_size=page_size,
+            message="Family tree retrieved successfully"
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get family tree: {str(e)}")
 
@@ -427,7 +546,7 @@ async def add_family_member(
 ):
     """Smart endpoint to add a family member - creates relationship and optionally sends invitation"""
     try:
-        user = await get_collection("users").find_one({"email": request.email.lower()})
+        user = await user_repo.find_by_email(request.email)
         
         if user:
             relationship_exists = await relationship_repo.check_relationship_exists(
@@ -578,14 +697,14 @@ async def get_family_dashboard(
         ]
         
         user_oid = ObjectId(current_user.id)
-        family_circles_count = await get_collection("family_circles").count_documents({
+        family_circles_count = await family_repo.count({
             "$or": [
-                {"created_by": user_oid},
+                {"owner_id": user_oid},
                 {"member_ids": user_oid}
             ]
         })
         
-        relationships_count = await get_collection("family_relationships").count_documents({
+        relationships_count = await relationship_repo.count({
             "user_id": user_oid
         })
         

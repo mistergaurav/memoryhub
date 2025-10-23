@@ -9,7 +9,7 @@ from app.models.family.parental_controls import (
     ContentApprovalRequestResponse, ApprovalDecision
 )
 from app.models.user import UserInDB
-from app.models.responses import create_paginated_response
+from app.models.responses import create_paginated_response, create_success_response
 from app.core.security import get_current_user
 from app.repositories.base_repository import BaseRepository
 from app.utils.family_validators import validate_parent_child_relationship
@@ -22,7 +22,7 @@ approval_requests_repo = BaseRepository("approval_requests")
 users_repo = BaseRepository("users")
 
 
-@router.post("/settings", response_model=ParentalControlSettingsResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/settings", status_code=status.HTTP_201_CREATED)
 async def create_parental_controls(
     settings: ParentalControlSettingsCreate,
     request: Request,
@@ -81,7 +81,7 @@ async def create_parental_controls(
         ip_address=ip_address
     )
     
-    return ParentalControlSettingsResponse(
+    settings_response = ParentalControlSettingsResponse(
         id=str(settings_doc["_id"]),
         parent_user_id=str(settings_doc["parent_user_id"]),
         child_user_id=str(settings_doc["child_user_id"]),
@@ -94,6 +94,11 @@ async def create_parental_controls(
         screen_time_limit_minutes=settings_doc.get("screen_time_limit_minutes"),
         created_at=settings_doc["created_at"],
         updated_at=settings_doc["updated_at"]
+    )
+    
+    return create_success_response(
+        message="Parental controls created successfully",
+        data=settings_response.model_dump()
     )
 
 
@@ -149,7 +154,7 @@ async def list_parental_controls(
     )
 
 
-@router.get("/settings/{child_user_id}", response_model=ParentalControlSettingsResponse)
+@router.get("/settings/{child_user_id}")
 async def get_parental_controls(
     child_user_id: str,
     current_user: UserInDB = Depends(get_current_user)
@@ -171,7 +176,7 @@ async def get_parental_controls(
     if not settings_doc:
         raise HTTPException(status_code=404, detail="Parental controls not found")
     
-    return ParentalControlSettingsResponse(
+    settings_response = ParentalControlSettingsResponse(
         id=str(settings_doc["_id"]),
         parent_user_id=str(settings_doc["parent_user_id"]),
         child_user_id=str(settings_doc["child_user_id"]),
@@ -185,9 +190,14 @@ async def get_parental_controls(
         created_at=settings_doc["created_at"],
         updated_at=settings_doc["updated_at"]
     )
+    
+    return create_success_response(
+        message="Parental controls retrieved successfully",
+        data=settings_response.model_dump()
+    )
 
 
-@router.put("/settings/{child_user_id}", response_model=ParentalControlSettingsResponse)
+@router.put("/settings/{child_user_id}")
 async def update_parental_controls(
     child_user_id: str,
     settings_update: ParentalControlSettingsUpdate,
@@ -240,7 +250,7 @@ async def update_parental_controls(
         ip_address=ip_address
     )
     
-    return ParentalControlSettingsResponse(
+    settings_response = ParentalControlSettingsResponse(
         id=str(updated_settings["_id"]),
         parent_user_id=str(updated_settings["parent_user_id"]),
         child_user_id=str(updated_settings["child_user_id"]),
@@ -253,6 +263,11 @@ async def update_parental_controls(
         screen_time_limit_minutes=updated_settings.get("screen_time_limit_minutes"),
         created_at=updated_settings["created_at"],
         updated_at=updated_settings["updated_at"]
+    )
+    
+    return create_success_response(
+        message="Parental controls updated successfully",
+        data=settings_response.model_dump()
     )
 
 
@@ -291,7 +306,7 @@ async def delete_parental_controls(
     )
 
 
-@router.post("/approval-requests", response_model=ContentApprovalRequestResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/approval-requests", status_code=status.HTTP_201_CREATED)
 async def create_approval_request(
     request: ContentApprovalRequest,
     current_user: UserInDB = Depends(get_current_user)
@@ -323,7 +338,7 @@ async def create_approval_request(
     
     request_doc = await approval_requests_repo.create(request_data)
     
-    return ContentApprovalRequestResponse(
+    approval_response = ContentApprovalRequestResponse(
         id=str(request_doc["_id"]),
         child_user_id=str(request_doc["child_user_id"]),
         child_name=current_user.full_name,
@@ -336,6 +351,11 @@ async def create_approval_request(
         parent_notes=request_doc.get("parent_notes"),
         created_at=request_doc["created_at"],
         reviewed_at=request_doc.get("reviewed_at")
+    )
+    
+    return create_success_response(
+        message="Approval request created successfully",
+        data=approval_response.model_dump()
     )
 
 
@@ -395,7 +415,7 @@ async def list_pending_approval_requests(
     )
 
 
-@router.post("/approval-requests/{request_id}/review", response_model=ContentApprovalRequestResponse)
+@router.post("/approval-requests/{request_id}/review")
 async def review_approval_request(
     request_id: str,
     decision: ApprovalDecision,
@@ -460,7 +480,7 @@ async def review_approval_request(
         ip_address=ip_address
     )
     
-    return ContentApprovalRequestResponse(
+    approval_response = ContentApprovalRequestResponse(
         id=str(updated_request["_id"]),
         child_user_id=str(updated_request["child_user_id"]),
         child_name=child_user.get("full_name") if child_user else None,
@@ -473,4 +493,9 @@ async def review_approval_request(
         parent_notes=updated_request.get("parent_notes"),
         created_at=updated_request["created_at"],
         reviewed_at=updated_request.get("reviewed_at")
+    )
+    
+    return create_success_response(
+        message="Approval request reviewed successfully",
+        data=approval_response.model_dump()
     )

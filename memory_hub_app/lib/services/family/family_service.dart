@@ -37,8 +37,9 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/family-albums/'), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => FamilyAlbum.fromJson(json)).toList();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.map((json) => FamilyAlbum.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load family albums');
     }
@@ -50,8 +51,9 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/family-albums/$albumId/photos'), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => AlbumPhoto.fromJson(json)).toList();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.map((json) => AlbumPhoto.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load album photos');
     }
@@ -89,8 +91,9 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/family-milestones/'), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => FamilyMilestone.fromJson(json)).toList();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.map((json) => FamilyMilestone.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load milestones');
     }
@@ -102,8 +105,9 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/family-recipes/'), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => FamilyRecipe.fromJson(json)).toList();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.map((json) => FamilyRecipe.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load recipes');
     }
@@ -127,8 +131,9 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/legacy-letters/'), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => LegacyLetter.fromJson(json)).toList();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.map((json) => LegacyLetter.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load legacy letters');
     }
@@ -140,8 +145,9 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/family-traditions/'), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => FamilyTradition.fromJson(json)).toList();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.map((json) => FamilyTradition.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load traditions');
     }
@@ -165,8 +171,9 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/parental-controls/approvals'), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => ApprovalRequest.fromJson(json)).toList();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.map((json) => ApprovalRequest.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load approval queue');
     }
@@ -212,8 +219,9 @@ class FamilyService {
       http.get(Uri.parse(url), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => FamilyCalendarEvent.fromJson(json)).toList();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.map((json) => FamilyCalendarEvent.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load calendar events');
     }
@@ -257,8 +265,9 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/genealogy/persons'), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.cast<Map<String, dynamic>>();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.cast<Map<String, dynamic>>();
     } else {
       throw Exception('Failed to load persons');
     }
@@ -331,8 +340,9 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/genealogy/relationships'), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.cast<Map<String, dynamic>>();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.cast<Map<String, dynamic>>();
     } else {
       throw Exception('Failed to load relationships');
     }
@@ -344,8 +354,9 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/genealogy/tree'), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.cast<Map<String, dynamic>>();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.cast<Map<String, dynamic>>();
     } else {
       throw Exception('Failed to load family tree');
     }
@@ -360,8 +371,9 @@ class FamilyService {
       ),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.cast<Map<String, dynamic>>();
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.cast<Map<String, dynamic>>();
     } else {
       throw Exception('Failed to search users');
     }
