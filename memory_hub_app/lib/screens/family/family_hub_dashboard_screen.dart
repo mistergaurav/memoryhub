@@ -977,7 +977,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
         dialog = AddRecipeDialog(onSubmit: _createRecipe);
         break;
       case 'health':
-        dialog = AddHealthRecordDialog(onSubmit: _createHealthRecord);
+        dialog = const AddHealthRecordDialog();
         break;
       case 'letter':
         dialog = AddLegacyLetterDialog(onSubmit: _createLegacyLetter);
@@ -1023,14 +1023,6 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
       () => _familyService.createRecipe(data),
       'Recipe created successfully',
       'Failed to create recipe',
-    );
-  }
-
-  Future<void> _createHealthRecord(Map<String, dynamic> data) async {
-    await _handleAction(
-      () => _familyService.createHealthRecord(data),
-      'Health record added successfully',
-      'Failed to add health record',
     );
   }
 

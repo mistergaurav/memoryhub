@@ -454,6 +454,42 @@ class FamilyService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getFamilyMembers() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/family/relationships'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.map((item) => {
+        'id': item['related_user_id'] ?? item['id'],
+        'name': item['related_user_name'] ?? item['name'] ?? 'Unknown',
+        'relation_type': item['relation_type'] ?? 'family',
+      }).toList();
+    } else {
+      throw Exception('Failed to load family members');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getFriendCircles() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/family/circles'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> items = responseBody['items'] ?? [];
+      return items.map((item) => {
+        'id': item['id'] ?? '',
+        'name': item['name'] ?? 'Unknown',
+        'circle_type': item['circle_type'] ?? 'friend',
+      }).toList();
+    } else {
+      throw Exception('Failed to load friend circles');
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getHealthRecords({String? memberId, String? recordType}) async {
     final headers = await _authService.getAuthHeaders();
     var url = '$baseUrl/health-records/';
@@ -467,8 +503,10 @@ class FamilyService {
       http.get(Uri.parse(url), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.cast<Map<String, dynamic>>();
+      final responseBody = jsonDecode(response.body);
+      final data = responseBody['data'] ?? {};
+      final List<dynamic> items = data['items'] ?? [];
+      return items.cast<Map<String, dynamic>>();
     } else {
       throw Exception('Failed to load health records');
     }
@@ -484,7 +522,8 @@ class FamilyService {
       ),
     );
     if (response.statusCode == 201) {
-      return jsonDecode(response.body);
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
     } else {
       throw Exception('Failed to create health record');
     }
@@ -500,7 +539,8 @@ class FamilyService {
       ),
     );
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
     } else {
       throw Exception('Failed to update health record');
     }
@@ -529,7 +569,8 @@ class FamilyService {
       ),
     );
     if (response.statusCode == 201) {
-      return jsonDecode(response.body);
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
     } else {
       throw Exception('Failed to create vaccination');
     }
@@ -541,8 +582,10 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/health-records/vaccinations'), headers: headers),
     );
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.cast<Map<String, dynamic>>();
+      final responseBody = jsonDecode(response.body);
+      final data = responseBody['data'] ?? {};
+      final List<dynamic> items = data['items'] ?? [];
+      return items.cast<Map<String, dynamic>>();
     } else {
       throw Exception('Failed to load vaccinations');
     }
@@ -554,7 +597,8 @@ class FamilyService {
       http.get(Uri.parse('$baseUrl/health-records/member/$memberId/summary'), headers: headers),
     );
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
     } else {
       throw Exception('Failed to load health summary');
     }

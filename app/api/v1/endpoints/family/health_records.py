@@ -27,7 +27,7 @@ def health_record_to_response(record_doc: dict, member_name: Optional[str] = Non
     return HealthRecordResponse(
         id=str(record_doc["_id"]),
         family_id=str(record_doc["family_id"]),
-        family_member_id=str(record_doc["family_member_id"]),
+        family_member_id=str(record_doc.get("family_member_id", "")),
         family_member_name=member_name,
         record_type=record_doc["record_type"],
         title=record_doc["title"],
@@ -39,7 +39,7 @@ def health_record_to_response(record_doc: dict, member_name: Optional[str] = Non
         attachments=record_doc.get("attachments", []),
         notes=record_doc.get("notes"),
         medications=record_doc.get("medications", []),
-        is_confidential=record_doc["is_confidential"],
+        is_confidential=record_doc.get("is_confidential", False),
         created_at=record_doc["created_at"],
         updated_at=record_doc["updated_at"],
         created_by=str(record_doc["created_by"])
@@ -64,8 +64,10 @@ def vaccination_to_response(vacc_doc: dict, member_name: Optional[str] = None) -
     )
 
 
-async def get_member_name(member_id: ObjectId) -> Optional[str]:
+async def get_member_name(member_id: Optional[ObjectId]) -> Optional[str]:
     """Get family member name by ID"""
+    if not member_id:
+        return None
     return await family_members_repo.get_member_name(str(member_id))
 
 
@@ -86,14 +88,14 @@ async def create_health_record(
         "provider": record.provider,
         "location": record.location,
         "severity": record.severity,
-        "attachments": record.attachments,
+        "attachments": record.attachments or [],
         "notes": record.notes,
-        "medications": record.medications,
-        "is_confidential": record.is_confidential,
-        "is_hereditary": record.is_hereditary,
+        "medications": record.medications or [],
+        "is_confidential": record.is_confidential if record.is_confidential is not None else False,
+        "is_hereditary": record.is_hereditary if record.is_hereditary is not None else False,
         "inheritance_pattern": record.inheritance_pattern,
         "age_of_onset": record.age_of_onset,
-        "affected_relatives": record.affected_relatives,
+        "affected_relatives": record.affected_relatives or [],
         "genetic_test_results": record.genetic_test_results,
         "created_by": ObjectId(current_user.id)
     }
@@ -176,7 +178,8 @@ async def list_health_records(
     
     record_responses = []
     for record_doc in records:
-        member_name = await get_member_name(record_doc["family_member_id"])
+        member_id = record_doc.get("family_member_id")
+        member_name = await get_member_name(member_id) if member_id else None
         record_responses.append(health_record_to_response(record_doc, member_name))
     
     return create_paginated_response(
@@ -200,10 +203,14 @@ async def get_health_record(
         error_message="Health record not found"
     )
     
+    if not record_doc:
+        raise HTTPException(status_code=404, detail="Health record not found")
+    
     if str(record_doc["family_id"]) != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to view this record")
     
-    member_name = await get_member_name(record_doc["family_member_id"])
+    member_id = record_doc.get("family_member_id")
+    member_name = await get_member_name(member_id) if member_id else None
     
     return create_success_response(
         message="Health record retrieved successfully",
@@ -224,6 +231,9 @@ async def update_health_record(
         error_message="Health record not found"
     )
     
+    if not record_doc:
+        raise HTTPException(status_code=404, detail="Health record not found")
+    
     if str(record_doc["family_id"]) != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to update this record")
     
@@ -231,14 +241,20 @@ async def update_health_record(
     
     updated_record = await health_records_repo.update_by_id(record_id, update_data)
     
-    member_name = await get_member_name(updated_record["family_member_id"])
+    if not updated_record:
+        raise HTTPException(status_code=404, detail="Failed to update health record")
+    
+    member_id = updated_record.get("family_member_id")
+    member_name = await get_member_name(member_id) if member_id else None
     
     await log_audit_event(
-        user_id=current_user.id,
-        action="UPDATE_HEALTH_RECORD",
-        resource_type="health_record",
-        resource_id=record_id,
-        details={"updates": list(update_data.keys())}
+        user_id=str(current_user.id),
+        event_type="UPDATE_HEALTH_RECORD",
+        event_details={
+            "resource_type": "health_record",
+            "resource_id": record_id,
+            "updates": list(update_data.keys())
+        }
     )
     
     return create_success_response(
@@ -259,17 +275,22 @@ async def delete_health_record(
         error_message="Health record not found"
     )
     
+    if not record_doc:
+        raise HTTPException(status_code=404, detail="Health record not found")
+    
     if str(record_doc["family_id"]) != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to delete this record")
     
     await health_records_repo.delete_by_id(record_id)
     
     await log_audit_event(
-        user_id=current_user.id,
-        action="DELETE_HEALTH_RECORD",
-        resource_type="health_record",
-        resource_id=record_id,
-        details={"record_type": record_doc.get("record_type")}
+        user_id=str(current_user.id),
+        event_type="DELETE_HEALTH_RECORD",
+        event_details={
+            "resource_type": "health_record",
+            "resource_id": record_id,
+            "record_type": record_doc.get("record_type")
+        }
     )
     
     return create_success_response(message="Health record deleted successfully")
@@ -300,11 +321,13 @@ async def create_vaccination_record(
     member_name = await get_member_name(member_oid)
     
     await log_audit_event(
-        user_id=current_user.id,
-        action="CREATE_VACCINATION_RECORD",
-        resource_type="vaccination_record",
-        resource_id=str(vaccination_doc["_id"]),
-        details={"vaccine_name": vaccination.vaccine_name}
+        user_id=str(current_user.id),
+        event_type="CREATE_VACCINATION_RECORD",
+        event_details={
+            "resource_type": "vaccination_record",
+            "resource_id": str(vaccination_doc["_id"]),
+            "vaccine_name": vaccination.vaccine_name
+        }
     )
     
     return create_success_response(
@@ -335,7 +358,7 @@ async def list_vaccination_records(
     
     vaccination_responses = []
     for vacc_doc in vaccinations:
-        member_name = await get_member_name(vacc_doc["family_member_id"])
+        member_name = await get_member_name(vacc_doc.get("family_member_id"))
         vaccination_responses.append(vaccination_to_response(vacc_doc, member_name))
     
     return create_paginated_response(

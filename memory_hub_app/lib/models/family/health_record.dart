@@ -34,6 +34,8 @@ class HealthRecord {
   final String? notes;
   final bool isConfidential;
   
+  final List<dynamic> reminders;
+  
   final String createdBy;
   final String? createdByName;
   final List<String> familyCircleIds;
@@ -72,6 +74,7 @@ class HealthRecord {
     this.medications = const [],
     this.notes,
     this.isConfidential = true,
+    this.reminders = const [],
     required this.createdBy,
     this.createdByName,
     this.familyCircleIds = const [],
@@ -112,6 +115,7 @@ class HealthRecord {
       medications: List<String>.from(json['medications'] ?? []),
       notes: json['notes'],
       isConfidential: json['is_confidential'] ?? true,
+      reminders: json['reminders'] ?? [],
       createdBy: json['created_by'] ?? '',
       createdByName: json['created_by_name'],
       familyCircleIds: List<String>.from(json['family_circle_ids'] ?? []),
@@ -119,6 +123,21 @@ class HealthRecord {
       updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
     );
   }
+
+  String getSubjectDisplay() {
+    switch (subjectType.toLowerCase()) {
+      case 'self':
+        return 'For: Myself';
+      case 'family':
+        return 'For: ${subjectName ?? 'Family Member'}';
+      case 'friend':
+        return 'For: ${subjectName ?? 'Friend'}';
+      default:
+        return 'For: ${subjectName ?? 'Unknown'}';
+    }
+  }
+
+  bool get hasReminders => reminders.isNotEmpty;
 
   Map<String, dynamic> toJson() {
     return {
@@ -153,6 +172,7 @@ class HealthRecord {
       'medications': medications,
       'notes': notes,
       'is_confidential': isConfidential,
+      'reminders': reminders,
       'created_by': createdBy,
       'created_by_name': createdByName,
       'family_circle_ids': familyCircleIds,

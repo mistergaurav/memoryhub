@@ -74,31 +74,15 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
     return _healthRecords.where((record) => record.recordType == _selectedFilter).toList();
   }
 
-  void _showAddDialog() {
-    showDialog(
+  void _showAddDialog() async {
+    final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AddHealthRecordDialog(
-        onSubmit: (recordData) {
-          _loadHealthRecords();
-          Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: const [
-                  Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: 12),
-                  Text('Health record added successfully', style: TextStyle(fontSize: 15)),
-                ],
-              ),
-              backgroundColor: successGreen,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              margin: const EdgeInsets.all(16),
-            ),
-          );
-        },
-      ),
+      builder: (context) => const AddHealthRecordDialog(),
     );
+    
+    if (result == true) {
+      _loadHealthRecords();
+    }
   }
 
   @override
@@ -573,37 +557,64 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.calendar_today_rounded, size: 13, color: darkGray),
+                          Icon(Icons.calendar_today_rounded, size: 11, color: darkGray),
                           const SizedBox(width: 4),
                           Text(
                             DateFormat('MMM d, yyyy').format(record.recordDate),
                             style: GoogleFonts.inter(
-                              fontSize: 12,
+                              fontSize: 11,
                               color: darkGray,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
-                      if (record.provider != null && record.provider!.isNotEmpty) ...[
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            Icon(Icons.person_outline_rounded, size: 13, color: darkGray),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                record.provider!,
-                                style: GoogleFonts.inter(
-                                  fontSize: 11,
-                                  color: darkGray,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(Icons.person_pin_rounded, size: 11, color: accentTealGreen),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              record.getSubjectDisplay(),
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                color: accentTealGreen,
+                                fontWeight: FontWeight.w600,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+                      if (record.hasReminders) ...[
+                        const SizedBox(height: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: warningAmber.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.notifications_active,
+                                size: 10,
+                                color: warningAmber,
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                '${record.reminders.length} reminder${record.reminders.length > 1 ? 's' : ''}',
+                                style: GoogleFonts.inter(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w600,
+                                  color: warningAmber,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ],
@@ -743,7 +754,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 8),
                             Icon(Icons.calendar_today_rounded, size: 12, color: darkGray),
                             const SizedBox(width: 4),
                             Text(
@@ -754,6 +765,54 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(Icons.person_pin_rounded, size: 12, color: accentTealGreen),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                record.getSubjectDisplay(),
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  color: accentTealGreen,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (record.hasReminders) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: warningAmber.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.notifications_active,
+                                      size: 11,
+                                      color: warningAmber,
+                                    ),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      '${record.reminders.length}',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: warningAmber,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                         if (record.description != null && record.description!.isNotEmpty) ...[
@@ -810,11 +869,12 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
   }
 
   Widget _buildErrorState() {
+    final errorMessage = _error.replaceAll('Exception: ', '').replaceAll('Exception:', '');
     return SliverFillRemaining(
       child: EnhancedEmptyState(
         icon: Icons.error_outline_rounded,
         title: 'Error Loading Records',
-        message: 'Failed to load health records. Pull down to retry.',
+        message: errorMessage.isNotEmpty ? errorMessage : 'Failed to load health records. Pull down to retry.',
         actionLabel: 'Retry',
         onAction: _loadHealthRecords,
       ),
