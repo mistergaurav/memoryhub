@@ -91,6 +91,30 @@ async def create_all_indexes():
     await get_collection("genealogy_invite_links").create_index("person_id")
     await get_collection("genealogy_invite_links").create_index([("expires_at", 1), ("status", 1)])
     
+    # Health records indexes
+    await get_collection("health_records").create_index("family_id")
+    await get_collection("health_records").create_index("family_member_id")
+    await get_collection("health_records").create_index([("family_id", 1), ("subject_type", 1)])
+    await get_collection("health_records").create_index("subject_user_id")
+    await get_collection("health_records").create_index("subject_family_member_id")
+    await get_collection("health_records").create_index("subject_friend_circle_id")
+    await get_collection("health_records").create_index("assigned_user_ids")
+    await get_collection("health_records").create_index([("family_id", 1), ("date", -1)])
+    await get_collection("health_records").create_index([("family_id", 1), ("record_type", 1)])
+    await get_collection("health_records").create_index("created_by")
+    
+    # Health record reminders indexes (compound index for efficient queries)
+    await get_collection("health_record_reminders").create_index("record_id")
+    await get_collection("health_record_reminders").create_index([("assigned_user_id", 1), ("status", 1), ("due_at", 1)])
+    await get_collection("health_record_reminders").create_index([("assigned_user_id", 1), ("due_at", 1)])
+    await get_collection("health_record_reminders").create_index([("status", 1), ("due_at", 1)])
+    await get_collection("health_record_reminders").create_index("created_by")
+    
+    # Vaccination records indexes
+    await get_collection("vaccination_records").create_index("family_id")
+    await get_collection("vaccination_records").create_index("family_member_id")
+    await get_collection("vaccination_records").create_index([("family_id", 1), ("date_administered", -1)])
+    
     print("✅ All database indexes created successfully")
 
 
