@@ -40,6 +40,13 @@ class SubjectType(str, Enum):
     FRIEND = "friend"
 
 
+class ApprovalStatus(str, Enum):
+    DRAFT = "draft"
+    PENDING_APPROVAL = "pending_approval"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
 class HealthRecordCreate(BaseModel):
     subject_type: SubjectType = SubjectType.SELF
     subject_user_id: Optional[str] = None
@@ -111,6 +118,10 @@ class HealthRecordUpdate(BaseModel):
     age_of_onset: Optional[int] = None
     affected_relatives: Optional[List[str]] = None
     genetic_test_results: Optional[str] = Field(None, max_length=2000)
+    approval_status: Optional[ApprovalStatus] = None
+    approved_at: Optional[datetime] = None
+    approved_by: Optional[str] = None
+    rejection_reason: Optional[str] = None
     
     @model_validator(mode='after')
     def validate_subject_consistency_on_update(self):
@@ -167,6 +178,10 @@ class HealthRecordResponse(BaseModel):
     affected_relatives: List[str] = []
     affected_relatives_names: List[str] = []
     genetic_test_results: Optional[str] = None
+    approval_status: Optional[ApprovalStatus] = ApprovalStatus.APPROVED
+    approved_at: Optional[datetime] = None
+    approved_by: Optional[str] = None
+    rejection_reason: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     created_by: str
