@@ -560,6 +560,116 @@ class FamilyService {
     }
   }
 
+  Future<Map<String, dynamic>> createReminder(Map<String, dynamic> reminderData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/health-records/reminders/'),
+        headers: headers,
+        body: jsonEncode(reminderData),
+      ),
+    );
+    if (response.statusCode == 201) {
+      final responseData = jsonDecode(response.body);
+      return responseData['data'] ?? responseData;
+    } else {
+      throw Exception('Failed to create reminder');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getReminders({
+    String? recordId,
+    String? assignedUserId,
+    String? status,
+  }) async {
+    final headers = await _authService.getAuthHeaders();
+    var url = '$baseUrl/health-records/reminders/';
+    final queryParams = <String, String>{};
+    if (recordId != null) queryParams['record_id'] = recordId;
+    if (assignedUserId != null) queryParams['assigned_user_id'] = assignedUserId;
+    if (status != null) queryParams['status'] = status;
+    if (queryParams.isNotEmpty) {
+      url += '?${queryParams.entries.map((e) => '${e.key}=${e.value}').join('&')}';
+    }
+    final response = await _handleRequest(
+      http.get(Uri.parse(url), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      if (responseData is Map && responseData.containsKey('items')) {
+        return List<Map<String, dynamic>>.from(responseData['items']);
+      } else if (responseData is List) {
+        return responseData.cast<Map<String, dynamic>>();
+      }
+      return [];
+    } else {
+      throw Exception('Failed to load reminders');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateReminder(String reminderId, Map<String, dynamic> reminderData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.put(
+        Uri.parse('$baseUrl/health-records/reminders/$reminderId'),
+        headers: headers,
+        body: jsonEncode(reminderData),
+      ),
+    );
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      return responseData['data'] ?? responseData;
+    } else {
+      throw Exception('Failed to update reminder');
+    }
+  }
+
+  Future<void> deleteReminder(String reminderId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.delete(
+        Uri.parse('$baseUrl/health-records/reminders/$reminderId'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete reminder');
+    }
+  }
+
+  Future<Map<String, dynamic>> snoozeReminder(String reminderId, DateTime snoozeUntil) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/health-records/reminders/$reminderId/snooze'),
+        headers: headers,
+        body: jsonEncode({'snooze_until': snoozeUntil.toIso8601String()}),
+      ),
+    );
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      return responseData['data'] ?? responseData;
+    } else {
+      throw Exception('Failed to snooze reminder');
+    }
+  }
+
+  Future<Map<String, dynamic>> completeReminder(String reminderId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/health-records/reminders/$reminderId/complete'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      return responseData['data'] ?? responseData;
+    } else {
+      throw Exception('Failed to complete reminder');
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getDocuments({String? documentType}) async {
     final headers = await _authService.getAuthHeaders();
     var url = '$baseUrl/document-vault/';

@@ -12,13 +12,27 @@ class HealthRecord {
   final String? personId;
   final String? personName;
   
-  // New genealogy fields
   final String? genealogyPersonId;
   final String? genealogyPersonName;
   final bool isHereditary;
   final String? inheritancePattern;
   final int? ageOfOnset;
   final List<String> affectedRelatives;
+  final List<String> affectedRelativesNames;
+  final String? geneticTestResults;
+  
+  final String subjectType;
+  final String? subjectUserId;
+  final String? subjectName;
+  final String? subjectFamilyMemberId;
+  final String? subjectFriendCircleId;
+  final List<String> assignedUserIds;
+  
+  final String? location;
+  final String? severity;
+  final List<String> medications;
+  final String? notes;
+  final bool isConfidential;
   
   final String createdBy;
   final String? createdByName;
@@ -45,6 +59,19 @@ class HealthRecord {
     this.inheritancePattern,
     this.ageOfOnset,
     this.affectedRelatives = const [],
+    this.affectedRelativesNames = const [],
+    this.geneticTestResults,
+    this.subjectType = 'self',
+    this.subjectUserId,
+    this.subjectName,
+    this.subjectFamilyMemberId,
+    this.subjectFriendCircleId,
+    this.assignedUserIds = const [],
+    this.location,
+    this.severity,
+    this.medications = const [],
+    this.notes,
+    this.isConfidential = true,
     required this.createdBy,
     this.createdByName,
     this.familyCircleIds = const [],
@@ -58,7 +85,7 @@ class HealthRecord {
       recordType: json['record_type'] ?? 'general',
       title: json['title'] ?? '',
       description: json['description'],
-      recordDate: DateTime.parse(json['record_date'] ?? DateTime.now().toIso8601String()),
+      recordDate: DateTime.parse(json['record_date'] ?? json['date'] ?? DateTime.now().toIso8601String()),
       diagnosis: json['diagnosis'],
       treatment: json['treatment'],
       provider: json['provider'],
@@ -72,6 +99,19 @@ class HealthRecord {
       inheritancePattern: json['inheritance_pattern'],
       ageOfOnset: json['age_of_onset'],
       affectedRelatives: List<String>.from(json['affected_relatives'] ?? []),
+      affectedRelativesNames: List<String>.from(json['affected_relatives_names'] ?? []),
+      geneticTestResults: json['genetic_test_results'],
+      subjectType: json['subject_type'] ?? 'self',
+      subjectUserId: json['subject_user_id'],
+      subjectName: json['subject_name'],
+      subjectFamilyMemberId: json['subject_family_member_id'],
+      subjectFriendCircleId: json['subject_friend_circle_id'],
+      assignedUserIds: List<String>.from(json['assigned_user_ids'] ?? []),
+      location: json['location'],
+      severity: json['severity'],
+      medications: List<String>.from(json['medications'] ?? []),
+      notes: json['notes'],
+      isConfidential: json['is_confidential'] ?? true,
       createdBy: json['created_by'] ?? '',
       createdByName: json['created_by_name'],
       familyCircleIds: List<String>.from(json['family_circle_ids'] ?? []),
@@ -100,6 +140,19 @@ class HealthRecord {
       'inheritance_pattern': inheritancePattern,
       'age_of_onset': ageOfOnset,
       'affected_relatives': affectedRelatives,
+      'affected_relatives_names': affectedRelativesNames,
+      'genetic_test_results': geneticTestResults,
+      'subject_type': subjectType,
+      'subject_user_id': subjectUserId,
+      'subject_name': subjectName,
+      'subject_family_member_id': subjectFamilyMemberId,
+      'subject_friend_circle_id': subjectFriendCircleId,
+      'assigned_user_ids': assignedUserIds,
+      'location': location,
+      'severity': severity,
+      'medications': medications,
+      'notes': notes,
+      'is_confidential': isConfidential,
       'created_by': createdBy,
       'created_by_name': createdByName,
       'family_circle_ids': familyCircleIds,

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../services/family/family_service.dart';
+import '../../services/auth_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../dialogs/family/quick_add_health_record_dialog.dart';
 import '../../dialogs/family/add_vaccination_dialog.dart';
+import '../../dialogs/family/add_reminder_dialog.dart';
+import '../../models/family/health_record_reminder.dart';
 import 'package:intl/intl.dart';
 
 class HealthRecordsScreen extends StatefulWidget {
@@ -15,15 +18,20 @@ class HealthRecordsScreen extends StatefulWidget {
 
 class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTickerProviderStateMixin {
   final FamilyService _familyService = FamilyService();
+  final AuthService _authService = AuthService();
   late TabController _tabController;
   
   List<Map<String, dynamic>> _healthRecords = [];
   List<Map<String, dynamic>> _vaccinations = [];
+  List<HealthRecordReminder> _reminders = [];
+  Map<String, List<HealthRecordReminder>> _remindersByRecord = {};
   bool _isLoadingRecords = true;
   bool _isLoadingVaccinations = true;
+  bool _isLoadingReminders = true;
   String _error = '';
   String? _selectedRecordType;
   String? _lastAddedRecordId;
+  String? _currentUserId;
 
   final List<Map<String, dynamic>> _recordTypes = [
     {'label': 'All', 'value': null, 'icon': Icons.all_inclusive, 'color': Colors.grey},
@@ -38,9 +46,18 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
+    _loadCurrentUser();
     _loadHealthRecords();
     _loadVaccinations();
+    _loadReminders();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    final userId = await _authService.getCurrentUserId();
+    setState(() {
+      _currentUserId = userId;
+    });
   }
 
   @override
