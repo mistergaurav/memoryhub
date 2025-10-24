@@ -26,12 +26,12 @@ Preferred communication style: Simple, everyday language.
 
 **Database**: MongoDB, accessed via the Motor async driver.
 **Collections**: A comprehensive schema supports all platform features including users, memories, files, social interactions, and detailed family-related data (e.g., `family_albums`, `genealogy_persons`, `health_records`).
-**File Storage**: Local filesystem storage within the `uploads/` directory, organized by user, with file type validation and configurable size limits.
+**File Storage**: Cloudflare R2 object storage for secure, scalable cloud-based file storage with S3-compatible API. Features include presigned URL generation for secure access, file metadata management, and organized storage structure. Legacy local filesystem storage in `uploads/` directory remains available as fallback.
 **Indexing Strategy**: Automated database indexing system creates over 30 indexes across 10 collections for performance optimization and GDPR audit logging.
 
 ## System Design Choices
 
-**UI/UX Decisions**: Modern Material 3 design system with design tokens (colors, typography, spacing), light/dark theme support, reusable component library, and vibrant gradient color schemes (Indigo, Purple, Pink) with Google Fonts (Inter). Features glassmorphic effects for modern aesthetics.
+**UI/UX Decisions**: Modern Material 3 design system with design tokens (colors, typography, spacing), light/dark theme support, reusable component library, and vibrant gradient color schemes (Indigo, Purple, Pink) with Google Fonts (Inter). Features glassmorphic effects for modern aesthetics. Health records feature a professional medical-themed interface with color-coded record types (Medical Blue #2563EB, Teal Green #14B8A6, Success Green #10B981), smooth animations, grid/list view toggle, and advanced filtering capabilities.
 **Feature Specifications**:
 - **Admin Panel**: Dashboard with statistics, user management, and activity tracking.
 - **Social Features**: User search, follow/unfollow, enhanced profiles, consistent avatar rendering, comments, notifications, activity feeds, and ephemeral "Stories."
@@ -61,6 +61,7 @@ Preferred communication style: Simple, everyday language.
 - `pyotp`, `qrcode`: Two-factor authentication and QR code generation.
 - `requests`: HTTP client.
 - `openai`: For Whisper integration (voice notes transcription).
+- `boto3`: AWS SDK for Python, used for S3-compatible Cloudflare R2 object storage integration.
 
 ## Frontend Dart Packages
 
@@ -76,4 +77,5 @@ Preferred communication style: Simple, everyday language.
 
 ## Third-Party Services
 
-- Email Service Providers: Resend, SendGrid, SMTP (support for various providers through an email service layer).
+- **Email Service Providers**: Resend, SendGrid, SMTP (support for various providers through an email service layer).
+- **Cloudflare R2**: Object storage service providing S3-compatible API for secure, scalable cloud file storage. Configured via environment variables (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT_URL, R2_BUCKET_NAME) managed through Replit's secrets system.
