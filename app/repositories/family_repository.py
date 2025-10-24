@@ -249,6 +249,43 @@ class FamilyMembersRepository(BaseRepository):
         member_oid = self.validate_object_id(member_id, "member_id")
         member = await self.find_one({"_id": member_oid}, raise_404=False)
         return member.get("name") if member else None
+    
+    async def search_by_name(
+        self,
+        family_id: str,
+        query: str,
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """
+        Search family members by name (case-insensitive).
+        
+        Args:
+            family_id: String representation of family ID
+            query: Search query string
+            limit: Maximum number of results (default: 10)
+            
+        Returns:
+            List of family members matching the query
+        """
+        family_oid = self.validate_object_id(family_id, "family_id")
+        
+        search_regex = {"$regex": query, "$options": "i"}
+        filter_dict = {
+            "family_id": family_oid,
+            "name": search_regex
+        }
+        
+        results = await self.find_many(
+            filter_dict,
+            limit=limit,
+            sort_by="name",
+            sort_order=1
+        )
+        
+        exact_matches = [r for r in results if r.get("name", "").lower() == query.lower()]
+        partial_matches = [r for r in results if r.get("name", "").lower() != query.lower()]
+        
+        return exact_matches + partial_matches
 
 
 class FamilyRepository(BaseRepository):
@@ -485,6 +522,77 @@ class FamilyRepository(BaseRepository):
         updated_circle = await self.find_one({"_id": circle_oid}, raise_404=True)
         assert updated_circle is not None
         return updated_circle
+    
+    async def search_circle_members(
+        self,
+        user_id: str,
+        query: str,
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """
+        Search members across all circles where user is owner or member.
+        
+        Args:
+            user_id: String representation of user ID
+            query: Search query string
+            limit: Maximum number of results (default: 10)
+            
+        Returns:
+            List of users matching the query from user's circles
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        circles = await self.find_many(
+            {
+                "$or": [
+                    {"owner_id": user_oid},
+                    {"member_ids": user_oid}
+                ]
+            },
+            limit=100
+        )
+        
+        if not circles:
+            return []
+        
+        member_ids_set = set()
+        for circle in circles:
+            if circle.get("owner_id"):
+                member_ids_set.add(circle["owner_id"])
+            
+            if circle.get("member_ids"):
+                member_ids_set.update(circle["member_ids"])
+        
+        if not member_ids_set:
+            return []
+        
+        user_repo = UserRepository()
+        search_regex = {"$regex": query, "$options": "i"}
+        
+        filter_dict = {
+            "_id": {"$in": list(member_ids_set)},
+            "$or": [
+                {"full_name": search_regex},
+                {"username": search_regex}
+            ]
+        }
+        
+        results = await user_repo.find_many(filter_dict, limit=limit)
+        
+        exact_matches = []
+        partial_matches = []
+        
+        for r in results:
+            full_name = r.get("full_name", "").lower()
+            username = r.get("username", "").lower() if r.get("username") else ""
+            query_lower = query.lower()
+            
+            if full_name == query_lower or username == query_lower:
+                exact_matches.append(r)
+            else:
+                partial_matches.append(r)
+        
+        return exact_matches + partial_matches
 
 
 class FamilyRelationshipRepository(BaseRepository):

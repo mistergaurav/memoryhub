@@ -1,7 +1,7 @@
 """Main API router with domain-organized endpoints."""
 from fastapi import APIRouter
 from app.api.v1.endpoints.auth import auth, password_reset, two_factor
-from app.api.v1.endpoints.users import users, social as social_users, privacy
+from app.api.v1.endpoints.users import users, social as social_users, privacy, user_search
 from app.api.v1.endpoints.memories import memories, memory_templates, tags, categories
 from app.api.v1.endpoints.content import comments, reactions, stories, voice_notes
 from app.api.v1.endpoints.collections import collections, vault, document_vault
@@ -22,6 +22,7 @@ api_router.include_router(password_reset.router, prefix="/password-reset", tags=
 api_router.include_router(two_factor.router, prefix="/2fa", tags=["2fa"])
 
 api_router.include_router(users.router, prefix="/users", tags=["users"])
+api_router.include_router(user_search.router, prefix="/users", tags=["users"])
 api_router.include_router(social_users.router, prefix="/social", tags=["social"])
 api_router.include_router(privacy.router, prefix="/privacy", tags=["privacy"])
 
