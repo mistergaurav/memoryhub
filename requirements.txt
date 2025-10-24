@@ -106,3 +106,5 @@ pytz
 qrcode
 reportlab
 uvicorn
+boto3
+boto3
