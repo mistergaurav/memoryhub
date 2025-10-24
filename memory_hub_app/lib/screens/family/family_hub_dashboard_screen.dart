@@ -922,20 +922,27 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Material(
-          color: Theme.of(context).cardColor,
-          elevation: MemoryHubElevation.md,
+        InkWell(
+          onTap: () {
+            _toggleFab();
+            onTap();
+          },
           borderRadius: MemoryHubBorderRadius.smRadius,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: MemoryHubSpacing.md,
-              vertical: MemoryHubSpacing.sm,
-            ),
-            child: Text(
-              label,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+          child: Material(
+            color: Theme.of(context).cardColor,
+            elevation: MemoryHubElevation.md,
+            borderRadius: MemoryHubBorderRadius.smRadius,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: MemoryHubSpacing.md,
+                vertical: MemoryHubSpacing.sm,
+              ),
+              child: Text(
+                label,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ),

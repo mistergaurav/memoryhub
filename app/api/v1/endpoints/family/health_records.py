@@ -74,15 +74,11 @@ async def create_health_record(
     record: HealthRecordCreate,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Create a new health record"""
-    if not record.family_member_id:
-        raise HTTPException(status_code=400, detail="Family member ID is required")
-    
-    member_oid = health_records_repo.validate_object_id(record.family_member_id, "family_member_id")
+    """Create a new health record with support for self, family, and friend subjects"""
     
     record_data = {
         "family_id": ObjectId(current_user.id),
-        "family_member_id": member_oid,
+        "subject_type": record.subject_type,
         "record_type": record.record_type,
         "title": record.title,
         "description": record.description,
@@ -94,19 +90,51 @@ async def create_health_record(
         "notes": record.notes,
         "medications": record.medications,
         "is_confidential": record.is_confidential,
+        "is_hereditary": record.is_hereditary,
+        "inheritance_pattern": record.inheritance_pattern,
+        "age_of_onset": record.age_of_onset,
+        "affected_relatives": record.affected_relatives,
+        "genetic_test_results": record.genetic_test_results,
         "created_by": ObjectId(current_user.id)
     }
     
+    if record.subject_user_id:
+        record_data["subject_user_id"] = health_records_repo.validate_object_id(record.subject_user_id, "subject_user_id")
+    
+    if record.subject_family_member_id:
+        record_data["subject_family_member_id"] = health_records_repo.validate_object_id(record.subject_family_member_id, "subject_family_member_id")
+    
+    if record.subject_friend_circle_id:
+        record_data["subject_friend_circle_id"] = health_records_repo.validate_object_id(record.subject_friend_circle_id, "subject_friend_circle_id")
+    
+    if record.assigned_user_ids:
+        record_data["assigned_user_ids"] = [
+            health_records_repo.validate_object_id(user_id, "assigned_user_id")
+            for user_id in record.assigned_user_ids
+        ]
+    
+    if record.family_member_id:
+        record_data["family_member_id"] = health_records_repo.validate_object_id(record.family_member_id, "family_member_id")
+    
+    if record.genealogy_person_id:
+        record_data["genealogy_person_id"] = health_records_repo.validate_object_id(record.genealogy_person_id, "genealogy_person_id")
+    
     record_doc = await health_records_repo.create(record_data)
     
-    member_name = await get_member_name(member_oid)
+    member_name = None
+    if record.family_member_id:
+        member_name = await get_member_name(ObjectId(record.family_member_id))
     
     await log_audit_event(
-        user_id=current_user.id,
-        action="CREATE_HEALTH_RECORD",
-        resource_type="health_record",
-        resource_id=str(record_doc["_id"]),
-        details={"record_type": record.record_type, "is_confidential": record.is_confidential}
+        user_id=str(current_user.id),
+        event_type="CREATE_HEALTH_RECORD",
+        event_details={
+            "resource_type": "health_record",
+            "resource_id": str(record_doc["_id"]),
+            "record_type": record.record_type,
+            "subject_type": record.subject_type,
+            "is_confidential": record.is_confidential
+        }
     )
     
     return create_success_response(
