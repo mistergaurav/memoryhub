@@ -10,6 +10,7 @@ import '../../models/family/legacy_letter.dart';
 import '../../models/family/family_tradition.dart';
 import '../../models/family/parental_control.dart';
 import '../../models/family/family_calendar.dart';
+import '../../models/user_search_result.dart';
 
 class FamilyService {
   static String get baseUrl => ApiConfig.baseUrl;
@@ -1004,5 +1005,62 @@ class FamilyService {
     } else {
       throw Exception('Failed to redeem invite link');
     }
+  }
+
+  Future<List<UserSearchResult>> searchFamilyCircleUsers(String query) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(
+        Uri.parse('$baseUrl/users/search-family-circle?query=${Uri.encodeComponent(query)}'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List<dynamic> items = data['data']?['results'] ?? data['results'] ?? [];
+      return items.map((json) => UserSearchResult.fromJson(json)).toList();
+    }
+    throw Exception('Failed to search users');
+  }
+
+  Future<void> approveHealthRecord(String recordId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/family/health-records/$recordId/approve'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to approve health record');
+    }
+  }
+
+  Future<void> rejectHealthRecord(String recordId, String? reason) async {
+    final headers = await _authService.getAuthHeaders();
+    final url = reason != null 
+      ? '$baseUrl/family/health-records/$recordId/reject?rejection_reason=${Uri.encodeComponent(reason)}'
+      : '$baseUrl/family/health-records/$recordId/reject';
+    final response = await _handleRequest(
+      http.post(Uri.parse(url), headers: headers),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to reject health record');
+    }
+  }
+
+  Future<Map<String, dynamic>> getHealthDashboard() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(
+        Uri.parse('$baseUrl/family/health-records/dashboard'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
+    }
+    throw Exception('Failed to load health dashboard');
   }
 }

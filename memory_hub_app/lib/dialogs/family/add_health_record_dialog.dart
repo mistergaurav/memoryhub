@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/auth_service.dart';
 import '../../services/family/family_service.dart';
+import '../../models/user_search_result.dart';
+import '../../widgets/user_search_autocomplete.dart';
 
 class AddHealthRecordDialog extends StatefulWidget {
   const AddHealthRecordDialog({Key? key}) : super(key: key);
@@ -31,6 +33,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
   String _subjectType = 'self';
   String? _selectedFamilyMemberId;
   String? _selectedFriendCircleId;
+  UserSearchResult? _selectedUser;
   List<Map<String, dynamic>> _familyMembers = [];
   List<Map<String, dynamic>> _friendCircles = [];
   bool _loadingMembers = false;
@@ -202,6 +205,13 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
         return;
       }
 
+      if (_subjectType == 'user' && _selectedUser == null) {
+        setState(() {
+          _errorMessage = 'Please search and select a user';
+        });
+        return;
+      }
+
       if (_enableReminder && _reminderDueDate == null) {
         setState(() {
           _errorMessage = 'Please select a reminder due date';
@@ -241,6 +251,9 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
           recordData['subject_family_member_id'] = _selectedFamilyMemberId;
         } else if (_subjectType == 'friend') {
           recordData['subject_friend_circle_id'] = _selectedFriendCircleId;
+        } else if (_subjectType == 'user' && _selectedUser != null) {
+          recordData['subject_user_id'] = _selectedUser!.id;
+          recordData['subject_name'] = _selectedUser!.fullName;
         }
 
         await _familyService.createHealthRecord(recordData);
@@ -594,6 +607,20 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                 setState(() {
                                   _subjectType = 'friend';
                                   _selectedFamilyMemberId = null;
+                                  _selectedUser = null;
+                                  _animationController.forward();
+                                });
+                              },
+                            ),
+                            _buildChoiceChip(
+                              label: 'Other User',
+                              icon: Icons.person_search,
+                              selected: _subjectType == 'user',
+                              onTap: () {
+                                setState(() {
+                                  _subjectType = 'user';
+                                  _selectedFamilyMemberId = null;
+                                  _selectedFriendCircleId = null;
                                   _animationController.forward();
                                 });
                               },
@@ -605,7 +632,13 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                             sizeFactor: _dropdownAnimation,
                             child: Padding(
                               padding: const EdgeInsets.only(top: 16),
-                              child: _subjectType == 'family'
+                              child: _subjectType == 'user'
+                                  ? UserSearchAutocomplete(
+                                      onUserSelected: (user) {
+                                        setState(() => _selectedUser = user);
+                                      },
+                                    )
+                                  : _subjectType == 'family'
                                   ? (_loadingMembers
                                       ? const Center(child: CircularProgressIndicator(color: _accentAqua))
                                       : DropdownButtonFormField<String>(

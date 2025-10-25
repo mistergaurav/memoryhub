@@ -5,6 +5,7 @@ import '../../models/family/health_record.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../dialogs/family/add_health_record_dialog.dart';
+import '../../widgets/approval_status_badge.dart';
 import 'package:intl/intl.dart';
 
 class HealthRecordsScreen extends StatefulWidget {
@@ -588,6 +589,8 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
                           ),
                         ],
                       ),
+                      const SizedBox(height: 6),
+                      buildApprovalStatusBadge(record.approvalStatus),
                       if (record.hasReminders) ...[
                         const SizedBox(height: 6),
                         Container(
@@ -784,6 +787,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen> with SingleTi
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
+                            buildApprovalStatusBadge(record.approvalStatus),
                             if (record.hasReminders) ...[
                               const SizedBox(width: 8),
                               Container(

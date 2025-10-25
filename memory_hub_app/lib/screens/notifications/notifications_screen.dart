@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../services/notifications_service.dart';
+import '../../services/family/family_service.dart';
 import '../../widgets/gradient_container.dart';
 import '../../widgets/animated_list_item.dart';
 
@@ -14,6 +15,7 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final NotificationsService _service = NotificationsService();
+  final FamilyService _familyService = FamilyService();
   bool _isLoading = true;
   List<dynamic> _notifications = [];
   int _unreadCount = 0;
@@ -270,6 +272,46 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         ],
                       ),
                     ],
+                    if ((type == 'health_record_assignment' || type == 'HEALTH_RECORD_ASSIGNMENT') && 
+                        notif['metadata'] != null && 
+                        notif['metadata']['health_record_id'] != null) ...[
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              icon: const Icon(Icons.cancel, size: 16),
+                              label: Text('Reject', style: GoogleFonts.inter(fontSize: 13)),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.red,
+                                side: const BorderSide(color: Colors.red),
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                              onPressed: () => _rejectHealthRecord(
+                                notif['id'],
+                                notif['metadata']['health_record_id'],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              icon: const Icon(Icons.check_circle, size: 16),
+                              label: Text('Approve', style: GoogleFonts.inter(fontSize: 13)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                              onPressed: () => _approveHealthRecord(
+                                notif['id'],
+                                notif['metadata']['health_record_id'],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -297,6 +339,109 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
+  Future<void> _approveHealthRecord(String notificationId, String recordId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Approve Health Record', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        content: Text('Are you sure you want to approve this health record?', style: GoogleFonts.inter()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Cancel', style: GoogleFonts.inter()),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: Text('Approve', style: GoogleFonts.inter(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _familyService.approveHealthRecord(recordId);
+        await _service.markAsRead(notificationId);
+        await _loadNotifications();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Health record approved successfully', style: GoogleFonts.inter()),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error approving record: $e', style: GoogleFonts.inter())),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _rejectHealthRecord(String notificationId, String recordId) async {
+    String? reason;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Reject Health Record', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Are you sure you want to reject this health record?', style: GoogleFonts.inter()),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Reason (optional)',
+                border: OutlineInputBorder(),
+                labelStyle: GoogleFonts.inter(),
+              ),
+              style: GoogleFonts.inter(),
+              maxLines: 3,
+              onChanged: (value) => reason = value,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Cancel', style: GoogleFonts.inter()),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text('Reject', style: GoogleFonts.inter(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _familyService.rejectHealthRecord(recordId, reason);
+        await _service.markAsRead(notificationId);
+        await _loadNotifications();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Health record rejected', style: GoogleFonts.inter()),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error rejecting record: $e', style: GoogleFonts.inter())),
+          );
+        }
+      }
+    }
+  }
+
   IconData _getIconForType(String? type) {
     switch (type) {
       case 'like':
@@ -311,6 +456,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         return Icons.share;
       case 'memory':
         return Icons.photo;
+      case 'health_record_assignment':
+      case 'HEALTH_RECORD_ASSIGNMENT':
+        return Icons.medical_services;
       default:
         return Icons.notifications;
     }
@@ -322,6 +470,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         return Colors.red;
       case 'comment':
         return Colors.blue;
+      case 'health_record_assignment':
+      case 'HEALTH_RECORD_ASSIGNMENT':
+        return Colors.teal;
       case 'follow':
         return Colors.green;
       case 'mention':

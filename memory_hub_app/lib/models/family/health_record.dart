@@ -41,6 +41,11 @@ class HealthRecord {
   final List<String> familyCircleIds;
   final DateTime createdAt;
   final DateTime updatedAt;
+  
+  final String? approvalStatus;
+  final String? approvedBy;
+  final DateTime? approvedAt;
+  final String? rejectionReason;
 
   HealthRecord({
     required this.id,
@@ -80,6 +85,10 @@ class HealthRecord {
     this.familyCircleIds = const [],
     required this.createdAt,
     required this.updatedAt,
+    this.approvalStatus = 'draft',
+    this.approvedBy,
+    this.approvedAt,
+    this.rejectionReason,
   });
 
   factory HealthRecord.fromJson(Map<String, dynamic> json) {
@@ -121,6 +130,10 @@ class HealthRecord {
       familyCircleIds: List<String>.from(json['family_circle_ids'] ?? []),
       createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
       updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
+      approvalStatus: json['approval_status'] ?? 'draft',
+      approvedBy: json['approved_by'],
+      approvedAt: json['approved_at'] != null ? DateTime.parse(json['approved_at']) : null,
+      rejectionReason: json['rejection_reason'],
     );
   }
 
@@ -138,6 +151,10 @@ class HealthRecord {
   }
 
   bool get hasReminders => reminders.isNotEmpty;
+  
+  bool get isPendingApproval => approvalStatus == 'pending_approval';
+  bool get isApproved => approvalStatus == 'approved';
+  bool get isRejected => approvalStatus == 'rejected';
 
   Map<String, dynamic> toJson() {
     return {
@@ -178,6 +195,10 @@ class HealthRecord {
       'family_circle_ids': familyCircleIds,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'approval_status': approvalStatus,
+      'approved_by': approvedBy,
+      'approved_at': approvedAt?.toIso8601String(),
+      'rejection_reason': rejectionReason,
     };
   }
 }
