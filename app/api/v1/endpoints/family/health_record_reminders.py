@@ -14,6 +14,8 @@ from app.core.security import get_current_user
 from app.repositories.base_repository import BaseRepository
 from app.models.responses import create_success_response, create_paginated_response
 from app.utils.audit_logger import log_audit_event
+from app.api.v1.endpoints.social.notifications import create_notification
+from app.schemas.notification import NotificationType
 
 router = APIRouter()
 
@@ -86,6 +88,17 @@ async def create_reminder(
     }
     
     reminder_doc = await reminders_repo.create(reminder_data)
+    
+    if reminder.assigned_user_id and reminder.assigned_user_id != current_user.id:
+        await create_notification(
+            user_id=reminder.assigned_user_id,
+            notification_type=NotificationType.HEALTH_REMINDER_ASSIGNMENT,
+            title="Health Reminder Assigned to You",
+            message=f"{current_user.full_name or 'Someone'} created a health reminder '{reminder.title}' for you due on {reminder.due_at.strftime('%B %d, %Y')}.",
+            actor_id=current_user.id,
+            target_type="health_reminder",
+            target_id=str(reminder_doc["_id"])
+        )
     
     await log_audit_event(
         user_id=str(current_user.id),

@@ -14,6 +14,8 @@ from app.repositories.family_repository import HealthRecordsRepository, FamilyMe
 from app.repositories.base_repository import BaseRepository
 from app.models.responses import create_success_response, create_paginated_response
 from app.utils.audit_logger import log_audit_event
+from app.api.v1.endpoints.social.notifications import create_notification
+from app.schemas.notification import NotificationType
 
 router = APIRouter()
 
@@ -152,6 +154,17 @@ async def create_health_record(
         record_data["approved_by"] = str(current_user.id)
     
     record_doc = await health_records_repo.create(record_data)
+    
+    if record.subject_user_id and record.subject_user_id != current_user.id:
+        await create_notification(
+            user_id=record.subject_user_id,
+            notification_type=NotificationType.HEALTH_RECORD_ASSIGNMENT,
+            title="New Health Record Created for You",
+            message=f"{current_user.full_name or 'Someone'} created a health record '{record.title}' for you. Please review and approve.",
+            actor_id=current_user.id,
+            target_type="health_record",
+            target_id=str(record_doc["_id"])
+        )
     
     member_name = None
     if record.family_member_id:
@@ -465,6 +478,18 @@ async def approve_health_record(
     if not updated_record:
         raise HTTPException(status_code=404, detail="Failed to approve health record")
     
+    creator_id = str(record_doc["created_by"])
+    if creator_id != current_user.id:
+        await create_notification(
+            user_id=creator_id,
+            notification_type=NotificationType.HEALTH_RECORD_APPROVED,
+            title="Health Record Approved",
+            message=f"{current_user.full_name or 'Someone'} approved the health record '{record_doc['title']}' you created for them.",
+            actor_id=current_user.id,
+            target_type="health_record",
+            target_id=record_id
+        )
+    
     # Log audit event
     await log_audit_event(
         user_id=str(current_user.id),
@@ -538,6 +563,19 @@ async def reject_health_record(
     
     if not updated_record:
         raise HTTPException(status_code=404, detail="Failed to reject health record")
+    
+    creator_id = str(record_doc["created_by"])
+    if creator_id != current_user.id:
+        reason_text = f" Reason: {rejection_reason}" if rejection_reason else ""
+        await create_notification(
+            user_id=creator_id,
+            notification_type=NotificationType.HEALTH_RECORD_REJECTED,
+            title="Health Record Rejected",
+            message=f"{current_user.full_name or 'Someone'} rejected the health record '{record_doc['title']}' you created for them.{reason_text}",
+            actor_id=current_user.id,
+            target_type="health_record",
+            target_id=record_id
+        )
     
     # Log audit event
     await log_audit_event(

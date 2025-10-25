@@ -27,12 +27,6 @@ class RelationshipStatus(str, Enum):
     ACCEPTED = "accepted"
     BLOCKED = "blocked"
 
-class NotificationType(str, Enum):
-    HEALTH_RECORD_ASSIGNMENT = "health_record_assignment"
-    HEALTH_REMINDER_ASSIGNMENT = "health_reminder_assignment"
-    HEALTH_RECORD_APPROVED = "health_record_approved"
-    HEALTH_RECORD_REJECTED = "health_record_rejected"
-
 class CollaborativeHubBase(BaseModel):
     name: str
     description: Optional[str] = None

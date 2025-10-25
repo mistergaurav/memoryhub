@@ -10,6 +10,10 @@ class NotificationType(str, Enum):
     HUB_INVITE = "hub_invite"
     MENTION = "mention"
     MEMORY_SHARE = "memory_share"
+    HEALTH_RECORD_ASSIGNMENT = "health_record_assignment"
+    HEALTH_REMINDER_ASSIGNMENT = "health_reminder_assignment"
+    HEALTH_RECORD_APPROVED = "health_record_approved"
+    HEALTH_RECORD_REJECTED = "health_record_rejected"
 
 class NotificationResponse(BaseModel):
     id: str
