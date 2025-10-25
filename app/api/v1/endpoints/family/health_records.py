@@ -20,6 +20,7 @@ router = APIRouter()
 health_records_repo = HealthRecordsRepository()
 vaccination_repo = BaseRepository("vaccination_records")
 family_members_repo = FamilyMembersRepository()
+reminders_repo = BaseRepository("health_record_reminders")
 
 
 def health_record_to_response(record_doc: dict, member_name: Optional[str] = None) -> HealthRecordResponse:
@@ -48,6 +49,21 @@ def health_record_to_response(record_doc: dict, member_name: Optional[str] = Non
         updated_at=record_doc["updated_at"],
         created_by=str(record_doc["created_by"])
     )
+
+
+def reminder_to_dict(reminder_doc: dict) -> Dict[str, Any]:
+    """Convert MongoDB reminder document to dictionary for dashboard"""
+    return {
+        "id": str(reminder_doc["_id"]),
+        "record_id": str(reminder_doc["record_id"]),
+        "assigned_user_id": str(reminder_doc["assigned_user_id"]),
+        "reminder_type": reminder_doc["reminder_type"],
+        "title": reminder_doc["title"],
+        "description": reminder_doc.get("description"),
+        "due_at": reminder_doc["due_at"],
+        "status": reminder_doc["status"],
+        "created_at": reminder_doc["created_at"]
+    }
 
 
 def vaccination_to_response(vacc_doc: dict, member_name: Optional[str] = None) -> VaccinationRecordResponse:
@@ -170,11 +186,12 @@ async def list_health_records(
     """List all health records with optional filtering and pagination"""
     user_oid = ObjectId(current_user.id)
     
-    # Include records where user is the owner OR where user is the subject
+    # Include records where user is the creator, subject, or assigned
     query: Dict[str, Any] = {
         "$or": [
             {"family_id": user_oid},
-            {"subject_user_id": user_oid}
+            {"subject_user_id": user_oid},
+            {"assigned_user_ids": user_oid}
         ]
     }
     
@@ -208,6 +225,89 @@ async def list_health_records(
         page=page,
         page_size=page_size,
         message="Health records retrieved successfully"
+    )
+
+
+@router.get("/dashboard")
+async def get_shared_health_dashboard(
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Get comprehensive health dashboard with all accessible records and stats"""
+    user_oid = ObjectId(current_user.id)
+    
+    # Get all records accessible to user
+    all_records_query = {
+        "$or": [
+            {"family_id": user_oid},
+            {"subject_user_id": user_oid},
+            {"assigned_user_ids": user_oid}
+        ]
+    }
+    
+    all_records = await health_records_repo.find_many(
+        filter_dict=all_records_query,
+        limit=1000
+    )
+    
+    # Get pending approvals (records created for this user)
+    pending_approvals = [
+        r for r in all_records 
+        if r.get("subject_user_id") == user_oid 
+        and r.get("approval_status") == "pending_approval"
+    ]
+    
+    # Get recent reminders
+    user_reminders = await reminders_repo.find_many(
+        filter_dict={
+            "$or": [
+                {"assigned_user_id": user_oid},
+                {"created_by": user_oid}
+            ],
+            "status": {"$in": ["pending", "sent"]}
+        },
+        limit=10,
+        sort_by="due_at",
+        sort_order=1
+    )
+    
+    # Calculate statistics
+    stats = {
+        "total_records": len(all_records),
+        "pending_approvals": len(pending_approvals),
+        "upcoming_reminders": len(user_reminders),
+        "records_by_type": {},
+        "recent_records": []
+    }
+    
+    # Group by type
+    for record in all_records:
+        rec_type = record.get("record_type", "unknown")
+        stats["records_by_type"][rec_type] = stats["records_by_type"].get(rec_type, 0) + 1
+    
+    # Get 10 most recent records
+    sorted_records = sorted(all_records, key=lambda x: x["created_at"], reverse=True)[:10]
+    for record_doc in sorted_records:
+        stats["recent_records"].append(health_record_to_response(record_doc))
+    
+    # Log dashboard access
+    await log_audit_event(
+        user_id=str(current_user.id),
+        event_type="VIEW_HEALTH_DASHBOARD",
+        event_details={
+            "resource_type": "health_dashboard",
+            "total_records": stats["total_records"],
+            "pending_approvals": stats["pending_approvals"],
+            "upcoming_reminders": stats["upcoming_reminders"]
+        }
+    )
+    
+    return create_success_response(
+        message="Health dashboard retrieved successfully",
+        data={
+            "statistics": stats,
+            "pending_approvals": [health_record_to_response(r) for r in pending_approvals],
+            "upcoming_reminders": [reminder_to_dict(r) for r in user_reminders]
+        }
     )
 
 

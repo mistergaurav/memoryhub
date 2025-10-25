@@ -115,6 +115,7 @@ async def list_reminders(
 ):
     """List health record reminders with optional filtering"""
     query: Dict[str, Any] = {}
+    user_oid = ObjectId(current_user.id)
     
     # If record_id is provided, verify user has access to that record
     if record_id:
@@ -125,7 +126,14 @@ async def list_reminders(
             error_message="Health record not found"
         )
         
-        if str(record["family_id"]) != current_user.id:
+        # User can view reminders if they own the record, are the subject, or are assigned
+        has_access = (
+            str(record["family_id"]) == current_user.id or
+            record.get("subject_user_id") == user_oid or
+            user_oid in record.get("assigned_user_ids", [])
+        )
+        
+        if not has_access:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Not authorized to view reminders for this record"
@@ -133,13 +141,31 @@ async def list_reminders(
         
         query["record_id"] = record_oid
     else:
-        # Find all health records for this user
+        # Get user's own records
         user_records = await health_records_repo.find_many(
-            filter_dict={"family_id": ObjectId(current_user.id)},
-            limit=10000  # Get all user's records
+            filter_dict={"family_id": user_oid},
+            limit=10000
         )
-        record_ids = [record["_id"] for record in user_records]
-        query["record_id"] = {"$in": record_ids}
+        
+        # Also get records where user is assigned
+        assigned_records = await health_records_repo.find_many(
+            filter_dict={
+                "$or": [
+                    {"subject_user_id": user_oid},
+                    {"assigned_user_ids": user_oid}
+                ]
+            },
+            limit=10000
+        )
+        
+        # Combine record IDs
+        all_record_ids = list(set([r["_id"] for r in user_records] + [r["_id"] for r in assigned_records]))
+        
+        # Find reminders for these records OR where user is assigned_user_id
+        query["$or"] = [
+            {"record_id": {"$in": all_record_ids}},
+            {"assigned_user_id": user_oid}
+        ]
     
     if assigned_user_id:
         assigned_oid = reminders_repo.validate_object_id(assigned_user_id, "assigned_user_id")
