@@ -8,6 +8,10 @@ from app.core.config import settings
 from app.db.mongodb import connect_to_mongo, close_mongo_connection
 from app.utils.db_indexes import create_all_indexes
 import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

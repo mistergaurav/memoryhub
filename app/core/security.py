@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
+import logging
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -50,17 +51,20 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
+        logging.info(f"Received token: {token}")
         payload = jwt.decode(
-            token, 
-            settings.SECRET_KEY, 
+            token,
+            settings.SECRET_KEY,
             algorithms=[settings.ALGORITHM]
         )
+        logging.info(f"Decoded payload: {payload}")
         if payload.get("type") != "access":
             raise credentials_exception
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
-    except JWTError:
+    except JWTError as e:
+        logging.error(f"JWTError: {e}")
         raise credentials_exception
     
     user = await get_user_by_email(email)

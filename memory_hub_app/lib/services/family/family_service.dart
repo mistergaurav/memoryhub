@@ -1007,6 +1007,22 @@ class FamilyService {
     }
   }
 
+  Future<String> generateInviteLink() async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/genealogy/generate-invite-link'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      return responseBody['invite_link'];
+    } else {
+      throw Exception('Failed to generate invite link');
+    }
+  }
+
   Future<List<UserSearchResult>> searchFamilyCircleUsers(String query) async {
     final headers = await _authService.getAuthHeaders();
     final response = await _handleRequest(

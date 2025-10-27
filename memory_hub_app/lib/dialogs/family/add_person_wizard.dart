@@ -278,6 +278,27 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
     );
   }
   
+  Widget _buildGenerateInviteLinkButton() {
+    return ElevatedButton.icon(
+      onPressed: () async {
+        try {
+          final inviteLink = await _familyService.generateInviteLink();
+          // Share the invite link
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to generate invite link: $e')),
+          );
+        }
+      },
+      icon: const Icon(Icons.link),
+      label: const Text('Generate Invite Link'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF06B6D4),
+        foregroundColor: Colors.white,
+      ),
+    );
+  }
+
   Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -376,22 +397,39 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
     );
   }
   
-  Widget _buildStep1SearchOrAdd() {
+  Widget _buildStep({
+    required String title,
+    required String subtitle,
+    required Widget content,
+  }) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Step 1: Search or Add New Person',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Start typing to search for existing users on our platform, or enter a name to create a new profile.',
-            style: TextStyle(color: Colors.grey, fontSize: 14),
+          Text(
+            subtitle,
+            style: const TextStyle(color: Colors.grey, fontSize: 14),
           ),
           const SizedBox(height: 20),
+          content,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep1SearchOrAdd() {
+    return _buildStep(
+      title: 'Step 1: Search or Add New Person',
+      subtitle:
+          'Start typing to search for existing users on our platform, or enter a name to create a new profile.',
+      content: Column(
+        children: [
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
@@ -506,21 +544,11 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   }
   
   Widget _buildStep2PersonDetails() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return _buildStep(
+      title: 'Step 2: Person Details',
+      subtitle: 'Enter or update the person\'s details.',
+      content: Column(
         children: [
-          const Text(
-            'Step 2: Person Details',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Enter or update the person\'s details.',
-            style: TextStyle(color: Colors.grey, fontSize: 14),
-          ),
-          const SizedBox(height: 20),
           TextField(
             controller: _firstNameController,
             decoration: InputDecoration(
@@ -668,21 +696,12 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   }
   
   Widget _buildStep3Relationships() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return _buildStep(
+      title: 'Step 3: Relationship Setup',
+      subtitle:
+          'Define how this person relates to existing family members. The tree will automatically update.',
+      content: Column(
         children: [
-          const Text(
-            'Step 3: Relationship Setup',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Define how this person relates to existing family members. The tree will automatically update.',
-            style: TextStyle(color: Colors.grey, fontSize: 14),
-          ),
-          const SizedBox(height: 20),
           if (_existingPersons.isEmpty) ...[
             const Center(
               child: Padding(
@@ -718,6 +737,19 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
               ),
             ),
           ],
+        if (_selectedExistingUser == null && _isAlive) ...[
+          const SizedBox(height: 24),
+          const Divider(),
+          const SizedBox(height: 24),
+          const Center(
+            child: Text(
+              'Or, generate an invite link to share:',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Center(child: _buildGenerateInviteLinkButton()),
+        ],
         ],
       ),
     );
@@ -836,72 +868,67 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   }
   
   Widget _buildStep4Invite() {
-    final canInvite = _selectedExistingUser != null && _isAlive;
+    final canInvite = _isAlive;
     
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return _buildStep(
+      title: 'Step 4: Invite to Family Hub',
+      subtitle: canInvite
+          ? 'Since this person is alive, you can invite them to join your family hub.'
+          : 'This person is marked as deceased.',
+      content: Column(
         children: [
-          const Text(
-            'Step 4: Invite to Family Hub',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          if (canInvite)
-            const Text(
-              'Since this person is alive and linked to a platform user, you can invite them to join your family hub.',
-              style: TextStyle(color: Colors.grey, fontSize: 14),
-            )
-          else
-            Text(
-              _selectedExistingUser == null
-                  ? 'This person is not linked to a platform user.'
-                  : 'This person is marked as deceased.',
-              style: const TextStyle(color: Colors.grey, fontSize: 14),
-            ),
-          const SizedBox(height: 20),
           if (canInvite) ...[
-            SwitchListTile(
-              title: const Text('Send Invitation'),
-              subtitle: Text(
-                  'Invite ${_selectedExistingUser!['full_name'] ?? _selectedExistingUser!['username']} to your family hub'),
-              value: _sendInvitation,
-              activeColor: const Color(0xFFF59E0B),
-              onChanged: (value) => setState(() => _sendInvitation = value),
-            ),
-            if (_sendInvitation) ...[
-              const SizedBox(height: 16),
-              TextField(
-                maxLines: 3,
-                decoration: InputDecoration(
-                  labelText: 'Personal Message (Optional)',
-                  hintText: 'Add a personal message to the invitation...',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onChanged: (value) => setState(() => _invitationMessage = value),
+            if (_selectedExistingUser != null) ...[
+              SwitchListTile(
+                title: const Text('Send Invitation'),
+                subtitle: Text(
+                    'Invite ${_selectedExistingUser!['full_name'] ?? _selectedExistingUser!['username']} to your family hub'),
+                value: _sendInvitation,
+                activeColor: const Color(0xFFF59E0B),
+                onChanged: (value) => setState(() => _sendInvitation = value),
               ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFF59E0B)),
+              if (_sendInvitation) ...[
+                const SizedBox(height: 16),
+                TextField(
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: 'Personal Message (Optional)',
+                    hintText: 'Add a personal message to the invitation...',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onChanged: (value) => setState(() => _invitationMessage = value),
                 ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline, color: Color(0xFFF59E0B)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'They will receive a notification and can accept to join your family network.',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF3C7),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFF59E0B)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: Color(0xFFF59E0B)),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'They will receive a notification and can accept to join your family network.',
+                          style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+              ],
+            ] else ...[
+              const Center(
+                child: Text(
+                  'Generate an invite link to share:',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
               ),
+              const SizedBox(height: 16),
+              Center(child: _buildGenerateInviteLinkButton()),
             ],
           ] else ...[
             Center(
@@ -926,24 +953,10 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   }
   
   Widget _buildStep5Confirm() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Step 5: Confirm & Add',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Review the information and click "Add to Tree" to finalize.',
-            style: TextStyle(color: Colors.grey, fontSize: 14),
-          ),
-          const SizedBox(height: 20),
-          _buildSummaryCard(),
-        ],
-      ),
+    return _buildStep(
+      title: 'Step 5: Confirm & Add',
+      subtitle: 'Review the information and click "Add to Tree" to finalize.',
+      content: _buildSummaryCard(),
     );
   }
   

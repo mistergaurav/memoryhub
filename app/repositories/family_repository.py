@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional, Callable, Awaitable
+from typing import List, Dict, Any, Optional, Callable, Awaitable, Union
 from bson import ObjectId
 from datetime import datetime, timedelta
 import time
@@ -252,7 +252,7 @@ class FamilyMembersRepository(BaseRepository):
     
     async def search_by_name(
         self,
-        family_id: str,
+        family_id: Union[str, ObjectId],
         query: str,
         limit: int = 10
     ) -> List[Dict[str, Any]]:
@@ -260,14 +260,17 @@ class FamilyMembersRepository(BaseRepository):
         Search family members by name (case-insensitive).
         
         Args:
-            family_id: String representation of family ID
+            family_id: String or ObjectId representation of family ID
             query: Search query string
             limit: Maximum number of results (default: 10)
             
         Returns:
             List of family members matching the query
         """
-        family_oid = self.validate_object_id(family_id, "family_id")
+        if isinstance(family_id, str):
+            family_oid = self.validate_object_id(family_id, "family_id")
+        else:
+            family_oid = family_id
         
         search_regex = {"$regex": query, "$options": "i"}
         filter_dict = {

@@ -1051,3 +1051,18 @@ async def get_person_timeline(
         message="Person timeline retrieved successfully",
         data=memory_responses
     )
+
+@router.post("/generate-invite-link", status_code=status.HTTP_200_OK)
+async def generate_invite_link(
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Generate a unique invite link"""
+    token = secrets.token_urlsafe(32)
+    # You would typically store this token in the database with an expiry date
+    # and associate it with the user who generated it.
+    # For this example, we'll just return the link.
+    invite_link = f"/genealogy/join/{token}"
+    return create_success_response(
+        message="Invite link generated successfully",
+        data={"invite_link": invite_link}
+    )

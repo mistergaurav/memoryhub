@@ -95,16 +95,16 @@ class MyApp extends StatelessWidget {
       title: 'Memory Hub',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6366F1),
+          seedColor: const Color(0xFF5E5CE6),
           brightness: Brightness.light,
-          primary: const Color(0xFF6366F1),
-          secondary: const Color(0xFFEC4899),
-          tertiary: const Color(0xFF8B5CF6),
+          primary: const Color(0xFF5E5CE6),
+          secondary: const Color(0xFFF59E0B),
+          tertiary: const Color(0xFF10B981),
           error: const Color(0xFFEF4444),
           surface: Colors.white,
         ),
         useMaterial3: true,
-        // textTheme: GoogleFonts.interTextTheme(), // Temporarily disabled
+        textTheme: GoogleFonts.interTextTheme(),
         appBarTheme: AppBarTheme(
           centerTitle: false,
           elevation: 0,
@@ -121,7 +121,7 @@ class MyApp extends StatelessWidget {
           elevation: 0,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
           ),
           color: Colors.white,
           surfaceTintColor: Colors.transparent,
@@ -131,9 +131,9 @@ class MyApp extends StatelessWidget {
             elevation: 0,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
             ),
-            backgroundColor: const Color(0xFF6366F1),
+            backgroundColor: const Color(0xFF5E5CE6),
             foregroundColor: Colors.white,
             textStyle: const TextStyle(
               fontSize: 16,
@@ -142,7 +142,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
-          backgroundColor: const Color(0xFFEC4899),
+          backgroundColor: const Color(0xFFF59E0B),
           foregroundColor: Colors.white,
           elevation: 4,
           shape: RoundedRectangleBorder(
@@ -151,25 +151,25 @@ class MyApp extends StatelessWidget {
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
-          fillColor: const Color(0xFFF9FAFB),
+          fillColor: const Color(0xFFF3F4F6),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(width: 2, color: Color(0xFF6366F1)),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(width: 2, color: Color(0xFF5E5CE6)),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFFEF4444)),
           ),
           focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(width: 2, color: Color(0xFFEF4444)),
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -660,10 +660,8 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = const [
     DashboardScreen(),
-    MemoriesListScreen(),
+    FamilyHubDashboardScreen(),
     SocialTabScreen(),
-    CollectionsScreen(),
-    VaultListScreen(),
     ProfileScreen(),
   ];
 
@@ -701,24 +699,14 @@ class _MainScreenState extends State<MainScreen> {
               label: 'Hub',
             ),
             NavigationDestination(
-              icon: Icon(Icons.auto_stories_outlined),
-              selectedIcon: Icon(Icons.auto_stories),
-              label: 'Memories',
+              icon: Icon(Icons.family_restroom_outlined),
+              selectedIcon: Icon(Icons.family_restroom),
+              label: 'Family',
             ),
             NavigationDestination(
               icon: Icon(Icons.people_outline),
               selectedIcon: Icon(Icons.people),
               label: 'Social',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.collections_outlined),
-              selectedIcon: Icon(Icons.collections),
-              label: 'Collections',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.folder_outlined),
-              selectedIcon: Icon(Icons.folder),
-              label: 'Vault',
             ),
             NavigationDestination(
               icon: Icon(Icons.person_outline),

@@ -21,8 +21,8 @@ api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(password_reset.router, prefix="/password-reset", tags=["password-reset"])
 api_router.include_router(two_factor.router, prefix="/2fa", tags=["2fa"])
 
-api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(user_search.router, prefix="/users", tags=["users"])
+api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(social_users.router, prefix="/social", tags=["social"])
 api_router.include_router(privacy.router, prefix="/privacy", tags=["privacy"])
 

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../services/family/family_service.dart';
 import '../../widgets/shimmer_loading.dart';
+import '../../widgets/shimmer_widgets.dart';
+import '../../widgets/person_card.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../dialogs/family/add_person_wizard.dart';
 import '../../dialogs/family/add_relationship_dialog.dart';
+import '../../widgets/default_avatar.dart';
 import 'package:intl/intl.dart';
 
 class GenealogyTreeScreen extends StatefulWidget {
@@ -122,16 +125,16 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                           childAspectRatio: 0.75,
                         ),
                         delegate: SliverChildBuilderDelegate(
-                          (context, index) => _buildShimmerCard(),
+                          (context, index) => const ShimmerCard(),
                           childCount: 6,
                         ),
                       ),
                     )
                   : SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) => Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                          child: _buildShimmerListItem(),
+                        (context, index) => const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                          child: ShimmerListItem(),
                         ),
                         childCount: 5,
                       ),
@@ -172,14 +175,14 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                           childAspectRatio: 0.75,
                         ),
                         delegate: SliverChildBuilderDelegate(
-                          (context, index) => _buildPersonCard(_persons[index]),
+                          (context, index) => PersonCard(person: _persons[index]),
                           childCount: _persons.length,
                         ),
                       ),
                     )
                   : SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) => _buildPersonListItem(_persons[index]),
+                        (context, index) => PersonCard(person: _persons[index], isGridView: false),
                         childCount: _persons.length,
                       ),
                     ),
@@ -196,387 +199,8 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
     );
   }
 
-  Widget _buildPersonCard(Map<String, dynamic> person) {
-    final firstName = person['first_name'] ?? '';
-    final lastName = person['last_name'] ?? '';
-    final fullName = '$firstName $lastName'.trim();
-    final birthDate = person['birth_date'];
-    final deathDate = person['death_date'];
-    final photoUrl = person['photo_url'];
-    final gender = person['gender'];
-    final healthRecordsCount = person['health_records_count'] ?? 0;
-    final hereditaryConditions = person['hereditary_conditions'] as List<dynamic>?;
-    final age = person['age'];
-    final lifespan = person['lifespan'];
 
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          _showPersonDetails(person);
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  photoUrl != null
-                      ? Image.network(
-                          photoUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return _buildDefaultAvatar(gender);
-                          },
-                        )
-                      : _buildDefaultAvatar(gender),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: gender == 'male'
-                            ? Colors.blue.withOpacity(0.8)
-                            : gender == 'female'
-                                ? Colors.pink.withOpacity(0.8)
-                                : Colors.grey.withOpacity(0.8),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            gender == 'male' ? Icons.male : gender == 'female' ? Icons.female : Icons.person,
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      fullName.isNotEmpty ? fullName : 'Unknown',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (birthDate != null) ...[
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.cake,
-                            size: 14,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              _formatDate(birthDate),
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey.shade600,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                    if (deathDate != null) ...[
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.event_busy,
-                            size: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              _formatDate(deathDate),
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey.shade600,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                    if (age != null || lifespan != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        lifespan != null ? 'Lived $lifespan years' : 'Age: $age',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey.shade600,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ],
-                    const Spacer(),
-                    if (healthRecordsCount > 0 || (hereditaryConditions != null && hereditaryConditions.isNotEmpty)) ...[
-                      Row(
-                        children: [
-                          if (healthRecordsCount > 0) ...[
-                            Icon(Icons.health_and_safety, size: 12, color: Colors.red.shade400),
-                            const SizedBox(width: 3),
-                            Text(
-                              '$healthRecordsCount',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.red.shade600,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                          if (hereditaryConditions != null && hereditaryConditions.isNotEmpty) ...[
-                            if (healthRecordsCount > 0) const SizedBox(width: 8),
-                            Icon(Icons.family_restroom, size: 12, color: Colors.purple.shade400),
-                            const SizedBox(width: 3),
-                            Text(
-                              '${hereditaryConditions.length}',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.purple.shade600,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildPersonListItem(Map<String, dynamic> person) {
-    final firstName = person['first_name'] ?? '';
-    final lastName = person['last_name'] ?? '';
-    final fullName = '$firstName $lastName'.trim();
-    final birthDate = person['birth_date'];
-    final deathDate = person['death_date'];
-    final photoUrl = person['photo_url'];
-    final gender = person['gender'];
-    final occupation = person['occupation'];
-
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: InkWell(
-        onTap: () {
-          _showPersonDetails(person);
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  gradient: LinearGradient(
-                    colors: gender == 'male'
-                        ? [Colors.blue.shade400, Colors.blue.shade600]
-                        : gender == 'female'
-                            ? [Colors.pink.shade400, Colors.pink.shade600]
-                            : [Colors.grey.shade400, Colors.grey.shade600],
-                  ),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: photoUrl != null
-                      ? Image.network(
-                          photoUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(
-                              gender == 'male' ? Icons.male : gender == 'female' ? Icons.female : Icons.person,
-                              color: Colors.white,
-                              size: 32,
-                            );
-                          },
-                        )
-                      : Icon(
-                          gender == 'male' ? Icons.male : gender == 'female' ? Icons.female : Icons.person,
-                          color: Colors.white,
-                          size: 32,
-                        ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      fullName.isNotEmpty ? fullName : 'Unknown',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    if (occupation != null) ...[
-                      Text(
-                        occupation,
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                    ],
-                    if (birthDate != null)
-                      Text(
-                        '${_formatDate(birthDate)}${deathDate != null ? ' - ${_formatDate(deathDate)}' : ''}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: () => _showPersonMenu(person),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDefaultAvatar(String? gender) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: gender == 'male'
-              ? [Colors.blue.shade300, Colors.blue.shade500]
-              : gender == 'female'
-                  ? [Colors.pink.shade300, Colors.pink.shade500]
-                  : [Colors.grey.shade300, Colors.grey.shade500],
-        ),
-      ),
-      child: Center(
-        child: Icon(
-          gender == 'male' ? Icons.male : gender == 'female' ? Icons.female : Icons.person,
-          size: 60,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShimmerCard() {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 3,
-            child: ShimmerBox(
-              width: double.infinity,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ShimmerBox(width: 120, height: 16, borderRadius: BorderRadius.circular(4)),
-                  const SizedBox(height: 8),
-                  ShimmerBox(width: 80, height: 12, borderRadius: BorderRadius.circular(4)),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildShimmerListItem() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          children: [
-            ShimmerBox(width: 60, height: 60, borderRadius: BorderRadius.circular(12)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ShimmerBox(width: 150, height: 16, borderRadius: BorderRadius.circular(4)),
-                  const SizedBox(height: 8),
-                  ShimmerBox(width: 100, height: 12, borderRadius: BorderRadius.circular(4)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   String _formatDate(dynamic date) {
     if (date == null) return '';

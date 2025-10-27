@@ -8,6 +8,7 @@ import '../../widgets/hero_header.dart';
 import '../../widgets/quick_action_tile.dart';
 import '../../widgets/stat_card.dart';
 import '../../widgets/timeline_card.dart';
+import '../../widgets/recent_section.dart';
 import '../../design_system/design_tokens.dart';
 import '../../dialogs/family/add_album_dialog.dart';
 import '../../dialogs/family/add_event_dialog.dart';
@@ -405,7 +406,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           ),
           const SizedBox(height: MemoryHubSpacing.md),
           if (recentAlbums.isNotEmpty) ...[
-            _buildRecentSection(
+            RecentSection(
               title: 'Recent Albums',
               items: recentAlbums,
               icon: Icons.photo_library,
@@ -418,7 +419,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             const SizedBox(height: MemoryHubSpacing.md),
           ],
           if (upcomingEvents.isNotEmpty) ...[
-            _buildRecentSection(
+            RecentSection(
               title: 'Upcoming Events',
               items: upcomingEvents,
               icon: Icons.event,
@@ -431,7 +432,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             const SizedBox(height: MemoryHubSpacing.md),
           ],
           if (recentMilestones.isNotEmpty) ...[
-            _buildRecentSection(
+            RecentSection(
               title: 'Recent Milestones',
               items: recentMilestones,
               icon: Icons.celebration,
@@ -443,105 +444,6 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             ),
           ],
         ],
-      ),
-    );
-  }
-
-  Widget _buildRecentSection({
-    required String title,
-    required List<dynamic> items,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onViewAll,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: color, size: 20),
-                const SizedBox(width: MemoryHubSpacing.sm),
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            TextButton(
-              onPressed: onViewAll,
-              child: const Text('View All'),
-            ),
-          ],
-        ),
-        const SizedBox(height: MemoryHubSpacing.sm),
-        SizedBox(
-          height: 100,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index] as Map<String, dynamic>;
-              return _buildRecentItemCard(item, color);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRecentItemCard(Map<String, dynamic> item, Color color) {
-    final title = item['title'] as String? ?? 'Untitled';
-    
-    return Container(
-      width: 200,
-      margin: const EdgeInsets.only(right: MemoryHubSpacing.md),
-      child: Card(
-        elevation: MemoryHubElevation.sm,
-        shape: RoundedRectangleBorder(
-          borderRadius: MemoryHubBorderRadius.mdRadius,
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(MemoryHubSpacing.md),
-          decoration: BoxDecoration(
-            borderRadius: MemoryHubBorderRadius.mdRadius,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                color.withOpacity(0.1),
-                color.withOpacity(0.05),
-              ],
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (item['photo_count'] != null) ...[
-                const SizedBox(height: MemoryHubSpacing.xs),
-                Text(
-                  '${item['photo_count']} photos',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
       ),
     );
   }

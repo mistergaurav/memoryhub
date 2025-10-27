@@ -60,7 +60,7 @@ async def search_family_circle_members(
     """
     try:
         family_members = await family_members_repo.search_by_name(
-            family_id=str(current_user.id),
+            family_id=current_user.id,
             query=query,
             limit=limit
         )
