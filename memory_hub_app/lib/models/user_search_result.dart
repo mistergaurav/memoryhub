@@ -4,6 +4,8 @@ class UserSearchResult {
   final String? email;
   final String? avatarUrl;
   final String relationType;
+  final String? source;
+  final bool requiresApproval;
 
   UserSearchResult({
     required this.id,
@@ -11,6 +13,8 @@ class UserSearchResult {
     this.email,
     this.avatarUrl,
     required this.relationType,
+    this.source,
+    this.requiresApproval = false,
   });
 
   factory UserSearchResult.fromJson(Map<String, dynamic> json) {
@@ -20,6 +24,8 @@ class UserSearchResult {
       email: json['email'],
       avatarUrl: json['avatar_url'],
       relationType: json['relation_type'] ?? 'family',
+      source: json['source'],
+      requiresApproval: json['requires_approval'] ?? false,
     );
   }
 
@@ -30,6 +36,8 @@ class UserSearchResult {
       'email': email,
       'avatar_url': avatarUrl,
       'relation_type': relationType,
+      'source': source,
+      'requires_approval': requiresApproval,
     };
   }
 }

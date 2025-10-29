@@ -202,24 +202,48 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> {
                           ),
                         )
                       : null,
-                  trailing: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: user.relationType == 'family'
-                          ? _primaryTeal.withOpacity(0.1)
-                          : _accentAqua.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      user.relationType == 'family' ? 'Family' : 'Friend',
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: user.relationType == 'family'
-                            ? _primaryTeal
-                            : _accentAqua,
+                  trailing: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: user.relationType == 'circle'
+                              ? _primaryTeal.withOpacity(0.1)
+                              : _accentAqua.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          user.relationType == 'circle' ? 'Circle' : 'Other',
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: user.relationType == 'circle'
+                                ? _primaryTeal
+                                : _accentAqua,
+                          ),
+                        ),
                       ),
-                    ),
+                      if (user.requiresApproval) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEF3C7),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            'Approval Required',
+                            style: GoogleFonts.inter(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFFF59E0B),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 );
               },

@@ -1027,7 +1027,7 @@ class FamilyService {
     final headers = await _authService.getAuthHeaders();
     final response = await _handleRequest(
       http.get(
-        Uri.parse('$baseUrl/users/search-family-circle?query=${Uri.encodeComponent(query)}'),
+        Uri.parse('$baseUrl/users/search?query=${Uri.encodeComponent(query)}'),
         headers: headers,
       ),
     );

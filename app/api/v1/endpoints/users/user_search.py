@@ -5,6 +5,7 @@ from bson import ObjectId
 from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.repositories.family_repository import FamilyMembersRepository, FamilyRepository
+from app.repositories.base_repository import BaseRepository
 from app.models.responses import create_success_response
 from app.utils.audit_logger import log_audit_event
 
@@ -12,6 +13,7 @@ router = APIRouter()
 
 family_members_repo = FamilyMembersRepository()
 family_repo = FamilyRepository()
+users_repo = BaseRepository("users")
 
 
 def format_family_member(member_doc: dict) -> dict:
@@ -108,4 +110,79 @@ async def search_family_circle_members(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error searching for members: {str(e)}"
+        )
+
+
+@router.get("/search")
+async def search_users_unified(
+    query: str = Query(..., min_length=1, description="Search query string"),
+    limit: int = Query(20, ge=1, le=50, description="Maximum number of results"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """
+    Unified user search endpoint that returns ONLY connected users formatted as UserSearchResult objects.
+    
+    SECURITY: This endpoint ONLY returns users that the current user has an existing relationship with:
+    - Users in family circles (where current user is owner or member)
+    - Users who are in the current user's network/connections
+    
+    Does NOT expose arbitrary platform users to prevent enumeration and protect user privacy.
+    
+    Returns a unified list with proper UserSearchResult structure compatible with Flutter app.
+    Each result includes: id, full_name, email, avatar_url, relation_type, source, requires_approval
+    
+    **Query Parameters:**
+    - query: Search string (min 1 character, searches name and email)
+    - limit: Max total results (1-50, default 20)
+    
+    **Returns:**
+    - results: List of UserSearchResult objects (ONLY connected users)
+    """
+    try:
+        # SECURITY FIX: Only search circle members (users with existing relationships)
+        # This prevents arbitrary user enumeration and protects privacy
+        circle_members = await family_repo.search_circle_members(
+            user_id=str(current_user.id),
+            query=query,
+            limit=limit
+        )
+        
+        # Format results with proper structure
+        unified_results = []
+        seen_ids = set()
+        
+        for member in circle_members:
+            member_id = str(member["_id"])
+            if member_id not in seen_ids:
+                seen_ids.add(member_id)
+                unified_results.append({
+                    "id": member_id,
+                    "full_name": member.get("full_name", ""),
+                    "email": member.get("email"),
+                    "avatar_url": member.get("avatar_url"),
+                    "relation_type": "circle",
+                    "source": "family_circle",
+                    "requires_approval": False
+                })
+        
+        await log_audit_event(
+            user_id=str(current_user.id),
+            event_type="authorized_user_search",
+            event_details={
+                "query": query,
+                "total_results": len(unified_results)
+            }
+        )
+        
+        return create_success_response(
+            data={"results": unified_results},
+            message=f"Found {len(unified_results)} connected users"
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error searching for users: {str(e)}"
         )

@@ -161,7 +161,7 @@ async def create_health_record(
             notification_type=NotificationType.HEALTH_RECORD_ASSIGNMENT,
             title="New Health Record Created for You",
             message=f"{current_user.full_name or 'Someone'} created a health record '{record.title}' for you. Please review and approve.",
-            actor_id=current_user.id,
+            actor_id=str(current_user.id),
             target_type="health_record",
             target_id=str(record_doc["_id"])
         )
@@ -485,7 +485,7 @@ async def approve_health_record(
             notification_type=NotificationType.HEALTH_RECORD_APPROVED,
             title="Health Record Approved",
             message=f"{current_user.full_name or 'Someone'} approved the health record '{record_doc['title']}' you created for them.",
-            actor_id=current_user.id,
+            actor_id=str(current_user.id),
             target_type="health_record",
             target_id=record_id
         )
@@ -572,7 +572,7 @@ async def reject_health_record(
             notification_type=NotificationType.HEALTH_RECORD_REJECTED,
             title="Health Record Rejected",
             message=f"{current_user.full_name or 'Someone'} rejected the health record '{record_doc['title']}' you created for them.{reason_text}",
-            actor_id=current_user.id,
+            actor_id=str(current_user.id),
             target_type="health_record",
             target_id=record_id
         )
