@@ -83,48 +83,128 @@ class _HubScreenState extends State<HubScreen> with TickerProviderStateMixin {
   Widget _buildHeader() {
     final hour = DateTime.now().hour;
     String greeting = 'Good morning';
+    String greetingIcon = '☀️';
     if (hour >= 12 && hour < 17) {
       greeting = 'Good afternoon';
+      greetingIcon = '🌤️';
     } else if (hour >= 17) {
       greeting = 'Good evening';
+      greetingIcon = '🌙';
     }
 
     return SliverToBoxAdapter(
       child: FadeTransition(
         opacity: _headerAnimation,
-        child: GradientContainer(
-          padding: const EdgeInsets.fromLTRB(20, 60, 20, 32),
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(40),
-            bottomRight: Radius.circular(40),
+        child: Container(
+          height: 280,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFFFF6B9D),
+                Color(0xFFC44569),
+                Color(0xFFFFA07A),
+              ],
+            ),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(40),
+              bottomRight: Radius.circular(40),
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Text(
-                greeting,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white.withOpacity(0.9),
+              Positioned(
+                right: -50,
+                top: -50,
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.1),
+                  ),
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Welcome to Memory Hub',
-                style: GoogleFonts.inter(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  height: 1.2,
+              Positioned(
+                left: -30,
+                bottom: -30,
+                child: Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.1),
+                  ),
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Preserve your precious moments',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: Colors.white.withOpacity(0.8),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          greetingIcon,
+                          style: const TextStyle(fontSize: 28),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          greeting,
+                          style: GoogleFonts.inter(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withOpacity(0.95),
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Your Family\nMemory Hub',
+                      style: GoogleFonts.poppins(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        height: 1.2,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.25),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.favorite,
+                            color: Colors.white,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Where every moment matters',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -182,6 +262,8 @@ class _HubScreenState extends State<HubScreen> with TickerProviderStateMixin {
         delegate: SliverChildListDelegate([
           _buildStatsSection(stats),
           const SizedBox(height: 32),
+          _buildFamilyInspirationSection(context),
+          const SizedBox(height: 32),
           _buildQuickActionsSection(context),
           const SizedBox(height: 32),
           _buildMyHubsSection(context),
@@ -199,12 +281,19 @@ class _HubScreenState extends State<HubScreen> with TickerProviderStateMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Your Stats',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          children: [
+            Text(
+              'Your Memory Journey',
+              style: GoogleFonts.poppins(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF2D3748),
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.explore, color: Color(0xFFFF6B9D), size: 24),
+          ],
         ),
         const SizedBox(height: 16),
         GridView.count(
@@ -219,30 +308,30 @@ class _HubScreenState extends State<HubScreen> with TickerProviderStateMixin {
               label: 'Memories',
               value: stats['memories_count']?.toString() ?? '0',
               icon: Icons.auto_awesome,
-              gradientColors: const [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+              gradientColors: const [Color(0xFFFF6B9D), Color(0xFFFFA07A)],
               trend: '+12%',
               onTap: () => Navigator.pushNamed(context, '/memories'),
             ),
             StatCard(
-              label: 'Files',
+              label: 'Family Photos',
               value: stats['files_count']?.toString() ?? '0',
-              icon: Icons.folder_outlined,
-              gradientColors: const [Color(0xFFEC4899), Color(0xFFF472B6)],
+              icon: Icons.photo_library,
+              gradientColors: const [Color(0xFFC44569), Color(0xFFFF6B9D)],
               trend: '+5',
-              onTap: () => Navigator.pushNamed(context, '/vault'),
+              onTap: () => Navigator.pushNamed(context, '/family/albums'),
             ),
             StatCard(
               label: 'Collections',
               value: stats['collections_count']?.toString() ?? '0',
-              icon: Icons.collections_outlined,
-              gradientColors: const [Color(0xFF8B5CF6), Color(0xFFA78BFA)],
+              icon: Icons.collections_bookmark,
+              gradientColors: const [Color(0xFFFFA07A), Color(0xFFFFD700)],
               onTap: () => Navigator.pushNamed(context, '/collections'),
             ),
             StatCard(
-              label: 'Total Likes',
+              label: 'Family Love',
               value: stats['total_likes']?.toString() ?? '0',
-              icon: Icons.favorite_outline,
-              gradientColors: const [Color(0xFFF43F5E), Color(0xFFFDA4AF)],
+              icon: Icons.favorite,
+              gradientColors: const [Color(0xFFFF6B9D), Color(0xFFC44569)],
               trend: '+8',
             ),
           ],
@@ -251,16 +340,165 @@ class _HubScreenState extends State<HubScreen> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildFamilyInspirationSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'Family Moments',
+              style: GoogleFonts.poppins(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF2D3748),
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.camera_alt, color: Color(0xFFFF6B9D), size: 24),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Create lasting memories with your loved ones',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            color: const Color(0xFF718096),
+          ),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 200,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              _buildInspirationCard(
+                'attached_assets/stock_images/happy_family_memorie_f3176cf4.jpg',
+                'Cherish Every Moment',
+                'Create beautiful memories together',
+                const [Color(0xFFFF6B9D), Color(0xFFFFA07A)],
+              ),
+              const SizedBox(width: 12),
+              _buildInspirationCard(
+                'attached_assets/stock_images/happy_family_memorie_59cd59a7.jpg',
+                'Build Your Legacy',
+                'Preserve stories for generations',
+                const [Color(0xFFC44569), Color(0xFFFF6B9D)],
+              ),
+              const SizedBox(width: 12),
+              _buildInspirationCard(
+                'attached_assets/stock_images/happy_family_memorie_3d532408.jpg',
+                'Share the Love',
+                'Connect with family and friends',
+                const [Color(0xFFFFA07A), Color(0xFFFFD700)],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInspirationCard(String imagePath, String title, String subtitle, List<Color> overlayColors) {
+    return Container(
+      width: 300,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: overlayColors.first.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
+          children: [
+            Image.asset(
+              imagePath,
+              width: 300,
+              height: 200,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  width: 300,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: overlayColors,
+                    ),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.family_restroom, size: 80, color: Colors.white),
+                  ),
+                );
+              },
+            ),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.7),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 20,
+              left: 20,
+              right: 20,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildQuickActionsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Quick Actions',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+        Row(
+          children: [
+            Text(
+              'Quick Actions',
+              style: GoogleFonts.poppins(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF2D3748),
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.flash_on, color: Color(0xFFFFA07A), size: 24),
+          ],
         ),
         const SizedBox(height: 16),
         SingleChildScrollView(
@@ -269,29 +507,29 @@ class _HubScreenState extends State<HubScreen> with TickerProviderStateMixin {
             children: [
               _buildActionCard(
                 'Create Memory',
-                Icons.add_photo_alternate,
-                const [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                Icons.auto_awesome,
+                const [Color(0xFFFF6B9D), Color(0xFFFFA07A)],
                 () => Navigator.pushNamed(context, '/memories/create'),
               ),
               const SizedBox(width: 12),
               _buildActionCard(
-                'Upload File',
-                Icons.upload_file,
-                const [Color(0xFFEC4899), Color(0xFFF472B6)],
-                () => Navigator.pushNamed(context, '/vault/upload'),
+                'Family Album',
+                Icons.photo_library,
+                const [Color(0xFFC44569), Color(0xFFFF6B9D)],
+                () => Navigator.pushNamed(context, '/family/albums'),
               ),
               const SizedBox(width: 12),
               _buildActionCard(
                 'New Collection',
-                Icons.collections,
-                const [Color(0xFF8B5CF6), Color(0xFFA78BFA)],
+                Icons.collections_bookmark,
+                const [Color(0xFFFFA07A), Color(0xFFFFD700)],
                 () => Navigator.pushNamed(context, '/collections'),
               ),
               const SizedBox(width: 12),
               _buildActionCard(
                 'Create Story',
                 Icons.auto_stories,
-                const [Color(0xFF10B981), Color(0xFF34D399)],
+                const [Color(0xFFFF6B9D), Color(0xFFC44569)],
                 () => Navigator.pushNamed(context, '/stories/create'),
               ),
             ],

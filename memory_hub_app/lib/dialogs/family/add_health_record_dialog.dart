@@ -633,10 +633,84 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                             child: Padding(
                               padding: const EdgeInsets.only(top: 16),
                               child: _subjectType == 'user'
-                                  ? UserSearchAutocomplete(
-                                      onUserSelected: (user) {
-                                        setState(() => _selectedUser = user);
-                                      },
+                                  ? Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        UserSearchAutocomplete(
+                                          onUserSelected: (user) {
+                                            setState(() => _selectedUser = user);
+                                          },
+                                        ),
+                                        if (_selectedUser != null) ...[
+                                          const SizedBox(height: 12),
+                                          Container(
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: _successGreen.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color: _successGreen.withOpacity(0.3),
+                                                width: 1,
+                                              ),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  padding: const EdgeInsets.all(8),
+                                                  decoration: BoxDecoration(
+                                                    color: _successGreen,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.check,
+                                                    color: Colors.white,
+                                                    size: 16,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        'Selected User',
+                                                        style: GoogleFonts.inter(
+                                                          fontSize: 12,
+                                                          color: const Color(0xFF6B7280),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      Text(
+                                                        _selectedUser!.fullName,
+                                                        style: GoogleFonts.inter(
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.w600,
+                                                          color: _typographyDark,
+                                                        ),
+                                                      ),
+                                                      if (_selectedUser!.email != null)
+                                                        Text(
+                                                          _selectedUser!.email!,
+                                                          style: GoogleFonts.inter(
+                                                            fontSize: 13,
+                                                            color: const Color(0xFF6B7280),
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  icon: const Icon(Icons.close, color: _errorRed),
+                                                  onPressed: () {
+                                                    setState(() => _selectedUser = null);
+                                                  },
+                                                  tooltip: 'Remove selection',
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     )
                                   : _subjectType == 'family'
                                   ? (_loadingMembers

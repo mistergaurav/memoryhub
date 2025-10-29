@@ -694,9 +694,9 @@ class _MainScreenState extends State<MainScreen> {
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: [
             NavigationDestination(
-              icon: Icon(Icons.dashboard_outlined),
-              selectedIcon: Icon(Icons.dashboard),
-              label: 'Hub',
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: 'Home',
             ),
             NavigationDestination(
               icon: Icon(Icons.family_restroom_outlined),
