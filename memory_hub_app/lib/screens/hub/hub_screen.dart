@@ -373,21 +373,21 @@ class _HubScreenState extends State<HubScreen> with TickerProviderStateMixin {
             scrollDirection: Axis.horizontal,
             children: [
               _buildInspirationCard(
-                'attached_assets/stock_images/happy_family_memorie_f3176cf4.jpg',
+                'assets/images/happy_family_memorie_f3176cf4.jpg',
                 'Cherish Every Moment',
                 'Create beautiful memories together',
                 const [Color(0xFFFF6B9D), Color(0xFFFFA07A)],
               ),
               const SizedBox(width: 12),
               _buildInspirationCard(
-                'attached_assets/stock_images/happy_family_memorie_59cd59a7.jpg',
+                'assets/images/happy_family_memorie_59cd59a7.jpg',
                 'Build Your Legacy',
                 'Preserve stories for generations',
                 const [Color(0xFFC44569), Color(0xFFFF6B9D)],
               ),
               const SizedBox(width: 12),
               _buildInspirationCard(
-                'attached_assets/stock_images/happy_family_memorie_3d532408.jpg',
+                'assets/images/happy_family_memorie_3d532408.jpg',
                 'Share the Love',
                 'Connect with family and friends',
                 const [Color(0xFFFFA07A), Color(0xFFFFD700)],
