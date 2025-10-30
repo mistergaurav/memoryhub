@@ -87,28 +87,18 @@ class ApiConfig {
       
       // Check if running on Replit
       if (hostname.contains('replit.dev') || hostname.contains('.repl.co')) {
-        String backendHostname;
-        // Check if hostname starts with a port number prefix (e.g., 5000-, 8000-, 3000-)
-        final portPrefixMatch = RegExp(r'^(\d+)-').firstMatch(hostname);
-        
-        if (portPrefixMatch != null) {
-          // Hostname has port prefix, replace it with 8000-
-          backendHostname = hostname.replaceFirst(RegExp(r'^\d+-'), '8000-');
-        } else {
-          // No port prefix, prepend 8000-
-          backendHostname = '8000-$hostname';
-        }
-        return '$protocol//$backendHostname/api/v1';
+        // Backend and frontend are both on port 5000 - use same origin with relative path
+        return '/api/v1';
       } else if (hostname == 'localhost' || hostname == '127.0.0.1') {
-        // Local development
-        return 'http://localhost:8000/api/v1';
+        // Local development - backend on port 5000
+        return 'http://localhost:5000/api/v1';
       } else {
-        // Generic fallback - try same host with port 8000
-        return '$protocol//$hostname:8000/api/v1';
+        // Generic fallback - same host
+        return '$protocol//$hostname/api/v1';
       }
     } catch (e) {
-      // Fallback to localhost if we can't access window.location
-      return 'http://localhost:8000/api/v1';
+      // Fallback to relative path
+      return '/api/v1';
     }
   }
   
@@ -120,25 +110,15 @@ class ApiConfig {
       final wsProtocol = isSecure ? 'wss' : 'ws';
       
       if (hostname.contains('replit.dev') || hostname.contains('.repl.co')) {
-        String backendHostname;
-        // Check if hostname starts with a port number prefix
-        final portPrefixMatch = RegExp(r'^(\d+)-').firstMatch(hostname);
-        
-        if (portPrefixMatch != null) {
-          // Hostname has port prefix, replace it with 8000-
-          backendHostname = hostname.replaceFirst(RegExp(r'^\d+-'), '8000-');
-        } else {
-          // No port prefix, prepend 8000-
-          backendHostname = '8000-$hostname';
-        }
-        return '$wsProtocol://$backendHostname/ws';
+        // Backend and frontend are both on port 5000 - use same origin
+        return '$wsProtocol://$hostname/ws';
       } else if (hostname == 'localhost' || hostname == '127.0.0.1') {
-        return 'ws://localhost:8000/ws';
+        return 'ws://localhost:5000/ws';
       } else {
-        return '$wsProtocol://$hostname:8000/ws';
+        return '$wsProtocol://$hostname/ws';
       }
     } catch (e) {
-      return 'ws://localhost:8000/ws';
+      return 'ws://localhost:5000/ws';
     }
   }
   
@@ -149,25 +129,15 @@ class ApiConfig {
       final protocol = location['protocol'] as String;
       
       if (hostname.contains('replit.dev') || hostname.contains('.repl.co')) {
-        String backendHostname;
-        // Check if hostname starts with a port number prefix
-        final portPrefixMatch = RegExp(r'^(\d+)-').firstMatch(hostname);
-        
-        if (portPrefixMatch != null) {
-          // Hostname has port prefix, replace it with 8000-
-          backendHostname = hostname.replaceFirst(RegExp(r'^\d+-'), '8000-');
-        } else {
-          // No port prefix, prepend 8000-
-          backendHostname = '8000-$hostname';
-        }
-        return '$protocol//$backendHostname';
+        // Backend and frontend are both on port 5000 - use same origin
+        return '';
       } else if (hostname == 'localhost' || hostname == '127.0.0.1') {
-        return 'http://localhost:8000';
+        return 'http://localhost:5000';
       } else {
-        return '$protocol//$hostname:8000';
+        return '$protocol//$hostname';
       }
     } catch (e) {
-      return 'http://localhost:8000';
+      return '';
     }
   }
   
