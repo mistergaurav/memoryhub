@@ -289,6 +289,15 @@ async def search_users(
             "following_id": user_doc["_id"]
         })
         
+        is_following = relationship is not None and relationship["status"] == RelationshipStatus.ACCEPTED
+        
+        friend_circle_member = await get_collection("family_members").find_one({
+            "user_id": ObjectId(current_user.id),
+            "member_user_id": user_doc["_id"]
+        })
+        
+        relation_type = "circle" if friend_circle_member else "other"
+        
         users.append({
             "id": str(user_doc["_id"]),
             "full_name": user_doc.get("full_name"),
@@ -297,7 +306,8 @@ async def search_users(
             "bio": user_doc.get("bio"),
             "city": user_doc.get("city"),
             "country": user_doc.get("country"),
-            "is_following": relationship is not None and relationship["status"] == RelationshipStatus.ACCEPTED
+            "is_following": is_following,
+            "relation_type": relation_type
         })
     
     return users

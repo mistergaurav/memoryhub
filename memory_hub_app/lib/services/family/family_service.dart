@@ -1033,7 +1033,7 @@ class FamilyService {
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final List<dynamic> items = data['data']?['results'] ?? data['results'] ?? [];
+      final List<dynamic> items = data is List ? data : (data['data']?['results'] ?? data['results'] ?? []);
       return items.map((json) => UserSearchResult.fromJson(json)).toList();
     }
     throw Exception('Failed to search users');
