@@ -64,8 +64,10 @@ if os.path.exists(flutter_build_path):
     
     @app.get("/{full_path:path}")
     async def serve_flutter_app(full_path: str):
-        if full_path.startswith("api/") or full_path.startswith("docs") or full_path.startswith("redoc"):
-            return {"error": "Not found"}
+        # Don't serve Flutter app for API routes - raise 404 to let FastAPI handle them
+        if full_path.startswith("api") or full_path.startswith("docs") or full_path.startswith("redoc") or full_path.startswith("media"):
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail="Not found")
         
         file_path = os.path.join(flutter_build_path, full_path)
         if os.path.isfile(file_path):

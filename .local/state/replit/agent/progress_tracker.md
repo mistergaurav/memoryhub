@@ -13,10 +13,20 @@
   - Frontend: RUNNING on port 5000 ✅
   - MongoDB: RUNNING on port 27017 ✅
   - All database indexes created successfully
+[x] - **Fixed Critical Authentication Bug**:
+  - Fixed catch-all route in main.py that was intercepting API requests
+  - Changed `full_path.startswith("api/")` to `full_path.startswith("api")`
+  - Backend now properly routes API requests to FastAPI handlers
+  - Registration and login now work correctly (tested with 201/200 responses)
+[x] - **Fixed Health Record Dialog Issues**:
+  - Fixed subject_type 'user' mapping to 'self' (backend only supports self/family/friend)
+  - Removed invalid 'subject_name' field from creation data
+  - Rebuilt Flutter web app with fixes
 [x] - **Migration to Replit Environment COMPLETE**:
   - ✅ All dependencies installed and configured
   - ✅ All workflows running without errors
   - ✅ Backend API fully operational (70+ endpoints)
+  - ✅ Authentication working (signup/login tested successfully)
   - ✅ Database initialized with proper indexes
   - ✅ Application ready for user development and testing
 

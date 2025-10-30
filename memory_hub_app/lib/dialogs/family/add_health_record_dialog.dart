@@ -242,18 +242,22 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
           'medications': [],
           'attachments': [],
           'is_confidential': _isConfidential,
-          'subject_type': _subjectType,
         };
 
+        // Map subject type: 'user' -> 'self' since backend only supports self/family/friend
         if (_subjectType == 'self') {
+          recordData['subject_type'] = 'self';
           recordData['subject_user_id'] = userId;
         } else if (_subjectType == 'family') {
+          recordData['subject_type'] = 'family';
           recordData['subject_family_member_id'] = _selectedFamilyMemberId;
         } else if (_subjectType == 'friend') {
+          recordData['subject_type'] = 'friend';
           recordData['subject_friend_circle_id'] = _selectedFriendCircleId;
         } else if (_subjectType == 'user' && _selectedUser != null) {
+          // Map 'user' subject type to 'self' with the selected user's ID
+          recordData['subject_type'] = 'self';
           recordData['subject_user_id'] = _selectedUser!.id;
-          recordData['subject_name'] = _selectedUser!.fullName;
         }
 
         await _familyService.createHealthRecord(recordData);
