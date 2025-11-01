@@ -40,7 +40,7 @@ class ApiConfig {
       // Fallback to localhost for local development
       // WARNING: This will only work if backend is running locally!
       // For production builds, always set BACKEND_URL or DEFAULT_BACKEND
-      return 'http://localhost:8000/api/v1';
+      return 'http://localhost:5000/api/v1';
     }
   }
   
@@ -174,12 +174,12 @@ class ApiConfig {
           final backendUrl = _getWebBackendUrl();
           return 'Replit Web ($backendUrl)';
         } else if (hostname == 'localhost') {
-          return 'Local Web (localhost:8000)';
+          return 'Local Web (localhost:5000)';
         } else {
-          return 'Web ($hostname:8000)';
+          return 'Web ($hostname:5000)';
         }
       } catch (e) {
-        return 'Web (localhost:8000)';
+        return 'Web (localhost:5000)';
       }
     }
     
@@ -189,7 +189,7 @@ class ApiConfig {
     
     // For native platforms, we can't use Platform.operatingSystem without dart:io
     // So we just return a generic message
-    return 'Native (localhost:8000 - Set BACKEND_URL for remote server!)';
+    return 'Native (localhost:5000 - Set BACKEND_URL for remote server!)';
   }
   
   // Helper to get platform-specific info for debugging
