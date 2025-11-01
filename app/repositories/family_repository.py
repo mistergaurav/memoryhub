@@ -352,6 +352,22 @@ class FamilyRepository(BaseRepository):
             sort_order=-1
         )
     
+    async def count_by_member(
+        self,
+        member_id: str
+    ) -> int:
+        """
+        Count all family circles where user is a member.
+        
+        Args:
+            member_id: String representation of user ID
+            
+        Returns:
+            Count of family circles
+        """
+        member_oid = self.validate_object_id(member_id, "member_id")
+        return await self.count({"member_ids": member_oid})
+    
     async def check_owner(
         self,
         circle_id: str,
@@ -659,6 +675,29 @@ class FamilyRelationshipRepository(BaseRepository):
             "user_id": user_oid,
             "related_user_id": related_oid
         })
+    
+    async def count_by_user(
+        self,
+        user_id: str,
+        relation_type: Optional[str] = None
+    ) -> int:
+        """
+        Count all relationships for a user.
+        
+        Args:
+            user_id: String representation of user ID
+            relation_type: Optional filter by relation type
+            
+        Returns:
+            Count of relationships
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        
+        filter_dict: Dict[str, Any] = {"user_id": user_oid}
+        if relation_type:
+            filter_dict["relation_type"] = relation_type
+        
+        return await self.count(filter_dict)
 
 
 class FamilyInvitationRepository(BaseRepository):
