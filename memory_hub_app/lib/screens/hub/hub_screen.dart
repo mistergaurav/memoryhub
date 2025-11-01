@@ -1,12 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../services/api_service.dart';
-import '../../widgets/stat_card.dart';
-import '../../widgets/enhanced_empty_state.dart';
-import '../../widgets/animated_list_item.dart';
-import '../../widgets/gradient_container.dart';
+import '../../services/hub_service.dart';
+import '../../models/hub_item.dart';
 import '../../widgets/shimmer_loading.dart';
+import '../../widgets/enhanced_empty_state.dart';
 import 'package:intl/intl.dart';
 
 class HubScreen extends StatefulWidget {
@@ -16,39 +13,57 @@ class HubScreen extends StatefulWidget {
   State<HubScreen> createState() => _HubScreenState();
 }
 
-class _HubScreenState extends State<HubScreen> with TickerProviderStateMixin {
-  final ApiService _apiService = ApiService();
-  bool _isLoading = true;
+class _HubScreenState extends State<HubScreen> {
+  final HubService _hubService = HubService();
+  final ScrollController _scrollController = ScrollController();
+  
+  bool _isLoadingDashboard = true;
+  bool _isLoadingItems = false;
+  bool _isLoadingMore = false;
+  bool _isDashboardExpanded = true;
+  
   Map<String, dynamic>? _dashboardData;
+  List<HubItem> _hubItems = [];
   String? _error;
-  late AnimationController _headerController;
-  late Animation<double> _headerAnimation;
+  
+  int _currentPage = 1;
+  int _totalPages = 1;
+  String _selectedFilter = 'all';
+  
+  final List<Map<String, dynamic>> _filters = [
+    {'label': 'All', 'value': 'all', 'icon': Icons.grid_view},
+    {'label': 'Notes', 'value': 'note', 'icon': Icons.note},
+    {'label': 'Links', 'value': 'link', 'icon': Icons.link},
+    {'label': 'Tasks', 'value': 'task', 'icon': Icons.task_alt},
+    {'label': 'Files', 'value': 'file', 'icon': Icons.file_copy},
+  ];
 
   @override
   void initState() {
     super.initState();
-    _headerController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _headerAnimation = CurvedAnimation(
-      parent: _headerController,
-      curve: Curves.easeOut,
-    );
-    _headerController.forward();
     _loadDashboard();
+    _loadHubItems();
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
-    _headerController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      if (!_isLoadingMore && _currentPage < _totalPages) {
+        _loadMoreItems();
+      }
+    }
+  }
+
   Future<void> _loadDashboard() async {
-    setState(() => _isLoading = true);
+    setState(() => _isLoadingDashboard = true);
     try {
-      final data = await _apiService.getHubDashboard();
+      final data = await _hubService.getDashboard();
       setState(() {
         _dashboardData = data;
         _error = null;
@@ -56,184 +71,393 @@ class _HubScreenState extends State<HubScreen> with TickerProviderStateMixin {
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
-      setState(() => _isLoading = false);
+      setState(() => _isLoadingDashboard = false);
+    }
+  }
+
+  Future<void> _loadHubItems({bool refresh = false}) async {
+    if (refresh) {
+      setState(() {
+        _currentPage = 1;
+        _hubItems.clear();
+      });
+    }
+    
+    setState(() => _isLoadingItems = true);
+    try {
+      final data = await _hubService.getHubItems(
+        page: _currentPage,
+        pageSize: 20,
+        itemType: _selectedFilter == 'all' ? null : _selectedFilter,
+      );
+      
+      setState(() {
+        final items = (data['items'] as List<dynamic>)
+            .map((json) => HubItem.fromJson(json))
+            .toList();
+        
+        if (refresh) {
+          _hubItems = items;
+        } else {
+          _hubItems.addAll(items);
+        }
+        
+        _totalPages = data['total_pages'] ?? 1;
+        _error = null;
+      });
+    } catch (e) {
+      setState(() => _error = e.toString());
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    } finally {
+      setState(() => _isLoadingItems = false);
+    }
+  }
+
+  Future<void> _loadMoreItems() async {
+    if (_isLoadingMore || _currentPage >= _totalPages) return;
+    
+    setState(() => _isLoadingMore = true);
+    
+    try {
+      final nextPage = _currentPage + 1;
+      final data = await _hubService.getHubItems(
+        page: nextPage,
+        pageSize: 20,
+        itemType: _selectedFilter == 'all' ? null : _selectedFilter,
+      );
+      
+      setState(() {
+        final items = (data['items'] as List<dynamic>)
+            .map((json) => HubItem.fromJson(json))
+            .toList();
+        _hubItems.addAll(items);
+        _currentPage = nextPage;
+        _totalPages = data['total_pages'] ?? 1;
+        _isLoadingMore = false;
+        _error = null;
+      });
+    } catch (e) {
+      setState(() => _isLoadingMore = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load more items: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _refreshAll() async {
+    await Future.wait([
+      _loadDashboard(),
+      _loadHubItems(refresh: true),
+    ]);
+  }
+
+  Future<void> _toggleLike(HubItem item) async {
+    final originalLikeStatus = item.isLiked;
+    final originalLikeCount = item.likeCount;
+    
+    setState(() {
+      final index = _hubItems.indexWhere((i) => i.id == item.id);
+      if (index != -1) {
+        _hubItems[index] = HubItem(
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          itemType: item.itemType,
+          content: item.content,
+          tags: item.tags,
+          privacy: item.privacy,
+          isPinned: item.isPinned,
+          ownerId: item.ownerId,
+          ownerName: item.ownerName,
+          ownerAvatar: item.ownerAvatar,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+          viewCount: item.viewCount,
+          likeCount: originalLikeStatus ? originalLikeCount - 1 : originalLikeCount + 1,
+          commentCount: item.commentCount,
+          isLiked: !originalLikeStatus,
+          isBookmarked: item.isBookmarked,
+        );
+      }
+    });
+
+    try {
+      await _hubService.toggleLike(item.id, originalLikeStatus);
+    } catch (e) {
+      setState(() {
+        final index = _hubItems.indexWhere((i) => i.id == item.id);
+        if (index != -1) {
+          _hubItems[index] = HubItem(
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            itemType: item.itemType,
+            content: item.content,
+            tags: item.tags,
+            privacy: item.privacy,
+            isPinned: item.isPinned,
+            ownerId: item.ownerId,
+            ownerName: item.ownerName,
+            ownerAvatar: item.ownerAvatar,
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+            viewCount: item.viewCount,
+            likeCount: originalLikeCount,
+            commentCount: item.commentCount,
+            isLiked: originalLikeStatus,
+            isBookmarked: item.isBookmarked,
+          );
+        }
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to ${originalLikeStatus ? 'unlike' : 'like'} item')),
+        );
+      }
+    }
+  }
+
+  Future<void> _toggleBookmark(HubItem item) async {
+    final originalBookmarkStatus = item.isBookmarked;
+    
+    setState(() {
+      final index = _hubItems.indexWhere((i) => i.id == item.id);
+      if (index != -1) {
+        _hubItems[index] = HubItem(
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          itemType: item.itemType,
+          content: item.content,
+          tags: item.tags,
+          privacy: item.privacy,
+          isPinned: item.isPinned,
+          ownerId: item.ownerId,
+          ownerName: item.ownerName,
+          ownerAvatar: item.ownerAvatar,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+          viewCount: item.viewCount,
+          likeCount: item.likeCount,
+          commentCount: item.commentCount,
+          isLiked: item.isLiked,
+          isBookmarked: !originalBookmarkStatus,
+        );
+      }
+    });
+
+    try {
+      await _hubService.toggleBookmark(item.id, originalBookmarkStatus);
+    } catch (e) {
+      setState(() {
+        final index = _hubItems.indexWhere((i) => i.id == item.id);
+        if (index != -1) {
+          _hubItems[index] = HubItem(
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            itemType: item.itemType,
+            content: item.content,
+            tags: item.tags,
+            privacy: item.privacy,
+            isPinned: item.isPinned,
+            ownerId: item.ownerId,
+            ownerName: item.ownerName,
+            ownerAvatar: item.ownerAvatar,
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+            viewCount: item.viewCount,
+            likeCount: item.likeCount,
+            commentCount: item.commentCount,
+            isLiked: item.isLiked,
+            isBookmarked: originalBookmarkStatus,
+          );
+        }
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to ${originalBookmarkStatus ? 'unbookmark' : 'bookmark'} item')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Hub',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            onPressed: () {
+              // TODO: Navigate to create hub item screen
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Create hub item - Coming soon')),
+              );
+            },
+          ),
+        ],
+      ),
       body: RefreshIndicator(
-        onRefresh: _loadDashboard,
+        onRefresh: _refreshAll,
         child: CustomScrollView(
+          controller: _scrollController,
           slivers: [
-            _buildHeader(),
-            if (_error != null)
-              SliverFillRemaining(child: _buildErrorState())
-            else if (_isLoading)
-              SliverFillRemaining(child: _buildLoadingState())
+            if (_isLoadingDashboard)
+              _buildDashboardShimmer()
+            else if (_dashboardData != null)
+              _buildDashboard(),
+            
+            _buildQuickActions(),
+            _buildFilterChips(),
+            
+            if (_isLoadingItems && _hubItems.isEmpty)
+              _buildItemsShimmer()
+            else if (_hubItems.isEmpty && !_isLoadingItems)
+              _buildEmptyState()
             else
-              _buildContent(),
+              _buildHubItemsList(),
+            
+            if (_isLoadingMore)
+              SliverToBoxAdapter(
+                child: const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    final hour = DateTime.now().hour;
-    String greeting = 'Good morning';
-    String greetingIcon = '☀️';
-    if (hour >= 12 && hour < 17) {
-      greeting = 'Good afternoon';
-      greetingIcon = '🌤️';
-    } else if (hour >= 17) {
-      greeting = 'Good evening';
-      greetingIcon = '🌙';
-    }
+  Widget _buildDashboard() {
+    final stats = _dashboardData?['stats'] ?? {};
+    final totalItems = stats['total_items'] ?? 0;
+    final totalLikes = stats['total_likes'] ?? 0;
+    final totalViews = stats['total_views'] ?? 0;
+    
+    final itemsByType = stats['items_by_type'] as Map<String, dynamic>? ?? {};
+    final bookmarkCount = itemsByType.values.fold<int>(0, (sum, val) => sum + (val as int? ?? 0)) ~/ 4;
 
     return SliverToBoxAdapter(
-      child: FadeTransition(
-        opacity: _headerAnimation,
-        child: Container(
-          height: 280,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFFFF6B9D),
-                Color(0xFFC44569),
-                Color(0xFFFFA07A),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Dashboard',
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(_isDashboardExpanded ? Icons.expand_less : Icons.expand_more),
+                  onPressed: () {
+                    setState(() => _isDashboardExpanded = !_isDashboardExpanded);
+                  },
+                ),
               ],
             ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(40),
-              bottomRight: Radius.circular(40),
+          ),
+          if (_isDashboardExpanded)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 1.5,
+                children: [
+                  _buildStatCard(
+                    'Total Items',
+                    totalItems.toString(),
+                    Icons.widgets,
+                    const [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                  ),
+                  _buildStatCard(
+                    'Likes',
+                    totalLikes.toString(),
+                    Icons.favorite,
+                    const [Color(0xFF10B981), Color(0xFF14B8A6)],
+                  ),
+                  _buildStatCard(
+                    'Bookmarks',
+                    bookmarkCount.toString(),
+                    Icons.bookmark,
+                    const [Color(0xFFF59E0B), Color(0xFFEF4444)],
+                  ),
+                  _buildStatCard(
+                    'Views',
+                    totalViews.toString(),
+                    Icons.visibility,
+                    const [Color(0xFF6366F1), Color(0xFFEC4899)],
+                  ),
+                ],
+              ),
             ),
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                right: -50,
-                top: -50,
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: -30,
-                bottom: -30,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          greetingIcon,
-                          style: const TextStyle(fontSize: 28),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          greeting,
-                          style: GoogleFonts.inter(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white.withOpacity(0.95),
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Your Family\nMemory Hub',
-                      style: GoogleFonts.poppins(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        height: 1.2,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.25),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.favorite,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Where every moment matters',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+          const SizedBox(height: 8),
+        ],
       ),
     );
   }
 
-  Widget _buildLoadingState() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
+  Widget _buildStatCard(String label, String value, IconData icon, List<Color> colors) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: colors,
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: colors.first.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 1.3,
-            children: List.generate(
-              4,
-              (index) => ShimmerLoading(
-                isLoading: true,
-                child: ShimmerBox(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-              ),
+          Icon(icon, color: Colors.white, size: 28),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: GoogleFonts.poppins(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: Colors.white.withOpacity(0.9),
             ),
           ),
         ],
@@ -241,201 +465,83 @@ class _HubScreenState extends State<HubScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildErrorState() {
-    return EnhancedEmptyState(
-      icon: Icons.error_outline,
-      title: 'Oops! Something went wrong',
-      message: _error ?? 'Unable to load dashboard. Please try again.',
-      actionLabel: 'Retry',
-      onAction: _loadDashboard,
-    );
-  }
+  Widget _buildQuickActions() {
+    final actions = [
+      {'label': 'Create Note', 'icon': Icons.note_add, 'colors': [Color(0xFF6366F1), Color(0xFF8B5CF6)]},
+      {'label': 'Create Link', 'icon': Icons.link, 'colors': [Color(0xFF10B981), Color(0xFF14B8A6)]},
+      {'label': 'Create Task', 'icon': Icons.add_task, 'colors': [Color(0xFFF59E0B), Color(0xFFEF4444)]},
+      {'label': 'Upload File', 'icon': Icons.upload_file, 'colors': [Color(0xFFEC4899), Color(0xFF8B5CF6)]},
+    ];
 
-  Widget _buildContent() {
-    final stats = _dashboardData?['stats'] ?? {};
-    // final quickLinks = _dashboardData?['quick_links'] ?? []; // Reserved for future use
-    final recentActivity = _dashboardData?['recent_activity'] ?? [];
-
-    return SliverPadding(
-      padding: const EdgeInsets.all(20),
-      sliver: SliverList(
-        delegate: SliverChildListDelegate([
-          _buildStatsSection(stats),
-          const SizedBox(height: 32),
-          _buildQuickActionsSection(context),
-          const SizedBox(height: 32),
-          _buildMyHubsSection(context),
-          const SizedBox(height: 32),
-          _buildFeaturesGrid(context),
-          const SizedBox(height: 32),
-          _buildRecentActivitySection(recentActivity),
-          const SizedBox(height: 20),
-        ]),
+    return SliverToBoxAdapter(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Text(
+              'Quick Actions',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 100,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              itemCount: actions.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final action = actions[index];
+                final colors = action['colors'] as List<Color>;
+                return _buildQuickActionChip(
+                  action['label'] as String,
+                  action['icon'] as IconData,
+                  colors,
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
       ),
     );
   }
 
-  Widget _buildStatsSection(Map<String, dynamic> stats) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              'Your Memory Journey',
-              style: GoogleFonts.poppins(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF2D3748),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.explore, color: Color(0xFFFF6B9D), size: 24),
-          ],
-        ),
-        const SizedBox(height: 16),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          childAspectRatio: 1.3,
-          children: [
-            StatCard(
-              label: 'Memories',
-              value: stats['memories_count']?.toString() ?? '0',
-              icon: Icons.auto_awesome,
-              gradientColors: const [Color(0xFFFF6B9D), Color(0xFFFFA07A)],
-              trend: '+12%',
-              onTap: () => Navigator.pushNamed(context, '/memories'),
-            ),
-            StatCard(
-              label: 'Family Photos',
-              value: stats['files_count']?.toString() ?? '0',
-              icon: Icons.photo_library,
-              gradientColors: const [Color(0xFFC44569), Color(0xFFFF6B9D)],
-              trend: '+5',
-              onTap: () => Navigator.pushNamed(context, '/family/albums'),
-            ),
-            StatCard(
-              label: 'Collections',
-              value: stats['collections_count']?.toString() ?? '0',
-              icon: Icons.collections_bookmark,
-              gradientColors: const [Color(0xFFFFA07A), Color(0xFFFFD700)],
-              onTap: () => Navigator.pushNamed(context, '/collections'),
-            ),
-            StatCard(
-              label: 'Family Love',
-              value: stats['total_likes']?.toString() ?? '0',
-              icon: Icons.favorite,
-              gradientColors: const [Color(0xFFFF6B9D), Color(0xFFC44569)],
-              trend: '+8',
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQuickActionsSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              'Quick Actions',
-              style: GoogleFonts.poppins(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF2D3748),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Icon(Icons.flash_on, color: Color(0xFFFFA07A), size: 24),
-          ],
-        ),
-        const SizedBox(height: 16),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              _buildActionCard(
-                'Create Memory',
-                Icons.auto_awesome,
-                const [Color(0xFFFF6B9D), Color(0xFFFFA07A)],
-                () => Navigator.pushNamed(context, '/memories/create'),
-              ),
-              const SizedBox(width: 12),
-              _buildActionCard(
-                'Family Album',
-                Icons.photo_library,
-                const [Color(0xFFC44569), Color(0xFFFF6B9D)],
-                () => Navigator.pushNamed(context, '/family/albums'),
-              ),
-              const SizedBox(width: 12),
-              _buildActionCard(
-                'New Collection',
-                Icons.collections_bookmark,
-                const [Color(0xFFFFA07A), Color(0xFFFFD700)],
-                () => Navigator.pushNamed(context, '/collections'),
-              ),
-              const SizedBox(width: 12),
-              _buildActionCard(
-                'Create Story',
-                Icons.auto_stories,
-                const [Color(0xFFFF6B9D), Color(0xFFC44569)],
-                () => Navigator.pushNamed(context, '/stories/create'),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionCard(String title, IconData icon, List<Color> colors, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
+  Widget _buildQuickActionChip(String label, IconData icon, List<Color> colors) {
+    return InkWell(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$label - Coming soon')),
+        );
+      },
       child: Container(
-        width: 140,
-        padding: const EdgeInsets.all(20),
+        width: 120,
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: colors,
           ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: colors.first.withOpacity(0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: Colors.white, size: 28),
-            ),
-            const SizedBox(height: 12),
+            Icon(icon, color: Colors.white, size: 32),
+            const SizedBox(height: 8),
             Text(
-              title,
+              label,
+              textAlign: TextAlign.center,
               style: GoogleFonts.inter(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -443,469 +549,315 @@ class _HubScreenState extends State<HubScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildMyHubsSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'My Hubs',
-              style: GoogleFonts.inter(
-                fontSize: 24,
+  Widget _buildFilterChips() {
+    return SliverToBoxAdapter(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: Text(
+              'Filter',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                '2 Active',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
+          ),
+          SizedBox(
+            height: 50,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              itemCount: _filters.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final filter = _filters[index];
+                final isSelected = _selectedFilter == filter['value'];
+                return FilterChip(
+                  label: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        filter['icon'] as IconData,
+                        size: 18,
+                        color: isSelected ? Colors.white : Colors.grey[700],
+                      ),
+                      const SizedBox(width: 6),
+                      Text(filter['label'] as String),
+                    ],
+                  ),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    setState(() {
+                      _selectedFilter = filter['value'] as String;
+                      _currentPage = 1;
+                      _hubItems.clear();
+                    });
+                    _loadHubItems();
+                  },
+                  backgroundColor: Colors.grey[100],
+                  selectedColor: Theme.of(context).primaryColor,
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : Colors.grey[700],
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  ),
+                );
+              },
             ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _buildHubCard(
-                context,
-                title: 'Collections',
-                subtitle: 'Organize memories',
-                icon: Icons.collections_bookmark,
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-                ),
-                count: '8',
-                countLabel: 'Collections',
-                onTap: () => Navigator.pushNamed(context, '/collections'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildHubCard(
-                context,
-                title: 'Family Hub',
-                subtitle: '12 features',
-                icon: Icons.family_restroom,
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFFEC4899), Color(0xFFF472B6)],
-                ),
-                count: '12',
-                countLabel: 'Features',
-                onTap: () => Navigator.pushNamed(context, '/family'),
-              ),
-            ),
-          ],
-        ),
-      ],
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
     );
   }
 
-  Widget _buildHubCard(
-    BuildContext context, {
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Gradient gradient,
-    required String count,
-    required String countLabel,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 180,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: (gradient as LinearGradient).colors.first.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
+  Widget _buildHubItemsList() {
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            final item = _hubItems[index];
+            return _buildHubItemCard(item);
+          },
+          childCount: _hubItems.length,
         ),
-        child: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                gradient: gradient,
-                borderRadius: BorderRadius.circular(24),
-              ),
-            ),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white.withOpacity(0.2),
-                        Colors.white.withOpacity(0.05),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 1.5,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              right: -20,
-              top: -20,
-              child: Icon(
-                icon,
-                size: 120,
-                color: Colors.white.withOpacity(0.15),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+    );
+  }
+
+  Widget _buildHubItemCard(HubItem item) {
+    final typeConfig = _getTypeConfig(item.itemType);
+    
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: () {
+          // TODO: Navigate to detail screen
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('View ${item.title}')),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.4),
-                      ),
+                      color: typeConfig['color'].withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(icon, color: Colors.white, size: 28),
-                  ),
-                  const Spacer(),
-                  Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      shadows: [
-                        Shadow(
-                          color: Colors.black.withOpacity(0.2),
-                          offset: const Offset(0, 2),
-                          blurRadius: 4,
-                        ),
-                      ],
+                    child: Icon(
+                      typeConfig['icon'],
+                      color: typeConfig['color'],
+                      size: 20,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: Colors.white.withOpacity(0.95),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.25),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          count,
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                          item.title,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          countLabel,
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: Colors.white.withOpacity(0.95),
+                        if (item.description != null && item.description!.isNotEmpty)
+                          Text(
+                            item.description!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
-                        ),
                       ],
                     ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Icon(Icons.access_time, size: 14, color: Colors.grey[600]),
+                  const SizedBox(width: 4),
+                  Text(
+                    _formatTimestamp(item.createdAt),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                  ),
+                  const Spacer(),
+                  _buildActionButton(
+                    icon: item.isLiked ? Icons.favorite : Icons.favorite_border,
+                    label: item.likeCount.toString(),
+                    color: item.isLiked ? Colors.red : Colors.grey[600],
+                    onTap: () => _toggleLike(item),
+                  ),
+                  const SizedBox(width: 16),
+                  _buildActionButton(
+                    icon: item.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                    color: item.isBookmarked ? Colors.blue : Colors.grey[600],
+                    onTap: () => _toggleBookmark(item),
+                  ),
+                ],
+              ),
+              if (item.tags.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: item.tags.take(3).map((tag) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          '#$tag',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    String? label,
+    required Color? color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 20, color: color),
+            if (label != null) ...[
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(fontSize: 14, color: color),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFeaturesGrid(BuildContext context) {
-    final features = [
-      {'title': 'Notifications', 'icon': Icons.notifications_outlined, 'route': '/notifications', 'color': const Color(0xFFF59E0B)},
-      {'title': 'Activity Feed', 'icon': Icons.timeline, 'route': '/activity', 'color': const Color(0xFF3B82F6)},
-      {'title': 'Analytics', 'icon': Icons.analytics_outlined, 'route': '/analytics', 'color': const Color(0xFF10B981)},
-      {'title': 'Social Hub', 'icon': Icons.people_outline, 'route': '/social/hubs', 'color': const Color(0xFFEC4899)},
-      {'title': 'Search', 'icon': Icons.search, 'route': '/search', 'color': const Color(0xFF8B5CF6)},
-      {'title': 'Settings', 'icon': Icons.settings_outlined, 'route': '/profile/settings', 'color': const Color(0xFF6366F1)},
-    ];
+  Map<String, dynamic> _getTypeConfig(String type) {
+    switch (type) {
+      case 'note':
+        return {'icon': Icons.note, 'color': Color(0xFF6366F1)};
+      case 'link':
+        return {'icon': Icons.link, 'color': Color(0xFF10B981)};
+      case 'task':
+        return {'icon': Icons.task_alt, 'color': Color(0xFFF59E0B)};
+      case 'file':
+        return {'icon': Icons.file_copy, 'color': Color(0xFFEC4899)};
+      default:
+        return {'icon': Icons.article, 'color': Color(0xFF6366F1)};
+    }
+  }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Explore',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 16),
-        GridView.builder(
+  String _formatTimestamp(DateTime timestamp) {
+    final now = DateTime.now();
+    final difference = now.difference(timestamp);
+
+    if (difference.inDays > 7) {
+      return DateFormat('MMM d, y').format(timestamp);
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
+  }
+
+  Widget _buildDashboardShimmer() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: GridView.count(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            childAspectRatio: 1.0,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.5,
+          children: List.generate(
+            4,
+            (index) => ShimmerLoading(
+              isLoading: true,
+              child: ShimmerBox(borderRadius: BorderRadius.circular(12)),
+            ),
           ),
-          itemCount: features.length,
-          itemBuilder: (context, index) {
-            final feature = features[index];
-            return AnimatedListItem(
-              index: index,
-              delay: 50,
-              child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, feature['route'] as String),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Theme.of(context).dividerColor,
-                      width: 1,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: (feature['color'] as Color).withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          feature['icon'] as IconData,
-                          color: feature['color'] as Color,
-                          size: 28,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        feature['title'] as String,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildRecentActivitySection(List<dynamic> recentActivity) {
-    if (recentActivity.isEmpty) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Recent Activity',
-            style: GoogleFonts.inter(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          EnhancedEmptyState(
-            icon: Icons.history,
-            title: 'No Activity Yet',
-            message: 'Your recent activities will appear here',
-          ),
-        ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Recent Activity',
-              style: GoogleFonts.inter(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+  Widget _buildItemsShimmer() {
+    return SliverPadding(
+      padding: const EdgeInsets.all(16),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: ShimmerLoading(
+              isLoading: true,
+              child: ShimmerBox(
+                height: 120,
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
-            TextButton(
-              onPressed: () => Navigator.pushNamed(context, '/activity'),
-              child: Text('View All'),
-            ),
-          ],
+          ),
+          childCount: 5,
         ),
-        const SizedBox(height: 16),
-        ...recentActivity.take(5).toList().asMap().entries.map((entry) {
-          final index = entry.key;
-          final activity = entry.value;
-          return AnimatedListItem(
-            index: index,
-            delay: 80,
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: Theme.of(context).dividerColor,
-                  width: 1,
-                ),
-              ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                leading: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: _getColorForActivityType(activity['type'] ?? '').withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    _getIconForActivityType(activity['type'] ?? ''),
-                    color: _getColorForActivityType(activity['type'] ?? ''),
-                    size: 20,
-                  ),
-                ),
-                title: Text(
-                  activity['title'] ?? '',
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(
-                  activity['description'] ?? '',
-                  style: GoogleFonts.inter(fontSize: 12),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                trailing: Text(
-                  _formatDate(activity['timestamp']),
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ),
-            ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return SliverFillRemaining(
+      child: EnhancedEmptyState(
+        icon: Icons.inbox,
+        title: 'No hub items yet',
+        message: 'Create your first hub item to get started',
+        actionLabel: 'Create Item',
+        onAction: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Create hub item - Coming soon')),
           );
-        }).toList(),
-      ],
+        },
+      ),
     );
-  }
-
-  IconData _getIconForActivityType(String type) {
-    switch (type) {
-      case 'memory':
-        return Icons.auto_awesome;
-      case 'file':
-        return Icons.file_copy_outlined;
-      case 'like':
-        return Icons.favorite;
-      case 'comment':
-        return Icons.comment_outlined;
-      case 'collection':
-        return Icons.collections_outlined;
-      default:
-        return Icons.circle;
-    }
-  }
-
-  Color _getColorForActivityType(String type) {
-    switch (type) {
-      case 'memory':
-        return const Color(0xFF6366F1);
-      case 'file':
-        return const Color(0xFFEC4899);
-      case 'like':
-        return const Color(0xFFF43F5E);
-      case 'comment':
-        return const Color(0xFF8B5CF6);
-      case 'collection':
-        return const Color(0xFF10B981);
-      default:
-        return Colors.grey;
-    }
-  }
-
-  String _formatDate(dynamic timestamp) {
-    if (timestamp == null) return '';
-    try {
-      final date = DateTime.parse(timestamp.toString());
-      final now = DateTime.now();
-      final diff = now.difference(date);
-
-      if (diff.inMinutes < 1) {
-        return 'Just now';
-      } else if (diff.inHours < 1) {
-        return '${diff.inMinutes}m ago';
-      } else if (diff.inDays < 1) {
-        return '${diff.inHours}h ago';
-      } else if (diff.inDays < 7) {
-        return '${diff.inDays}d ago';
-      } else {
-        return DateFormat('MMM d').format(date);
-      }
-    } catch (e) {
-      return '';
-    }
   }
 }

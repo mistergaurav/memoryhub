@@ -415,6 +415,7 @@ async def get_user_profile(
         return {
             "id": str(user_doc["_id"]),
             "email": user_doc.get("email", ""),
+            "username": user_doc.get("username"),
             "full_name": user_doc.get("full_name", ""),
             "avatar_url": user_doc.get("avatar_url"),
             "bio": user_doc.get("bio"),
