@@ -34,7 +34,7 @@ Preferred communication style: Simple, everyday language.
 **UI/UX Decisions**: Modern Material 3 design system with design tokens (colors, typography, spacing), light/dark theme support, reusable component library, and vibrant gradient color schemes (Indigo, Purple, Pink) with Google Fonts (Inter). Features glassmorphic effects for modern aesthetics. Health records feature a professional medical-themed interface with color-coded record types (Medical Blue #2563EB, Teal Green #14B8A6, Success Green #10B981), smooth animations, grid/list view toggle, and advanced filtering capabilities.
 **Feature Specifications**:
 - **Admin Panel**: Dashboard with statistics, user management, and activity tracking.
-- **Social Features**: User search, follow/unfollow, enhanced profiles, consistent avatar rendering, comments, notifications, activity feeds, and ephemeral "Stories."
+- **Social Features**: User search, follow/unfollow, enhanced profiles with hero header/gradient backgrounds/@username display/animated stats cards/tabbed navigation, consistent avatar rendering, comments, notifications, activity feeds with mixed content cards/infinite scroll/engagement buttons, ephemeral "Stories," Hub dashboard with stats/quick actions/filter chips/optimistic updates, full backend integration with token refresh handling and pagination.
 - **Enhanced Configuration**: Platform-aware API configuration with robust error handling and CORS support.
 - **2FA**: TOTP-based authentication with QR code generation and backup codes.
 - **Password Reset**: Secure token-based system with email verification.
