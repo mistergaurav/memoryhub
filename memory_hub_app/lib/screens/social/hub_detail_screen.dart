@@ -92,6 +92,196 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
     );
   }
 
+  Future<void> _showShareMemoryDialog() async {
+    List<dynamic> myMemories = [];
+    bool isLoading = true;
+    String? error;
+
+    // Load user's memories
+    try {
+      final headers = await _authService.getAuthHeaders();
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/memories'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        myMemories = jsonDecode(response.body);
+      } else {
+        error = 'Failed to load memories';
+      }
+    } catch (e) {
+      error = 'Error: $e';
+    } finally {
+      isLoading = false;
+    }
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.share, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 12),
+              const Text('Share Memory to Hub'),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 400,
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : error != null
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                            const SizedBox(height: 16),
+                            Text(error, style: TextStyle(color: Colors.red[700])),
+                          ],
+                        ),
+                      )
+                    : myMemories.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.photo_library_outlined, size: 64, color: Colors.grey[400]),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'No memories to share',
+                                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Create a memory first',
+                                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: myMemories.length,
+                            itemBuilder: (context, index) {
+                              final memory = myMemories[index];
+                              return Card(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                child: ListTile(
+                                  leading: memory['image_url'] != null
+                                      ? ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: Image.network(
+                                            ApiConfig.getAssetUrl(memory['image_url']),
+                                            width: 60,
+                                            height: 60,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Container(
+                                                width: 60,
+                                                height: 60,
+                                                color: Colors.grey[300],
+                                                child: const Icon(Icons.broken_image, size: 24),
+                                              );
+                                            },
+                                          ),
+                                        )
+                                      : Container(
+                                          width: 60,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).colorScheme.primaryContainer,
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Icon(
+                                            Icons.photo,
+                                            color: Theme.of(context).colorScheme.primary,
+                                          ),
+                                        ),
+                                  title: Text(
+                                    memory['title'] ?? 'Untitled',
+                                    style: const TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  subtitle: Text(
+                                    _formatDate(memory['created_at']),
+                                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                  ),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.send),
+                                    color: Theme.of(context).colorScheme.primary,
+                                    onPressed: () async {
+                                      // Share this memory to the hub
+                                      try {
+                                        final headers = await _authService.getAuthHeaders();
+                                        final response = await http.post(
+                                          Uri.parse(
+                                              '${ApiConfig.baseUrl}/social/hubs/${widget.hubId}/memories'),
+                                          headers: headers,
+                                          body: jsonEncode({
+                                            'memory_id': memory['id'],
+                                          }),
+                                        );
+
+                                        Navigator.pop(context);
+
+                                        if (response.statusCode == 200 ||
+                                            response.statusCode == 201) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Row(
+                                                children: [
+                                                  const Icon(Icons.check_circle,
+                                                      color: Colors.white),
+                                                  const SizedBox(width: 12),
+                                                  Text(
+                                                      '${memory['title'] ?? 'Memory'} shared to hub!'),
+                                                ],
+                                              ),
+                                              backgroundColor: Colors.green,
+                                              behavior: SnackBarBehavior.floating,
+                                            ),
+                                          );
+                                          _loadHubData(); // Reload to show the new memory
+                                        } else {
+                                          final error = jsonDecode(response.body);
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content:
+                                                  Text(error['detail'] ?? 'Failed to share memory'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        Navigator.pop(context);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('Error: $e'),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -323,11 +513,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Share memory to hub feature coming soon!')),
-          );
-        },
+        onPressed: _showShareMemoryDialog,
         icon: const Icon(Icons.add),
         label: const Text('Share Memory'),
       ),

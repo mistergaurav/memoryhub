@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/auth_service.dart';
 import '../../config/api_config.dart';
+import '../../widgets/user_search_autocomplete.dart';
 import 'user_profile_view_screen.dart';
 
 class HubInfoScreen extends StatefulWidget {
@@ -127,19 +129,19 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
     }
   }
 
-  Future<void> _showInviteMembersDialog() async {
-    final usernameController = TextEditingController();
-    final selectedRole = ValueNotifier<String>('member');
+  Future<void> _showEditHubDialog() async {
+    final nameController = TextEditingController(text: _hubInfo?['name'] ?? '');
+    final descController = TextEditingController(text: _hubInfo?['description'] ?? '');
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.person_add, color: Theme.of(context).colorScheme.primary),
+            Icon(Icons.edit, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 12),
             Text(
-              'Invite to Hub',
+              'Edit Hub',
               style: GoogleFonts.inter(fontWeight: FontWeight.bold),
             ),
           ],
@@ -150,64 +152,33 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Enter the username of the person you want to invite',
+                'Update hub information',
                 style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
               ),
               const SizedBox(height: 16),
               TextField(
-                controller: usernameController,
+                controller: nameController,
                 decoration: InputDecoration(
-                  labelText: 'Username',
-                  hintText: 'Enter username',
-                  prefixIcon: const Icon(Icons.person_search),
+                  labelText: 'Hub Name',
+                  hintText: 'Enter hub name',
+                  prefixIcon: const Icon(Icons.workspaces),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                'Role',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+              TextField(
+                controller: descController,
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                  hintText: 'Enter description',
+                  prefixIcon: const Icon(Icons.description),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              ValueListenableBuilder<String>(
-                valueListenable: selectedRole,
-                builder: (context, role, _) {
-                  return Column(
-                    children: [
-                      RadioListTile<String>(
-                        value: 'member',
-                        groupValue: role,
-                        onChanged: (value) => selectedRole.value = value!,
-                        title: Row(
-                          children: [
-                            Icon(Icons.person, size: 20, color: Colors.green),
-                            const SizedBox(width: 8),
-                            const Text('Member'),
-                          ],
-                        ),
-                        subtitle: const Text('Can view and share memories'),
-                      ),
-                      RadioListTile<String>(
-                        value: 'admin',
-                        groupValue: role,
-                        onChanged: (value) => selectedRole.value = value!,
-                        title: Row(
-                          children: [
-                            Icon(Icons.admin_panel_settings, size: 20, color: Colors.blue),
-                            const SizedBox(width: 8),
-                            const Text('Admin'),
-                          ],
-                        ),
-                        subtitle: const Text('Can manage members and settings'),
-                      ),
-                    ],
-                  );
-                },
+                maxLines: 3,
               ),
             ],
           ),
@@ -215,64 +186,64 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
         actions: [
           TextButton(
             onPressed: () {
-              usernameController.dispose();
-              selectedRole.dispose();
+              nameController.dispose();
+              descController.dispose();
               Navigator.pop(context);
             },
             child: const Text('Cancel'),
           ),
           ElevatedButton.icon(
             onPressed: () async {
-              final username = usernameController.text.trim();
-              if (username.isEmpty) {
+              final name = nameController.text.trim();
+              if (name.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please enter a username')),
+                  const SnackBar(content: Text('Please enter a hub name')),
                 );
                 return;
               }
 
               try {
                 final headers = await _authService.getAuthHeaders();
-                final response = await http.post(
-                  Uri.parse('${ApiConfig.baseUrl}/social/hubs/${widget.hubId}/members'),
+                final response = await http.put(
+                  Uri.parse('${ApiConfig.baseUrl}/social/hubs/${widget.hubId}'),
                   headers: headers,
                   body: jsonEncode({
-                    'username': username,
-                    'role': selectedRole.value,
+                    'name': name,
+                    'description': descController.text.trim(),
                   }),
                 );
 
-                usernameController.dispose();
-                selectedRole.dispose();
+                nameController.dispose();
+                descController.dispose();
                 Navigator.pop(context);
 
-                if (response.statusCode == 200 || response.statusCode == 201) {
+                if (response.statusCode == 200) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Row(
                         children: [
-                          const Icon(Icons.check_circle, color: Colors.white),
-                          const SizedBox(width: 12),
-                          Text('$username has been invited to the hub!'),
+                          Icon(Icons.check_circle, color: Colors.white),
+                          SizedBox(width: 12),
+                          Text('Hub updated successfully!'),
                         ],
                       ),
                       backgroundColor: Colors.green,
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
-                  _loadMembers();
+                  _loadHubInfo();
                 } else {
                   final error = jsonDecode(response.body);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(error['detail'] ?? 'Failed to invite member'),
+                      content: Text(error['detail'] ?? 'Failed to update hub'),
                       backgroundColor: Colors.red,
                     ),
                   );
                 }
               } catch (e) {
-                usernameController.dispose();
-                selectedRole.dispose();
+                nameController.dispose();
+                descController.dispose();
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -282,10 +253,349 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                 );
               }
             },
-            icon: const Icon(Icons.send),
-            label: const Text('Send Invite'),
+            icon: const Icon(Icons.save),
+            label: const Text('Save Changes'),
           ),
         ],
+      ),
+    );
+  }
+
+  void _shareHub() {
+    final hubUrl = '${ApiConfig.baseUrl}/hub/${widget.hubId}';
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.share, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 12),
+            Text(
+              'Share Hub',
+              style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Share this hub with others',
+              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: SelectableText(
+                hubUrl,
+                style: GoogleFonts.sourceCodePro(fontSize: 12),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Copy this link and share it with people you want to invite to this hub',
+              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () async {
+              // Copy hub URL to clipboard
+              await Clipboard.setData(ClipboardData(text: hubUrl));
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.white),
+                        SizedBox(width: 12),
+                        Text('Link copied to clipboard!'),
+                      ],
+                    ),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                Navigator.pop(context);
+              }
+            },
+            icon: const Icon(Icons.copy),
+            label: const Text('Copy Link'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showAddMembersDialog() async {
+    Map<String, dynamic>? selectedUser;
+    final selectedRole = ValueNotifier<String>('member');
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.person_add, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Add Member to Hub',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Search for a user from your family circles',
+                    style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                  const SizedBox(height: 16),
+                  UserSearchAutocomplete(
+                    onUserSelected: (user) {
+                      setState(() {
+                        selectedUser = {'id': user.id, 'full_name': user.fullName, 'email': user.email};
+                      });
+                    },
+                    helpText: 'Search for users in your family circles',
+                  ),
+                  if (selectedUser != null) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            child: Text(
+                              (selectedUser!['full_name'] ?? 'U')[0].toUpperCase(),
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  selectedUser!['full_name'] ?? 'Unknown',
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  selectedUser!['email'] ?? '',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, size: 20),
+                            onPressed: () {
+                              setState(() {
+                                selectedUser = null;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 20),
+                  Text(
+                    'Select Role',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ValueListenableBuilder<String>(
+                    valueListenable: selectedRole,
+                    builder: (context, role, _) {
+                      return Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: role == 'member' 
+                                  ? Colors.green.withOpacity(0.1)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: role == 'member'
+                                    ? Colors.green
+                                    : Colors.grey.withOpacity(0.3),
+                              ),
+                            ),
+                            child: RadioListTile<String>(
+                              value: 'member',
+                              groupValue: role,
+                              onChanged: (value) => selectedRole.value = value!,
+                              title: Row(
+                                children: [
+                                  Icon(Icons.person, size: 20, color: Colors.green),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Member',
+                                    style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                              subtitle: Text(
+                                'Can view and share memories',
+                                style: GoogleFonts.inter(fontSize: 12),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: role == 'admin' 
+                                  ? Colors.blue.withOpacity(0.1)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: role == 'admin'
+                                    ? Colors.blue
+                                    : Colors.grey.withOpacity(0.3),
+                              ),
+                            ),
+                            child: RadioListTile<String>(
+                              value: 'admin',
+                              groupValue: role,
+                              onChanged: (value) => selectedRole.value = value!,
+                              title: Row(
+                                children: [
+                                  Icon(Icons.admin_panel_settings, size: 20, color: Colors.blue),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Admin',
+                                    style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                              subtitle: Text(
+                                'Can manage members and settings',
+                                style: GoogleFonts.inter(fontSize: 12),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                selectedRole.dispose();
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton.icon(
+              onPressed: selectedUser == null
+                  ? null
+                  : () async {
+                      try {
+                        final headers = await _authService.getAuthHeaders();
+                        final response = await http.post(
+                          Uri.parse('${ApiConfig.baseUrl}/social/hubs/${widget.hubId}/members'),
+                          headers: headers,
+                          body: jsonEncode({
+                            'user_id': selectedUser!['id'],
+                            'role': selectedRole.value,
+                          }),
+                        );
+
+                        selectedRole.dispose();
+                        Navigator.pop(context);
+
+                        if (response.statusCode == 200 || response.statusCode == 201) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Row(
+                                  children: [
+                                    const Icon(Icons.check_circle, color: Colors.white),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        '${selectedUser!['full_name']} added to hub!',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                backgroundColor: Colors.green,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                            _loadMembers();
+                          }
+                        } else {
+                          final error = jsonDecode(response.body);
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(error['detail'] ?? 'Failed to add member'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
+                      } catch (e) {
+                        selectedRole.dispose();
+                        Navigator.pop(context);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
+              icon: const Icon(Icons.person_add),
+              label: const Text('Add Member'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -476,25 +786,17 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                     ListTile(
                       leading: const Icon(Icons.edit),
                       title: const Text('Edit Hub'),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Edit hub feature coming soon!')),
-                        );
-                      },
+                      onTap: () => _showEditHubDialog(),
                     ),
                     ListTile(
                       leading: const Icon(Icons.person_add),
-                      title: const Text('Invite Members'),
-                      onTap: () => _showInviteMembersDialog(),
+                      title: const Text('Add Members'),
+                      onTap: () => _showAddMembersDialog(),
                     ),
                     ListTile(
                       leading: const Icon(Icons.share),
                       title: const Text('Share Hub'),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Share feature coming soon!')),
-                        );
-                      },
+                      onTap: () => _shareHub(),
                     ),
                   ],
                 ),

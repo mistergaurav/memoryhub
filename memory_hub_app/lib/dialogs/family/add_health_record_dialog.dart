@@ -644,6 +644,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                           onUserSelected: (user) {
                                             setState(() => _selectedUser = user);
                                           },
+                                          helpText: 'Search by name or email to find users in your family circle',
                                         ),
                                         if (_selectedUser != null) ...[
                                           const SizedBox(height: 12),
