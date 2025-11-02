@@ -5,11 +5,7 @@ from app.api.v1.endpoints.users import users, social as social_users, privacy, u
 from app.api.v1.endpoints.memories import memories, memory_templates, tags, categories
 from app.api.v1.endpoints.content import comments, reactions, stories, voice_notes
 from app.api.v1.endpoints.collections import collections, vault, document_vault
-from app.api.v1.endpoints.family import (
-    family, family_albums, family_calendar, family_milestones,
-    family_recipes, family_timeline, family_traditions,
-    genealogy, health_records, legacy_letters, parental_controls
-)
+from app.api.v1.endpoints import family
 from app.api.v1.endpoints.social import hub, activity, notifications
 from app.api.v1.endpoints.features import search, analytics, sharing, reminders, scheduled_posts, places
 from app.api.v1.endpoints.admin import admin, export, gdpr
@@ -41,16 +37,6 @@ api_router.include_router(vault.router, prefix="/vault", tags=["vault"])
 api_router.include_router(document_vault.router, prefix="/document-vault", tags=["document-vault"])
 
 api_router.include_router(family.router, prefix="/family", tags=["family"])
-api_router.include_router(family_albums.router, prefix="/family-albums", tags=["family-albums"])
-api_router.include_router(family_calendar.router, prefix="/family-calendar", tags=["family-calendar"])
-api_router.include_router(family_milestones.router, prefix="/family-milestones", tags=["family-milestones"])
-api_router.include_router(family_recipes.router, prefix="/family-recipes", tags=["family-recipes"])
-api_router.include_router(family_timeline.router, prefix="/family-timeline", tags=["family-timeline"])
-api_router.include_router(family_traditions.router, prefix="/family-traditions", tags=["family-traditions"])
-api_router.include_router(genealogy.router, prefix="/genealogy", tags=["genealogy"])
-api_router.include_router(health_records.router, prefix="/health-records", tags=["health-records"])
-api_router.include_router(legacy_letters.router, prefix="/legacy-letters", tags=["legacy-letters"])
-api_router.include_router(parental_controls.router, prefix="/parental-controls", tags=["parental-controls"])
 
 api_router.include_router(hub.router, prefix="/hub", tags=["hub"])
 api_router.include_router(activity.router, prefix="/activity", tags=["activity"])
