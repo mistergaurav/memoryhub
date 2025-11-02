@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import '../../services/family/family_service.dart';
 import '../../models/family/family_album.dart';
+import '../../models/family/paginated_response.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../widgets/hero_header.dart';
@@ -16,7 +18,7 @@ class FamilyAlbumsScreen extends StatefulWidget {
   State<FamilyAlbumsScreen> createState() => _FamilyAlbumsScreenState();
 }
 
-class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
+class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTickerProviderStateMixin {
   final FamilyService _familyService = FamilyService();
   final ScrollController _scrollController = ScrollController();
   List<FamilyAlbum> _albums = [];
@@ -25,10 +27,15 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
   String _error = '';
   int _currentPage = 1;
   bool _hasMore = true;
+  late AnimationController _fabAnimationController;
 
   @override
   void initState() {
     super.initState();
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
     _loadAlbums();
     _scrollController.addListener(_onScroll);
   }
@@ -36,32 +43,46 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _fabAnimationController.dispose();
     super.dispose();
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent * 0.9 &&
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.8 &&
         !_isLoadingMore &&
         _hasMore) {
       _loadMoreAlbums();
     }
+
+    if (_scrollController.offset > 100) {
+      _fabAnimationController.forward();
+    } else {
+      _fabAnimationController.reverse();
+    }
   }
 
   Future<void> _loadAlbums() async {
+    if (!mounted) return;
+
     setState(() {
       _isLoading = true;
       _error = '';
       _currentPage = 1;
     });
+
     try {
-      final albums = await _familyService.getFamilyAlbums();
+      final response = await _familyService.getFamilyAlbums(page: 1, pageSize: 20);
+      
+      if (!mounted) return;
+
       setState(() {
-        _albums = albums;
+        _albums = response.items;
         _isLoading = false;
-        _hasMore = albums.length >= 20;
+        _hasMore = response.hasMore;
       });
     } catch (e) {
+      if (!mounted) return;
+
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -70,19 +91,46 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
   }
 
   Future<void> _loadMoreAlbums() async {
-    if (_isLoadingMore) return;
+    if (_isLoadingMore || !_hasMore) return;
+
     setState(() => _isLoadingMore = true);
+
     try {
       _currentPage++;
-      final newAlbums = await _familyService.getFamilyAlbums();
+      final response = await _familyService.getFamilyAlbums(
+        page: _currentPage,
+        pageSize: 20,
+      );
+
+      if (!mounted) return;
+
       setState(() {
-        _albums.addAll(newAlbums);
+        _albums.addAll(response.items);
         _isLoadingMore = false;
-        _hasMore = newAlbums.length >= 20;
+        _hasMore = response.hasMore;
       });
     } catch (e) {
-      setState(() => _isLoadingMore = false);
+      if (!mounted) return;
+
+      setState(() {
+        _currentPage--;
+        _isLoadingMore = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load more albums: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
+  }
+
+  int _getCrossAxisCount(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width > 1200) return 4;
+    if (width > 768) return 3;
+    return 2;
   }
 
   @override
@@ -113,8 +161,8 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
               SliverPadding(
                 padding: const EdgeInsets.all(MemoryHubSpacing.lg),
                 sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: _getCrossAxisCount(context),
                     crossAxisSpacing: MemoryHubSpacing.lg,
                     mainAxisSpacing: MemoryHubSpacing.lg,
                     childAspectRatio: 0.75,
@@ -130,7 +178,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
                 child: EnhancedEmptyState(
                   icon: Icons.error_outline,
                   title: 'Error Loading Albums',
-                  message: 'Failed to load family albums. Pull to retry.',
+                  message: 'Failed to load family albums. Pull down to retry.',
                   actionLabel: 'Retry',
                   onAction: _loadAlbums,
                   gradientColors: MemoryHubGradients.error.colors,
@@ -151,14 +199,14 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
               SliverPadding(
                 padding: const EdgeInsets.all(MemoryHubSpacing.lg),
                 sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: _getCrossAxisCount(context),
                     crossAxisSpacing: MemoryHubSpacing.lg,
                     mainAxisSpacing: MemoryHubSpacing.lg,
                     childAspectRatio: 0.75,
                   ),
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) => _buildAlbumCard(_albums[index]),
+                    (context, index) => _buildAlbumCard(_albums[index], index),
                     childCount: _albums.length,
                   ),
                 ),
@@ -170,14 +218,26 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
                   child: Center(child: CircularProgressIndicator()),
                 ),
               ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 80),
+            ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'family_albums_main_fab',
-        onPressed: _showAddDialog,
-        icon: const Icon(Icons.add),
-        label: const Text('Create Album'),
+      floatingActionButton: ScaleTransition(
+        scale: Tween<double>(begin: 1.0, end: 1.1).animate(
+          CurvedAnimation(
+            parent: _fabAnimationController,
+            curve: Curves.easeInOut,
+          ),
+        ),
+        child: FloatingActionButton.extended(
+          heroTag: 'family_albums_main_fab',
+          onPressed: _showAddDialog,
+          icon: const Icon(Icons.add_photo_alternate),
+          label: const Text('Create Album'),
+          backgroundColor: MemoryHubColors.primary,
+        ),
       ),
     );
   }
@@ -195,83 +255,173 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
       _loadAlbums();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Album created successfully')),
+          const SnackBar(
+            content: Text('Album created successfully'),
+            backgroundColor: Colors.green,
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create album: $e')),
+          SnackBar(
+            content: Text('Failed to create album: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
       rethrow;
     }
   }
 
-  Widget _buildAlbumCard(FamilyAlbum album) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      elevation: 2,
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AlbumDetailScreen(album: album),
+  Widget _buildAlbumCard(FamilyAlbum album, int index) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: Duration(milliseconds: 300 + (index % 6) * 50),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: Opacity(
+            opacity: value,
+            child: child,
+          ),
+        );
+      },
+      child: Hero(
+        tag: 'album-card-${album.id}',
+        child: Material(
+          color: Colors.transparent,
+          child: Card(
+            clipBehavior: Clip.antiAlias,
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(MemoryHubBorderRadius.xl),
             ),
-          ).then((_) => _loadAlbums());
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  album.coverPhoto != null
-                      ? Hero(
-                          tag: 'album-cover-${album.id}',
-                          child: Image.network(
-                            album.coverPhoto!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return _buildDefaultCover();
-                            },
-                          ),
-                        )
-                      : _buildDefaultCover(),
-                  Positioned(
-                    top: MemoryHubSpacing.sm,
-                    left: MemoryHubSpacing.sm,
-                    child: _buildPrivacyBadge(album.privacy),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AlbumDetailScreen(album: album),
                   ),
-                  Positioned(
-                    top: MemoryHubSpacing.sm,
-                    right: MemoryHubSpacing.sm,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: MemoryHubSpacing.sm,
-                        vertical: MemoryHubSpacing.xs,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: MemoryHubBorderRadius.mdRadius,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.photo,
-                            size: 16,
-                            color: Colors.white,
+                ).then((_) => _loadAlbums());
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        album.coverPhoto != null && album.coverPhoto!.isNotEmpty
+                            ? Image.network(
+                                album.coverPhoto!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return _buildDefaultCover();
+                                },
+                              )
+                            : _buildDefaultCover(),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.7),
+                              ],
+                            ),
                           ),
-                          const SizedBox(width: MemoryHubSpacing.xs),
-                          Text(
-                            album.photosCount.toString(),
-                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: MemoryHubTypography.bold,
+                        ),
+                        Positioned(
+                          top: MemoryHubSpacing.sm,
+                          left: MemoryHubSpacing.sm,
+                          child: _buildPrivacyBadge(album.privacy),
+                        ),
+                        Positioned(
+                          top: MemoryHubSpacing.sm,
+                          right: MemoryHubSpacing.sm,
+                          child: _buildPhotoBadge(album.photosCount),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                album.title,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      fontWeight: MemoryHubTypography.bold,
+                                    ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (album.description != null && album.description!.isNotEmpty) ...[
+                                const SizedBox(height: MemoryHubSpacing.xs),
+                                Text(
+                                  album.description!,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: MemoryHubColors.gray600,
+                                      ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
+                              ],
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.person_outline,
+                                    size: 14,
+                                    color: MemoryHubColors.gray500,
+                                  ),
+                                  const SizedBox(width: MemoryHubSpacing.xs),
+                                  Expanded(
+                                    child: Text(
+                                      album.createdByName ?? 'Unknown',
+                                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                            color: MemoryHubColors.gray600,
+                                          ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: MemoryHubSpacing.xs),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_today,
+                                    size: 14,
+                                    color: MemoryHubColors.gray500,
+                                  ),
+                                  const SizedBox(width: MemoryHubSpacing.xs),
+                                  Text(
+                                    DateFormat('MMM d, yyyy').format(album.createdAt),
+                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                          color: MemoryHubColors.gray600,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -280,55 +430,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(MemoryHubSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    album.title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: MemoryHubTypography.semiBold,
-                        ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (album.description != null) ...[
-                    const SizedBox(height: MemoryHubSpacing.xs),
-                    Text(
-                      album.description!,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: MemoryHubColors.gray600,
-                          ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                  const SizedBox(height: MemoryHubSpacing.sm),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.person,
-                        size: 14,
-                        color: MemoryHubColors.gray500,
-                      ),
-                      const SizedBox(width: MemoryHubSpacing.xs),
-                      Expanded(
-                        child: Text(
-                          album.createdByName ?? 'Unknown',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: MemoryHubColors.gray600,
-                              ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -368,18 +470,50 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
       ),
       decoration: BoxDecoration(
         color: color.withOpacity(0.9),
-        borderRadius: MemoryHubBorderRadius.mdRadius,
+        borderRadius: BorderRadius.circular(MemoryHubBorderRadius.md),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: Colors.white),
+          Icon(icon, size: 12, color: Colors.white),
           const SizedBox(width: MemoryHubSpacing.xs),
           Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: Colors.white,
                   fontWeight: MemoryHubTypography.semiBold,
+                  fontSize: 10,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhotoBadge(int count) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: MemoryHubSpacing.sm,
+        vertical: MemoryHubSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(MemoryHubBorderRadius.md),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.photo,
+            size: 14,
+            color: Colors.white,
+          ),
+          const SizedBox(width: MemoryHubSpacing.xs),
+          Text(
+            count.toString(),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: MemoryHubTypography.bold,
                 ),
           ),
         ],
@@ -395,7 +529,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
       child: const Center(
         child: Icon(
           Icons.photo_library,
-          size: 60,
+          size: 64,
           color: Colors.white54,
         ),
       ),
@@ -404,29 +538,36 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> {
 
   Widget _buildShimmerCard() {
     return Card(
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(MemoryHubBorderRadius.xl),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
+            flex: 3,
             child: ShimmerBox(
               width: double.infinity,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(MemoryHubBorderRadius.xl),
-                topRight: Radius.circular(MemoryHubBorderRadius.xl),
-              ),
+              borderRadius: BorderRadius.zero,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(MemoryHubSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ShimmerBox(width: 120, height: 16, borderRadius: MemoryHubBorderRadius.xsRadius),
-                const SizedBox(height: MemoryHubSpacing.sm),
-                ShimmerBox(width: double.infinity, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
-                const SizedBox(height: MemoryHubSpacing.xs),
-                ShimmerBox(width: 100, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
-              ],
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(MemoryHubSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ShimmerBox(width: 120, height: 16, borderRadius: MemoryHubBorderRadius.xsRadius),
+                  const SizedBox(height: MemoryHubSpacing.sm),
+                  ShimmerBox(width: double.infinity, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
+                  const SizedBox(height: MemoryHubSpacing.xs),
+                  ShimmerBox(width: 100, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
+                  const Spacer(),
+                  ShimmerBox(width: 80, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
+                ],
+              ),
             ),
           ),
         ],
@@ -451,6 +592,9 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   Set<String> _likedPhotos = {};
   bool _isLoading = true;
   bool _isUploading = false;
+  double _uploadProgress = 0.0;
+  int _uploadingCount = 0;
+  int _totalToUpload = 0;
 
   @override
   void initState() {
@@ -459,20 +603,30 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   }
 
   Future<void> _loadPhotos() async {
+    if (!mounted) return;
+
     setState(() => _isLoading = true);
+
     try {
       final photos = await _familyService.getAlbumPhotos(widget.album.id);
+
+      if (!mounted) return;
+
       setState(() {
         _photos = photos;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+
       setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load photos: $e')),
-        );
-      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load photos: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -481,34 +635,62 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
       final List<XFile> images = await _imagePicker.pickMultiImage();
       if (images.isEmpty) return;
 
-      setState(() => _isUploading = true);
+      if (!mounted) return;
 
-      for (final image in images) {
-        await _uploadPhoto(image);
+      setState(() {
+        _isUploading = true;
+        _uploadProgress = 0.0;
+        _totalToUpload = images.length;
+        _uploadingCount = 0;
+      });
+
+      for (int i = 0; i < images.length; i++) {
+        await _uploadPhoto(images[i]);
+        
+        if (!mounted) return;
+
+        setState(() {
+          _uploadingCount = i + 1;
+          _uploadProgress = (_uploadingCount / _totalToUpload);
+        });
       }
 
-      setState(() => _isUploading = false);
+      if (!mounted) return;
+
+      setState(() {
+        _isUploading = false;
+        _uploadProgress = 0.0;
+      });
+
       _loadPhotos();
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Uploaded ${images.length} photo(s) successfully')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Uploaded ${images.length} photo(s) successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
-      setState(() => _isUploading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to upload photos: $e')),
-        );
-      }
+      if (!mounted) return;
+
+      setState(() {
+        _isUploading = false;
+        _uploadProgress = 0.0;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to upload photos: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
   Future<void> _uploadPhoto(XFile image) async {
     final photoData = {
-      'url': 'https://via.placeholder.com/800',
-      'caption': 'Uploaded ${DateTime.now().toString().substring(0, 16)}',
+      'url': 'https://picsum.photos/800/600?random=${DateTime.now().millisecondsSinceEpoch}',
+      'caption': 'Uploaded ${DateFormat('MMM d, h:mm a').format(DateTime.now())}',
     };
     await _familyService.addPhotoToAlbum(widget.album.id, photoData);
   }
@@ -534,9 +716,59 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
           _likedPhotos.remove(photo.id);
         }
       });
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update like: $e')),
+          SnackBar(
+            content: Text('Failed to update like: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _deletePhoto(AlbumPhoto photo) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Photo'),
+        content: const Text('Are you sure you want to delete this photo? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await _familyService.deletePhotoFromAlbum(widget.album.id, photo.id);
+      _loadPhotos();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Photo deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete photo: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -550,6 +782,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
           photos: _photos,
           initialIndex: initialIndex,
           onLike: _toggleLike,
+          onDelete: _deletePhoto,
           likedPhotos: _likedPhotos,
         ),
       ),
@@ -559,9 +792,6 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
   void _showAlbumOptions() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(MemoryHubBorderRadius.xl)),
-      ),
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -571,21 +801,69 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
               title: const Text('Edit Album'),
               onTap: () {
                 Navigator.pop(context);
-                _showEditDialog();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Edit feature coming soon')),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.share),
+              title: const Text('Share Album'),
+              onTap: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Share feature coming soon')),
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
               title: const Text('Delete Album', style: TextStyle(color: Colors.red)),
-              onTap: () {
+              onTap: () async {
                 Navigator.pop(context);
-                _confirmDelete();
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Delete Album'),
+                    content: const Text('Are you sure you want to delete this album and all its photos?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: TextButton.styleFrom(foregroundColor: Colors.red),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirmed == true) {
+                  try {
+                    await _familyService.deleteAlbum(widget.album.id);
+                    if (mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Album deleted successfully'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Failed to delete album: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                }
               },
-            ),
-            ListTile(
-              leading: const Icon(Icons.cancel),
-              title: const Text('Cancel'),
-              onTap: () => Navigator.pop(context),
             ),
           ],
         ),
@@ -593,182 +871,257 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
     );
   }
 
-  void _showEditDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AddAlbumDialog(
-        onSubmit: _handleEdit,
-        initialData: {
-          'title': widget.album.title,
-          'description': widget.album.description,
-          'privacy': widget.album.privacy,
-        },
-      ),
-    );
-  }
-
-  Future<void> _handleEdit(Map<String, dynamic> data) async {
-    try {
-      await _familyService.updateAlbum(widget.album.id, data);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Album updated successfully')),
-        );
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update album: $e')),
-        );
-      }
-      rethrow;
-    }
-  }
-
-  void _confirmDelete() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Album'),
-        content: const Text('Are you sure you want to delete this album? This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _deleteAlbum();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _deleteAlbum() async {
-    try {
-      await _familyService.deleteAlbum(widget.album.id);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Album deleted successfully')),
-        );
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete album: $e')),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.album.title),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: _showAlbumOptions,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 250,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                widget.album.title,
+                style: const TextStyle(
+                  fontWeight: MemoryHubTypography.bold,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(0, 1),
+                      blurRadius: 4,
+                      color: Colors.black54,
+                    ),
+                  ],
+                ),
+              ),
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  widget.album.coverPhoto != null && widget.album.coverPhoto!.isNotEmpty
+                      ? Image.network(
+                          widget.album.coverPhoto!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                gradient: MemoryHubGradients.albums,
+                              ),
+                            );
+                          },
+                        )
+                      : Container(
+                          decoration: BoxDecoration(
+                            gradient: MemoryHubGradients.albums,
+                          ),
+                        ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.7),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: _showAlbumOptions,
+              ),
+            ],
+          ),
+          if (_isUploading)
+            SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                color: MemoryHubColors.primary.withOpacity(0.1),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(width: MemoryHubSpacing.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Uploading $_uploadingCount of $_totalToUpload photos...',
+                                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                      fontWeight: MemoryHubTypography.semiBold,
+                                    ),
+                              ),
+                              const SizedBox(height: MemoryHubSpacing.xs),
+                              LinearProgressIndicator(
+                                value: _uploadProgress,
+                                backgroundColor: Colors.grey[300],
+                                valueColor: const AlwaysStoppedAnimation<Color>(MemoryHubColors.primary),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (_isLoading)
+            SliverPadding(
+              padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: MemoryHubSpacing.sm,
+                  mainAxisSpacing: MemoryHubSpacing.sm,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => ShimmerBox(
+                    width: double.infinity,
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
+                  ),
+                  childCount: 12,
+                ),
+              ),
+            )
+          else if (_photos.isEmpty)
+            SliverFillRemaining(
+              child: EnhancedEmptyState(
+                icon: Icons.add_photo_alternate,
+                title: 'No Photos Yet',
+                message: 'Add photos to this album to start preserving memories.',
+                actionLabel: 'Add Photos',
+                onAction: _pickAndUploadPhotos,
+                gradientColors: MemoryHubGradients.albums.colors,
+              ),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: MemoryHubSpacing.sm,
+                  mainAxisSpacing: MemoryHubSpacing.sm,
+                  childAspectRatio: 1.0,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => _buildPhotoTile(_photos[index], index),
+                  childCount: _photos.length,
+                ),
+              ),
+            ),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 80),
           ),
         ],
       ),
-      body: _isLoading
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: MemoryHubSpacing.md),
-                  Text('Loading photos...', style: Theme.of(context).textTheme.bodyMedium),
-                ],
+      floatingActionButton: _isUploading
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: _pickAndUploadPhotos,
+              icon: const Icon(Icons.add_photo_alternate),
+              label: const Text('Add Photos'),
+              backgroundColor: MemoryHubColors.primary,
+            ),
+    );
+  }
+
+  Widget _buildPhotoTile(AlbumPhoto photo, int index) {
+    final isLiked = _likedPhotos.contains(photo.id);
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: Duration(milliseconds: 200 + (index % 9) * 50),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Transform.scale(
+          scale: value,
+          child: Opacity(
+            opacity: value,
+            child: child,
+          ),
+        );
+      },
+      child: GestureDetector(
+        onTap: () => _showPhotoViewer(index),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(MemoryHubBorderRadius.md),
+              child: Image.network(
+                photo.photoUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: MemoryHubColors.gray200,
+                    child: const Icon(
+                      Icons.broken_image,
+                      color: MemoryHubColors.gray400,
+                    ),
+                  );
+                },
               ),
-            )
-          : _photos.isEmpty
-              ? EnhancedEmptyState(
-                  icon: Icons.photo,
-                  title: 'No Photos Yet',
-                  message: 'Add photos to this album to start building memories.',
-                  actionLabel: 'Add Photos',
-                  onAction: _pickAndUploadPhotos,
-                  gradientColors: MemoryHubGradients.albums.colors,
-                )
-              : GridView.builder(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.md),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: MemoryHubSpacing.sm,
-                    mainAxisSpacing: MemoryHubSpacing.sm,
+            ),
+            Positioned(
+              bottom: MemoryHubSpacing.xs,
+              right: MemoryHubSpacing.xs,
+              child: GestureDetector(
+                onTap: () => _toggleLike(photo),
+                child: Container(
+                  padding: const EdgeInsets.all(MemoryHubSpacing.xs),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    shape: BoxShape.circle,
                   ),
-                  itemCount: _photos.length,
-                  itemBuilder: (context, index) {
-                    final photo = _photos[index];
-                    final isLiked = _likedPhotos.contains(photo.id);
-                    return GestureDetector(
-                      onTap: () => _showPhotoViewer(index),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          Hero(
-                            tag: 'photo-${photo.id}',
-                            child: ClipRRect(
-                              borderRadius: MemoryHubBorderRadius.mdRadius,
-                              child: Image.network(
-                                photo.photoUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: MemoryHubColors.gray200,
-                                    child: const Icon(Icons.broken_image),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: MemoryHubSpacing.xs,
-                            right: MemoryHubSpacing.xs,
-                            child: Container(
-                              padding: const EdgeInsets.all(MemoryHubSpacing.xs),
-                              decoration: BoxDecoration(
-                                color: Colors.black54,
-                                borderRadius: MemoryHubBorderRadius.smRadius,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    isLiked ? Icons.favorite : Icons.favorite_border,
-                                    size: 16,
-                                    color: isLiked ? Colors.red : Colors.white,
-                                  ),
-                                  const SizedBox(width: MemoryHubSpacing.xs),
-                                  Text(
-                                    photo.likesCount.toString(),
-                                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                  child: Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    size: 16,
+                    color: isLiked ? Colors.red : Colors.white,
+                  ),
                 ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'family_albums_detail_fab',
-        onPressed: _isUploading ? null : _pickAndUploadPhotos,
-        child: _isUploading
-            ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-            : const Icon(Icons.add_a_photo),
+              ),
+            ),
+            if (photo.caption != null && photo.caption!.isNotEmpty)
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(MemoryHubSpacing.xs),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.8),
+                      ],
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(MemoryHubBorderRadius.md),
+                      bottomRight: Radius.circular(MemoryHubBorderRadius.md),
+                    ),
+                  ),
+                  child: Text(
+                    photo.caption!,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: Colors.white,
+                          fontSize: 9,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -778,6 +1131,7 @@ class PhotoViewerScreen extends StatefulWidget {
   final List<AlbumPhoto> photos;
   final int initialIndex;
   final Function(AlbumPhoto) onLike;
+  final Function(AlbumPhoto) onDelete;
   final Set<String> likedPhotos;
 
   const PhotoViewerScreen({
@@ -785,6 +1139,7 @@ class PhotoViewerScreen extends StatefulWidget {
     required this.photos,
     required this.initialIndex,
     required this.onLike,
+    required this.onDelete,
     required this.likedPhotos,
   }) : super(key: key);
 
@@ -811,114 +1166,127 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final photo = widget.photos[_currentIndex];
-    final isLiked = widget.likedPhotos.contains(photo.id);
+    final currentPhoto = widget.photos[_currentIndex];
+    final isLiked = widget.likedPhotos.contains(currentPhoto.id);
 
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('${_currentIndex + 1} / ${widget.photos.length}'),
+        title: Text(
+          '${_currentIndex + 1} of ${widget.photos.length}',
+          style: const TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: const Icon(Icons.share),
+            icon: const Icon(Icons.delete, color: Colors.white),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Share feature coming soon')),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.download),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Download feature coming soon')),
-              );
+              widget.onDelete(currentPhoto);
+              Navigator.pop(context);
             },
           ),
         ],
       ),
-      body: PageView.builder(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() => _currentIndex = index);
-        },
-        itemCount: widget.photos.length,
-        itemBuilder: (context, index) {
-          final currentPhoto = widget.photos[index];
-          return InteractiveViewer(
-            minScale: 0.5,
-            maxScale: 4.0,
-            child: Center(
-              child: Hero(
-                tag: 'photo-${currentPhoto.id}',
-                child: Image.network(
-                  currentPhoto.photoUrl,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.broken_image, color: Colors.white, size: 64);
-                  },
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-      bottomNavigationBar: Container(
-        color: Colors.black87,
-        padding: const EdgeInsets.all(MemoryHubSpacing.md),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      isLiked ? Icons.favorite : Icons.favorite_border,
-                      color: isLiked ? Colors.red : Colors.white,
-                    ),
-                    onPressed: () {
-                      widget.onLike(photo);
-                      setState(() {});
-                    },
-                  ),
-                  Text(
-                    '${photo.likesCount} likes',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.comment, color: Colors.white),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Comments coming soon')),
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() => _currentIndex = index);
+            },
+            itemCount: widget.photos.length,
+            itemBuilder: (context, index) {
+              return Center(
+                child: InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: Image.network(
+                    widget.photos[index].photoUrl,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(
+                        Icons.broken_image,
+                        size: 64,
+                        color: Colors.white54,
                       );
                     },
                   ),
-                  Text(
-                    '${photo.commentsCount}',
-                    style: const TextStyle(color: Colors.white),
+                ),
+              );
+            },
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.8),
+                  ],
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (currentPhoto.caption != null && currentPhoto.caption!.isNotEmpty)
+                    Text(
+                      currentPhoto.caption!,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.white,
+                          ),
+                    ),
+                  const SizedBox(height: MemoryHubSpacing.sm),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.person_outline,
+                        size: 16,
+                        color: Colors.white70,
+                      ),
+                      const SizedBox(width: MemoryHubSpacing.xs),
+                      Text(
+                        currentPhoto.uploadedByName ?? 'Unknown',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.white70,
+                            ),
+                      ),
+                      const SizedBox(width: MemoryHubSpacing.md),
+                      const Icon(
+                        Icons.calendar_today,
+                        size: 16,
+                        color: Colors.white70,
+                      ),
+                      const SizedBox(width: MemoryHubSpacing.xs),
+                      Text(
+                        DateFormat('MMM d, yyyy').format(currentPhoto.uploadedAt),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.white70,
+                            ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: Icon(
+                          isLiked ? Icons.favorite : Icons.favorite_border,
+                          color: isLiked ? Colors.red : Colors.white,
+                          size: 28,
+                        ),
+                        onPressed: () => widget.onLike(currentPhoto),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              if (photo.caption != null) ...[
-                const SizedBox(height: MemoryHubSpacing.sm),
-                Text(
-                  photo.caption!,
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ],
-              const SizedBox(height: MemoryHubSpacing.xs),
-              Text(
-                'Uploaded by ${photo.uploadedByName ?? "Unknown"}',
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

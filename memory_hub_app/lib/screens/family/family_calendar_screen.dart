@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/family/family_service.dart';
 import '../../models/family/family_calendar.dart';
+import '../../models/family/paginated_response.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../dialogs/family/add_event_dialog.dart';
@@ -35,6 +36,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
+      if (!mounted) return;
       if (_tabController.index == 0) {
         setState(() => _calendarView = CalendarView.month);
       } else {
@@ -52,22 +54,26 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
   }
 
   Future<void> _loadEvents() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _error = null;
     });
     try {
       final startDate = DateTime(_focusedDay.year, _focusedDay.month, 1);
-      final endDate = DateTime(_focusedDay.year, _focusedDay.month + 1, 0);
-      final events = await _familyService.getCalendarEvents(
+      final endDate = DateTime(_focusedDay.year, _focusedDay.month + 1, 0, 23, 59, 59);
+      final response = await _familyService.getCalendarEvents(
         startDate: startDate,
         endDate: endDate,
+        pageSize: 100,
       );
+      if (!mounted) return;
       setState(() {
-        _events = events;
+        _events = response.items;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -76,13 +82,14 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
   }
 
   Future<void> _loadUpcomingBirthdays() async {
+    if (!mounted) return;
     try {
       final birthdays = await _familyService.getUpcomingBirthdays(daysAhead: 30);
+      if (!mounted) return;
       setState(() {
         _upcomingBirthdays = birthdays;
       });
     } catch (e) {
-      // Silently fail for birthdays
     }
   }
 
@@ -94,18 +101,27 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
   }
 
   List<FamilyCalendarEvent> _getEventsForDay(DateTime day) {
+    final localDay = DateTime(day.year, day.month, day.day);
     return _events.where((event) {
-      return isSameDay(event.startDate, day) ||
-          (event.endDate != null && 
-           !day.isBefore(event.startDate) && 
-           !day.isAfter(event.endDate!));
+      final eventDate = DateTime(event.startDate.year, event.startDate.month, event.startDate.day);
+      if (isSameDay(eventDate, localDay)) return true;
+      
+      if (event.endDate != null) {
+        final endDate = DateTime(event.endDate!.year, event.endDate!.month, event.endDate!.day);
+        return !localDay.isBefore(eventDate) && !localDay.isAfter(endDate);
+      }
+      return false;
     }).toList();
   }
 
   List<FamilyCalendarEvent> _getAllUpcomingEvents() {
     final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     return _events
-        .where((event) => event.startDate.isAfter(now) || isSameDay(event.startDate, now))
+        .where((event) {
+          final eventDate = DateTime(event.startDate.year, event.startDate.month, event.startDate.day);
+          return eventDate.isAfter(today) || isSameDay(eventDate, today);
+        })
         .toList()
       ..sort((a, b) => a.startDate.compareTo(b.startDate));
   }
@@ -120,14 +136,45 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
   }
 
   Future<void> _handleAddEvent(Map<String, dynamic> data) async {
+    final tempEvent = FamilyCalendarEvent(
+      id: 'temp_${DateTime.now().millisecondsSinceEpoch}',
+      title: data['title'],
+      description: data['description'],
+      startDate: DateTime.parse(data['event_date']),
+      endDate: data['end_date'] != null ? DateTime.parse(data['end_date']) : null,
+      isAllDay: data['is_all_day'] ?? false,
+      location: data['location'],
+      eventType: data['event_type'],
+      recurrenceRule: data['recurrence'],
+      familyCircleIds: const [],
+      attendeeIds: const [],
+      createdBy: '',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    if (mounted) {
+      setState(() {
+        _events.add(tempEvent);
+      });
+    }
+
     try {
       final result = await _familyService.createCalendarEvent(data);
       
+      if (!mounted) return;
+      
+      setState(() {
+        _events.removeWhere((e) => e.id == tempEvent.id);
+        if (result['event'] != null) {
+          _events.add(FamilyCalendarEvent.fromJson(result['event']));
+        }
+      });
+
+      final conflicts = result['conflicts'] ?? 0;
+      final warning = result['conflict_warning'];
+      
       if (mounted) {
-        // Check for conflicts
-        final conflicts = result['data']?['conflicts'] ?? 0;
-        final warning = result['data']?['conflict_warning'];
-        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -139,9 +186,14 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
             duration: Duration(seconds: conflicts > 0 ? 4 : 2),
           ),
         );
-        _refreshEvents();
       }
     } catch (e) {
+      if (!mounted) return;
+      
+      setState(() {
+        _events.removeWhere((e) => e.id == tempEvent.id);
+      });
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -167,6 +219,18 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
         _refreshEvents();
       }
     });
+  }
+
+  int _getDaysToBirthday(DateTime birthday) {
+    final now = DateTime.now();
+    final thisYear = DateTime(now.year, birthday.month, birthday.day);
+    final nextYear = DateTime(now.year + 1, birthday.month, birthday.day);
+    
+    if (thisYear.isAfter(now) || isSameDay(thisYear, now)) {
+      return thisYear.difference(now).inDays;
+    } else {
+      return nextYear.difference(now).inDays;
+    }
   }
 
   @override
@@ -263,58 +327,29 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
             colors: [Color(0xFFEC4899), Color(0xFFF472B6)],
           ),
           borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFEC4899).withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
             onTap: () {
-              // Show all birthdays in a dialog
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: const Row(
-                    children: [
-                      Icon(Icons.cake, color: Color(0xFFEC4899)),
-                      SizedBox(width: 8),
-                      Text('Upcoming Birthdays'),
-                    ],
-                  ),
-                  content: SizedBox(
-                    width: double.maxFinite,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: _upcomingBirthdays.length,
-                      itemBuilder: (context, index) {
-                        final birthday = _upcomingBirthdays[index];
-                        return ListTile(
-                          leading: const Icon(Icons.cake),
-                          title: Text(birthday.title),
-                          subtitle: Text(
-                            DateFormat('MMMM d, yyyy').format(birthday.startDate),
-                          ),
-                          onTap: () {
-                            Navigator.pop(context);
-                            _navigateToEventDetail(birthday);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Close'),
-                    ),
-                  ],
-                ),
+                builder: (context) => _buildBirthdaysDialog(),
               );
             },
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  const Icon(Icons.cake, color: Colors.white, size: 24),
+                  const Icon(Icons.cake, color: Colors.white, size: 28),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -324,27 +359,124 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                           'Upcoming Birthdays',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        const SizedBox(height: 4),
                         Text(
                           '${_upcomingBirthdays.length} ${_upcomingBirthdays.length == 1 ? 'birthday' : 'birthdays'} in the next 30 days',
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.9),
-                            fontSize: 12,
+                            fontSize: 13,
                           ),
                         ),
+                        if (_upcomingBirthdays.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          _buildNextBirthdayPreview(),
+                        ],
                       ],
                     ),
                   ),
-                  const Icon(Icons.chevron_right, color: Colors.white),
+                  const Icon(Icons.chevron_right, color: Colors.white, size: 28),
                 ],
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildNextBirthdayPreview() {
+    final nextBirthday = _upcomingBirthdays.first;
+    final daysUntil = _getDaysToBirthday(nextBirthday.startDate);
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.celebration, color: Colors.white, size: 16),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              daysUntil == 0
+                  ? '${nextBirthday.title} is TODAY! 🎉'
+                  : '${nextBirthday.title} in $daysUntil ${daysUntil == 1 ? 'day' : 'days'}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBirthdaysDialog() {
+    return AlertDialog(
+      title: const Row(
+        children: [
+          Icon(Icons.cake, color: Color(0xFFEC4899)),
+          SizedBox(width: 8),
+          Text('Upcoming Birthdays'),
+        ],
+      ),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: _upcomingBirthdays.length,
+          itemBuilder: (context, index) {
+            final birthday = _upcomingBirthdays[index];
+            final daysUntil = _getDaysToBirthday(birthday.startDate);
+            
+            return Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              child: ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFEC4899), Color(0xFFF472B6)],
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.cake, color: Colors.white, size: 20),
+                ),
+                title: Text(
+                  birthday.title,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  daysUntil == 0
+                      ? 'Today! 🎉'
+                      : 'In $daysUntil ${daysUntil == 1 ? 'day' : 'days'} • ${DateFormat('MMM d').format(birthday.startDate)}',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.pop(context);
+                  _navigateToEventDetail(birthday);
+                },
+              ),
+            );
+          },
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+      ],
     );
   }
 
@@ -366,6 +498,8 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
           ),
           labelColor: Colors.white,
           unselectedLabelColor: Colors.grey.shade700,
+          indicatorSize: TabBarIndicatorSize.tab,
+          dividerColor: Colors.transparent,
           tabs: const [
             Tab(
               icon: Icon(Icons.calendar_month),
@@ -397,12 +531,14 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
           selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
           eventLoader: _getEventsForDay,
           onDaySelected: (selectedDay, focusedDay) {
+            if (!mounted) return;
             setState(() {
               _selectedDay = selectedDay;
               _focusedDay = focusedDay;
             });
           },
           onFormatChanged: (format) {
+            if (!mounted) return;
             setState(() {
               _calendarFormat = format;
             });
@@ -428,6 +564,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
             ),
             markersMaxCount: 3,
             markerSize: 6,
+            outsideDaysVisible: false,
           ),
           headerStyle: HeaderStyle(
             formatButtonVisible: true,
@@ -446,31 +583,36 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
   }
 
   Widget _buildSelectedDayHeader() {
+    final dayEvents = _getEventsForDay(_selectedDay);
+    
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       sliver: SliverToBoxAdapter(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              DateFormat('EEEE, MMMM d').format(_selectedDay),
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+            Expanded(
+              child: Text(
+                DateFormat('EEEE, MMMM d, yyyy').format(_selectedDay),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            if (_getEventsForDay(_selectedDay).isNotEmpty)
+            if (dayEvents.isNotEmpty)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: DesignTokens.primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '${_getEventsForDay(_selectedDay).length} ${_getEventsForDay(_selectedDay).length == 1 ? 'event' : 'events'}',
+                  '${dayEvents.length} ${dayEvents.length == 1 ? 'event' : 'events'}',
                   style: const TextStyle(
                     color: DesignTokens.primaryColor,
                     fontWeight: FontWeight.bold,
+                    fontSize: 13,
                   ),
                 ),
               ),
@@ -525,27 +667,36 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
 
     if (dayEvents.isEmpty) {
       return SliverFillRemaining(
-        child: EnhancedEmptyState(
-          icon: Icons.event_busy,
-          title: 'No Events',
-          message: 'No events scheduled for this day.',
-          actionLabel: 'Add Event',
-          onAction: _showAddEventDialog,
-          gradientColors: const [
-            Color(0xFF06B6D4),
-            Color(0xFF22D3EE),
-          ],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.event_busy,
+                size: 64,
+                color: Colors.grey.shade300,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No events for this day',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             final event = dayEvents[index];
-            return _buildEventCard(event);
+            return _buildEventCard(event, index);
           },
           childCount: dayEvents.length,
         ),
@@ -601,193 +752,340 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
         child: EnhancedEmptyState(
           icon: Icons.event_available,
           title: 'No Upcoming Events',
-          message: 'You have no upcoming events scheduled.',
-          actionLabel: 'Add Event',
-          onAction: _showAddEventDialog,
-          gradientColors: const [
-            Color(0xFF06B6D4),
-            Color(0xFF22D3EE),
-          ],
+          message: 'Add events to see them here',
         ),
       );
     }
 
+    final groupedEvents = <String, List<FamilyCalendarEvent>>{};
+    for (var event in upcomingEvents) {
+      final dateKey = DateFormat('yyyy-MM-dd').format(event.startDate);
+      groupedEvents.putIfAbsent(dateKey, () => []).add(event);
+    }
+
+    final sortedDates = groupedEvents.keys.toList()
+      ..sort((a, b) => DateTime.parse(a).compareTo(DateTime.parse(b)));
+
     return SliverPadding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
-            final event = upcomingEvents[index];
-            return _buildEventCard(event, showDate: true);
+            final dateKey = sortedDates[index];
+            final events = groupedEvents[dateKey]!;
+            final date = DateTime.parse(dateKey);
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF06B6D4), Color(0xFF22D3EE)],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              DateFormat('d').format(date),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              DateFormat('MMM').format(date).toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              DateFormat('EEEE').format(date),
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              DateFormat('MMMM d, yyyy').format(date),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: DesignTokens.primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${events.length}',
+                          style: const TextStyle(
+                            color: DesignTokens.primaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ...events.asMap().entries.map((entry) {
+                  return _buildEventCard(entry.value, entry.key);
+                }).toList(),
+                const SizedBox(height: 8),
+              ],
+            );
           },
-          childCount: upcomingEvents.length,
+          childCount: sortedDates.length,
         ),
       ),
     );
   }
 
-  Widget _buildEventCard(FamilyCalendarEvent event, {bool showDate = false}) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => _navigateToEventDetail(event),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: _getEventGradient(event.eventType),
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      DateFormat('MMM').format(event.startDate),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+  Widget _buildEventCard(FamilyCalendarEvent event, int index) {
+    final gradient = _getEventGradient(event.eventType);
+    final icon = _getEventIcon(event.eventType);
+    final isBirthday = event.eventType == 'birthday';
+    
+    return TweenAnimationBuilder<double>(
+      duration: Duration(milliseconds: 300 + (index * 50)),
+      tween: Tween(begin: 0.0, end: 1.0),
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 20 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        elevation: isBirthday ? 6 : 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: isBirthday
+              ? const BorderSide(color: Color(0xFFEC4899), width: 2)
+              : BorderSide.none,
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => _navigateToEventDetail(event),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: isBirthday
+                  ? LinearGradient(
+                      colors: [
+                        gradient[0].withOpacity(0.05),
+                        gradient[1].withOpacity(0.05),
+                      ],
+                    )
+                  : null,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(colors: gradient),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: gradient[0].withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(icon, color: Colors.white, size: 20),
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    event.title,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                if (event.recurrenceRule != null && event.recurrenceRule != 'none')
+                                  Tooltip(
+                                    message: _formatRecurrence(event.recurrenceRule!),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.shade50,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: Colors.blue.shade200),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.repeat, size: 12, color: Colors.blue.shade700),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            _getRecurrenceShortForm(event.recurrenceRule!),
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue.shade700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  event.isAllDay ? Icons.calendar_today : Icons.access_time,
+                                  size: 14,
+                                  color: Colors.grey.shade600,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  event.isAllDay
+                                      ? 'All Day'
+                                      : DateFormat('h:mm a').format(event.startDate.toLocal()),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                                if (event.endDate != null && !event.isAllDay) ...[
+                                  Text(
+                                    ' - ${DateFormat('h:mm a').format(event.endDate!.toLocal())}',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (event.description != null && event.description!.isNotEmpty) ...[
+                    const SizedBox(height: 12),
                     Text(
-                      DateFormat('d').format(event.startDate),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                      event.description!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade700,
+                        height: 1.4,
                       ),
                     ),
                   ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            event.title,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (event.autoGenerated)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade100,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Icon(
-                              Icons.auto_awesome,
-                              size: 12,
-                              color: Colors.blue.shade700,
-                            ),
-                          ),
-                      ],
-                    ),
-                    if (event.description != null && event.description!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        event.description!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade600,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                  if (event.location != null && event.location!.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 14,
-                          color: Colors.grey.shade600,
-                        ),
+                        Icon(Icons.location_on, size: 14, color: Colors.grey.shade600),
                         const SizedBox(width: 4),
-                        Text(
-                          event.isAllDay
-                              ? 'All Day'
-                              : DateFormat('h:mm a').format(event.startDate),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
+                        Expanded(
+                          child: Text(
+                            event.location!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        if (event.location != null && event.location!.isNotEmpty) ...[
-                          const SizedBox(width: 16),
-                          Icon(
-                            Icons.location_on,
-                            size: 14,
-                            color: Colors.grey.shade600,
+                      ],
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(colors: gradient),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          _formatEventType(event.eventType),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
                           ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              event.location!,
+                        ),
+                      ),
+                      const Spacer(),
+                      if (event.attendeeIds.isNotEmpty)
+                        Row(
+                          children: [
+                            Icon(Icons.people, size: 14, color: Colors.grey.shade600),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${event.attendeeIds.length}',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey.shade600,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
+                          ],
+                        ),
+                      if (event.autoGenerated) ...[
+                        const SizedBox(width: 8),
+                        Tooltip(
+                          message: 'Auto-generated from Family Tree',
+                          child: Icon(
+                            Icons.auto_awesome,
+                            size: 16,
+                            color: Colors.blue.shade400,
                           ),
-                        ],
+                        ),
                       ],
-                    ),
-                    if (event.recurrenceRule != null && event.recurrenceRule != 'none') ...[
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.repeat,
-                            size: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _formatRecurrence(event.recurrenceRule!),
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey.shade600,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey.shade400,
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -802,7 +1100,6 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
         return [const Color(0xFF6B7280), const Color(0xFF9CA3AF)];
       case 'anniversary':
         return [const Color(0xFFDB2777), const Color(0xFFEC4899)];
-      case 'meeting':
       case 'gathering':
         return [const Color(0xFF7C3AED), const Color(0xFF9333EA)];
       case 'holiday':
@@ -816,7 +1113,63 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
     }
   }
 
+  IconData _getEventIcon(String eventType) {
+    switch (eventType) {
+      case 'birthday':
+        return Icons.cake;
+      case 'anniversary':
+      case 'death_anniversary':
+        return Icons.favorite;
+      case 'gathering':
+        return Icons.groups;
+      case 'holiday':
+        return Icons.celebration;
+      case 'reminder':
+        return Icons.notifications;
+      case 'historical_event':
+        return Icons.history_edu;
+      default:
+        return Icons.event;
+    }
+  }
+
+  String _formatEventType(String eventType) {
+    switch (eventType) {
+      case 'birthday':
+        return 'Birthday';
+      case 'anniversary':
+        return 'Anniversary';
+      case 'death_anniversary':
+        return 'Memorial';
+      case 'gathering':
+        return 'Gathering';
+      case 'holiday':
+        return 'Holiday';
+      case 'reminder':
+        return 'Reminder';
+      case 'historical_event':
+        return 'Historical';
+      default:
+        return 'Event';
+    }
+  }
+
   String _formatRecurrence(String recurrence) {
+    switch (recurrence) {
+      case 'daily':
+        return 'Repeats daily';
+      case 'weekly':
+        return 'Repeats weekly';
+      case 'monthly':
+        return 'Repeats monthly';
+      case 'yearly':
+        return 'Repeats yearly';
+      default:
+        return 'Does not repeat';
+    }
+  }
+
+  String _getRecurrenceShortForm(String recurrence) {
     switch (recurrence) {
       case 'daily':
         return 'Daily';
@@ -829,66 +1182,5 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
       default:
         return '';
     }
-  }
-}
-
-class ShimmerEventCard extends StatelessWidget {
-  const ShimmerEventCard({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            ShimmerLoading(
-              child: Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ShimmerLoading(
-                    child: Container(
-                      width: double.infinity,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ShimmerLoading(
-                    child: Container(
-                      width: 200,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

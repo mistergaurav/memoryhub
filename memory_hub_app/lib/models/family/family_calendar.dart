@@ -10,6 +10,7 @@ class FamilyCalendarEvent {
   final String? recurrenceRule;
   final List<String> familyCircleIds;
   final List<String> attendeeIds;
+  final List<String> attendeeNames;
   final String? reminder;
   final String createdBy;
   final String? createdByName;
@@ -34,6 +35,7 @@ class FamilyCalendarEvent {
     this.recurrenceRule,
     required this.familyCircleIds,
     required this.attendeeIds,
+    this.attendeeNames = const [],
     this.reminder,
     required this.createdBy,
     this.createdByName,
@@ -59,7 +61,8 @@ class FamilyCalendarEvent {
       recurrenceRule: json['recurrence_rule'] ?? json['recurrence'],
       familyCircleIds: List<String>.from(json['family_circle_ids'] ?? []),
       attendeeIds: List<String>.from(json['attendee_ids'] ?? []),
-      reminder: json['reminder'],
+      attendeeNames: List<String>.from(json['attendee_names'] ?? []),
+      reminder: json['reminder'] != null ? json['reminder'].toString() : json['reminder_minutes']?.toString(),
       createdBy: json['created_by'] ?? '',
       createdByName: json['created_by_name'],
       genealogyPersonId: json['genealogy_person_id'],

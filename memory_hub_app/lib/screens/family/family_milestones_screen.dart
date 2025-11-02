@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import '../../services/family/family_service.dart';
 import '../../models/family/family_milestone.dart';
+import '../../models/family/paginated_response.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../dialogs/family/add_milestone_dialog.dart';
 import 'milestone_detail_screen.dart';
+import 'family_timeline_screen.dart';
 import 'package:intl/intl.dart';
 
 class FamilyMilestonesScreen extends StatefulWidget {
@@ -35,8 +38,8 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
     {'value': 'wedding', 'label': 'Wedding', 'icon': Icons.favorite, 'color': Color(0xFFEF4444)},
     {'value': 'anniversary', 'label': 'Anniversary', 'icon': Icons.cake, 'color': Color(0xFFF59E0B)},
     {'value': 'achievement', 'label': 'Achievement', 'icon': Icons.emoji_events, 'color': Color(0xFFEAB308)},
-    {'value': 'first_word', 'label': 'First Word', 'icon': Icons.chat_bubble, 'color': Color(0xFF06B6D4)},
-    {'value': 'first_step', 'label': 'First Step', 'icon': Icons.directions_walk, 'color': Color(0xFF10B981)},
+    {'value': 'first_words', 'label': 'First Words', 'icon': Icons.chat_bubble, 'color': Color(0xFF06B6D4)},
+    {'value': 'first_steps', 'label': 'First Steps', 'icon': Icons.directions_walk, 'color': Color(0xFF10B981)},
     {'value': 'other', 'label': 'Other', 'icon': Icons.star, 'color': Color(0xFF64748B)},
   ];
 
@@ -67,64 +70,68 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
   }
 
   Future<void> _loadMilestones() async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
       _error = '';
       _currentPage = 1;
       _milestones = [];
     });
+    
     try {
-      final milestones = await _familyService.getMilestones(
+      final response = await _familyService.getMilestones(
         page: _currentPage,
         pageSize: 20,
         milestoneType: _selectedType,
       );
       
-      if (mounted) {
-        setState(() {
-          _milestones = milestones;
-          _hasMore = milestones.length >= 20;
-          _isLoading = false;
-        });
-        _animationController.forward();
-      }
+      if (!mounted) return;
+      
+      setState(() {
+        _milestones = response.items;
+        _hasMore = response.hasMore;
+        _isLoading = false;
+      });
+      _animationController.forward();
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _isLoading = false;
-        });
-      }
+      if (!mounted) return;
+      
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> _loadMoreMilestones() async {
-    if (_isLoadingMore || !_hasMore) return;
+    if (_isLoadingMore || !_hasMore || !mounted) return;
 
     setState(() => _isLoadingMore = true);
+    
     try {
       final nextPage = _currentPage + 1;
-      final moreMilestones = await _familyService.getMilestones(
+      final response = await _familyService.getMilestones(
         page: nextPage,
         pageSize: 20,
         milestoneType: _selectedType,
       );
       
-      if (mounted) {
-        setState(() {
-          _currentPage = nextPage;
-          _milestones.addAll(moreMilestones);
-          _hasMore = moreMilestones.length >= 20;
-          _isLoadingMore = false;
-        });
-      }
+      if (!mounted) return;
+      
+      setState(() {
+        _currentPage = nextPage;
+        _milestones.addAll(response.items);
+        _hasMore = response.hasMore;
+        _isLoadingMore = false;
+      });
     } catch (e) {
-      if (mounted) {
-        setState(() => _isLoadingMore = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load more: $e')),
-        );
-      }
+      if (!mounted) return;
+      
+      setState(() => _isLoadingMore = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load more: $e')),
+      );
     }
   }
 
@@ -143,6 +150,31 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
     if (_selectedType != type) {
       setState(() => _selectedType = type);
       _loadMilestones();
+    }
+  }
+
+  void _clearFilters() {
+    if (_selectedType != null) {
+      setState(() => _selectedType = null);
+      _loadMilestones();
+    }
+  }
+
+  String _getYearsAgo(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+    final years = (difference.inDays / 365).floor();
+    final months = ((difference.inDays % 365) / 30).floor();
+    
+    if (years > 0) {
+      return years == 1 ? '1 year ago' : '$years years ago';
+    } else if (months > 0) {
+      return months == 1 ? '1 month ago' : '$months months ago';
+    } else {
+      final days = difference.inDays;
+      if (days == 0) return 'Today';
+      if (days == 1) return 'Yesterday';
+      return '$days days ago';
     }
   }
 
@@ -209,6 +241,12 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                 ),
               ),
               actions: [
+                if (_selectedType != null)
+                  IconButton(
+                    icon: const Icon(Icons.clear_all),
+                    tooltip: 'Clear Filters',
+                    onPressed: _clearFilters,
+                  ),
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.sort),
                   onSelected: _applySort,
@@ -336,11 +374,25 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       if (index < _milestones.length) {
-                        return _buildTimelineMilestoneCard(_milestones[index], index);
+                        return _buildEnhancedMilestoneCard(_milestones[index], index);
                       } else if (_isLoadingMore) {
-                        return const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
+                        return Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                const CircularProgressIndicator(),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Loading more milestones...',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         );
                       } else {
                         return const SizedBox();
@@ -363,9 +415,16 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
     );
   }
 
-  Widget _buildTimelineMilestoneCard(FamilyMilestone milestone, int index) {
+  Widget _buildEnhancedMilestoneCard(FamilyMilestone milestone, int index) {
     final isFirst = index == 0;
     final isLast = index == _milestones.length - 1;
+    final yearsAgo = _getYearsAgo(milestone.milestoneDate);
+    
+    // Get photo list (handle both photoUrl and photos array)
+    final List<String> photos = [];
+    if (milestone.photoUrl != null && milestone.photoUrl!.isNotEmpty) {
+      photos.add(milestone.photoUrl!);
+    }
 
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
@@ -453,18 +512,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 24, left: 12),
                 child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MilestoneDetailScreen(milestoneId: milestone.id),
-                      ),
-                    ).then((updated) {
-                      if (updated == true) {
-                        _loadMilestones();
-                      }
-                    });
-                  },
+                  onTap: () => _navigateToDetail(milestone.id),
                   child: Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
@@ -535,8 +583,45 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                     color: Colors.grey[700],
                                   ),
                                 ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    yearsAgo,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.amber.shade900,
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
+                            if (milestone.genealogyPersonName != null) ...[
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  const Icon(Icons.person, size: 14, color: Colors.indigo),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    milestone.genealogyPersonName!,
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.indigo,
+                                    ),
+                                  ),
+                                  if (milestone.autoGenerated) ...[
+                                    const SizedBox(width: 6),
+                                    Icon(Icons.auto_awesome, size: 12, color: Colors.amber.shade700),
+                                  ],
+                                ],
+                              ),
+                            ],
                             if (milestone.description != null) ...[
                               const SizedBox(height: 12),
                               Text(
@@ -550,52 +635,78 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ],
-                            if (milestone.photoUrl != null) ...[
+                            if (photos.isNotEmpty) ...[
                               const SizedBox(height: 12),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.network(
-                                  milestone.photoUrl!,
-                                  height: 150,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      height: 150,
-                                      color: Colors.grey[200],
-                                      child: const Icon(Icons.broken_image, size: 40),
+                              if (photos.length == 1)
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.network(
+                                    photos[0],
+                                    height: 150,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        height: 150,
+                                        color: Colors.grey[200],
+                                        child: const Icon(Icons.broken_image, size: 40),
+                                      );
+                                    },
+                                  ),
+                                )
+                              else
+                                CarouselSlider(
+                                  options: CarouselOptions(
+                                    height: 150,
+                                    viewportFraction: 0.9,
+                                    enableInfiniteScroll: false,
+                                    enlargeCenterPage: true,
+                                  ),
+                                  items: photos.map((photoUrl) {
+                                    return Builder(
+                                      builder: (BuildContext context) {
+                                        return ClipRRect(
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: Image.network(
+                                            photoUrl,
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Container(
+                                                color: Colors.grey[200],
+                                                child: const Icon(Icons.broken_image, size: 40),
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      },
                                     );
-                                  },
+                                  }).toList(),
                                 ),
-                              ),
                             ],
-                            if (milestone.genealogyPersonName != null || milestone.autoGenerated) ...[
+                            if (milestone.celebrationDetails != null) ...[
                               const SizedBox(height: 10),
                               Container(
-                                padding: const EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: Colors.indigo.shade50,
+                                  color: Colors.purple.shade50,
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.indigo.shade200),
+                                  border: Border.all(color: Colors.purple.shade200),
                                 ),
                                 child: Row(
-                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.account_tree, size: 14, color: Colors.indigo.shade700),
-                                    const SizedBox(width: 6),
-                                    if (milestone.genealogyPersonName != null)
-                                      Text(
-                                        milestone.genealogyPersonName!,
+                                    Icon(Icons.party_mode, size: 16, color: Colors.purple.shade700),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'Celebration Details Available',
                                         style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.indigo.shade800,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.purple.shade900,
                                         ),
                                       ),
-                                    if (milestone.autoGenerated) ...[
-                                      if (milestone.genealogyPersonName != null) const SizedBox(width: 6),
-                                      Icon(Icons.auto_awesome, size: 10, color: Colors.blue.shade700),
-                                    ],
+                                    ),
                                   ],
                                 ),
                               ),
@@ -624,6 +735,26 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Divider(color: Colors.grey[300]),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton.icon(
+                                  onPressed: () => _navigateToTimeline(milestone),
+                                  icon: const Icon(Icons.timeline, size: 16),
+                                  label: const Text(
+                                    'View in Timeline',
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.amber.shade700,
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -677,8 +808,10 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
         return const Color(0xFFF59E0B);
       case 'achievement':
         return const Color(0xFFEAB308);
+      case 'first_words':
       case 'first_word':
         return const Color(0xFF06B6D4);
+      case 'first_steps':
       case 'first_step':
         return const Color(0xFF10B981);
       case 'other':
@@ -700,8 +833,10 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
         return Icons.cake;
       case 'achievement':
         return Icons.emoji_events;
+      case 'first_words':
       case 'first_word':
         return Icons.chat_bubble;
+      case 'first_steps':
       case 'first_step':
         return Icons.directions_walk;
       case 'other':
@@ -786,5 +921,27 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
       }
       rethrow;
     }
+  }
+
+  void _navigateToDetail(String milestoneId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MilestoneDetailScreen(milestoneId: milestoneId),
+      ),
+    ).then((updated) {
+      if (updated == true && mounted) {
+        _loadMilestones();
+      }
+    });
+  }
+
+  void _navigateToTimeline(FamilyMilestone milestone) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const FamilyTimelineScreen(),
+      ),
+    );
   }
 }

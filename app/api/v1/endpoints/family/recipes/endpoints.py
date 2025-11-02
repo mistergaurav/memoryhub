@@ -205,9 +205,9 @@ async def update_recipe(
     
     update_data = {k: v for k, v in recipe_update.model_dump(exclude_unset=True).items() if v is not None}
     
-    if "ingredients" in update_data:
+    if "ingredients" in update_data and recipe_update.ingredients is not None:
         update_data["ingredients"] = [ing.model_dump() for ing in recipe_update.ingredients]
-    if "steps" in update_data:
+    if "steps" in update_data and recipe_update.steps is not None:
         update_data["steps"] = [step.model_dump() for step in recipe_update.steps]
     if "family_circle_ids" in update_data:
         update_data["family_circle_ids"] = validate_object_ids(update_data["family_circle_ids"], "family_circle_ids")

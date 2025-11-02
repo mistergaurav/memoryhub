@@ -123,12 +123,20 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   Future<void> _handleUpdateEvent(Map<String, dynamic> data) async {
     try {
-      await _familyService.updateCalendarEvent(widget.eventId, data);
+      final result = await _familyService.updateCalendarEvent(widget.eventId, data);
       if (mounted) {
+        final conflicts = result['conflicts'] ?? 0;
+        final warning = result['conflict_warning'];
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Event updated successfully'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: Text(
+              conflicts > 0 && warning != null
+                  ? warning
+                  : 'Event updated successfully',
+            ),
+            backgroundColor: conflicts > 0 ? Colors.orange : Colors.green,
+            duration: Duration(seconds: conflicts > 0 ? 4 : 2),
           ),
         );
         _loadEvent();
@@ -137,7 +145,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to update event: $e'),
+            content: Text('Failed to update event: ${e.toString().replaceAll('Exception: ', '')}'),
             backgroundColor: Colors.red,
           ),
         );

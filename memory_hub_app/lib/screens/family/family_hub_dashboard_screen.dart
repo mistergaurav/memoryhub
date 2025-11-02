@@ -990,11 +990,35 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
   }
 
   Future<void> _createEvent(Map<String, dynamic> data) async {
-    await _handleAction(
-      () => _familyService.createCalendarEvent(data),
-      'Event created successfully',
-      'Failed to create event',
-    );
+    try {
+      final result = await _familyService.createCalendarEvent(data);
+      final conflicts = result['conflicts'] ?? 0;
+      final warning = result['conflict_warning'];
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              conflicts > 0 && warning != null
+                  ? warning
+                  : 'Event created successfully',
+            ),
+            backgroundColor: conflicts > 0 ? Colors.orange : Colors.green,
+            duration: Duration(seconds: conflicts > 0 ? 4 : 2),
+          ),
+        );
+      }
+      _refreshData();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to create event: ${e.toString().replaceAll('Exception: ', '')}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _createMilestone(Map<String, dynamic> data) async {
