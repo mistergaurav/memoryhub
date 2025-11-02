@@ -5,8 +5,9 @@ from datetime import datetime
 
 from app.models.user import UserInDB
 from app.core.security import get_current_user
+from .repository import FamilyTimelineRepository
 from app.repositories.family_repository import (
-    FamilyTimelineRepository, FamilyRepository, FamilyMilestonesRepository,
+    FamilyRepository, FamilyMilestonesRepository,
     FamilyRecipesRepository, FamilyTraditionsRepository, FamilyAlbumsRepository,
     FamilyCalendarRepository
 )

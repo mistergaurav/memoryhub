@@ -1,17 +1,21 @@
 """Family features endpoints module."""
 from fastapi import APIRouter
-from .family import router as family_router
-from .family_albums import router as albums_router
-from .family_calendar import router as calendar_router
-from .family_milestones import router as milestones_router
-from .family_recipes import router as recipes_router
-from .family_timeline import router as timeline_router
-from .family_traditions import router as traditions_router
+
+# Import from migrated feature modules (new structure)
+from .albums import router as albums_router
+from .calendar import router as calendar_router
+from .milestones import router as milestones_router
+from .recipes import router as recipes_router
+from .timeline import router as timeline_router
+from .traditions import router as traditions_router
 from .genealogy import router as genealogy_router
 from .health_records import router as health_router
-from .health_record_reminders import router as health_reminders_router
-from .legacy_letters import router as letters_router
+from .letters import router as letters_router
 from .parental_controls import router as parental_router
+
+# Import from non-migrated modules (still in flat structure)
+from .family import router as family_router
+from .health_record_reminders import router as health_reminders_router
 
 router = APIRouter()
 router.include_router(family_router, tags=["family"])

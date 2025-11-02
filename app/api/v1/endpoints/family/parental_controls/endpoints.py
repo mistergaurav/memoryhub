@@ -3,7 +3,7 @@ from typing import List
 from bson import ObjectId
 from datetime import datetime
 
-from app.models.family.parental_controls import (
+from .schemas import (
     ParentalControlSettingsCreate, ParentalControlSettingsUpdate,
     ParentalControlSettingsResponse, ContentApprovalRequest,
     ContentApprovalRequestResponse, ApprovalDecision

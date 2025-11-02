@@ -61,6 +61,12 @@ async def create_reminder(
         error_message="Health record not found"
     )
     
+    if not record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Health record not found"
+        )
+    
     # Verify user owns the health record
     if str(record["family_id"]) != current_user.id:
         raise HTTPException(
@@ -95,7 +101,7 @@ async def create_reminder(
             notification_type=NotificationType.HEALTH_REMINDER_ASSIGNMENT,
             title="Health Reminder Assigned to You",
             message=f"{current_user.full_name or 'Someone'} created a health reminder '{reminder.title}' for you due on {reminder.due_at.strftime('%B %d, %Y')}.",
-            actor_id=current_user.id,
+            actor_id=str(current_user.id),
             target_type="health_reminder",
             target_id=str(reminder_doc["_id"])
         )
@@ -121,7 +127,7 @@ async def create_reminder(
 async def list_reminders(
     record_id: Optional[str] = Query(None, description="Filter by health record ID"),
     assigned_user_id: Optional[str] = Query(None, description="Filter by assigned user ID"),
-    status: Optional[ReminderStatus] = Query(None, description="Filter by status"),
+    reminder_status: Optional[ReminderStatus] = Query(None, description="Filter by status"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
     current_user: UserInDB = Depends(get_current_user)
@@ -138,6 +144,12 @@ async def list_reminders(
             raise_404=True,
             error_message="Health record not found"
         )
+        
+        if not record:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Health record not found"
+            )
         
         # User can view reminders if they own the record, are the subject, or are assigned
         has_access = (
@@ -184,8 +196,8 @@ async def list_reminders(
         assigned_oid = reminders_repo.validate_object_id(assigned_user_id, "assigned_user_id")
         query["assigned_user_id"] = assigned_oid
     
-    if status:
-        query["status"] = status
+    if reminder_status:
+        query["status"] = reminder_status
     
     skip = (page - 1) * page_size
     reminders = await reminders_repo.find_many(
@@ -232,12 +244,24 @@ async def get_reminder(
         error_message="Reminder not found"
     )
     
+    if not reminder_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Reminder not found"
+        )
+    
     # Verify user has access to the associated health record
     record = await health_records_repo.find_one(
         {"_id": reminder_doc["record_id"]}
     )
     
-    if not record or str(record["family_id"]) != current_user.id:
+    if not record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Associated health record not found"
+        )
+    
+    if str(record["family_id"]) != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to view this reminder"
@@ -262,12 +286,24 @@ async def update_reminder(
         error_message="Reminder not found"
     )
     
+    if not reminder_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Reminder not found"
+        )
+    
     # Verify user has access to the associated health record
     record = await health_records_repo.find_one(
         {"_id": reminder_doc["record_id"]}
     )
     
-    if not record or str(record["family_id"]) != current_user.id:
+    if not record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Associated health record not found"
+        )
+    
+    if str(record["family_id"]) != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to update this reminder"
@@ -282,6 +318,12 @@ async def update_reminder(
         )
     
     updated_reminder = await reminders_repo.update_by_id(reminder_id, update_data)
+    
+    if not updated_reminder:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update reminder"
+        )
     
     await log_audit_event(
         user_id=str(current_user.id),
@@ -311,12 +353,24 @@ async def delete_reminder(
         error_message="Reminder not found"
     )
     
+    if not reminder_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Reminder not found"
+        )
+    
     # Verify user has access to the associated health record
     record = await health_records_repo.find_one(
         {"_id": reminder_doc["record_id"]}
     )
     
-    if not record or str(record["family_id"]) != current_user.id:
+    if not record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Associated health record not found"
+        )
+    
+    if str(record["family_id"]) != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to delete this reminder"
@@ -350,12 +404,24 @@ async def snooze_reminder(
         error_message="Reminder not found"
     )
     
+    if not reminder_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Reminder not found"
+        )
+    
     # Verify user has access
     record = await health_records_repo.find_one(
         {"_id": reminder_doc["record_id"]}
     )
     
-    if not record or str(record["family_id"]) != current_user.id:
+    if not record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Associated health record not found"
+        )
+    
+    if str(record["family_id"]) != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to snooze this reminder"
@@ -373,6 +439,12 @@ async def snooze_reminder(
     }
     
     updated_reminder = await reminders_repo.update_by_id(reminder_id, update_data)
+    
+    if not updated_reminder:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to snooze reminder"
+        )
     
     await log_audit_event(
         user_id=str(current_user.id),
@@ -402,12 +474,24 @@ async def complete_reminder(
         error_message="Reminder not found"
     )
     
+    if not reminder_doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Reminder not found"
+        )
+    
     # Verify user has access
     record = await health_records_repo.find_one(
         {"_id": reminder_doc["record_id"]}
     )
     
-    if not record or str(record["family_id"]) != current_user.id:
+    if not record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Associated health record not found"
+        )
+    
+    if str(record["family_id"]) != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized to complete this reminder"
@@ -424,6 +508,12 @@ async def complete_reminder(
     }
     
     updated_reminder = await reminders_repo.update_by_id(reminder_id, update_data)
+    
+    if not updated_reminder:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to complete reminder"
+        )
     
     await log_audit_event(
         user_id=str(current_user.id),

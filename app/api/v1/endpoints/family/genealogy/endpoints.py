@@ -4,7 +4,7 @@ from bson import ObjectId
 from datetime import datetime, timedelta
 import secrets
 
-from app.models.family.genealogy import (
+from .schemas import (
     GenealogyPersonCreate, GenealogyPersonUpdate, GenealogyPersonResponse,
     GenealogyRelationshipCreate, GenealogyRelationshipResponse,
     FamilyTreeNode, PersonSource, UserSearchResult,
@@ -14,11 +14,13 @@ from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.db.mongodb import get_database
 from app.utils.genealogy_helpers import safe_object_id, compute_is_alive
-from app.repositories.family_repository import (
+from .repository import (
     GenealogyPersonRepository,
     GenealogyRelationshipRepository,
     GenealogyTreeRepository,
-    GenealogTreeMembershipRepository,
+    GenealogTreeMembershipRepository
+)
+from app.repositories.family_repository import (
     UserRepository,
     NotificationRepository,
     GenealogyInviteLinksRepository,
@@ -125,6 +127,8 @@ async def validate_user_exists(user_id: str) -> Dict[str, Any]:
         raise_404=True,
         error_message="User not found"
     )
+    if user_doc is None:
+        raise HTTPException(status_code=404, detail="User not found")
     return user_doc
 
 
@@ -202,6 +206,8 @@ async def create_genealogy_person(
                 raise_404=True,
                 error_message=f"Related person not found: {rel_spec.person_id}"
             )
+            if related_person is None:
+                raise HTTPException(status_code=404, detail=f"Related person not found: {rel_spec.person_id}")
             
             if str(related_person["family_id"]) != str(tree_oid):
                 raise HTTPException(
@@ -220,7 +226,7 @@ async def create_genealogy_person(
             await genealogy_relationship_repo.create(relationship_data)
     
     await log_audit_event(
-        user_id=current_user.id,
+        user_id=str(current_user.id),
         event_type="CREATE_GENEALOGY_PERSON",
         event_details={
             "resource_type": "genealogy_person",
@@ -282,6 +288,8 @@ async def get_genealogy_person(
         raise_404=True,
         error_message="Person not found"
     )
+    if person_doc is None:
+        raise HTTPException(status_code=404, detail="Person not found")
     
     await ensure_tree_access(person_doc["family_id"], ObjectId(current_user.id))
     
@@ -303,6 +311,8 @@ async def update_genealogy_person(
         raise_404=True,
         error_message="Person not found"
     )
+    if person_doc is None:
+        raise HTTPException(status_code=404, detail="Person not found")
     
     await ensure_tree_access(person_doc["family_id"], ObjectId(current_user.id), required_roles=["owner", "member"])
     
@@ -337,9 +347,11 @@ async def update_genealogy_person(
         update_data["is_alive"] = compute_is_alive(death_date, is_alive_override)
     
     updated_person = await genealogy_person_repo.update_by_id(person_id, update_data)
+    if updated_person is None:
+        raise HTTPException(status_code=404, detail="Person not found")
     
     await log_audit_event(
-        user_id=current_user.id,
+        user_id=str(current_user.id),
         event_type="UPDATE_GENEALOGY_PERSON",
         event_details={
             "resource_type": "genealogy_person",
@@ -365,6 +377,8 @@ async def delete_genealogy_person(
         raise_404=True,
         error_message="Person not found"
     )
+    if person_doc is None:
+        raise HTTPException(status_code=404, detail="Person not found")
     
     await ensure_tree_access(person_doc["family_id"], ObjectId(current_user.id), required_roles=["owner"])
     
@@ -378,7 +392,7 @@ async def delete_genealogy_person(
     })
     
     await log_audit_event(
-        user_id=current_user.id,
+        user_id=str(current_user.id),
         event_type="DELETE_GENEALOGY_PERSON",
         event_details={
             "resource_type": "genealogy_person",
@@ -400,7 +414,7 @@ async def search_platform_users(
     """Search for any platform user to link to genealogy persons or invite to family hub"""
     users = await user_repo.search_users(
         query=query,
-        exclude_user_id=current_user.id,
+        exclude_user_id=str(current_user.id),
         limit=limit
     )
     
@@ -442,11 +456,16 @@ async def create_genealogy_relationship(
         raise_404=True,
         error_message="Person 1 not found"
     )
+    if person1 is None:
+        raise HTTPException(status_code=404, detail="Person 1 not found")
+    
     person2 = await genealogy_person_repo.find_one(
         {"_id": person2_oid},
         raise_404=True,
         error_message="Person 2 not found"
     )
+    if person2 is None:
+        raise HTTPException(status_code=404, detail="Person 2 not found")
     
     if str(person1["family_id"]) != str(person2["family_id"]):
         raise HTTPException(status_code=400, detail="Cannot create relationship between persons from different trees")
@@ -467,7 +486,7 @@ async def create_genealogy_relationship(
     relationship_doc = await genealogy_relationship_repo.create(relationship_data)
     
     await log_audit_event(
-        user_id=current_user.id,
+        user_id=str(current_user.id),
         event_type="CREATE_GENEALOGY_RELATIONSHIP",
         event_details={
             "resource_type": "genealogy_relationship",
@@ -529,6 +548,8 @@ async def delete_genealogy_relationship(
         raise_404=True,
         error_message="Relationship not found"
     )
+    if relationship_doc is None:
+        raise HTTPException(status_code=404, detail="Relationship not found")
     
     tree_id = relationship_doc["family_id"]
     
@@ -537,7 +558,7 @@ async def delete_genealogy_relationship(
     await genealogy_relationship_repo.delete_by_id(relationship_id)
     
     await log_audit_event(
-        user_id=current_user.id,
+        user_id=str(current_user.id),
         event_type="DELETE_GENEALOGY_RELATIONSHIP",
         event_details={
             "resource_type": "genealogy_relationship",
@@ -686,7 +707,7 @@ async def grant_tree_access(
         tree_id=str(tree_oid),
         user_id=user_id,
         role=role,
-        granted_by=current_user.id
+        granted_by=str(current_user.id)
     )
     
     granter_name = await get_user_display_name(
@@ -704,7 +725,7 @@ async def grant_tree_access(
     )
     
     await log_audit_event(
-        user_id=current_user.id,
+        user_id=str(current_user.id),
         event_type="GRANT_TREE_ACCESS",
         event_details={
             "resource_type": "genealogy_tree",
@@ -738,6 +759,8 @@ async def create_invite_link(
         raise_404=True,
         error_message="Person not found"
     )
+    if person_doc is None:
+        raise HTTPException(status_code=404, detail="Person not found")
     
     if str(person_doc["family_id"]) != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to invite for this person")
@@ -789,7 +812,7 @@ async def create_invite_link(
     invite_url = f"/genealogy/join/{token}"
     
     await log_audit_event(
-        user_id=current_user.id,
+        user_id=str(current_user.id),
         event_type="CREATE_INVITE_LINK",
         event_details={
             "resource_type": "genealogy_invite",
@@ -825,6 +848,8 @@ async def redeem_invite_link(
 ):
     """Redeem an invitation link and link user to genealogy person"""
     invite_doc = await invite_links_repo.find_by_token(token, raise_404=True)
+    if invite_doc is None:
+        raise HTTPException(status_code=404, detail="Invitation not found")
     
     if invite_doc["expires_at"] < datetime.utcnow():
         await invite_links_repo.update_by_id(
@@ -841,6 +866,8 @@ async def redeem_invite_link(
         raise_404=True,
         error_message="Person not found"
     )
+    if person_doc is None:
+        raise HTTPException(status_code=404, detail="Person not found")
     
     if person_doc.get("linked_user_id"):
         raise HTTPException(status_code=400, detail="This person is already linked to another user")
@@ -879,13 +906,13 @@ async def redeem_invite_link(
             
             membership_exists = await tree_membership_repo.find_by_tree_and_user(
                 tree_id=str(invite_doc["family_id"]),
-                user_id=current_user.id
+                user_id=str(current_user.id)
             )
             
             if not membership_exists:
                 await tree_membership_repo.create_membership(
                     tree_id=str(invite_doc["family_id"]),
-                    user_id=current_user.id,
+                    user_id=str(current_user.id),
                     role="member",
                     granted_by=str(invite_doc["created_by"])
                 )
@@ -909,7 +936,7 @@ async def redeem_invite_link(
         "name": "Family Tree Members"
     }, raise_404=False)
     
-    if tree_circle:
+    if tree_circle is not None:
         if ObjectId(current_user.id) not in tree_circle.get("member_ids", []):
             await family_repo.collection.update_one(
                 {"_id": tree_circle["_id"]},
@@ -931,7 +958,7 @@ async def redeem_invite_link(
         await family_repo.create(circle_data)
     
     await log_audit_event(
-        user_id=current_user.id,
+        user_id=str(current_user.id),
         event_type="REDEEM_INVITE_LINK",
         event_details={
             "resource_type": "genealogy_invite",
@@ -957,7 +984,7 @@ async def list_invite_links(
 ):
     """List all invitation links created by current user"""
     invites = await invite_links_repo.find_by_family(
-        family_id=current_user.id,
+        family_id=str(current_user.id),
         status_filter=status_filter,
         limit=100
     )
@@ -965,7 +992,7 @@ async def list_invite_links(
     invite_responses = []
     for invite_doc in invites:
         person_doc = await genealogy_person_repo.find_one({"_id": invite_doc["person_id"]}, raise_404=False)
-        person_name = f"{person_doc['first_name']} {person_doc['last_name']}" if person_doc else "Unknown"
+        person_name = f"{person_doc['first_name']} {person_doc['last_name']}" if person_doc is not None else "Unknown"
         
         invite_data = {
             "id": str(invite_doc["_id"]),
@@ -1008,11 +1035,13 @@ async def get_person_timeline(
         raise_404=True,
         error_message="Person not found"
     )
+    if person_doc is None:
+        raise HTTPException(status_code=404, detail="Person not found")
     
     tree_id = person_doc["family_id"]
     membership = await tree_membership_repo.find_by_tree_and_user(
         tree_id=str(tree_id),
-        user_id=current_user.id
+        user_id=str(current_user.id)
     )
     
     if not membership and str(tree_id) != current_user.id:

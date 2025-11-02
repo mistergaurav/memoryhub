@@ -3,12 +3,13 @@ from typing import List, Optional, Dict, Any
 from bson import ObjectId
 from datetime import datetime
 
-from app.models.family.family_milestones import (
+from .schemas import (
     FamilyMilestoneCreate, FamilyMilestoneUpdate, FamilyMilestoneResponse
 )
 from app.models.user import UserInDB
 from app.core.security import get_current_user
-from app.repositories.family_repository import FamilyMilestonesRepository, UserRepository
+from .repository import FamilyMilestonesRepository
+from app.repositories.family_repository import UserRepository
 from app.utils.validators import validate_object_ids
 from app.utils.audit_logger import log_audit_event
 from app.models.responses import create_success_response, create_paginated_response, create_message_response

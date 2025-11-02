@@ -3,14 +3,15 @@ from typing import List, Optional, Dict, Any
 from bson import ObjectId
 from datetime import datetime
 
-from app.models.family.health_records import (
+from .schemas import (
     HealthRecordCreate, HealthRecordUpdate, HealthRecordResponse,
     VaccinationRecordCreate, VaccinationRecordResponse,
     RecordType, ApprovalStatus
 )
 from app.models.user import UserInDB
 from app.core.security import get_current_user
-from app.repositories.family_repository import HealthRecordsRepository, FamilyMembersRepository
+from .repository import HealthRecordsRepository
+from app.repositories.family_repository import FamilyMembersRepository
 from app.repositories.base_repository import BaseRepository
 from app.models.responses import create_success_response, create_paginated_response
 from app.utils.audit_logger import log_audit_event

@@ -9,6 +9,7 @@ from app.models.user import PyObjectId
 
 class MilestoneType(str, Enum):
     BIRTH = "birth"
+    DEATH = "death"
     FIRST_STEPS = "first_steps"
     FIRST_WORDS = "first_words"
     FIRST_DAY_SCHOOL = "first_day_school"
@@ -21,6 +22,8 @@ class MilestoneType(str, Enum):
     RETIREMENT = "retirement"
     ACHIEVEMENT = "achievement"
     TRAVEL = "travel"
+    IMMIGRATION = "immigration"
+    MILITARY_SERVICE = "military_service"
     OTHER = "other"
 
 
@@ -29,12 +32,15 @@ class FamilyMilestoneBase(BaseModel):
     description: Optional[str] = None
     milestone_type: MilestoneType
     milestone_date: datetime
-    person_id: Optional[str] = None  # Family member this milestone is about
+    person_id: Optional[str] = None
+    genealogy_person_id: Optional[str] = None
 
 
 class FamilyMilestoneCreate(FamilyMilestoneBase):
     photos: List[str] = Field(default_factory=list)
     family_circle_ids: List[str] = Field(default_factory=list)
+    auto_generated: bool = False
+    generation: Optional[int] = None
 
 
 class FamilyMilestoneUpdate(BaseModel):
@@ -55,10 +61,13 @@ class FamilyMilestoneInDB(BaseModel):
     milestone_date: datetime
     person_id: Optional[PyObjectId] = None
     person_name: Optional[str] = None
+    genealogy_person_id: Optional[PyObjectId] = None
     photos: List[str] = Field(default_factory=list)
     created_by: PyObjectId
     family_circle_ids: List[PyObjectId] = Field(default_factory=list)
     likes: List[PyObjectId] = Field(default_factory=list)
+    auto_generated: bool = False
+    generation: Optional[int] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     
@@ -76,10 +85,14 @@ class FamilyMilestoneResponse(BaseModel):
     milestone_date: datetime
     person_id: Optional[str] = None
     person_name: Optional[str] = None
+    genealogy_person_id: Optional[str] = None
+    genealogy_person_name: Optional[str] = None
     photos: List[str]
     created_by: str
     created_by_name: Optional[str] = None
     family_circle_ids: List[str]
     likes_count: int = 0
+    auto_generated: bool = False
+    generation: Optional[int] = None
     created_at: datetime
     updated_at: datetime

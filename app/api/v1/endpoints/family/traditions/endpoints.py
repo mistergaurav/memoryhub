@@ -3,12 +3,13 @@ from typing import List, Optional, Dict, Any
 from bson import ObjectId
 from datetime import datetime
 
-from app.models.family.family_traditions import (
+from .schemas import (
     FamilyTraditionCreate, FamilyTraditionUpdate, FamilyTraditionResponse
 )
 from app.models.user import UserInDB
 from app.core.security import get_current_user
-from app.repositories.family_repository import FamilyTraditionsRepository, UserRepository
+from .repository import FamilyTraditionsRepository
+from app.repositories.family_repository import UserRepository
 from app.utils.validators import validate_object_ids
 from app.utils.audit_logger import log_audit_event
 from app.models.responses import create_success_response, create_paginated_response, create_message_response

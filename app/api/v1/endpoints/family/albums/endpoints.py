@@ -3,14 +3,14 @@ from typing import List, Optional, Dict, Any
 from bson import ObjectId
 from datetime import datetime
 
-from app.models.family.family_albums import (
+from .schemas import (
     FamilyAlbumCreate, FamilyAlbumUpdate, FamilyAlbumResponse,
     AlbumPhotoCreate, AlbumPhotoResponse
 )
+from .repository import FamilyAlbumsRepository
 from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.db.mongodb import get_collection
-from app.repositories.family_repository import FamilyAlbumsRepository
 from app.utils.validators import validate_object_ids
 from app.utils.audit_logger import log_audit_event
 from app.models.responses import create_success_response, create_paginated_response, create_message_response

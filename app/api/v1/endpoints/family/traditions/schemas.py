@@ -37,10 +37,13 @@ class FamilyTraditionBase(BaseModel):
 
 class FamilyTraditionCreate(FamilyTraditionBase):
     origin_story: Optional[str] = None
-    instructions: Optional[str] = None  # How to carry out the tradition
+    instructions: Optional[str] = None
     photos: List[str] = Field(default_factory=list)
     videos: List[str] = Field(default_factory=list)
     family_circle_ids: List[str] = Field(default_factory=list)
+    origin_ancestor_id: Optional[str] = None
+    generations_passed: Optional[int] = None
+    country_of_origin: Optional[str] = Field(None, max_length=100)
 
 
 class FamilyTraditionUpdate(BaseModel):
@@ -54,6 +57,9 @@ class FamilyTraditionUpdate(BaseModel):
     photos: Optional[List[str]] = None
     videos: Optional[List[str]] = None
     family_circle_ids: Optional[List[str]] = None
+    origin_ancestor_id: Optional[str] = None
+    generations_passed: Optional[int] = None
+    country_of_origin: Optional[str] = Field(None, max_length=100)
 
 
 class FamilyTraditionInDB(BaseModel):
@@ -69,7 +75,10 @@ class FamilyTraditionInDB(BaseModel):
     videos: List[str] = Field(default_factory=list)
     created_by: PyObjectId
     family_circle_ids: List[PyObjectId] = Field(default_factory=list)
-    followers: List[PyObjectId] = Field(default_factory=list)  # Members who practice this
+    followers: List[PyObjectId] = Field(default_factory=list)
+    origin_ancestor_id: Optional[PyObjectId] = None
+    generations_passed: Optional[int] = None
+    country_of_origin: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     
@@ -94,5 +103,9 @@ class FamilyTraditionResponse(BaseModel):
     created_by_name: Optional[str] = None
     family_circle_ids: List[str]
     followers_count: int = 0
+    origin_ancestor_id: Optional[str] = None
+    origin_ancestor_name: Optional[str] = None
+    generations_passed: Optional[int] = None
+    country_of_origin: Optional[str] = None
     created_at: datetime
     updated_at: datetime
