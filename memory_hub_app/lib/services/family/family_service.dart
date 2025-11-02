@@ -53,10 +53,106 @@ class FamilyService {
     );
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
-      final List<dynamic> items = responseBody['items'] ?? [];
-      return items.map((json) => AlbumPhoto.fromJson(json)).toList();
+      final data = responseBody['data'];
+      if (data is List) {
+        return data.map((json) => AlbumPhoto.fromJson(json)).toList();
+      }
+      return [];
     } else {
       throw Exception('Failed to load album photos');
+    }
+  }
+
+  Future<Map<String, dynamic>> createAlbum(Map<String, dynamic> albumData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/family-albums/'),
+        headers: headers,
+        body: jsonEncode(albumData),
+      ),
+    );
+    if (response.statusCode == 201) {
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
+    } else {
+      throw Exception('Failed to create album');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateAlbum(String albumId, Map<String, dynamic> albumData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.put(
+        Uri.parse('$baseUrl/family-albums/$albumId'),
+        headers: headers,
+        body: jsonEncode(albumData),
+      ),
+    );
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
+    } else {
+      throw Exception('Failed to update album');
+    }
+  }
+
+  Future<void> deleteAlbum(String albumId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.delete(
+        Uri.parse('$baseUrl/family-albums/$albumId'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete album');
+    }
+  }
+
+  Future<Map<String, dynamic>> addPhotoToAlbum(String albumId, Map<String, dynamic> photoData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/family-albums/$albumId/photos'),
+        headers: headers,
+        body: jsonEncode(photoData),
+      ),
+    );
+    if (response.statusCode == 201) {
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
+    } else {
+      throw Exception('Failed to add photo to album');
+    }
+  }
+
+  Future<void> deletePhotoFromAlbum(String albumId, String photoId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.delete(
+        Uri.parse('$baseUrl/family-albums/$albumId/photos/$photoId'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete photo');
+    }
+  }
+
+  Future<Map<String, dynamic>> likePhoto(String albumId, String photoId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/family-albums/$albumId/photos/$photoId/like'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
+    } else {
+      throw Exception('Failed to like photo');
     }
   }
 
@@ -86,10 +182,22 @@ class FamilyService {
     }
   }
 
-  Future<List<FamilyMilestone>> getMilestones() async {
+  Future<List<FamilyMilestone>> getMilestones({
+    int page = 1,
+    int pageSize = 50,
+    String? personId,
+    String? milestoneType,
+  }) async {
     final headers = await _authService.getAuthHeaders();
+    var url = '$baseUrl/family-milestones/?page=$page&page_size=$pageSize';
+    if (personId != null) {
+      url += '&person_id=$personId';
+    }
+    if (milestoneType != null) {
+      url += '&milestone_type=$milestoneType';
+    }
     final response = await _handleRequest(
-      http.get(Uri.parse('$baseUrl/family-milestones/'), headers: headers),
+      http.get(Uri.parse(url), headers: headers),
     );
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
@@ -97,6 +205,83 @@ class FamilyService {
       return items.map((json) => FamilyMilestone.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load milestones');
+    }
+  }
+
+  Future<FamilyMilestone> getMilestoneDetail(String milestoneId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/family-milestones/$milestoneId'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      final data = responseBody['data'] ?? responseBody;
+      return FamilyMilestone.fromJson(data);
+    } else {
+      throw Exception('Failed to load milestone details');
+    }
+  }
+
+  Future<Map<String, dynamic>> createMilestone(Map<String, dynamic> milestoneData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/family-milestones/'),
+        headers: headers,
+        body: jsonEncode(milestoneData),
+      ),
+    );
+    if (response.statusCode == 201) {
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
+    } else {
+      throw Exception('Failed to create milestone');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateMilestone(String milestoneId, Map<String, dynamic> milestoneData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.put(
+        Uri.parse('$baseUrl/family-milestones/$milestoneId'),
+        headers: headers,
+        body: jsonEncode(milestoneData),
+      ),
+    );
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
+    } else {
+      throw Exception('Failed to update milestone');
+    }
+  }
+
+  Future<void> deleteMilestone(String milestoneId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.delete(
+        Uri.parse('$baseUrl/family-milestones/$milestoneId'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete milestone');
+    }
+  }
+
+  Future<Map<String, dynamic>> likeMilestone(String milestoneId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/family-milestones/$milestoneId/like'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
+    } else {
+      throw Exception('Failed to like milestone');
     }
   }
 
@@ -212,9 +397,16 @@ class FamilyService {
     DateTime? endDate,
   }) async {
     final headers = await _authService.getAuthHeaders();
-    var url = '$baseUrl/family-calendar/';
-    if (startDate != null && endDate != null) {
-      url += '?start=${startDate.toIso8601String()}&end=${endDate.toIso8601String()}';
+    var url = '$baseUrl/family-calendar/events';
+    final queryParams = <String>[];
+    if (startDate != null) {
+      queryParams.add('start_date=${startDate.toIso8601String()}');
+    }
+    if (endDate != null) {
+      queryParams.add('end_date=${endDate.toIso8601String()}');
+    }
+    if (queryParams.isNotEmpty) {
+      url += '?${queryParams.join('&')}';
     }
     final response = await _handleRequest(
       http.get(Uri.parse(url), headers: headers),
@@ -225,6 +417,20 @@ class FamilyService {
       return items.map((json) => FamilyCalendarEvent.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load calendar events');
+    }
+  }
+
+  Future<FamilyCalendarEvent> getCalendarEvent(String eventId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(Uri.parse('$baseUrl/family-calendar/events/$eventId'), headers: headers),
+    );
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      final data = responseBody['data'] ?? responseBody;
+      return FamilyCalendarEvent.fromJson(data);
+    } else {
+      throw Exception('Failed to load calendar event');
     }
   }
 
@@ -241,6 +447,68 @@ class FamilyService {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to create calendar event');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateCalendarEvent(String eventId, Map<String, dynamic> eventData) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.put(
+        Uri.parse('$baseUrl/family-calendar/events/$eventId'),
+        headers: headers,
+        body: jsonEncode(eventData),
+      ),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to update calendar event');
+    }
+  }
+
+  Future<void> deleteCalendarEvent(String eventId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.delete(
+        Uri.parse('$baseUrl/family-calendar/events/$eventId'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete calendar event');
+    }
+  }
+
+  Future<List<FamilyCalendarEvent>> getUpcomingBirthdays({int daysAhead = 30}) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.get(
+        Uri.parse('$baseUrl/family-calendar/birthdays?days_ahead=$daysAhead'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      final List<dynamic> data = responseBody['data'] ?? [];
+      return data.map((json) => FamilyCalendarEvent.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load upcoming birthdays');
+    }
+  }
+
+  Future<Map<String, dynamic>> detectEventConflicts(String eventId) async {
+    final headers = await _authService.getAuthHeaders();
+    final response = await _handleRequest(
+      http.post(
+        Uri.parse('$baseUrl/family-calendar/events/$eventId/conflicts'),
+        headers: headers,
+      ),
+    );
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      return responseBody['data'] ?? responseBody;
+    } else {
+      throw Exception('Failed to detect conflicts');
     }
   }
 

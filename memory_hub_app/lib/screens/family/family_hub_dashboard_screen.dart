@@ -506,12 +506,14 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               final event = _recentActivities[index];
               return Semantics(
                 label: '${event.title}, ${event.description ?? ''}, ${DateFormat.yMMMd().format(event.eventDate)}',
+                button: true,
                 child: TimelineCard(
                   title: event.title,
                   subtitle: event.description,
                   date: event.eventDate,
                   icon: _getEventIcon(event.eventType),
                   gradientColors: _getEventGradient(event.eventType),
+                  onTap: () => _navigateToEventDetail(event),
                 ),
               );
             },
@@ -698,37 +700,120 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
     );
   }
 
+  void _navigateToEventDetail(TimelineEvent event) {
+    Widget? targetScreen;
+
+    switch (event.eventType.toLowerCase()) {
+      case 'album':
+        targetScreen = const FamilyAlbumsScreen();
+        break;
+      case 'event':
+      case 'birthday':
+      case 'anniversary':
+      case 'meeting':
+      case 'gathering':
+      case 'holiday':
+        targetScreen = const FamilyCalendarScreen();
+        break;
+      case 'milestone':
+      case 'achievement':
+        targetScreen = const FamilyMilestonesScreen();
+        break;
+      case 'recipe':
+        targetScreen = const FamilyRecipesScreen();
+        break;
+      case 'tradition':
+        targetScreen = const FamilyTraditionsScreen();
+        break;
+      case 'health':
+        targetScreen = const HealthRecordsScreen();
+        break;
+      default:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const FamilyTimelineScreen()),
+        );
+        return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => targetScreen!),
+    );
+  }
+
   IconData _getEventIcon(String eventType) {
-    switch (eventType) {
+    final type = eventType.toLowerCase();
+    switch (type) {
+      case 'album':
+        return Icons.photo_library;
+      case 'event':
+      case 'calendar':
+        return Icons.event;
+      case 'milestone':
+        return Icons.celebration;
+      case 'achievement':
+        return Icons.emoji_events;
+      case 'recipe':
+        return Icons.restaurant_menu;
+      case 'tradition':
+        return Icons.local_florist;
+      case 'memory':
+        return Icons.photo_album;
       case 'birthday':
         return Icons.cake;
+      case 'anniversary':
       case 'death_anniversary':
         return Icons.favorite;
-      case 'anniversary':
-        return Icons.favorite_border;
       case 'meeting':
       case 'gathering':
         return Icons.people;
       case 'holiday':
         return Icons.celebration;
+      case 'trip':
+      case 'travel':
+        return Icons.flight;
+      case 'health':
+        return Icons.health_and_safety;
       default:
-        return Icons.event;
+        return Icons.event_note;
     }
   }
 
   List<Color> _getEventGradient(String eventType) {
-    switch (eventType) {
+    final type = eventType.toLowerCase();
+    switch (type) {
+      case 'album':
+        return [MemoryHubColors.purple600, MemoryHubColors.purple400];
+      case 'event':
+      case 'calendar':
+        return [MemoryHubColors.cyan500, MemoryHubColors.cyan400];
+      case 'milestone':
+      case 'achievement':
+        return [MemoryHubColors.amber500, MemoryHubColors.amber400];
+      case 'recipe':
+        return [MemoryHubColors.red500, MemoryHubColors.red400];
+      case 'tradition':
+        return [MemoryHubColors.teal500, MemoryHubColors.teal400];
+      case 'memory':
+        return [MemoryHubColors.pink500, MemoryHubColors.pink400];
       case 'birthday':
         return [MemoryHubColors.pink500, MemoryHubColors.pink400];
       case 'anniversary':
-        return [MemoryHubColors.red600, MemoryHubColors.pink500];
+      case 'death_anniversary':
+        return [MemoryHubColors.purple500, MemoryHubColors.pink500];
       case 'meeting':
       case 'gathering':
         return [MemoryHubColors.purple600, MemoryHubColors.purple400];
       case 'holiday':
         return [MemoryHubColors.amber500, MemoryHubColors.amber400];
+      case 'trip':
+      case 'travel':
+        return [MemoryHubColors.cyan500, MemoryHubColors.teal500];
+      case 'health':
+        return [MemoryHubColors.green500, MemoryHubColors.green400];
       default:
-        return [MemoryHubColors.cyan500, MemoryHubColors.cyan400];
+        return [MemoryHubColors.purple500, MemoryHubColors.purple400];
     }
   }
 

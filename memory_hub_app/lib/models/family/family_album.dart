@@ -64,46 +64,34 @@ class FamilyAlbum {
 
 class AlbumPhoto {
   final String id;
-  final String albumId;
   final String photoUrl;
   final String? caption;
-  final String? location;
-  final DateTime? photoDate;
   final String uploadedBy;
   final String? uploadedByName;
   final int likesCount;
-  final int commentsCount;
-  final DateTime createdAt;
+  final DateTime uploadedAt;
 
   AlbumPhoto({
     required this.id,
-    required this.albumId,
     required this.photoUrl,
     this.caption,
-    this.location,
-    this.photoDate,
     required this.uploadedBy,
     this.uploadedByName,
     required this.likesCount,
-    required this.commentsCount,
-    required this.createdAt,
+    required this.uploadedAt,
   });
 
   factory AlbumPhoto.fromJson(Map<String, dynamic> json) {
     return AlbumPhoto(
       id: json['id'] ?? json['_id'] ?? '',
-      albumId: json['album_id'] ?? '',
-      photoUrl: json['photo_url'] ?? '',
+      photoUrl: json['url'] ?? json['photo_url'] ?? '',
       caption: json['caption'],
-      location: json['location'],
-      photoDate: json['photo_date'] != null
-          ? DateTime.parse(json['photo_date'])
-          : null,
       uploadedBy: json['uploaded_by'] ?? '',
       uploadedByName: json['uploaded_by_name'],
       likesCount: json['likes_count'] ?? 0,
-      commentsCount: json['comments_count'] ?? 0,
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+      uploadedAt: DateTime.parse(json['uploaded_at'] ?? DateTime.now().toIso8601String()),
     );
   }
+
+  int get commentsCount => 0;
 }

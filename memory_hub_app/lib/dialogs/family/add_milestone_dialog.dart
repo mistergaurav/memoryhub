@@ -18,18 +18,21 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _personNameController = TextEditingController();
+  final TextEditingController _photoUrlController = TextEditingController();
   
-  String _category = 'achievement';
+  String _milestoneType = 'achievement';
   DateTime _milestoneDate = DateTime.now();
   bool _isLoading = false;
 
-  final List<Map<String, String>> _categories = [
-    {'value': 'achievement', 'label': 'Achievement'},
-    {'value': 'birthday', 'label': 'Birthday'},
-    {'value': 'graduation', 'label': 'Graduation'},
-    {'value': 'anniversary', 'label': 'Anniversary'},
-    {'value': 'first', 'label': 'First Time'},
-    {'value': 'other', 'label': 'Other'},
+  final List<Map<String, dynamic>> _milestoneTypes = [
+    {'value': 'birth', 'label': 'Birth', 'icon': Icons.child_care, 'color': Color(0xFFEC4899)},
+    {'value': 'graduation', 'label': 'Graduation', 'icon': Icons.school, 'color': Color(0xFF8B5CF6)},
+    {'value': 'wedding', 'label': 'Wedding', 'icon': Icons.favorite, 'color': Color(0xFFEF4444)},
+    {'value': 'anniversary', 'label': 'Anniversary', 'icon': Icons.cake, 'color': Color(0xFFF59E0B)},
+    {'value': 'achievement', 'label': 'Achievement', 'icon': Icons.emoji_events, 'color': Color(0xFFEAB308)},
+    {'value': 'first_word', 'label': 'First Word', 'icon': Icons.chat_bubble, 'color': Color(0xFF06B6D4)},
+    {'value': 'first_step', 'label': 'First Step', 'icon': Icons.directions_walk, 'color': Color(0xFF10B981)},
+    {'value': 'other', 'label': 'Other', 'icon': Icons.star, 'color': Color(0xFF6366F1)},
   ];
 
   @override
@@ -37,6 +40,7 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
     _titleController.dispose();
     _descriptionController.dispose();
     _personNameController.dispose();
+    _photoUrlController.dispose();
     super.dispose();
   }
 
@@ -59,12 +63,20 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
 
     setState(() => _isLoading = true);
 
+    final photos = <String>[];
+    if (_photoUrlController.text.trim().isNotEmpty) {
+      photos.add(_photoUrlController.text.trim());
+    }
+
     final data = {
       'title': _titleController.text.trim(),
-      'description': _descriptionController.text.trim(),
-      'category': _category,
+      'description': _descriptionController.text.trim().isNotEmpty 
+          ? _descriptionController.text.trim() 
+          : null,
+      'milestone_type': _milestoneType,
       'milestone_date': _milestoneDate.toIso8601String(),
-      'person_name': _personNameController.text.trim(),
+      'photos': photos,
+      'auto_generated': false,
     };
 
     try {
@@ -74,6 +86,11 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
       }
     } catch (e) {
       setState(() => _isLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to create milestone: $e')),
+        );
+      }
     }
   }
 
@@ -107,65 +124,108 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
               ],
             ),
             const SizedBox(height: 24),
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Title *',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.title),
-                    ),
-                    validator: (value) => value?.trim().isEmpty ?? true ? 'Title is required' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.description),
-                    ),
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: _category,
-                    decoration: const InputDecoration(
-                      labelText: 'Category *',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.category),
-                    ),
-                    items: _categories.map((cat) => DropdownMenuItem(
-                      value: cat['value'],
-                      child: Text(cat['label']!),
-                    )).toList(),
-                    onChanged: (value) => setState(() => _category = value!),
-                  ),
-                  const SizedBox(height: 16),
-                  InkWell(
-                    onTap: _selectDate,
-                    child: InputDecorator(
+            SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _titleController,
                       decoration: const InputDecoration(
-                        labelText: 'Date',
+                        labelText: 'Title *',
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.calendar_today),
+                        prefixIcon: Icon(Icons.title),
+                        hintText: 'e.g., First Day of School',
                       ),
-                      child: Text(DateFormat('MMM d, yyyy').format(_milestoneDate)),
+                      validator: (value) => value?.trim().isEmpty ?? true ? 'Title is required' : null,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _personNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Person Name',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.person),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.description),
+                        hintText: 'Share details about this milestone...',
+                      ),
+                      maxLines: 3,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Milestone Type *',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _milestoneTypes.map((type) {
+                        final isSelected = _milestoneType == type['value'];
+                        return InkWell(
+                          onTap: () => setState(() => _milestoneType = type['value'] as String),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: isSelected ? type['color'] as Color : Colors.grey[100],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isSelected ? type['color'] as Color : Colors.grey[300]!,
+                                width: 2,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  type['icon'] as IconData,
+                                  size: 20,
+                                  color: isSelected ? Colors.white : Colors.grey[700],
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  type['label'] as String,
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : Colors.grey[700],
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    InkWell(
+                      onTap: _selectDate,
+                      child: InputDecorator(
+                        decoration: const InputDecoration(
+                          labelText: 'Date',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.calendar_today),
+                        ),
+                        child: Text(DateFormat('MMM d, yyyy').format(_milestoneDate)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _photoUrlController,
+                      decoration: const InputDecoration(
+                        labelText: 'Photo URL (optional)',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.photo),
+                        hintText: 'https://example.com/photo.jpg',
+                      ),
+                      validator: (value) {
+                        if (value != null && value.isNotEmpty && !Uri.tryParse(value)!.isAbsolute) {
+                          return 'Please enter a valid URL';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 24),

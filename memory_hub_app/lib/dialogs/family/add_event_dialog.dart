@@ -3,10 +3,12 @@ import 'package:intl/intl.dart';
 
 class AddEventDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
+  final Map<String, dynamic>? initialData;
 
   const AddEventDialog({
     Key? key,
     required this.onSubmit,
+    this.initialData,
   }) : super(key: key);
 
   @override
@@ -27,13 +29,17 @@ class _AddEventDialogState extends State<AddEventDialog> {
   TimeOfDay? _endTime;
   int? _reminderMinutes;
   bool _isAllDay = false;
+  bool _isEditMode = false;
 
   final List<Map<String, String>> _eventTypes = [
     {'value': 'birthday', 'label': 'Birthday'},
     {'value': 'anniversary', 'label': 'Anniversary'},
+    {'value': 'death_anniversary', 'label': 'Death Anniversary'},
     {'value': 'gathering', 'label': 'Family Gathering'},
     {'value': 'holiday', 'label': 'Holiday'},
     {'value': 'reminder', 'label': 'Reminder'},
+    {'value': 'meeting', 'label': 'Meeting'},
+    {'value': 'historical_event', 'label': 'Historical Event'},
     {'value': 'other', 'label': 'Other'},
   ];
 
@@ -51,7 +57,52 @@ class _AddEventDialogState extends State<AddEventDialog> {
     {'label': '30 minutes before', 'value': 30},
     {'label': '1 hour before', 'value': 60},
     {'label': '1 day before', 'value': 1440},
+    {'label': '1 week before', 'value': 10080},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _isEditMode = widget.initialData != null;
+    if (_isEditMode) {
+      _loadInitialData();
+    }
+  }
+
+  void _loadInitialData() {
+    final data = widget.initialData!;
+    _titleController.text = data['title'] ?? '';
+    _descriptionController.text = data['description'] ?? '';
+    _locationController.text = data['location'] ?? '';
+    _eventType = data['event_type'] ?? 'other';
+    _recurrence = data['recurrence'] ?? 'none';
+    
+    if (data['event_date'] != null) {
+      try {
+        _startDate = DateTime.parse(data['event_date']);
+        _startTime = TimeOfDay.fromDateTime(_startDate);
+      } catch (e) {
+        _startDate = DateTime.now();
+        _startTime = TimeOfDay.now();
+      }
+    }
+    
+    if (data['end_date'] != null) {
+      try {
+        _endDate = DateTime.parse(data['end_date']);
+        _endTime = TimeOfDay.fromDateTime(_endDate!);
+      } catch (e) {
+        _endDate = null;
+        _endTime = null;
+      }
+    }
+    
+    if (data['reminder_minutes'] != null) {
+      _reminderMinutes = int.tryParse(data['reminder_minutes'].toString());
+    }
+    
+    _isAllDay = data['is_all_day'] ?? false;
+  }
 
   @override
   void dispose() {
@@ -171,10 +222,10 @@ class _AddEventDialogState extends State<AddEventDialog> {
                 children: [
                   const Icon(Icons.event, color: Colors.white, size: 28),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Add Event',
-                      style: TextStyle(
+                      _isEditMode ? 'Edit Event' : 'Add Event',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -422,7 +473,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                         vertical: 12,
                       ),
                     ),
-                    child: const Text('Add Event'),
+                    child: Text(_isEditMode ? 'Save Changes' : 'Add Event'),
                   ),
                 ],
               ),
