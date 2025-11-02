@@ -1008,7 +1008,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           ),
         );
       }
-      _refreshData();
+      _loadDashboard();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

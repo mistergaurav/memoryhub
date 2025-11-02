@@ -718,17 +718,85 @@ async def get_family_dashboard(
             }
         )
         
+        # Recent activity aggregation
+        recent_activity = []
+        for album in recent_albums[:3]:
+            recent_activity.append({
+                "type": "album",
+                "id": album["id"],
+                "title": f"Created album '{album['title']}'",
+                "timestamp": album["created_at"]
+            })
+        for event in upcoming_events[:3]:
+            recent_activity.append({
+                "type": "event",
+                "id": event["id"],
+                "title": f"Upcoming: {event['title']}",
+                "timestamp": event["event_date"]
+            })
+        for milestone in recent_milestones[:3]:
+            recent_activity.append({
+                "type": "milestone",
+                "id": milestone["id"],
+                "title": f"Milestone: {milestone['title']}",
+                "timestamp": milestone["milestone_date"]
+            })
+        
+        # Sort by timestamp and limit to 10 most recent
+        recent_activity.sort(key=lambda x: x["timestamp"], reverse=True)
+        recent_activity = recent_activity[:10]
+        
+        # Quick action buttons
+        quick_actions = [
+            {
+                "id": "create_album",
+                "title": "Create Album",
+                "icon": "photo_album",
+                "route": "/family/albums/create"
+            },
+            {
+                "id": "add_event",
+                "title": "Add Event",
+                "icon": "event",
+                "route": "/family/calendar/create"
+            },
+            {
+                "id": "log_milestone",
+                "title": "Log Milestone",
+                "icon": "celebration",
+                "route": "/family/milestones/create"
+            },
+            {
+                "id": "add_recipe",
+                "title": "Add Recipe",
+                "icon": "restaurant",
+                "route": "/family/recipes/create"
+            },
+            {
+                "id": "view_tree",
+                "title": "Family Tree",
+                "icon": "account_tree",
+                "route": "/family/genealogy"
+            }
+        ]
+        
         return create_success_response(
             message="Dashboard loaded successfully",
             data={
                 "recent_albums": recent_albums,
                 "upcoming_events": upcoming_events,
                 "recent_milestones": recent_milestones,
+                "recent_activity": recent_activity,
+                "quick_actions": quick_actions,
                 "stats": {
                     "family_circles": family_circles_count,
                     "relationships": relationships_count,
                     "albums": len(recent_albums),
-                    "upcoming_events": len(upcoming_events)
+                    "upcoming_events": len(upcoming_events),
+                    "total_albums": len(recent_albums),
+                    "total_events": len(upcoming_events),
+                    "total_milestones": len(recent_milestones),
+                    "total_recipes": 0  # TODO: Add recipes count
                 }
             }
         )

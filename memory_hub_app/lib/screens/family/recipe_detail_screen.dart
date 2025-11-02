@@ -49,7 +49,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
     });
 
     try {
-      final recipe = await _familyService.getRecipe(widget.recipeId);
+      final recipe = await _familyService.getRecipeDetail(widget.recipeId);
       if (!mounted) return;
 
       setState(() {

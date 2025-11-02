@@ -31,9 +31,9 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
       _error = '';
     });
     try {
-      final traditions = await _familyService.getTraditions();
+      final response = await _familyService.getTraditions();
       setState(() {
-        _traditions = traditions;
+        _traditions = response.items;
         _isLoading = false;
       });
     } catch (e) {

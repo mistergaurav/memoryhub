@@ -368,7 +368,8 @@ async def update_health_record(
     if not record_doc:
         raise HTTPException(status_code=404, detail="Health record not found")
     
-    if str(record_doc["family_id"]) != current_user.id:
+    # Check if user created this record or has permission
+    if str(record_doc.get("created_by")) != str(current_user.id) and str(record_doc.get("family_id")) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to update this record")
     
     update_data = {k: v for k, v in record_update.dict(exclude_unset=True).items() if v is not None}
@@ -412,7 +413,8 @@ async def delete_health_record(
     if not record_doc:
         raise HTTPException(status_code=404, detail="Health record not found")
     
-    if str(record_doc["family_id"]) != current_user.id:
+    # Check if user created this record or has permission
+    if str(record_doc.get("created_by")) != str(current_user.id) and str(record_doc.get("family_id")) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to delete this record")
     
     await health_records_repo.delete_by_id(record_id)

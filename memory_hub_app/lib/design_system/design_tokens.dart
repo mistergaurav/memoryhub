@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MemoryHubColors {
+  static const Color primary = Color(0xFF4F46E5);
+  
   static const Color indigo500 = Color(0xFF6366F1);
   static const Color indigo400 = Color(0xFF818CF8);
   static const Color indigo600 = Color(0xFF4F46E5);
@@ -198,4 +200,8 @@ class MemoryHubAnimations {
   static const Curve easeOut = Curves.easeOut;
   static const Curve easeInOut = Curves.easeInOut;
   static const Curve fastOutSlowIn = Curves.fastOutSlowIn;
+}
+
+class DesignTokens {
+  static const Color primaryColor = MemoryHubColors.primary;
 }

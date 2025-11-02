@@ -1,0 +1,28 @@
+[
+  {
+    "test": "Update Health Record",
+    "details": "Status: 403",
+    "bug": {
+      "type": "update_failed",
+      "response": {
+        "error": true,
+        "status_code": 403,
+        "expected": 200,
+        "response": "{\"detail\":\"Not authorized to update this record\"}"
+      }
+    }
+  },
+  {
+    "test": "Delete Health Record",
+    "details": "Status: 403",
+    "bug": {
+      "type": "delete_failed",
+      "response": {
+        "error": true,
+        "status_code": 403,
+        "expected": 200,
+        "response": "{\"detail\":\"Not authorized to delete this record\"}"
+      }
+    }
+  }
+]
