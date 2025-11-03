@@ -12,6 +12,10 @@ Preferred communication style: Simple, everyday language.
 
 **Framework**: FastAPI, utilizing async/await for concurrency.
 **API Structure**: RESTful APIs with versioned endpoints (`/api/v1/`), organized into modular feature modules. Authentication is JWT-based with access/refresh tokens and OAuth2 password bearer.
+**Modular Organization**: Backend refactored into highly maintainable modular structure:
+- **Family Core Endpoints** (`app/api/v1/endpoints/family/core/`): 6 modules (dashboard, relationships, circles, invitations, members, utils), all under 300 lines
+- **Genealogy Endpoints** (`app/api/v1/endpoints/family/genealogy/`): 7 modules (persons, relationships, tree, invitations, search, utils, permissions), all under 500 lines
+- **Repository Layer** (`app/repositories/family/`): 21 single-responsibility repositories for core features, genealogy, family features, and health records
 **Authentication & Security**: Bcrypt for password hashing, JWT for token management, and role-based access control (USER/ADMIN).
 **Data Models**: Pydantic v2 for request/response validation, custom ObjectId handling, Enum-based privacy levels, and validator decorators. Comprehensive audit logging for GDPR compliance is integrated across all family modules.
 
@@ -21,6 +25,7 @@ Preferred communication style: Simple, everyday language.
 **Build System**: Flutter web compiles to JavaScript using the CanvasKit renderer, with service worker integration for offline capabilities.
 **Deployment**: The backend serves the compiled Flutter web application alongside its APIs.
 **State Management**: Provider-based state management with SharedPreferences persistence for theme/user session data.
+**API Client Optimization**: Centralized API client (`memory_hub_app/lib/services/family/api_client.dart`) with built-in caching (5-minute TTL), exponential backoff retry logic (3 retries max), comprehensive error handling, cache invalidation on mutations, and automatic token refresh on 401 errors.
 
 ## Data Storage
 
