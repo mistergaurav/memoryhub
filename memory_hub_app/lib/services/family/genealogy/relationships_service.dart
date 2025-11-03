@@ -1,8 +1,9 @@
 import '../common/family_api_client.dart';
 import '../common/family_exceptions.dart';
+import '../../../models/family/genealogy_relationship.dart';
 
 class GenealogyRelationshipsService extends FamilyApiClient {
-  Future<List<Map<String, dynamic>>> getRelationships({
+  Future<List<GenealogyRelationship>> getRelationships({
     String? personId,
     String? treeId,
     int page = 1,
@@ -24,7 +25,7 @@ class GenealogyRelationshipsService extends FamilyApiClient {
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
-        return items.cast<Map<String, dynamic>>();
+        return items.map((item) => GenealogyRelationship.fromJson(item as Map<String, dynamic>)).toList();
       }
       return [];
     } catch (e) {
@@ -38,7 +39,7 @@ class GenealogyRelationshipsService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> createRelationship(
+  Future<GenealogyRelationship> createRelationship(
     Map<String, dynamic> relationshipData,
   ) async {
     try {
@@ -46,7 +47,7 @@ class GenealogyRelationshipsService extends FamilyApiClient {
         '/api/v1/family/genealogy/relationships',
         body: relationshipData,
       );
-      return data['data'] ?? data;
+      return GenealogyRelationship.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
@@ -72,7 +73,7 @@ class GenealogyRelationshipsService extends FamilyApiClient {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getPersonRelationships(String personId) async {
+  Future<List<GenealogyRelationship>> getPersonRelationships(String personId) async {
     return getRelationships(personId: personId);
   }
 }

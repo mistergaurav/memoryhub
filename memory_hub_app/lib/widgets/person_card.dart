@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'default_avatar.dart';
+import '../models/family/genealogy_person.dart';
 
 class PersonCard extends StatelessWidget {
-  final Map<String, dynamic> person;
+  final GenealogyPerson person;
   final bool isGridView;
 
   const PersonCard({
@@ -18,17 +19,15 @@ class PersonCard extends StatelessWidget {
   }
 
   Widget _buildGridCard(BuildContext context) {
-    final firstName = person['first_name'] ?? '';
-    final lastName = person['last_name'] ?? '';
-    final fullName = '$firstName $lastName'.trim();
-    final birthDate = person['birth_date'];
-    final deathDate = person['death_date'];
-    final photoUrl = person['photo_url'];
-    final gender = person['gender'];
-    final healthRecordsCount = person['health_records_count'] ?? 0;
-    final hereditaryConditions = person['hereditary_conditions'] as List<dynamic>?;
-    final age = person['age'];
-    final lifespan = person['lifespan'];
+    final fullName = person.fullName;
+    final birthDate = person.dateOfBirth;
+    final deathDate = person.dateOfDeath;
+    final photoUrl = person.photoUrl;
+    final gender = person.gender;
+    final healthRecordsCount = person.healthRecordsCount;
+    final hereditaryConditions = person.hereditaryConditions;
+    final age = person.age;
+    final lifespan = person.lifespan;
 
     return Card(
       elevation: 4,
@@ -207,14 +206,12 @@ class PersonCard extends StatelessWidget {
   }
 
   Widget _buildListCard(BuildContext context) {
-    final firstName = person['first_name'] ?? '';
-    final lastName = person['last_name'] ?? '';
-    final fullName = '$firstName $lastName'.trim();
-    final birthDate = person['birth_date'];
-    final deathDate = person['death_date'];
-    final photoUrl = person['photo_url'];
-    final gender = person['gender'];
-    final occupation = person['occupation'];
+    final fullName = person.fullName;
+    final birthDate = person.dateOfBirth;
+    final deathDate = person.dateOfDeath;
+    final photoUrl = person.photoUrl;
+    final gender = person.gender;
+    final occupation = person.occupation;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

@@ -1,8 +1,9 @@
 import '../common/family_api_client.dart';
 import '../common/family_exceptions.dart';
+import '../../../models/family/family_album.dart';
 
 class FamilyAlbumsService extends FamilyApiClient {
-  Future<List<Map<String, dynamic>>> getAlbums({
+  Future<List<FamilyAlbum>> getAlbums({
     int page = 1,
     int limit = 20,
   }) async {
@@ -15,7 +16,7 @@ class FamilyAlbumsService extends FamilyApiClient {
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
-        return items.cast<Map<String, dynamic>>();
+        return items.map((item) => FamilyAlbum.fromJson(item as Map<String, dynamic>)).toList();
       }
       return [];
     } catch (e) {
@@ -29,10 +30,10 @@ class FamilyAlbumsService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> getAlbum(String albumId) async {
+  Future<FamilyAlbum> getAlbum(String albumId) async {
     try {
       final data = await get('/api/v1/family/albums/$albumId', useCache: true);
-      return data['data'] ?? data;
+      return FamilyAlbum.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
@@ -44,10 +45,10 @@ class FamilyAlbumsService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> createAlbum(Map<String, dynamic> albumData) async {
+  Future<FamilyAlbum> createAlbum(Map<String, dynamic> albumData) async {
     try {
       final data = await post('/api/v1/family/albums', body: albumData);
-      return data['data'] ?? data;
+      return FamilyAlbum.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
@@ -59,13 +60,13 @@ class FamilyAlbumsService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> addPhotos(String albumId, List<String> photoUrls) async {
+  Future<FamilyAlbum> addPhotos(String albumId, List<String> photoUrls) async {
     try {
       final data = await post(
         '/api/v1/family/albums/$albumId/photos',
         body: {'photos': photoUrls},
       );
-      return data['data'] ?? data;
+      return FamilyAlbum.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

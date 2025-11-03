@@ -1,8 +1,9 @@
 import '../common/family_api_client.dart';
 import '../common/family_exceptions.dart';
+import '../../../models/family/family_recipe.dart';
 
 class FamilyRecipesService extends FamilyApiClient {
-  Future<List<Map<String, dynamic>>> getRecipes({
+  Future<List<FamilyRecipe>> getRecipes({
     int page = 1,
     int limit = 20,
     String? category,
@@ -18,7 +19,7 @@ class FamilyRecipesService extends FamilyApiClient {
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
-        return items.cast<Map<String, dynamic>>();
+        return items.map((item) => FamilyRecipe.fromJson(item as Map<String, dynamic>)).toList();
       }
       return [];
     } catch (e) {
@@ -32,10 +33,10 @@ class FamilyRecipesService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> getRecipe(String recipeId) async {
+  Future<FamilyRecipe> getRecipe(String recipeId) async {
     try {
       final data = await get('/api/v1/family/recipes/$recipeId', useCache: true);
-      return data['data'] ?? data;
+      return FamilyRecipe.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
@@ -47,10 +48,10 @@ class FamilyRecipesService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> createRecipe(Map<String, dynamic> recipeData) async {
+  Future<FamilyRecipe> createRecipe(Map<String, dynamic> recipeData) async {
     try {
       final data = await post('/api/v1/family/recipes', body: recipeData);
-      return data['data'] ?? data;
+      return FamilyRecipe.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
@@ -62,7 +63,7 @@ class FamilyRecipesService extends FamilyApiClient {
     }
   }
 
-  Future<List<Map<String, dynamic>>> filterByCategory(String category) async {
+  Future<List<FamilyRecipe>> filterByCategory(String category) async {
     return getRecipes(category: category);
   }
 

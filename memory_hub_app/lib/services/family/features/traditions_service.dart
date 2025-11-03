@@ -1,8 +1,9 @@
 import '../common/family_api_client.dart';
 import '../common/family_exceptions.dart';
+import '../../../models/family/family_tradition.dart';
 
 class FamilyTraditionsService extends FamilyApiClient {
-  Future<List<Map<String, dynamic>>> getTraditions({
+  Future<List<FamilyTradition>> getTraditions({
     int page = 1,
     int limit = 20,
   }) async {
@@ -16,7 +17,7 @@ class FamilyTraditionsService extends FamilyApiClient {
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
-        return items.cast<Map<String, dynamic>>();
+        return items.map((item) => FamilyTradition.fromJson(item as Map<String, dynamic>)).toList();
       }
       return [];
     } catch (e) {
@@ -30,10 +31,10 @@ class FamilyTraditionsService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> getTradition(String traditionId) async {
+  Future<FamilyTradition> getTradition(String traditionId) async {
     try {
       final data = await get('/api/v1/family/traditions/$traditionId', useCache: true);
-      return data['data'] ?? data;
+      return FamilyTradition.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
@@ -45,10 +46,10 @@ class FamilyTraditionsService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> createTradition(Map<String, dynamic> traditionData) async {
+  Future<FamilyTradition> createTradition(Map<String, dynamic> traditionData) async {
     try {
       final data = await post('/api/v1/family/traditions', body: traditionData);
-      return data['data'] ?? data;
+      return FamilyTradition.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
@@ -60,10 +61,10 @@ class FamilyTraditionsService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> followTradition(String traditionId) async {
+  Future<FamilyTradition> followTradition(String traditionId) async {
     try {
       final data = await post('/api/v1/family/traditions/$traditionId/follow', body: {});
-      return data['data'] ?? data;
+      return FamilyTradition.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

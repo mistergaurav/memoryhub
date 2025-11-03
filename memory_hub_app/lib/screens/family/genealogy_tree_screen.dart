@@ -3,6 +3,8 @@ import '../../services/family/genealogy/tree_service.dart';
 import '../../services/family/genealogy/persons_service.dart';
 import '../../services/family/genealogy/relationships_service.dart';
 import '../../services/family/common/family_exceptions.dart';
+import '../../models/family/genealogy_person.dart';
+import '../../models/family/genealogy_tree_node.dart';
 import '../../widgets/states/family_loading_state.dart';
 import '../../widgets/states/family_error_state.dart';
 import '../../widgets/states/family_empty_state.dart';
@@ -26,8 +28,8 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
   final GenealogyPersonsService _personsService = GenealogyPersonsService();
   final GenealogyRelationshipsService _relationshipsService = GenealogyRelationshipsService();
   
-  List<Map<String, dynamic>> _persons = [];
-  List<Map<String, dynamic>> _treeNodes = [];
+  List<GenealogyPerson> _persons = [];
+  List<GenealogyTreeNode> _treeNodes = [];
   bool _isLoading = true;
   bool _hasError = false;
   String _errorMessage = '';
@@ -153,12 +155,8 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                   title: 'No Family Members Yet',
                   message: 'Start building your family tree by adding family members.',
                   iconGradient: FamilyColors.genealogyGradient,
-                  actionLabel: 'Add Person',
+                  actionText: 'Add Person',
                   onAction: _showAddPersonDialog,
-                  gradientColors: const [
-                    Color(0xFFF59E0B),
-                    Color(0xFFFBBF24),
-                  ],
                 ),
               )
             else
@@ -220,11 +218,11 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => PersonDetailSheet(person: person, familyService: _familyService),
+      builder: (context) => PersonDetailSheet(person: person, personsService: _personsService),
     );
   }
 
-  void _showPersonMenu(Map<String, dynamic> person) {
+  void _showPersonMenu(GenealogyPerson person) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -274,7 +272,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                 );
                 if (confirm == true && mounted) {
                   try {
-                    await _familyService.deletePerson(person['id']);
+                    await _personsService.deletePerson(person.id);
                     _loadData();
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -307,7 +305,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
     }
   }
 
-  void _showEditPersonDialog(Map<String, dynamic> person) {
+  void _showEditPersonDialog(GenealogyPerson person) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Edit functionality coming soon! For now, please delete and re-add the person.'),
@@ -316,11 +314,11 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
     );
   }
 
-  void _showAddRelationshipDialog(Map<String, dynamic> person) {
+  void _showAddRelationshipDialog(GenealogyPerson person) {
     showDialog(
       context: context,
       builder: (context) => AddRelationshipDialog(
-        persons: _persons,
+        persons: _persons.map((p) => p.toJson()).toList(),
         onSubmit: _handleAddRelationship,
       ),
     );
@@ -328,7 +326,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
 
   Future<void> _handleAddPerson(Map<String, dynamic> data) async {
     try {
-      await _familyService.createPerson(data);
+      await _personsService.createPerson(data);
       _loadData();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -353,7 +351,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
 
   Future<void> _handleEditPerson(String personId, Map<String, dynamic> data) async {
     try {
-      await _familyService.updatePerson(personId, data);
+      await _personsService.updatePerson(personId, data);
       _loadData();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -378,7 +376,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
 
   Future<void> _handleAddRelationship(Map<String, dynamic> data) async {
     try {
-      await _familyService.createRelationship(data);
+      await _relationshipsService.createRelationship(data);
       _loadData();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -404,12 +402,12 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
 
 class PersonDetailSheet extends StatelessWidget {
   final Map<String, dynamic> person;
-  final FamilyService familyService;
+  final GenealogyPersonsService personsService;
 
   const PersonDetailSheet({
     Key? key,
     required this.person,
-    required this.familyService,
+    required this.personsService,
   }) : super(key: key);
 
   @override

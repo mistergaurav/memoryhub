@@ -1,8 +1,9 @@
 import '../common/family_api_client.dart';
 import '../common/family_exceptions.dart';
+import '../../../models/family/family_calendar.dart';
 
 class FamilyCalendarService extends FamilyApiClient {
-  Future<List<Map<String, dynamic>>> getEvents({
+  Future<List<FamilyCalendarEvent>> getEvents({
     int page = 1,
     int limit = 20,
     String? eventType,
@@ -18,7 +19,7 @@ class FamilyCalendarService extends FamilyApiClient {
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
-        return items.cast<Map<String, dynamic>>();
+        return items.map((item) => FamilyCalendarEvent.fromJson(item as Map<String, dynamic>)).toList();
       }
       return [];
     } catch (e) {
@@ -32,7 +33,7 @@ class FamilyCalendarService extends FamilyApiClient {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getBirthdays() async {
+  Future<List<FamilyCalendarEvent>> getBirthdays() async {
     try {
       final data = await get(
         '/api/v1/family/calendar',
@@ -42,7 +43,7 @@ class FamilyCalendarService extends FamilyApiClient {
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
-        return items.cast<Map<String, dynamic>>();
+        return items.map((item) => FamilyCalendarEvent.fromJson(item as Map<String, dynamic>)).toList();
       }
       return [];
     } catch (e) {
@@ -56,10 +57,10 @@ class FamilyCalendarService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> createEvent(Map<String, dynamic> eventData) async {
+  Future<FamilyCalendarEvent> createEvent(Map<String, dynamic> eventData) async {
     try {
       final data = await post('/api/v1/family/calendar', body: eventData);
-      return data['data'] ?? data;
+      return FamilyCalendarEvent.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

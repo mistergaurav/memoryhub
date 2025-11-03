@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../services/family/core/dashboard_service.dart';
 import '../../services/family/features/timeline_service.dart';
+import '../../services/family/features/albums_service.dart';
+import '../../services/family/features/calendar_service.dart';
+import '../../services/family/features/milestones_service.dart';
+import '../../services/family/features/recipes_service.dart';
+import '../../services/family/features/letters_service.dart';
 import '../../services/family/common/family_exceptions.dart';
+import '../../models/family/family_timeline.dart';
 import '../../widgets/states/family_loading_state.dart';
 import '../../widgets/states/family_error_state.dart';
 import '../../widgets/states/family_empty_state.dart';
+import '../../widgets/enhanced_empty_state.dart';
 import '../../widgets/hero_header.dart';
 import '../../widgets/quick_action_tile.dart';
 import '../../widgets/stat_card.dart';
@@ -41,11 +48,16 @@ class FamilyHubDashboardScreen extends StatefulWidget {
 class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> with TickerProviderStateMixin {
   final FamilyDashboardService _dashboardService = FamilyDashboardService();
   final FamilyTimelineService _timelineService = FamilyTimelineService();
+  final FamilyAlbumsService _albumsService = FamilyAlbumsService();
+  final FamilyCalendarService _calendarService = FamilyCalendarService();
+  final FamilyMilestonesService _milestonesService = FamilyMilestonesService();
+  final FamilyRecipesService _recipesService = FamilyRecipesService();
+  final FamilyLettersService _lettersService = FamilyLettersService();
   bool _isLoading = true;
   bool _hasError = false;
   String _errorMessage = '';
   Map<String, dynamic> _dashboardData = {};
-  List<Map<String, dynamic>> _recentActivities = [];
+  List<TimelineEvent> _recentActivities = [];
   bool _isFabExpanded = false;
   late AnimationController _fabController;
 
@@ -1000,47 +1012,23 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
 
   Future<void> _createAlbum(Map<String, dynamic> data) async {
     await _handleAction(
-      () => _familyService.createAlbum(data),
+      () => _albumsService.createAlbum(data),
       'Album created successfully',
       'Failed to create album',
     );
   }
 
   Future<void> _createEvent(Map<String, dynamic> data) async {
-    try {
-      final result = await _familyService.createCalendarEvent(data);
-      final conflicts = result['conflicts'] ?? 0;
-      final warning = result['conflict_warning'];
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              conflicts > 0 && warning != null
-                  ? warning
-                  : 'Event created successfully',
-            ),
-            backgroundColor: conflicts > 0 ? Colors.orange : Colors.green,
-            duration: Duration(seconds: conflicts > 0 ? 4 : 2),
-          ),
-        );
-      }
-      _loadDashboard();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to create event: ${e.toString().replaceAll('Exception: ', '')}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
+    await _handleAction(
+      () => _calendarService.createEvent(data),
+      'Event created successfully',
+      'Failed to create event',
+    );
   }
 
   Future<void> _createMilestone(Map<String, dynamic> data) async {
     await _handleAction(
-      () => _familyService.createMilestone(data),
+      () => _milestonesService.createMilestone(data),
       'Milestone created successfully',
       'Failed to create milestone',
     );
@@ -1048,7 +1036,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
 
   Future<void> _createRecipe(Map<String, dynamic> data) async {
     await _handleAction(
-      () => _familyService.createRecipe(data),
+      () => _recipesService.createRecipe(data),
       'Recipe created successfully',
       'Failed to create recipe',
     );
@@ -1056,7 +1044,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
 
   Future<void> _createLegacyLetter(Map<String, dynamic> data) async {
     await _handleAction(
-      () => _familyService.createLegacyLetter(data),
+      () => _lettersService.createLetter(data),
       'Legacy letter created successfully',
       'Failed to create legacy letter',
     );

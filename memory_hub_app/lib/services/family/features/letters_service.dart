@@ -1,8 +1,9 @@
 import '../common/family_api_client.dart';
 import '../common/family_exceptions.dart';
+import '../../../models/family/legacy_letter.dart';
 
 class FamilyLettersService extends FamilyApiClient {
-  Future<List<Map<String, dynamic>>> getLetters({
+  Future<List<LegacyLetter>> getLetters({
     int page = 1,
     int limit = 20,
   }) async {
@@ -16,7 +17,7 @@ class FamilyLettersService extends FamilyApiClient {
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
-        return items.cast<Map<String, dynamic>>();
+        return items.map((item) => LegacyLetter.fromJson(item as Map<String, dynamic>)).toList();
       }
       return [];
     } catch (e) {
@@ -30,10 +31,10 @@ class FamilyLettersService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> getLetter(String letterId) async {
+  Future<LegacyLetter> getLetter(String letterId) async {
     try {
       final data = await get('/api/v1/family/legacy-letters/$letterId', useCache: true);
-      return data['data'] ?? data;
+      return LegacyLetter.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
@@ -45,10 +46,10 @@ class FamilyLettersService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> createLetter(Map<String, dynamic> letterData) async {
+  Future<LegacyLetter> createLetter(Map<String, dynamic> letterData) async {
     try {
       final data = await post('/api/v1/family/legacy-letters', body: letterData);
-      return data['data'] ?? data;
+      return LegacyLetter.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
@@ -60,13 +61,13 @@ class FamilyLettersService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> sendLetter(String letterId, String recipientId) async {
+  Future<LegacyLetter> sendLetter(String letterId, String recipientId) async {
     try {
       final data = await post(
         '/api/v1/family/legacy-letters/$letterId/send',
         body: {'recipient_id': recipientId},
       );
-      return data['data'] ?? data;
+      return LegacyLetter.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

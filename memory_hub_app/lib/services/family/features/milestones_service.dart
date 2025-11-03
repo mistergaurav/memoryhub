@@ -1,8 +1,9 @@
 import '../common/family_api_client.dart';
 import '../common/family_exceptions.dart';
+import '../../../models/family/family_milestone.dart';
 
 class FamilyMilestonesService extends FamilyApiClient {
-  Future<List<Map<String, dynamic>>> getMilestones({
+  Future<List<FamilyMilestone>> getMilestones({
     int page = 1,
     int limit = 20,
     String? milestoneType,
@@ -18,7 +19,7 @@ class FamilyMilestonesService extends FamilyApiClient {
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
-        return items.cast<Map<String, dynamic>>();
+        return items.map((item) => FamilyMilestone.fromJson(item as Map<String, dynamic>)).toList();
       }
       return [];
     } catch (e) {
@@ -32,10 +33,10 @@ class FamilyMilestonesService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> createMilestone(Map<String, dynamic> milestoneData) async {
+  Future<FamilyMilestone> createMilestone(Map<String, dynamic> milestoneData) async {
     try {
       final data = await post('/api/v1/family/milestones', body: milestoneData);
-      return data['data'] ?? data;
+      return FamilyMilestone.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
@@ -47,10 +48,10 @@ class FamilyMilestonesService extends FamilyApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> likeMilestone(String milestoneId) async {
+  Future<FamilyMilestone> likeMilestone(String milestoneId) async {
     try {
       final data = await post('/api/v1/family/milestones/$milestoneId/like', body: {});
-      return data['data'] ?? data;
+      return FamilyMilestone.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

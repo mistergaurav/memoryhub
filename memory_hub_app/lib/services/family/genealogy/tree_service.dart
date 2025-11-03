@@ -1,5 +1,6 @@
 import '../common/family_api_client.dart';
 import '../common/family_exceptions.dart';
+import '../../../models/family/genealogy_tree_node.dart';
 
 class GenealogyTreeService extends FamilyApiClient {
   Future<Map<String, dynamic>> getTree({String? treeId}) async {
@@ -21,12 +22,12 @@ class GenealogyTreeService extends FamilyApiClient {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getTreeNodes({String? treeId}) async {
+  Future<List<GenealogyTreeNode>> getTreeNodes({String? treeId}) async {
     try {
       final tree = await getTree(treeId: treeId);
       final data = tree['data'] ?? tree;
       if (data is List) {
-        return data.cast<Map<String, dynamic>>();
+        return data.map((node) => GenealogyTreeNode.fromJson(node as Map<String, dynamic>)).toList();
       }
       return [];
     } catch (e) {
