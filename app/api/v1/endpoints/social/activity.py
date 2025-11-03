@@ -9,6 +9,16 @@ from app.db.mongodb import get_collection
 
 router = APIRouter()
 
+@router.get("/")
+async def get_activity(
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Get activity feed (alias for /feed endpoint for frontend compatibility)"""
+    return await get_activity_feed(page=page, limit=limit, current_user=current_user)
+
+
 @router.get("/feed")
 async def get_activity_feed(
     page: int = Query(1, ge=1),

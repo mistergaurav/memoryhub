@@ -72,6 +72,30 @@ async def get_family_timeline(
         return result
 
 
+@router.get("/events")
+async def get_family_timeline_events(
+    person_id: Optional[str] = None,
+    circle_id: Optional[str] = None,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
+    event_types: Optional[str] = None,
+    page: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(20, ge=1, le=100, description="Items per page"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Get family timeline events (alias for root endpoint for frontend compatibility)"""
+    return await get_family_timeline(
+        person_id=person_id,
+        circle_id=circle_id,
+        start_date=start_date,
+        end_date=end_date,
+        event_types=event_types,
+        page=page,
+        page_size=limit,
+        current_user=current_user
+    )
+
+
 @router.get("/stats")
 async def get_timeline_stats(
     current_user: UserInDB = Depends(get_current_user)
