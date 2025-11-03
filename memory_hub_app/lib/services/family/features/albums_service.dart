@@ -9,7 +9,7 @@ class FamilyAlbumsService extends FamilyApiClient {
   }) async {
     try {
       final data = await get(
-        '/api/v1/family/albums',
+        '/family/albums',
         params: {'page': page.toString(), 'limit': limit.toString()},
         useCache: true,
       );
@@ -32,7 +32,7 @@ class FamilyAlbumsService extends FamilyApiClient {
 
   Future<FamilyAlbum> getAlbum(String albumId) async {
     try {
-      final data = await get('/api/v1/family/albums/$albumId', useCache: true);
+      final data = await get('/family/albums/$albumId', useCache: true);
       return FamilyAlbum.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -47,7 +47,7 @@ class FamilyAlbumsService extends FamilyApiClient {
 
   Future<FamilyAlbum> createAlbum(Map<String, dynamic> albumData) async {
     try {
-      final data = await post('/api/v1/family/albums', body: albumData);
+      final data = await post('/family/albums', body: albumData);
       return FamilyAlbum.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -63,7 +63,7 @@ class FamilyAlbumsService extends FamilyApiClient {
   Future<FamilyAlbum> addPhotos(String albumId, List<String> photoUrls) async {
     try {
       final data = await post(
-        '/api/v1/family/albums/$albumId/photos',
+        '/family/albums/$albumId/photos',
         body: {'photos': photoUrls},
       );
       return FamilyAlbum.fromJson(data['data'] ?? data);
@@ -80,7 +80,7 @@ class FamilyAlbumsService extends FamilyApiClient {
 
   Future<void> deleteAlbum(String albumId) async {
     try {
-      await delete('/api/v1/family/albums/$albumId');
+      await delete('/family/albums/$albumId');
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

@@ -13,7 +13,7 @@ class GenealogyInvitationsService extends FamilyApiClient {
       };
       
       final data = await get(
-        '/api/v1/family/genealogy/invitations',
+        '/family/genealogy/invitations',
         params: params,
         useCache: true,
       );
@@ -39,7 +39,7 @@ class GenealogyInvitationsService extends FamilyApiClient {
   ) async {
     try {
       final data = await post(
-        '/api/v1/family/genealogy/invitations',
+        '/family/genealogy/invitations',
         body: invitationData,
       );
       return data['data'] ?? data;
@@ -60,7 +60,7 @@ class GenealogyInvitationsService extends FamilyApiClient {
   ) async {
     try {
       final data = await post(
-        '/api/v1/family/genealogy/invitations/$invitationId/respond',
+        '/family/genealogy/invitations/$invitationId/respond',
         body: {'action': action},
       );
       return data['data'] ?? data;
@@ -77,7 +77,7 @@ class GenealogyInvitationsService extends FamilyApiClient {
 
   Future<void> deleteInvitation(String invitationId) async {
     try {
-      await delete('/api/v1/family/genealogy/invitations/$invitationId');
+      await delete('/family/genealogy/invitations/$invitationId');
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

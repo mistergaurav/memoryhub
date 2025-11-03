@@ -23,9 +23,9 @@ Preferred communication style: Simple, everyday language.
 
 **Framework**: Flutter, enabling cross-platform web deployment.
 **Build System**: Flutter web compiles to JavaScript using the CanvasKit renderer, with service worker integration for offline capabilities.
-**Deployment**: The backend serves the compiled Flutter web application alongside its APIs.
+**Deployment**: Single-port architecture - FastAPI backend (port 5000) serves both API endpoints (`/api/v1/*`) and Flutter static files. This consolidation enables relative API URLs in the frontend and eliminates CORS complexity.
 **State Management**: Provider-based state management with SharedPreferences persistence for theme/user session data.
-**API Client Optimization**: Centralized API client (`memory_hub_app/lib/services/family/api_client.dart`) with built-in caching (5-minute TTL), exponential backoff retry logic (3 retries max), comprehensive error handling, cache invalidation on mutations, and automatic token refresh on 401 errors.
+**API Client Optimization**: Centralized API client (`memory_hub_app/lib/services/family/api_client.dart`) with built-in caching (5-minute TTL), exponential backoff retry logic (3 retries max), comprehensive error handling, cache invalidation on mutations, and automatic token refresh on 401 errors. Uses relative URLs (`/api/v1/*`) for seamless same-origin requests.
 
 ## Data Storage
 

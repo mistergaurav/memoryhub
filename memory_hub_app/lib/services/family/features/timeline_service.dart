@@ -16,7 +16,7 @@ class FamilyTimelineService extends FamilyApiClient {
       };
       
       final data = await get(
-        '/api/v1/family/timeline/events',
+        '/family/timeline/events',
         params: params,
         useCache: true,
       );
@@ -39,7 +39,7 @@ class FamilyTimelineService extends FamilyApiClient {
 
   Future<TimelineEvent> getEvent(String eventId) async {
     try {
-      final data = await get('/api/v1/family/timeline/events/$eventId', useCache: true);
+      final data = await get('/family/timeline/events/$eventId', useCache: true);
       final eventData = data['data'] ?? data;
       return TimelineEvent.fromJson(eventData as Map<String, dynamic>);
     } catch (e) {
@@ -55,7 +55,7 @@ class FamilyTimelineService extends FamilyApiClient {
 
   Future<TimelineEvent> createEvent(Map<String, dynamic> eventData) async {
     try {
-      final data = await post('/api/v1/family/timeline/events', body: eventData);
+      final data = await post('/family/timeline/events', body: eventData);
       final eventResponse = data['data'] ?? data;
       return TimelineEvent.fromJson(eventResponse as Map<String, dynamic>);
     } catch (e) {
@@ -71,7 +71,7 @@ class FamilyTimelineService extends FamilyApiClient {
 
   Future<void> deleteEvent(String eventId) async {
     try {
-      await delete('/api/v1/family/timeline/events/$eventId');
+      await delete('/family/timeline/events/$eventId');
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

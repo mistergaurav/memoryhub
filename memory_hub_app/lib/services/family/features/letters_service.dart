@@ -13,7 +13,7 @@ class FamilyLettersService extends FamilyApiClient {
         'limit': limit.toString(),
       };
       
-      final data = await get('/api/v1/family/legacy-letters', params: params, useCache: true);
+      final data = await get('/family/legacy-letters', params: params, useCache: true);
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
@@ -33,7 +33,7 @@ class FamilyLettersService extends FamilyApiClient {
 
   Future<LegacyLetter> getLetter(String letterId) async {
     try {
-      final data = await get('/api/v1/family/legacy-letters/$letterId', useCache: true);
+      final data = await get('/family/legacy-letters/$letterId', useCache: true);
       return LegacyLetter.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -48,7 +48,7 @@ class FamilyLettersService extends FamilyApiClient {
 
   Future<LegacyLetter> createLetter(Map<String, dynamic> letterData) async {
     try {
-      final data = await post('/api/v1/family/legacy-letters', body: letterData);
+      final data = await post('/family/legacy-letters', body: letterData);
       return LegacyLetter.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -64,7 +64,7 @@ class FamilyLettersService extends FamilyApiClient {
   Future<LegacyLetter> sendLetter(String letterId, String recipientId) async {
     try {
       final data = await post(
-        '/api/v1/family/legacy-letters/$letterId/send',
+        '/family/legacy-letters/$letterId/send',
         body: {'recipient_id': recipientId},
       );
       return LegacyLetter.fromJson(data['data'] ?? data);
@@ -81,7 +81,7 @@ class FamilyLettersService extends FamilyApiClient {
 
   Future<void> deleteLetter(String letterId) async {
     try {
-      await delete('/api/v1/family/legacy-letters/$letterId');
+      await delete('/family/legacy-letters/$letterId');
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

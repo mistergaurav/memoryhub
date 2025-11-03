@@ -5,7 +5,7 @@ import '../../../models/family/health_record.dart';
 class FamilyHealthRecordsService extends FamilyApiClient {
   Future<Map<String, dynamic>> getDashboard() async {
     try {
-      final data = await get('/api/v1/family/health-records/dashboard', useCache: true);
+      final data = await get('/family/health-records/dashboard', useCache: true);
       return data['data'] ?? data;
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -30,7 +30,7 @@ class FamilyHealthRecordsService extends FamilyApiClient {
         if (recordType != null) 'record_type': recordType,
       };
       
-      final data = await get('/api/v1/family/health-records', params: params, useCache: true);
+      final data = await get('/family/health-records', params: params, useCache: true);
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
@@ -50,7 +50,7 @@ class FamilyHealthRecordsService extends FamilyApiClient {
 
   Future<HealthRecord> createRecord(Map<String, dynamic> recordData) async {
     try {
-      final data = await post('/api/v1/family/health-records', body: recordData);
+      final data = await post('/family/health-records', body: recordData);
       return HealthRecord.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -65,7 +65,7 @@ class FamilyHealthRecordsService extends FamilyApiClient {
 
   Future<void> deleteRecord(String recordId) async {
     try {
-      await delete('/api/v1/family/health-records/$recordId');
+      await delete('/family/health-records/$recordId');
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

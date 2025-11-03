@@ -6,8 +6,8 @@ class GenealogyTreeService extends FamilyApiClient {
   Future<Map<String, dynamic>> getTree({String? treeId}) async {
     try {
       final endpoint = treeId != null 
-          ? '/api/v1/family/genealogy/tree/$treeId'
-          : '/api/v1/family/genealogy/tree';
+          ? '/family/genealogy/tree/$treeId'
+          : '/family/genealogy/tree';
       
       final data = await get(endpoint, useCache: true);
       return data['data'] ?? data;
@@ -44,7 +44,7 @@ class GenealogyTreeService extends FamilyApiClient {
   Future<Map<String, dynamic>> buildTree(String userId) async {
     try {
       final data = await post(
-        '/api/v1/family/genealogy/tree/build',
+        '/family/genealogy/tree/build',
         body: {'user_id': userId},
       );
       return data['data'] ?? data;
@@ -62,8 +62,8 @@ class GenealogyTreeService extends FamilyApiClient {
   Future<List<Map<String, dynamic>>> getTreeMembers({String? treeId}) async {
     try {
       final endpoint = treeId != null
-          ? '/api/v1/family/genealogy/tree/members?tree_id=$treeId'
-          : '/api/v1/family/genealogy/tree/members';
+          ? '/family/genealogy/tree/members?tree_id=$treeId'
+          : '/family/genealogy/tree/members';
       
       final data = await get(endpoint, useCache: true);
       

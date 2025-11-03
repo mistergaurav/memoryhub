@@ -16,7 +16,7 @@ class GenealogyPersonsService extends FamilyApiClient {
       };
       
       final data = await get(
-        '/api/v1/family/genealogy/persons',
+        '/family/genealogy/persons',
         params: params,
         useCache: true,
       );
@@ -39,7 +39,7 @@ class GenealogyPersonsService extends FamilyApiClient {
 
   Future<GenealogyPerson> getPerson(String personId) async {
     try {
-      final data = await get('/api/v1/family/genealogy/persons/$personId', useCache: true);
+      final data = await get('/family/genealogy/persons/$personId', useCache: true);
       return GenealogyPerson.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -54,7 +54,7 @@ class GenealogyPersonsService extends FamilyApiClient {
 
   Future<GenealogyPerson> createPerson(Map<String, dynamic> personData) async {
     try {
-      final data = await post('/api/v1/family/genealogy/persons', body: personData);
+      final data = await post('/family/genealogy/persons', body: personData);
       return GenealogyPerson.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -73,7 +73,7 @@ class GenealogyPersonsService extends FamilyApiClient {
   ) async {
     try {
       final data = await put(
-        '/api/v1/family/genealogy/persons/$personId',
+        '/family/genealogy/persons/$personId',
         body: personData,
       );
       return GenealogyPerson.fromJson(data['data'] ?? data);
@@ -90,7 +90,7 @@ class GenealogyPersonsService extends FamilyApiClient {
 
   Future<void> deletePerson(String personId) async {
     try {
-      await delete('/api/v1/family/genealogy/persons/$personId');
+      await delete('/family/genealogy/persons/$personId');
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
@@ -105,7 +105,7 @@ class GenealogyPersonsService extends FamilyApiClient {
   Future<List<GenealogyPerson>> searchPersons(String query) async {
     try {
       final data = await get(
-        '/api/v1/family/genealogy/persons/search',
+        '/family/genealogy/persons/search',
         params: {'q': query},
         useCache: true,
       );

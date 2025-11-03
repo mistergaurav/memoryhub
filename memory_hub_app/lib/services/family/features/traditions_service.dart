@@ -13,7 +13,7 @@ class FamilyTraditionsService extends FamilyApiClient {
         'limit': limit.toString(),
       };
       
-      final data = await get('/api/v1/family/traditions', params: params, useCache: true);
+      final data = await get('/family/traditions', params: params, useCache: true);
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
@@ -33,7 +33,7 @@ class FamilyTraditionsService extends FamilyApiClient {
 
   Future<FamilyTradition> getTradition(String traditionId) async {
     try {
-      final data = await get('/api/v1/family/traditions/$traditionId', useCache: true);
+      final data = await get('/family/traditions/$traditionId', useCache: true);
       return FamilyTradition.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -48,7 +48,7 @@ class FamilyTraditionsService extends FamilyApiClient {
 
   Future<FamilyTradition> createTradition(Map<String, dynamic> traditionData) async {
     try {
-      final data = await post('/api/v1/family/traditions', body: traditionData);
+      final data = await post('/family/traditions', body: traditionData);
       return FamilyTradition.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -63,7 +63,7 @@ class FamilyTraditionsService extends FamilyApiClient {
 
   Future<FamilyTradition> followTradition(String traditionId) async {
     try {
-      final data = await post('/api/v1/family/traditions/$traditionId/follow', body: {});
+      final data = await post('/family/traditions/$traditionId/follow', body: {});
       return FamilyTradition.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -78,7 +78,7 @@ class FamilyTraditionsService extends FamilyApiClient {
 
   Future<void> deleteTradition(String traditionId) async {
     try {
-      await delete('/api/v1/family/traditions/$traditionId');
+      await delete('/family/traditions/$traditionId');
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

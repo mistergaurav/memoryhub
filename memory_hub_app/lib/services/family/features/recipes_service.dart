@@ -15,7 +15,7 @@ class FamilyRecipesService extends FamilyApiClient {
         if (category != null) 'category': category,
       };
       
-      final data = await get('/api/v1/family/recipes', params: params, useCache: true);
+      final data = await get('/family/recipes', params: params, useCache: true);
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
@@ -35,7 +35,7 @@ class FamilyRecipesService extends FamilyApiClient {
 
   Future<FamilyRecipe> getRecipe(String recipeId) async {
     try {
-      final data = await get('/api/v1/family/recipes/$recipeId', useCache: true);
+      final data = await get('/family/recipes/$recipeId', useCache: true);
       return FamilyRecipe.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -50,7 +50,7 @@ class FamilyRecipesService extends FamilyApiClient {
 
   Future<FamilyRecipe> createRecipe(Map<String, dynamic> recipeData) async {
     try {
-      final data = await post('/api/v1/family/recipes', body: recipeData);
+      final data = await post('/family/recipes', body: recipeData);
       return FamilyRecipe.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -69,7 +69,7 @@ class FamilyRecipesService extends FamilyApiClient {
 
   Future<void> deleteRecipe(String recipeId) async {
     try {
-      await delete('/api/v1/family/recipes/$recipeId');
+      await delete('/family/recipes/$recipeId');
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

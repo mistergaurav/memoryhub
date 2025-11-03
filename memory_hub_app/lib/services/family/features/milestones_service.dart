@@ -15,7 +15,7 @@ class FamilyMilestonesService extends FamilyApiClient {
         if (milestoneType != null) 'milestone_type': milestoneType,
       };
       
-      final data = await get('/api/v1/family/milestones', params: params, useCache: true);
+      final data = await get('/family/milestones', params: params, useCache: true);
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
@@ -35,7 +35,7 @@ class FamilyMilestonesService extends FamilyApiClient {
 
   Future<FamilyMilestone> createMilestone(Map<String, dynamic> milestoneData) async {
     try {
-      final data = await post('/api/v1/family/milestones', body: milestoneData);
+      final data = await post('/family/milestones', body: milestoneData);
       return FamilyMilestone.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -50,7 +50,7 @@ class FamilyMilestonesService extends FamilyApiClient {
 
   Future<FamilyMilestone> likeMilestone(String milestoneId) async {
     try {
-      final data = await post('/api/v1/family/milestones/$milestoneId/like', body: {});
+      final data = await post('/family/milestones/$milestoneId/like', body: {});
       return FamilyMilestone.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -65,7 +65,7 @@ class FamilyMilestonesService extends FamilyApiClient {
 
   Future<void> deleteMilestone(String milestoneId) async {
     try {
-      await delete('/api/v1/family/milestones/$milestoneId');
+      await delete('/family/milestones/$milestoneId');
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

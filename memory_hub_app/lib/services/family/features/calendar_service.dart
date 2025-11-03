@@ -15,7 +15,7 @@ class FamilyCalendarService extends FamilyApiClient {
         if (eventType != null) 'event_type': eventType,
       };
       
-      final data = await get('/api/v1/family/calendar', params: params, useCache: true);
+      final data = await get('/family/calendar', params: params, useCache: true);
       
       final items = data['data'] ?? data['items'] ?? [];
       if (items is List) {
@@ -36,7 +36,7 @@ class FamilyCalendarService extends FamilyApiClient {
   Future<List<FamilyCalendarEvent>> getBirthdays() async {
     try {
       final data = await get(
-        '/api/v1/family/calendar',
+        '/family/calendar',
         params: {'event_type': 'birthday'},
         useCache: true,
       );
@@ -59,7 +59,7 @@ class FamilyCalendarService extends FamilyApiClient {
 
   Future<FamilyCalendarEvent> createEvent(Map<String, dynamic> eventData) async {
     try {
-      final data = await post('/api/v1/family/calendar', body: eventData);
+      final data = await post('/family/calendar', body: eventData);
       return FamilyCalendarEvent.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -74,7 +74,7 @@ class FamilyCalendarService extends FamilyApiClient {
 
   Future<void> deleteEvent(String eventId) async {
     try {
-      await delete('/api/v1/family/calendar/$eventId');
+      await delete('/family/calendar/$eventId');
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;

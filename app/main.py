@@ -71,9 +71,18 @@ if os.path.exists(flutter_build_path):
         
         file_path = os.path.join(flutter_build_path, full_path)
         if os.path.isfile(file_path):
-            return FileResponse(file_path)
+            response = FileResponse(file_path)
+            # Disable caching for Flutter app files to ensure updates are immediately visible
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+            return response
         else:
-            return FileResponse(os.path.join(flutter_build_path, "index.html"))
+            response = FileResponse(os.path.join(flutter_build_path, "index.html"))
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+            return response
 else:
     @app.get("/")
     async def root():

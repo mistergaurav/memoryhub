@@ -4,7 +4,7 @@ import '../common/family_exceptions.dart';
 class FamilyDashboardService extends FamilyApiClient {
   Future<Map<String, dynamic>> getFamilyDashboard() async {
     try {
-      final data = await get('/api/v1/family/dashboard', useCache: true);
+      final data = await get('/family/dashboard', useCache: true);
       
       if (data['data'] != null) {
         return data['data'] as Map<String, dynamic>;

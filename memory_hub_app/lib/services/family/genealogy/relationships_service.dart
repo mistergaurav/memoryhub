@@ -18,7 +18,7 @@ class GenealogyRelationshipsService extends FamilyApiClient {
       };
       
       final data = await get(
-        '/api/v1/family/genealogy/relationships',
+        '/family/genealogy/relationships',
         params: params,
         useCache: true,
       );
@@ -44,7 +44,7 @@ class GenealogyRelationshipsService extends FamilyApiClient {
   ) async {
     try {
       final data = await post(
-        '/api/v1/family/genealogy/relationships',
+        '/family/genealogy/relationships',
         body: relationshipData,
       );
       return GenealogyRelationship.fromJson(data['data'] ?? data);
@@ -61,7 +61,7 @@ class GenealogyRelationshipsService extends FamilyApiClient {
 
   Future<void> deleteRelationship(String relationshipId) async {
     try {
-      await delete('/api/v1/family/genealogy/relationships/$relationshipId');
+      await delete('/family/genealogy/relationships/$relationshipId');
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
