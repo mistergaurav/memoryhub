@@ -1,0 +1,78 @@
+import '../common/family_api_client.dart';
+import '../common/family_exceptions.dart';
+
+class FamilyHealthRecordsService extends FamilyApiClient {
+  Future<Map<String, dynamic>> getDashboard() async {
+    try {
+      final data = await get('/api/v1/family/health-records/dashboard', useCache: true);
+      return data['data'] ?? data;
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to load health dashboard',
+        originalError: e,
+      );
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getRecords({
+    int page = 1,
+    int limit = 20,
+    String? recordType,
+  }) async {
+    try {
+      final params = {
+        'page': page.toString(),
+        'limit': limit.toString(),
+        if (recordType != null) 'record_type': recordType,
+      };
+      
+      final data = await get('/api/v1/family/health-records', params: params, useCache: true);
+      
+      final items = data['data'] ?? data['items'] ?? [];
+      if (items is List) {
+        return items.cast<Map<String, dynamic>>();
+      }
+      return [];
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to load health records',
+        originalError: e,
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> createRecord(Map<String, dynamic> recordData) async {
+    try {
+      final data = await post('/api/v1/family/health-records', body: recordData);
+      return data['data'] ?? data;
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to create health record',
+        originalError: e,
+      );
+    }
+  }
+
+  Future<void> deleteRecord(String recordId) async {
+    try {
+      await delete('/api/v1/family/health-records/$recordId');
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to delete health record',
+        originalError: e,
+      );
+    }
+  }
+}

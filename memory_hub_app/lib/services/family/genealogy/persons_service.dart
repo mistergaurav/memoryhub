@@ -1,0 +1,127 @@
+import '../common/family_api_client.dart';
+import '../common/family_exceptions.dart';
+
+class GenealogyPersonsService extends FamilyApiClient {
+  Future<List<Map<String, dynamic>>> getPersons({
+    int page = 1,
+    int limit = 100,
+    String? treeId,
+  }) async {
+    try {
+      final params = {
+        'page': page.toString(),
+        'limit': limit.toString(),
+        if (treeId != null) 'tree_id': treeId,
+      };
+      
+      final data = await get(
+        '/api/v1/family/genealogy/persons',
+        params: params,
+        useCache: true,
+      );
+      
+      final items = data['data'] ?? data['items'] ?? [];
+      if (items is List) {
+        return items.cast<Map<String, dynamic>>();
+      }
+      return [];
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to load persons',
+        originalError: e,
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> getPerson(String personId) async {
+    try {
+      final data = await get('/api/v1/family/genealogy/persons/$personId', useCache: true);
+      return data['data'] ?? data;
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to load person',
+        originalError: e,
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> createPerson(Map<String, dynamic> personData) async {
+    try {
+      final data = await post('/api/v1/family/genealogy/persons', body: personData);
+      return data['data'] ?? data;
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to create person',
+        originalError: e,
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> updatePerson(
+    String personId,
+    Map<String, dynamic> personData,
+  ) async {
+    try {
+      final data = await put(
+        '/api/v1/family/genealogy/persons/$personId',
+        body: personData,
+      );
+      return data['data'] ?? data;
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to update person',
+        originalError: e,
+      );
+    }
+  }
+
+  Future<void> deletePerson(String personId) async {
+    try {
+      await delete('/api/v1/family/genealogy/persons/$personId');
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to delete person',
+        originalError: e,
+      );
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> searchPersons(String query) async {
+    try {
+      final data = await get(
+        '/api/v1/family/genealogy/persons/search',
+        params: {'q': query},
+        useCache: true,
+      );
+      
+      final items = data['data'] ?? data['items'] ?? [];
+      if (items is List) {
+        return items.cast<Map<String, dynamic>>();
+      }
+      return [];
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to search persons',
+        originalError: e,
+      );
+    }
+  }
+}

@@ -14,7 +14,7 @@ import '../../models/family/parental_control.dart';
 import '../../models/family/family_calendar.dart';
 import '../../models/family/paginated_response.dart';
 import '../../models/user_search_result.dart';
-import 'exceptions.dart';
+import 'common/family_exceptions.dart';
 
 class FamilyService {
   static String get baseUrl => ApiConfig.baseUrl;

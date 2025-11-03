@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import '../auth_service.dart';
-import '../../config/api_config.dart';
-import 'exceptions.dart';
+import '../../auth_service.dart';
+import '../../../config/api_config.dart';
+import 'family_exceptions.dart';
 
 class FamilyApiClient {
   final AuthService _authService = AuthService();

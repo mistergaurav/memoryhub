@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../services/family/family_service.dart';
-import '../../models/family/family_timeline.dart';
-import '../../widgets/shimmer_loading.dart';
-import '../../widgets/enhanced_empty_state.dart';
+import '../../services/family/core/dashboard_service.dart';
+import '../../services/family/features/timeline_service.dart';
+import '../../services/family/common/family_exceptions.dart';
+import '../../widgets/states/family_loading_state.dart';
+import '../../widgets/states/family_error_state.dart';
+import '../../widgets/states/family_empty_state.dart';
 import '../../widgets/hero_header.dart';
 import '../../widgets/quick_action_tile.dart';
 import '../../widgets/stat_card.dart';
 import '../../widgets/timeline_card.dart';
 import '../../widgets/recent_section.dart';
+import '../../design_system/family_design_system.dart';
 import '../../design_system/design_tokens.dart';
 import '../../dialogs/family/add_album_dialog.dart';
 import '../../dialogs/family/add_event_dialog.dart';
@@ -36,12 +39,13 @@ class FamilyHubDashboardScreen extends StatefulWidget {
 }
 
 class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> with TickerProviderStateMixin {
-  final FamilyService _familyService = FamilyService();
+  final FamilyDashboardService _dashboardService = FamilyDashboardService();
+  final FamilyTimelineService _timelineService = FamilyTimelineService();
   bool _isLoading = true;
   bool _hasError = false;
   String _errorMessage = '';
   Map<String, dynamic> _dashboardData = {};
-  List<TimelineEvent> _recentActivities = [];
+  List<Map<String, dynamic>> _recentActivities = [];
   bool _isFabExpanded = false;
   late AnimationController _fabController;
 
@@ -49,7 +53,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
   void initState() {
     super.initState();
     _fabController = AnimationController(
-      duration: MemoryHubAnimations.normal,
+      duration: FamilyAnimations.smooth,
       vsync: this,
     );
     _loadDashboard();
@@ -69,23 +73,27 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
     });
 
     try {
-      final dashboardFuture = _familyService.getFamilyDashboard();
-      final activitiesFuture = _familyService.getTimelineEvents();
-
-      final results = await Future.wait([
-        dashboardFuture,
-        activitiesFuture,
-      ]);
+      final dashboard = await _dashboardService.getFamilyDashboard();
+      final timeline = await _timelineService.getTimelineEvents(limit: 8);
 
       setState(() {
-        _dashboardData = results[0] as Map<String, dynamic>;
-        _recentActivities = (results[1] as List<TimelineEvent>).take(8).toList();
+        _dashboardData = dashboard;
+        _recentActivities = timeline;
         _isLoading = false;
       });
     } catch (e) {
+      String errorMsg = e.toString();
+      if (e is ApiException) {
+        errorMsg = e.detail ?? e.message;
+      } else if (e is NetworkException) {
+        errorMsg = e.message;
+      } else if (e is AuthException) {
+        errorMsg = e.message;
+      }
+      
       setState(() {
         _hasError = true;
-        _errorMessage = e.toString();
+        _errorMessage = errorMsg;
         _isLoading = false;
       });
     }
@@ -166,6 +174,25 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        body: FamilyLoadingState(
+          message: 'Loading your family dashboard...',
+          style: LoadingStyle.spinner,
+        ),
+      );
+    }
+
+    if (_hasError) {
+      return Scaffold(
+        body: FamilyErrorState(
+          title: 'Unable to Load Dashboard',
+          message: _errorMessage,
+          onRetry: _loadDashboard,
+        ),
+      );
+    }
+
     return Scaffold(
       body: Stack(
         children: [
@@ -177,29 +204,19 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                   title: 'Family Hub',
                   subtitle: 'Your Life Canvas',
                   date: DateFormat('EEEE, MMMM d, y').format(DateTime.now()),
-                  icon: Icons.family_restroom,
-                  gradientColors: const [
-                    MemoryHubColors.purple700,
-                    MemoryHubColors.pink500,
-                    MemoryHubColors.cyan500,
+                  icon: FamilyIcons.family,
+                  gradientColors: [
+                    FamilyColors.midnightIndigo,
+                    FamilyColors.velvetRose,
+                    FamilyColors.auroraTeal,
                   ],
                 ),
-                if (_isLoading)
-                  SliverFillRemaining(
-                    child: _buildLoadingState(),
-                  )
-                else if (_hasError)
-                  SliverFillRemaining(
-                    child: _buildErrorState(),
-                  )
-                else ...[
-                  SliverToBoxAdapter(child: _buildQuickActionSection()),
-                  SliverToBoxAdapter(child: _buildStatsSection()),
-                  SliverToBoxAdapter(child: _buildRecentItemsSection()),
-                  SliverToBoxAdapter(child: _buildWhatsNewSection()),
-                  SliverToBoxAdapter(child: _buildFeaturesSection()),
-                  const SliverToBoxAdapter(child: SizedBox(height: 80)),
-                ],
+                SliverToBoxAdapter(child: _buildQuickActionSection()),
+                SliverToBoxAdapter(child: _buildStatsSection()),
+                SliverToBoxAdapter(child: _buildRecentItemsSection()),
+                SliverToBoxAdapter(child: _buildWhatsNewSection()),
+                SliverToBoxAdapter(child: _buildFeaturesSection()),
+                const SliverToBoxAdapter(child: SizedBox(height: 80)),
               ],
             ),
           ),

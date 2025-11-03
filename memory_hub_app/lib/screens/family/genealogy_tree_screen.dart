@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import '../../services/family/family_service.dart';
-import '../../widgets/shimmer_loading.dart';
-import '../../widgets/shimmer_widgets.dart';
+import '../../services/family/genealogy/tree_service.dart';
+import '../../services/family/genealogy/persons_service.dart';
+import '../../services/family/genealogy/relationships_service.dart';
+import '../../services/family/common/family_exceptions.dart';
+import '../../widgets/states/family_loading_state.dart';
+import '../../widgets/states/family_error_state.dart';
+import '../../widgets/states/family_empty_state.dart';
+import '../../widgets/animated/family_skeleton_loader.dart';
 import '../../widgets/person_card.dart';
-import '../../widgets/enhanced_empty_state.dart';
 import '../../dialogs/family/add_person_wizard.dart';
 import '../../dialogs/family/add_relationship_dialog.dart';
 import '../../widgets/default_avatar.dart';
+import '../../design_system/family_design_system.dart';
 import 'package:intl/intl.dart';
 
 class GenealogyTreeScreen extends StatefulWidget {
@@ -17,11 +22,15 @@ class GenealogyTreeScreen extends StatefulWidget {
 }
 
 class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
-  final FamilyService _familyService = FamilyService();
+  final GenealogyTreeService _treeService = GenealogyTreeService();
+  final GenealogyPersonsService _personsService = GenealogyPersonsService();
+  final GenealogyRelationshipsService _relationshipsService = GenealogyRelationshipsService();
+  
   List<Map<String, dynamic>> _persons = [];
   List<Map<String, dynamic>> _treeNodes = [];
   bool _isLoading = true;
-  String _error = '';
+  bool _hasError = false;
+  String _errorMessage = '';
   String _selectedView = 'grid';
 
   @override
@@ -33,19 +42,32 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
   Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
-      _error = '';
+      _hasError = false;
+      _errorMessage = '';
     });
+    
     try {
-      final persons = await _familyService.getPersons();
-      final tree = await _familyService.getFamilyTree();
+      final persons = await _personsService.getPersons();
+      final treeData = await _treeService.getTreeNodes();
+      
       setState(() {
         _persons = persons;
-        _treeNodes = tree;
+        _treeNodes = treeData;
         _isLoading = false;
       });
     } catch (e) {
+      String errorMsg = e.toString();
+      if (e is ApiException) {
+        errorMsg = e.detail ?? e.message;
+      } else if (e is NetworkException) {
+        errorMsg = e.message;
+      } else if (e is AuthException) {
+        errorMsg = e.message;
+      }
+      
       setState(() {
-        _error = e.toString();
+        _hasError = true;
+        _errorMessage = errorMsg;
         _isLoading = false;
       });
     }
@@ -53,6 +75,25 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        body: FamilyLoadingState(
+          message: 'Loading your family tree...',
+          style: LoadingStyle.shimmer,
+        ),
+      );
+    }
+
+    if (_hasError) {
+      return Scaffold(
+        body: FamilyErrorState(
+          title: 'Unable to Load Tree',
+          message: _errorMessage,
+          onRetry: _loadData,
+        ),
+      );
+    }
+
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _loadData,
@@ -68,16 +109,8 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 background: Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFFF59E0B),
-                        Color(0xFFFBBF24),
-                        Color(0xFFFDE047),
-                      ],
-                    ),
+                  decoration: BoxDecoration(
+                    gradient: FamilyColors.genealogyGradient,
                   ),
                   child: Stack(
                     children: [
@@ -85,7 +118,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                         right: -20,
                         bottom: -20,
                         child: Icon(
-                          Icons.account_tree,
+                          FamilyIcons.genealogy,
                           size: 120,
                           color: Colors.white.withOpacity(0.1),
                         ),
@@ -113,48 +146,13 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                 ),
               ],
             ),
-            if (_isLoading)
-              _selectedView == 'grid'
-                  ? SliverPadding(
-                      padding: const EdgeInsets.all(16.0),
-                      sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.75,
-                        ),
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) => const ShimmerCard(),
-                          childCount: 6,
-                        ),
-                      ),
-                    )
-                  : SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                          child: ShimmerListItem(),
-                        ),
-                        childCount: 5,
-                      ),
-                    )
-            else if (_error.isNotEmpty)
+            if (_persons.isEmpty)
               SliverFillRemaining(
-                child: EnhancedEmptyState(
-                  icon: Icons.error_outline,
-                  title: 'Error Loading Data',
-                  message: 'Failed to load genealogy data. Pull to retry.',
-                  actionLabel: 'Retry',
-                  onAction: _loadData,
-                ),
-              )
-            else if (_persons.isEmpty)
-              SliverFillRemaining(
-                child: EnhancedEmptyState(
-                  icon: Icons.account_tree,
+                child: FamilyEmptyState(
+                  icon: FamilyIcons.genealogy,
                   title: 'No Family Members Yet',
                   message: 'Start building your family tree by adding family members.',
+                  iconGradient: FamilyColors.genealogyGradient,
                   actionLabel: 'Add Person',
                   onAction: _showAddPersonDialog,
                   gradientColors: const [
