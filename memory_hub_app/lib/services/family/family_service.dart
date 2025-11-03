@@ -186,7 +186,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/family-albums/?page=$page&page_size=$pageSize'),
+          Uri.parse('$baseUrl/family/albums/?page=$page&page_size=$pageSize'),
           headers: headers,
         ),
       );
@@ -223,7 +223,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/family-albums/$albumId/photos'),
+          Uri.parse('$baseUrl/family/albums/$albumId/photos'),
           headers: headers,
         ),
       );
@@ -261,7 +261,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family-albums/'),
+          Uri.parse('$baseUrl/family/albums/'),
           headers: headers,
           body: jsonEncode(albumData),
         ),
@@ -300,7 +300,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.put(
-          Uri.parse('$baseUrl/family-albums/$albumId'),
+          Uri.parse('$baseUrl/family/albums/$albumId'),
           headers: headers,
           body: jsonEncode(albumData),
         ),
@@ -336,7 +336,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.delete(
-          Uri.parse('$baseUrl/family-albums/$albumId'),
+          Uri.parse('$baseUrl/family/albums/$albumId'),
           headers: headers,
         ),
       );
@@ -370,7 +370,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family-albums/$albumId/photos'),
+          Uri.parse('$baseUrl/family/albums/$albumId/photos'),
           headers: headers,
           body: jsonEncode(photoData),
         ),
@@ -405,7 +405,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.delete(
-          Uri.parse('$baseUrl/family-albums/$albumId/photos/$photoId'),
+          Uri.parse('$baseUrl/family/albums/$albumId/photos/$photoId'),
           headers: headers,
         ),
       );
@@ -436,7 +436,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family-albums/$albumId/photos/$photoId/like'),
+          Uri.parse('$baseUrl/family/albums/$albumId/photos/$photoId/like'),
           headers: headers,
         ),
       );
@@ -464,7 +464,7 @@ class FamilyService {
   }) async {
     try {
       final headers = await _authService.getAuthHeaders();
-      var url = '$baseUrl/family-timeline/?page=$page&page_size=$pageSize';
+      var url = '$baseUrl/family/timeline/?page=$page&page_size=$pageSize';
       if (filter != null && filter.isNotEmpty) {
         url += '&filter=${Uri.encodeComponent(filter)}';
       }
@@ -519,7 +519,7 @@ class FamilyService {
   }) async {
     try {
       final headers = await _authService.getAuthHeaders();
-      var url = '$baseUrl/family-milestones/?page=$page&page_size=$pageSize';
+      var url = '$baseUrl/family/milestones/?page=$page&page_size=$pageSize';
       if (personId != null && personId.isNotEmpty) {
         url += '&person_id=${Uri.encodeComponent(personId)}';
       }
@@ -563,7 +563,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/family-milestones/$milestoneId'),
+          Uri.parse('$baseUrl/family/milestones/$milestoneId'),
           headers: headers,
         ),
       );
@@ -600,7 +600,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family-milestones/'),
+          Uri.parse('$baseUrl/family/milestones/'),
           headers: headers,
           body: jsonEncode(milestoneData),
         ),
@@ -639,7 +639,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.put(
-          Uri.parse('$baseUrl/family-milestones/$milestoneId'),
+          Uri.parse('$baseUrl/family/milestones/$milestoneId'),
           headers: headers,
           body: jsonEncode(milestoneData),
         ),
@@ -675,7 +675,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.delete(
-          Uri.parse('$baseUrl/family-milestones/$milestoneId'),
+          Uri.parse('$baseUrl/family/milestones/$milestoneId'),
           headers: headers,
         ),
       );
@@ -706,7 +706,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family-milestones/$milestoneId/like'),
+          Uri.parse('$baseUrl/family/milestones/$milestoneId/like'),
           headers: headers,
         ),
       );
@@ -735,7 +735,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/family-recipes/?page=$page&page_size=$pageSize'),
+          Uri.parse('$baseUrl/family/recipes/?page=$page&page_size=$pageSize'),
           headers: headers,
         ),
       );
@@ -772,7 +772,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/family-recipes/$id'),
+          Uri.parse('$baseUrl/family/recipes/$id'),
           headers: headers,
         ),
       );
@@ -805,7 +805,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family-recipes/'),
+          Uri.parse('$baseUrl/family/recipes/'),
           headers: headers,
           body: jsonEncode(recipeData),
         ),
@@ -849,7 +849,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family-recipes/$recipeId/rate'),
+          Uri.parse('$baseUrl/family/recipes/$recipeId/rate'),
           headers: headers,
           body: jsonEncode({'rating': rating}),
         ),
@@ -881,7 +881,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family-recipes/$recipeId/favorite'),
+          Uri.parse('$baseUrl/family/recipes/$recipeId/favorite'),
           headers: headers,
         ),
       );
@@ -912,7 +912,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.delete(
-          Uri.parse('$baseUrl/family-recipes/$recipeId/favorite'),
+          Uri.parse('$baseUrl/family/recipes/$recipeId/favorite'),
           headers: headers,
         ),
       );
@@ -943,7 +943,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family-recipes/$recipeId/made'),
+          Uri.parse('$baseUrl/family/recipes/$recipeId/made'),
           headers: headers,
         ),
       );
@@ -966,7 +966,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/legacy-letters/'),
+          Uri.parse('$baseUrl/family/legacy-letters/'),
           headers: headers,
         ),
       );
@@ -1003,7 +1003,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/legacy-letters/'),
+          Uri.parse('$baseUrl/family/legacy-letters/'),
           headers: headers,
           body: jsonEncode(letterData),
         ),
@@ -1029,7 +1029,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/legacy-letters/sent'),
+          Uri.parse('$baseUrl/family/legacy-letters/sent'),
           headers: headers,
         ),
       );
@@ -1055,7 +1055,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/legacy-letters/received'),
+          Uri.parse('$baseUrl/family/legacy-letters/received'),
           headers: headers,
         ),
       );
@@ -1089,7 +1089,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/legacy-letters/$id'),
+          Uri.parse('$baseUrl/family/legacy-letters/$id'),
           headers: headers,
         ),
       );
@@ -1122,7 +1122,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/legacy-letters/$id/mark-read'),
+          Uri.parse('$baseUrl/family/legacy-letters/$id/mark-read'),
           headers: headers,
         ),
       );
@@ -1148,7 +1148,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/family-traditions/?page=$page&page_size=$pageSize'),
+          Uri.parse('$baseUrl/family/traditions/?page=$page&page_size=$pageSize'),
           headers: headers,
         ),
       );
@@ -1187,7 +1187,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family-traditions/'),
+          Uri.parse('$baseUrl/family/traditions/'),
           headers: headers,
           body: jsonEncode(traditionData),
         ),
@@ -1215,7 +1215,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/parental-controls/settings'),
+          Uri.parse('$baseUrl/family/parental-controls/settings'),
           headers: headers,
         ),
       );
@@ -1240,7 +1240,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/parental-controls/approvals'),
+          Uri.parse('$baseUrl/family/parental-controls/approvals'),
           headers: headers,
         ),
       );
@@ -1275,7 +1275,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/parental-controls/approvals/$requestId/approve'),
+          Uri.parse('$baseUrl/family/parental-controls/approvals/$requestId/approve'),
           headers: headers,
         ),
       );
@@ -1306,7 +1306,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/parental-controls/approvals/$requestId/reject'),
+          Uri.parse('$baseUrl/family/parental-controls/approvals/$requestId/reject'),
           headers: headers,
           body: jsonEncode({'reason': reason}),
         ),
@@ -1334,7 +1334,7 @@ class FamilyService {
   }) async {
     try {
       final headers = await _authService.getAuthHeaders();
-      var url = '$baseUrl/family-calendar/events?page=$page&page_size=$pageSize';
+      var url = '$baseUrl/family/calendar/events?page=$page&page_size=$pageSize';
       if (startDate != null) {
         url += '&start_date=${startDate.toIso8601String()}';
       }
@@ -1381,7 +1381,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/family-calendar/events/$eventId'),
+          Uri.parse('$baseUrl/family/calendar/events/$eventId'),
           headers: headers,
         ),
       );
@@ -1418,7 +1418,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family-calendar/events'),
+          Uri.parse('$baseUrl/family/calendar/events'),
           headers: headers,
           body: jsonEncode(eventData),
         ),
@@ -1456,7 +1456,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.put(
-          Uri.parse('$baseUrl/family-calendar/events/$eventId'),
+          Uri.parse('$baseUrl/family/calendar/events/$eventId'),
           headers: headers,
           body: jsonEncode(eventData),
         ),
@@ -1491,7 +1491,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.delete(
-          Uri.parse('$baseUrl/family-calendar/events/$eventId'),
+          Uri.parse('$baseUrl/family/calendar/events/$eventId'),
           headers: headers,
         ),
       );
@@ -1516,7 +1516,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/family-calendar/birthdays?days_ahead=$daysAhead'),
+          Uri.parse('$baseUrl/family/calendar/birthdays?days_ahead=$daysAhead'),
           headers: headers,
         ),
       );
@@ -1551,7 +1551,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family-calendar/events/$eventId/conflicts'),
+          Uri.parse('$baseUrl/family/calendar/events/$eventId/conflicts'),
           headers: headers,
         ),
       );
@@ -1606,7 +1606,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/genealogy/persons'),
+          Uri.parse('$baseUrl/family/genealogy/persons'),
           headers: headers,
         ),
       );
@@ -1643,7 +1643,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/genealogy/persons'),
+          Uri.parse('$baseUrl/family/genealogy/persons'),
           headers: headers,
           body: jsonEncode(personData),
         ),
@@ -1680,7 +1680,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.put(
-          Uri.parse('$baseUrl/genealogy/persons/$personId'),
+          Uri.parse('$baseUrl/family/genealogy/persons/$personId'),
           headers: headers,
           body: jsonEncode(personData),
         ),
@@ -1714,7 +1714,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.delete(
-          Uri.parse('$baseUrl/genealogy/persons/$personId'),
+          Uri.parse('$baseUrl/family/genealogy/persons/$personId'),
           headers: headers,
         ),
       );
@@ -1747,7 +1747,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/genealogy/relationships'),
+          Uri.parse('$baseUrl/family/genealogy/relationships'),
           headers: headers,
           body: jsonEncode(relationshipData),
         ),
@@ -1773,7 +1773,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/genealogy/relationships'),
+          Uri.parse('$baseUrl/family/genealogy/relationships'),
           headers: headers,
         ),
       );
@@ -1800,7 +1800,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/genealogy/tree'),
+          Uri.parse('$baseUrl/family/genealogy/tree'),
           headers: headers,
         ),
       );
@@ -1835,7 +1835,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/genealogy/search-users?query=${Uri.encodeComponent(query)}'),
+          Uri.parse('$baseUrl/family/genealogy/search-users?query=${Uri.encodeComponent(query)}'),
           headers: headers,
         ),
       );
@@ -1880,7 +1880,7 @@ class FamilyService {
       
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/genealogy/invitations'),
+          Uri.parse('$baseUrl/family/genealogy/invitations'),
           headers: headers,
           body: jsonEncode(invitationData),
         ),
@@ -1906,7 +1906,7 @@ class FamilyService {
   }) async {
     try {
       final headers = await _authService.getAuthHeaders();
-      var url = '$baseUrl/genealogy/invitations/sent';
+      var url = '$baseUrl/family/genealogy/invitations/sent';
       if (statusFilter != null && statusFilter.isNotEmpty) {
         url += '?status_filter=${Uri.encodeComponent(statusFilter)}';
       }
@@ -1936,7 +1936,7 @@ class FamilyService {
   }) async {
     try {
       final headers = await _authService.getAuthHeaders();
-      var url = '$baseUrl/genealogy/invitations/received';
+      var url = '$baseUrl/family/genealogy/invitations/received';
       if (statusFilter != null && statusFilter.isNotEmpty) {
         url += '?status_filter=${Uri.encodeComponent(statusFilter)}';
       }
@@ -1977,7 +1977,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/genealogy/invitations/$invitationId/respond'),
+          Uri.parse('$baseUrl/family/genealogy/invitations/$invitationId/respond'),
           headers: headers,
           body: jsonEncode({'action': action}),
         ),
@@ -2036,7 +2036,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/family/circles'),
+          Uri.parse('$baseUrl/family/core/circles'),
           headers: headers,
         ),
       );
@@ -2070,7 +2070,7 @@ class FamilyService {
   }) async {
     try {
       final headers = await _authService.getAuthHeaders();
-      var url = '$baseUrl/health-records/';
+      var url = '$baseUrl/family/health-records/';
       final queryParams = <String, String>{};
       if (memberId != null && memberId.isNotEmpty) {
         queryParams['family_member_id'] = memberId;
@@ -2119,7 +2119,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/health-records/'),
+          Uri.parse('$baseUrl/family/health-records/'),
           headers: headers,
           body: jsonEncode(recordData),
         ),
@@ -2157,7 +2157,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.put(
-          Uri.parse('$baseUrl/health-records/$recordId'),
+          Uri.parse('$baseUrl/family/health-records/$recordId'),
           headers: headers,
           body: jsonEncode(recordData),
         ),
@@ -2192,7 +2192,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.delete(
-          Uri.parse('$baseUrl/health-records/$recordId'),
+          Uri.parse('$baseUrl/family/health-records/$recordId'),
           headers: headers,
         ),
       );
@@ -2225,7 +2225,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/health-records/vaccinations'),
+          Uri.parse('$baseUrl/family/health-records/vaccinations'),
           headers: headers,
           body: jsonEncode(vaccinationData),
         ),
@@ -2252,7 +2252,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/health-records/vaccinations'),
+          Uri.parse('$baseUrl/family/health-records/vaccinations'),
           headers: headers,
         ),
       );
@@ -2288,7 +2288,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/health-records/member/$memberId/summary'),
+          Uri.parse('$baseUrl/family/health-records/member/$memberId/summary'),
           headers: headers,
         ),
       );
@@ -2324,7 +2324,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/health-records/reminders/'),
+          Uri.parse('$baseUrl/family/health-records/reminders/'),
           headers: headers,
           body: jsonEncode(reminderData),
         ),
@@ -2353,7 +2353,7 @@ class FamilyService {
   }) async {
     try {
       final headers = await _authService.getAuthHeaders();
-      var url = '$baseUrl/health-records/reminders/';
+      var url = '$baseUrl/family/health-records/reminders/';
       final queryParams = <String, String>{};
       if (recordId != null && recordId.isNotEmpty) {
         queryParams['record_id'] = recordId;
@@ -2409,7 +2409,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.put(
-          Uri.parse('$baseUrl/health-records/reminders/$reminderId'),
+          Uri.parse('$baseUrl/family/health-records/reminders/$reminderId'),
           headers: headers,
           body: jsonEncode(reminderData),
         ),
@@ -2444,7 +2444,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.delete(
-          Uri.parse('$baseUrl/health-records/reminders/$reminderId'),
+          Uri.parse('$baseUrl/family/health-records/reminders/$reminderId'),
           headers: headers,
         ),
       );
@@ -2478,7 +2478,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/health-records/reminders/$reminderId/snooze'),
+          Uri.parse('$baseUrl/family/health-records/reminders/$reminderId/snooze'),
           headers: headers,
           body: jsonEncode({'snooze_until': snoozeUntil.toIso8601String()}),
         ),
@@ -2513,7 +2513,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/health-records/reminders/$reminderId/complete'),
+          Uri.parse('$baseUrl/family/health-records/reminders/$reminderId/complete'),
           headers: headers,
         ),
       );
@@ -2750,7 +2750,7 @@ class FamilyService {
   }) async {
     try {
       final headers = await _authService.getAuthHeaders();
-      var url = '$baseUrl/genealogy/invite-links';
+      var url = '$baseUrl/family/genealogy/invite-links';
       if (statusFilter != null && statusFilter.isNotEmpty) {
         url += '?status_filter=${Uri.encodeComponent(statusFilter)}';
       }
@@ -2788,7 +2788,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/genealogy/persons/$personId/timeline'),
+          Uri.parse('$baseUrl/family/genealogy/persons/$personId/timeline'),
           headers: headers,
         ),
       );
@@ -2834,7 +2834,7 @@ class FamilyService {
       
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/genealogy/invite-links'),
+          Uri.parse('$baseUrl/family/genealogy/invite-links'),
           headers: headers,
           body: jsonEncode(inviteData),
         ),
@@ -2868,7 +2868,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/genealogy/join/$token'),
+          Uri.parse('$baseUrl/family/genealogy/join/$token'),
           headers: headers,
         ),
       );
@@ -2893,7 +2893,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/genealogy/generate-invite-link'),
+          Uri.parse('$baseUrl/family/genealogy/generate-invite-link'),
           headers: headers,
         ),
       );
@@ -2927,7 +2927,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/users/search?query=${Uri.encodeComponent(query)}'),
+          Uri.parse('$baseUrl/family/core/user-search?query=${Uri.encodeComponent(query)}'),
           headers: headers,
         ),
       );
