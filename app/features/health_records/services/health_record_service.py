@@ -1,0 +1,574 @@
+from typing import Dict, Any, Optional, List
+from bson import ObjectId
+from datetime import datetime
+
+from ..repositories.health_records_repository import HealthRecordsRepository
+from ..schemas.health_records import (
+    HealthRecordCreate,
+    HealthRecordUpdate,
+    HealthRecordResponse,
+    ApprovalStatus,
+)
+from app.api.v1.endpoints.social.notifications import create_notification
+from app.schemas.notification import NotificationType
+from app.utils.audit_logger import log_audit_event
+from app.repositories.family_repository import FamilyRepository, FamilyMembersRepository
+
+
+class HealthRecordService:
+    """
+    Service layer for health records business logic.
+    
+    Handles:
+    - Subject-type authorization (SELF/FAMILY/FRIEND)
+    - Approval workflow
+    - Business logic and validation
+    - Notification orchestration
+    """
+    
+    def __init__(self):
+        self.repository = HealthRecordsRepository()
+    
+    async def create_health_record(
+        self,
+        record: HealthRecordCreate,
+        current_user_id: str,
+        current_user_name: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Create a new health record with approval workflow.
+        
+        If the record is created for another user (SELF type with different subject_user_id),
+        it requires approval. Otherwise, it's auto-approved.
+        
+        Args:
+            record: Health record creation data
+            current_user_id: ID of the user creating the record
+            current_user_name: Name of the user creating the record
+            
+        Returns:
+            Created health record document
+        """
+        family_id = await self._determine_family_id(record, current_user_id)
+        
+        record_data = {
+            "family_id": family_id,
+            "subject_type": record.subject_type,
+            "record_type": record.record_type,
+            "title": record.title,
+            "description": record.description,
+            "date": record.date,
+            "provider": record.provider,
+            "location": record.location,
+            "severity": record.severity,
+            "attachments": record.attachments or [],
+            "notes": record.notes,
+            "medications": record.medications or [],
+            "is_confidential": record.is_confidential if record.is_confidential is not None else False,
+            "is_hereditary": record.is_hereditary if record.is_hereditary is not None else False,
+            "inheritance_pattern": record.inheritance_pattern,
+            "age_of_onset": record.age_of_onset,
+            "affected_relatives": record.affected_relatives or [],
+            "genetic_test_results": record.genetic_test_results,
+            "created_by": ObjectId(current_user_id)
+        }
+        
+        if record.subject_user_id:
+            record_data["subject_user_id"] = self.repository.validate_object_id(record.subject_user_id, "subject_user_id")
+        
+        if record.subject_family_member_id:
+            record_data["subject_family_member_id"] = self.repository.validate_object_id(record.subject_family_member_id, "subject_family_member_id")
+        
+        if record.subject_friend_circle_id:
+            record_data["subject_friend_circle_id"] = self.repository.validate_object_id(record.subject_friend_circle_id, "subject_friend_circle_id")
+        
+        if record.assigned_user_ids:
+            record_data["assigned_user_ids"] = [
+                self.repository.validate_object_id(user_id, "assigned_user_id")
+                for user_id in record.assigned_user_ids
+            ]
+        
+        if record.family_member_id:
+            record_data["family_member_id"] = self.repository.validate_object_id(record.family_member_id, "family_member_id")
+        
+        if record.genealogy_person_id:
+            record_data["genealogy_person_id"] = self.repository.validate_object_id(record.genealogy_person_id, "genealogy_person_id")
+        
+        if record.subject_user_id and record.subject_user_id != current_user_id:
+            record_data["approval_status"] = "pending_approval"
+        else:
+            record_data["approval_status"] = "approved"
+            record_data["approved_at"] = datetime.utcnow()
+            record_data["approved_by"] = str(current_user_id)
+        
+        record_doc = await self.repository.create(record_data)
+        
+        if record.subject_user_id and record.subject_user_id != current_user_id:
+            await create_notification(
+                user_id=record.subject_user_id,
+                notification_type=NotificationType.HEALTH_RECORD_ASSIGNMENT,
+                title="New Health Record Created for You",
+                message=f"{current_user_name or 'Someone'} created a health record '{record.title}' for you. Please review and approve.",
+                actor_id=str(current_user_id),
+                target_type="health_record",
+                target_id=str(record_doc["_id"])
+            )
+        
+        await log_audit_event(
+            user_id=str(current_user_id),
+            event_type="CREATE_HEALTH_RECORD",
+            event_details={
+                "resource_type": "health_record",
+                "resource_id": str(record_doc["_id"]),
+                "record_type": record.record_type,
+                "subject_type": record.subject_type,
+                "is_confidential": record.is_confidential
+            }
+        )
+        
+        return record_doc
+    
+    async def update_health_record(
+        self,
+        record_id: str,
+        record_update: HealthRecordUpdate,
+        current_user_id: str
+    ) -> Dict[str, Any]:
+        """
+        Update a health record with proper authorization.
+        
+        Args:
+            record_id: ID of the record to update
+            record_update: Update data
+            current_user_id: ID of the user updating the record
+            
+        Returns:
+            Updated health record document
+            
+        Raises:
+            HTTPException: If user doesn't have permission to update
+        """
+        record_doc = await self.repository.find_by_id(
+            record_id,
+            raise_404=True,
+            error_message="Health record not found"
+        )
+        
+        has_access = await self.check_user_has_access(record_doc, current_user_id)
+        if not has_access:
+            from fastapi import HTTPException, status
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this record")
+        
+        update_data = {k: v for k, v in record_update.dict(exclude_unset=True).items() if v is not None}
+        
+        updated_record = await self.repository.update_by_id(record_id, update_data)
+        
+        await log_audit_event(
+            user_id=str(current_user_id),
+            event_type="UPDATE_HEALTH_RECORD",
+            event_details={
+                "resource_type": "health_record",
+                "resource_id": record_id,
+                "updates": list(update_data.keys())
+            }
+        )
+        
+        return updated_record
+    
+    async def delete_health_record(
+        self,
+        record_id: str,
+        current_user_id: str
+    ) -> bool:
+        """
+        Delete a health record with proper authorization.
+        
+        Args:
+            record_id: ID of the record to delete
+            current_user_id: ID of the user deleting the record
+            
+        Returns:
+            True if deleted successfully
+            
+        Raises:
+            HTTPException: If user doesn't have permission to delete
+        """
+        record_doc = await self.repository.find_by_id(
+            record_id,
+            raise_404=True,
+            error_message="Health record not found"
+        )
+        
+        has_access = await self.check_user_has_access(record_doc, current_user_id)
+        if not has_access:
+            from fastapi import HTTPException, status
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this record")
+        
+        await self.repository.delete_by_id(record_id)
+        
+        await log_audit_event(
+            user_id=str(current_user_id),
+            event_type="DELETE_HEALTH_RECORD",
+            event_details={
+                "resource_type": "health_record",
+                "resource_id": record_id,
+                "record_type": record_doc.get("record_type")
+            }
+        )
+        
+        return True
+    
+    async def approve_health_record(
+        self,
+        record_id: str,
+        current_user_id: str,
+        current_user_name: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Approve a health record that was created for you.
+        
+        Only the subject user can approve a record created for them.
+        
+        Args:
+            record_id: ID of the record to approve
+            current_user_id: ID of the user approving the record
+            current_user_name: Name of the user approving the record
+            
+        Returns:
+            Approved health record document
+            
+        Raises:
+            HTTPException: If user is not authorized or record status is invalid
+        """
+        from fastapi import HTTPException, status
+        
+        record_doc = await self.repository.find_by_id(
+            record_id,
+            raise_404=True,
+            error_message="Health record not found"
+        )
+        
+        subject_user_id = record_doc.get("subject_user_id")
+        if not subject_user_id or str(subject_user_id) != current_user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only the assigned user can approve this health record"
+            )
+        
+        current_status = record_doc.get("approval_status", "approved")
+        if current_status == "approved":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Health record is already approved"
+            )
+        if current_status == "rejected":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Health record has been rejected. Cannot approve a rejected record."
+            )
+        
+        update_data = {
+            "approval_status": "approved",
+            "approved_at": datetime.utcnow(),
+            "approved_by": str(current_user_id)
+        }
+        
+        updated_record = await self.repository.update_by_id(record_id, update_data)
+        
+        creator_id = str(record_doc["created_by"])
+        if creator_id != current_user_id:
+            await create_notification(
+                user_id=creator_id,
+                notification_type=NotificationType.HEALTH_RECORD_APPROVED,
+                title="Health Record Approved",
+                message=f"{current_user_name or 'Someone'} approved the health record '{record_doc['title']}' you created for them.",
+                actor_id=str(current_user_id),
+                target_type="health_record",
+                target_id=record_id
+            )
+        
+        await log_audit_event(
+            user_id=str(current_user_id),
+            event_type="APPROVE_HEALTH_RECORD",
+            event_details={
+                "resource_type": "health_record",
+                "resource_id": record_id,
+                "record_type": record_doc.get("record_type"),
+                "created_by": str(record_doc.get("created_by"))
+            }
+        )
+        
+        return updated_record
+    
+    async def reject_health_record(
+        self,
+        record_id: str,
+        current_user_id: str,
+        current_user_name: Optional[str] = None,
+        rejection_reason: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Reject a health record that was created for you.
+        
+        Only the subject user can reject a record created for them.
+        
+        Args:
+            record_id: ID of the record to reject
+            current_user_id: ID of the user rejecting the record
+            current_user_name: Name of the user rejecting the record
+            rejection_reason: Optional reason for rejection
+            
+        Returns:
+            Rejected health record document
+            
+        Raises:
+            HTTPException: If user is not authorized or record status is invalid
+        """
+        from fastapi import HTTPException, status
+        
+        record_doc = await self.repository.find_by_id(
+            record_id,
+            raise_404=True,
+            error_message="Health record not found"
+        )
+        
+        subject_user_id = record_doc.get("subject_user_id")
+        if not subject_user_id or str(subject_user_id) != current_user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only the assigned user can reject this health record"
+            )
+        
+        current_status = record_doc.get("approval_status", "approved")
+        if current_status == "approved":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Health record is already approved. Cannot reject an approved record."
+            )
+        if current_status == "rejected":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Health record is already rejected"
+            )
+        
+        update_data = {
+            "approval_status": "rejected"
+        }
+        
+        if rejection_reason:
+            update_data["rejection_reason"] = rejection_reason
+        
+        updated_record = await self.repository.update_by_id(record_id, update_data)
+        
+        creator_id = str(record_doc["created_by"])
+        if creator_id != current_user_id:
+            reason_text = f" Reason: {rejection_reason}" if rejection_reason else ""
+            await create_notification(
+                user_id=creator_id,
+                notification_type=NotificationType.HEALTH_RECORD_REJECTED,
+                title="Health Record Rejected",
+                message=f"{current_user_name or 'Someone'} rejected the health record '{record_doc['title']}' you created for them.{reason_text}",
+                actor_id=str(current_user_id),
+                target_type="health_record",
+                target_id=record_id
+            )
+        
+        await log_audit_event(
+            user_id=str(current_user_id),
+            event_type="REJECT_HEALTH_RECORD",
+            event_details={
+                "resource_type": "health_record",
+                "resource_id": record_id,
+                "record_type": record_doc.get("record_type"),
+                "created_by": str(record_doc.get("created_by")),
+                "rejection_reason": rejection_reason
+            }
+        )
+        
+        return updated_record
+    
+    async def check_user_has_access(
+        self,
+        record_doc: Dict[str, Any],
+        current_user_id: str
+    ) -> bool:
+        """
+        Check if user has access to modify a health record.
+        
+        User has access if they:
+        - Created the record
+        - Are the subject (for SELF type)
+        - Are assigned to the record
+        - Are a member of the family circle (for FAMILY type)
+        - Own the record (family_id equals user_id for personal records)
+        
+        Args:
+            record_doc: Health record document
+            current_user_id: ID of the current user
+            
+        Returns:
+            True if user has access, False otherwise
+        """
+        user_oid = ObjectId(current_user_id)
+        
+        if record_doc.get("created_by") == user_oid:
+            return True
+        
+        if record_doc.get("subject_type") == "self" and record_doc.get("subject_user_id") == user_oid:
+            return True
+        
+        if user_oid in record_doc.get("assigned_user_ids", []):
+            return True
+        
+        if record_doc.get("family_id") == user_oid:
+            return True
+        
+        if record_doc.get("subject_type") == "family":
+            family_repo = FamilyRepository()
+            try:
+                family_id = record_doc.get("family_id")
+                if family_id:
+                    is_member = await family_repo.check_member_access(
+                        circle_id=str(family_id),
+                        user_id=current_user_id,
+                        raise_error=False
+                    )
+                    if is_member:
+                        return True
+            except Exception:
+                pass
+        
+        return False
+    
+    async def _determine_family_id(
+        self,
+        record: HealthRecordCreate,
+        current_user_id: str
+    ) -> ObjectId:
+        """
+        Determine the correct family_id based on subject_type.
+        
+        - For SELF: Use user_id (personal record)
+        - For FAMILY: Get family circle ID from subject_family_member_id or user's first family circle
+        - For FRIEND: Use subject_friend_circle_id
+        
+        Args:
+            record: Health record creation data
+            current_user_id: ID of the user creating the record
+            
+        Returns:
+            ObjectId representing the family_id
+        """
+        if record.subject_type == "self":
+            return ObjectId(current_user_id)
+        
+        elif record.subject_type == "family":
+            if record.subject_family_member_id:
+                family_members_repo = FamilyMembersRepository()
+                family_member = await family_members_repo.find_by_id(
+                    record.subject_family_member_id,
+                    raise_404=False
+                )
+                if family_member and family_member.get("family_id"):
+                    return family_member["family_id"]
+            
+            family_repo = FamilyRepository()
+            user_circles = await family_repo.find_by_member(current_user_id, limit=1)
+            if user_circles:
+                return user_circles[0]["_id"]
+            
+            return ObjectId(current_user_id)
+        
+        elif record.subject_type == "friend":
+            if record.subject_friend_circle_id:
+                return self.repository.validate_object_id(record.subject_friend_circle_id, "subject_friend_circle_id")
+            return ObjectId(current_user_id)
+        
+        return ObjectId(current_user_id)
+    
+    async def get_health_dashboard(
+        self,
+        current_user_id: str
+    ) -> Dict[str, Any]:
+        """
+        Get comprehensive health dashboard with all accessible records and stats.
+        
+        Args:
+            current_user_id: ID of the current user
+            
+        Returns:
+            Dashboard data with statistics, pending approvals, and reminders
+        """
+        user_oid = ObjectId(current_user_id)
+        
+        from app.repositories.base_repository import BaseRepository
+        reminders_repo = BaseRepository("health_record_reminders")
+        
+        family_repo = FamilyRepository()
+        user_circles = await family_repo.find_by_member(current_user_id, limit=100)
+        user_circle_ids = [circle["_id"] for circle in user_circles]
+        
+        all_records_query = {
+            "$or": [
+                {"family_id": user_oid},
+                {"subject_user_id": user_oid},
+                {"assigned_user_ids": user_oid},
+                {"family_id": {"$in": user_circle_ids}} if user_circle_ids else {"_id": None}
+            ]
+        }
+        
+        all_records = await self.repository.find_many(
+            filter_dict=all_records_query,
+            limit=1000
+        )
+        
+        pending_approvals = [
+            r for r in all_records
+            if r.get("subject_user_id") == user_oid
+            and r.get("approval_status") == "pending_approval"
+        ]
+        
+        user_reminders = await reminders_repo.find_many(
+            filter_dict={
+                "$or": [
+                    {"assigned_user_id": user_oid},
+                    {"created_by": user_oid}
+                ],
+                "status": {"$in": ["pending", "sent"]}
+            },
+            limit=10,
+            sort_by="due_at",
+            sort_order=1
+        )
+        
+        stats = {
+            "total_records": len(all_records),
+            "pending_approvals": len(pending_approvals),
+            "upcoming_reminders": len(user_reminders),
+            "records_by_type": {},
+            "recent_records": []
+        }
+        
+        for record in all_records:
+            rec_type = record.get("record_type", "unknown")
+            stats["records_by_type"][rec_type] = stats["records_by_type"].get(rec_type, 0) + 1
+        
+        sorted_records = sorted(all_records, key=lambda x: x["created_at"], reverse=True)[:10]
+        stats["recent_records"] = sorted_records
+        
+        await log_audit_event(
+            user_id=str(current_user_id),
+            event_type="VIEW_HEALTH_DASHBOARD",
+            event_details={
+                "resource_type": "health_dashboard",
+                "total_records": stats["total_records"],
+                "pending_approvals": stats["pending_approvals"],
+                "upcoming_reminders": stats["upcoming_reminders"]
+            }
+        )
+        
+        return {
+            "statistics": stats,
+            "pending_approvals": pending_approvals,
+            "upcoming_reminders": user_reminders
+        }

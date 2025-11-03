@@ -15,7 +15,6 @@ from .genealogy_people import GenealogyPersonRepository
 from .genealogy_relationships import GenealogyRelationshipRepository
 from .family_timeline import FamilyTimelineRepository
 from .genealogy_tree import GenealogyTreeRepository
-from .health_records import HealthRecordsRepository
 from .family_albums import FamilyAlbumsRepository
 from .family_calendar import FamilyCalendarRepository
 from .family_milestones import FamilyMilestonesRepository
@@ -38,7 +37,6 @@ __all__ = [
     "GenealogyRelationshipRepository",
     "FamilyTimelineRepository",
     "GenealogyTreeRepository",
-    "HealthRecordsRepository",
     "FamilyAlbumsRepository",
     "FamilyCalendarRepository",
     "FamilyMilestonesRepository",

@@ -6,7 +6,6 @@ from .family_milestones import *
 from .family_recipes import *
 from .family_traditions import *
 from .genealogy import *
-from .health_records import *
 from .legacy_letters import *
 from .parental_controls import *
 
@@ -22,7 +21,6 @@ __all__ = [
     "FamilyRecipe",
     "FamilyTradition",
     "GenealogyNode",
-    "HealthRecord",
     "LegacyLetter",
     "ParentalControl",
 ]

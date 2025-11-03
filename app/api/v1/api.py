@@ -10,8 +10,6 @@ from app.api.v1.endpoints.family import (
     albums as family_albums,
     calendar as family_calendar,
     genealogy,
-    health_records,
-    health_record_reminders,
     letters as legacy_letters,
     milestones as family_milestones,
     parental_controls,
@@ -19,6 +17,7 @@ from app.api.v1.endpoints.family import (
     timeline as family_timeline,
     traditions as family_traditions
 )
+from app.features.health_records.api import router as health_records_router
 from app.api.v1.endpoints.social import hub, activity, notifications
 from app.api.v1.endpoints.features import search, analytics, sharing, reminders, scheduled_posts, places
 from app.api.v1.endpoints.admin import admin, export, gdpr
@@ -57,8 +56,7 @@ api_router.include_router(family_recipes.router, prefix="/family/recipes", tags=
 api_router.include_router(family_timeline.router, prefix="/family/timeline", tags=["family-timeline"])
 api_router.include_router(family_traditions.router, prefix="/family/traditions", tags=["family-traditions"])
 api_router.include_router(genealogy.router, prefix="/family/genealogy", tags=["genealogy"])
-api_router.include_router(health_records.router, prefix="/family/health-records", tags=["health-records"])
-api_router.include_router(health_record_reminders.router, prefix="/family/health-records/reminders", tags=["health-record-reminders"])
+api_router.include_router(health_records_router, prefix="/family")
 api_router.include_router(legacy_letters.router, prefix="/family/legacy-letters", tags=["legacy-letters"])
 api_router.include_router(parental_controls.router, prefix="/family/parental-controls", tags=["parental-controls"])
 

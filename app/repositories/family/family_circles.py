@@ -4,6 +4,7 @@ from bson import ObjectId
 from datetime import datetime
 from fastapi import HTTPException
 from ..base_repository import BaseRepository
+from .users import UserRepository
 
 
 class FamilyRepository(BaseRepository):

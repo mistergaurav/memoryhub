@@ -74,7 +74,6 @@ class HealthRecordCreate(BaseModel):
     
     @model_validator(mode='after')
     def validate_subject_consistency(self):
-        """Ensure subject_type matches with the appropriate subject identifier."""
         if self.subject_type == SubjectType.SELF:
             if not self.subject_user_id:
                 raise ValueError("subject_user_id is required when subject_type is SELF")
@@ -125,7 +124,6 @@ class HealthRecordUpdate(BaseModel):
     
     @model_validator(mode='after')
     def validate_subject_consistency_on_update(self):
-        """Ensure subject_type matches with the appropriate subject identifier when updating."""
         if self.subject_type is not None:
             if self.subject_type == SubjectType.SELF:
                 if self.subject_user_id is None:

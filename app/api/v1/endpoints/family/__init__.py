@@ -9,7 +9,6 @@ from .recipes import router as recipes_router
 from .timeline import router as timeline_router
 from .traditions import router as traditions_router
 from .genealogy import router as genealogy_router
-from .health_records import router as health_router
 from .letters import router as letters_router
 from .parental_controls import router as parental_router
 
@@ -21,7 +20,6 @@ from .core import (
     members_router,
     dashboard_router
 )
-from .health_record_reminders import router as health_reminders_router
 
 router = APIRouter()
 # Include core family routers (replacing old family_router)
@@ -37,8 +35,6 @@ router.include_router(recipes_router, tags=["family-recipes"])
 router.include_router(timeline_router, tags=["family-timeline"])
 router.include_router(traditions_router, tags=["family-traditions"])
 router.include_router(genealogy_router, tags=["genealogy"])
-router.include_router(health_router, prefix="/health-records", tags=["health-records"])
-router.include_router(health_reminders_router, prefix="/health-records/reminders", tags=["health-record-reminders"])
 router.include_router(letters_router, tags=["legacy-letters"])
 router.include_router(parental_router, tags=["parental-controls"])
 
