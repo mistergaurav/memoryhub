@@ -9,13 +9,14 @@ from app.db.mongodb import get_collection
 
 router = APIRouter()
 
+@router.get("")
 @router.get("/")
 async def get_activity(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Get activity feed (alias for /feed endpoint for frontend compatibility)"""
+    """Get activity feed (alias for /feed endpoint for frontend compatibility). Handles both /activity and /activity/ paths."""
     return await get_activity_feed(page=page, limit=limit, current_user=current_user)
 
 
@@ -52,8 +53,8 @@ async def get_activity_feed(
             "content": memory.get("content", "")[:200],
             "media_urls": memory.get("media_urls", []),
             "user_id": str(memory["owner_id"]),
-            "user_name": owner.get("full_name") if owner else "Unknown",
-            "user_avatar": owner.get("avatar_url"),
+            "user_name": owner.get("full_name") if owner is not None else "Unknown",
+            "user_avatar": owner.get("avatar_url") if owner is not None else None,
             "created_at": memory["created_at"]
         })
     
@@ -72,8 +73,8 @@ async def get_activity_feed(
             "title": item["title"],
             "content": item.get("content", "")[:200],
             "user_id": str(item["owner_id"]),
-            "user_name": owner.get("full_name") if owner else "Unknown",
-            "user_avatar": owner.get("avatar_url"),
+            "user_name": owner.get("full_name") if owner is not None else "Unknown",
+            "user_avatar": owner.get("avatar_url") if owner is not None else None,
             "created_at": item["created_at"]
         })
     
