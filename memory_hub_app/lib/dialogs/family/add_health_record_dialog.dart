@@ -28,7 +28,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
   DateTime _selectedDate = DateTime.now();
   bool _isConfidential = true;
 
-  String _subjectType = 'self';
+  String? _relationshipType;
   String? _selectedFamilyMemberId;
   String? _selectedFriendCircleId;
   UserSearchResult? _selectedUser;
@@ -194,14 +194,28 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
     }
 
     final subjectValidation = _controller.validateSubjectSelection(
-      subjectType: _subjectType,
+      relationshipType: _relationshipType,
       selectedFamilyMemberId: _selectedFamilyMemberId,
       selectedFriendCircleId: _selectedFriendCircleId,
       selectedUser: _selectedUser,
     );
 
     if (subjectValidation != null) {
-      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text(subjectValidation)),
+            ],
+          ),
+          backgroundColor: _errorRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
       return;
     }
 
@@ -211,7 +225,21 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
     );
 
     if (reminderValidation != null) {
-      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text(reminderValidation)),
+            ],
+          ),
+          backgroundColor: _errorRed,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
       return;
     }
 
@@ -225,7 +253,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
       severity: _severity,
       notes: _notesController.text,
       isConfidential: _isConfidential,
-      subjectType: _subjectType,
+      relationshipType: _relationshipType,
       selectedFamilyMemberId: _selectedFamilyMemberId,
       selectedFriendCircleId: _selectedFriendCircleId,
       selectedUser: _selectedUser,
@@ -271,7 +299,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
       severity: _severity,
       notes: _notesController.text,
       isConfidential: _isConfidential,
-      subjectType: _subjectType,
+      relationshipType: _relationshipType,
       selectedFamilyMemberId: _selectedFamilyMemberId,
       selectedFriendCircleId: _selectedFriendCircleId,
       selectedUser: _selectedUser,
@@ -653,162 +681,161 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                   padding: const EdgeInsets.all(24),
                   children: [
                     _buildSectionCard(
-                      title: 'Who is this record for?',
-                      icon: Icons.person,
-                      helperText: 'Select the subject of this health record',
+                      title: 'Who is this health record about?',
+                      icon: Icons.person_search,
+                      helperText: 'Search and select the person this record is for',
                       children: [
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
-                          children: [
-                            _buildChoiceChip(
-                              label: 'Self',
-                              icon: Icons.person,
-                              selected: _subjectType == 'self',
-                              onTap: () {
-                                setState(() {
-                                  _subjectType = 'self';
-                                  _selectedFamilyMemberId = null;
-                                  _selectedFriendCircleId = null;
-                                  _animationController.reverse();
-                                });
-                              },
-                            ),
-                            _buildChoiceChip(
-                              label: 'Family Member',
-                              icon: Icons.family_restroom,
-                              selected: _subjectType == 'family',
-                              onTap: () {
-                                setState(() {
-                                  _subjectType = 'family';
-                                  _selectedFriendCircleId = null;
-                                  _animationController.forward();
-                                });
-                              },
-                            ),
-                            _buildChoiceChip(
-                              label: 'Friend Circle',
-                              icon: Icons.people,
-                              selected: _subjectType == 'friend',
-                              onTap: () {
-                                setState(() {
-                                  _subjectType = 'friend';
-                                  _selectedFamilyMemberId = null;
-                                  _selectedUser = null;
-                                  _animationController.forward();
-                                });
-                              },
-                            ),
-                            _buildChoiceChip(
-                              label: 'Other User',
-                              icon: Icons.person_search,
-                              selected: _subjectType == 'user',
-                              onTap: () {
-                                setState(() {
-                                  _subjectType = 'user';
-                                  _selectedFamilyMemberId = null;
-                                  _selectedFriendCircleId = null;
-                                  _animationController.forward();
-                                });
-                              },
-                            ),
-                          ],
+                        UserSearchAutocomplete(
+                          onUserSelected: (user) {
+                            setState(() {
+                              _selectedUser = user;
+                              _relationshipType = null;
+                              _selectedFamilyMemberId = null;
+                              _selectedFriendCircleId = null;
+                              _animationController.forward();
+                            });
+                          },
+                          helpText: 'Search by name or email (you can search for yourself too)',
                         ),
-                        if (_subjectType != 'self')
+                        if (_selectedUser != null) ...[
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: _successGreen.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: _successGreen.withOpacity(0.3),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: _successGreen,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Selected User',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 12,
+                                          color: const Color(0xFF6B7280),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _selectedUser!.fullName,
+                                        style: GoogleFonts.inter(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: _typographyDark,
+                                        ),
+                                      ),
+                                      if (_selectedUser!.email != null)
+                                        Text(
+                                          _selectedUser!.email!,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 13,
+                                            color: const Color(0xFF6B7280),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close, color: _errorRed),
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedUser = null;
+                                      _relationshipType = null;
+                                      _selectedFamilyMemberId = null;
+                                      _selectedFriendCircleId = null;
+                                      _animationController.reverse();
+                                    });
+                                  },
+                                  tooltip: 'Remove selection',
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
                           SizeTransition(
                             sizeFactor: _dropdownAnimation,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 16),
-                              child: _subjectType == 'user'
-                                  ? Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        UserSearchAutocomplete(
-                                          onUserSelected: (user) {
-                                            setState(() => _selectedUser = user);
-                                          },
-                                          helpText: 'Search by name or email to find users in your family circle',
-                                        ),
-                                        if (_selectedUser != null) ...[
-                                          const SizedBox(height: 12),
-                                          Container(
-                                            padding: const EdgeInsets.all(16),
-                                            decoration: BoxDecoration(
-                                              color: _successGreen.withOpacity(0.1),
-                                              borderRadius: BorderRadius.circular(12),
-                                              border: Border.all(
-                                                color: _successGreen.withOpacity(0.3),
-                                                width: 1,
-                                              ),
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Container(
-                                                  padding: const EdgeInsets.all(8),
-                                                  decoration: BoxDecoration(
-                                                    color: _successGreen,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: const Icon(
-                                                    Icons.check,
-                                                    color: Colors.white,
-                                                    size: 16,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 12),
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Text(
-                                                        'Selected User',
-                                                        style: GoogleFonts.inter(
-                                                          fontSize: 12,
-                                                          color: const Color(0xFF6B7280),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 4),
-                                                      Text(
-                                                        _selectedUser!.fullName,
-                                                        style: GoogleFonts.inter(
-                                                          fontSize: 16,
-                                                          fontWeight: FontWeight.w600,
-                                                          color: _typographyDark,
-                                                        ),
-                                                      ),
-                                                      if (_selectedUser!.email != null)
-                                                        Text(
-                                                          _selectedUser!.email!,
-                                                          style: GoogleFonts.inter(
-                                                            fontSize: 13,
-                                                            color: const Color(0xFF6B7280),
-                                                          ),
-                                                        ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  icon: const Icon(Icons.close, color: _errorRed),
-                                                  onPressed: () {
-                                                    setState(() => _selectedUser = null);
-                                                  },
-                                                  tooltip: 'Remove selection',
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ],
-                                    )
-                                  : _subjectType == 'family'
-                                  ? (_loadingMembers
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'What is your relationship to this person?',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: _typographyDark,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Wrap(
+                                  spacing: 12,
+                                  runSpacing: 12,
+                                  children: [
+                                    _buildChoiceChip(
+                                      label: 'This is for me',
+                                      icon: Icons.person,
+                                      selected: _relationshipType == 'self',
+                                      onTap: () {
+                                        setState(() {
+                                          _relationshipType = 'self';
+                                          _selectedFamilyMemberId = null;
+                                          _selectedFriendCircleId = null;
+                                        });
+                                      },
+                                    ),
+                                    _buildChoiceChip(
+                                      label: 'This person is in my family',
+                                      icon: Icons.family_restroom,
+                                      selected: _relationshipType == 'family',
+                                      onTap: () {
+                                        setState(() {
+                                          _relationshipType = 'family';
+                                          _selectedFriendCircleId = null;
+                                        });
+                                      },
+                                    ),
+                                    _buildChoiceChip(
+                                      label: 'This person is in my circle',
+                                      icon: Icons.people,
+                                      selected: _relationshipType == 'friend',
+                                      onTap: () {
+                                        setState(() {
+                                          _relationshipType = 'friend';
+                                          _selectedFamilyMemberId = null;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                if (_relationshipType == 'family') ...[
+                                  const SizedBox(height: 16),
+                                  _loadingMembers
                                       ? const Center(child: CircularProgressIndicator(color: _accentAqua))
                                       : DropdownButtonFormField<String>(
                                           value: _selectedFamilyMemberId,
                                           decoration: _buildInputDecoration(
                                             label: 'Select Family Member',
                                             icon: Icons.person_outline,
-                                            helperText: 'Choose who this record is for',
+                                            helperText: 'Choose which family member this corresponds to',
                                           ),
                                           items: _familyMembers.map((member) {
                                             return DropdownMenuItem(
@@ -821,15 +848,18 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                               _selectedFamilyMemberId = value;
                                             });
                                           },
-                                        ))
-                                  : (_loadingCircles
+                                        ),
+                                ],
+                                if (_relationshipType == 'friend') ...[
+                                  const SizedBox(height: 16),
+                                  _loadingCircles
                                       ? const Center(child: CircularProgressIndicator(color: _accentAqua))
                                       : DropdownButtonFormField<String>(
                                           value: _selectedFriendCircleId,
                                           decoration: _buildInputDecoration(
                                             label: 'Select Friend Circle',
                                             icon: Icons.group_outlined,
-                                            helperText: 'Choose which circle this record is for',
+                                            helperText: 'Choose which circle this person belongs to',
                                           ),
                                           items: _friendCircles.map((circle) {
                                             return DropdownMenuItem(
@@ -842,9 +872,12 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                               _selectedFriendCircleId = value;
                                             });
                                           },
-                                        )),
+                                        ),
+                                ],
+                              ],
                             ),
                           ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 16),

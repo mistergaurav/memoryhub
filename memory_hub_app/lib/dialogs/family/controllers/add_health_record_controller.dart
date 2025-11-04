@@ -74,19 +74,22 @@ class AddHealthRecordController extends ChangeNotifier {
   }
 
   String? validateSubjectSelection({
-    required String subjectType,
+    String? relationshipType,
     String? selectedFamilyMemberId,
     String? selectedFriendCircleId,
     UserSearchResult? selectedUser,
   }) {
-    if (subjectType == 'family' && selectedFamilyMemberId == null) {
-      return 'Please select a family member';
+    if (selectedUser == null) {
+      return 'Please search and select a user first';
     }
-    if (subjectType == 'friend' && selectedFriendCircleId == null) {
-      return 'Please select a friend circle';
+    if (relationshipType == null) {
+      return 'Please specify your relationship to this person';
     }
-    if (subjectType == 'user' && selectedUser == null) {
-      return 'Please search and select a user';
+    if (relationshipType == 'family' && selectedFamilyMemberId == null) {
+      return 'Please select a family member from the dropdown';
+    }
+    if (relationshipType == 'friend' && selectedFriendCircleId == null) {
+      return 'Please select a friend circle from the dropdown';
     }
     return null;
   }
@@ -182,7 +185,7 @@ class AddHealthRecordController extends ChangeNotifier {
     required String severity,
     required String notes,
     required bool isConfidential,
-    required String subjectType,
+    String? relationshipType,
     String? selectedFamilyMemberId,
     String? selectedFriendCircleId,
     UserSearchResult? selectedUser,
@@ -217,18 +220,15 @@ class AddHealthRecordController extends ChangeNotifier {
         'is_confidential': isConfidential,
       };
 
-      if (subjectType == 'self') {
+      if (relationshipType == 'self') {
         recordData['subject_type'] = 'self';
         recordData['subject_user_id'] = userId;
-      } else if (subjectType == 'family') {
+      } else if (relationshipType == 'family') {
         recordData['subject_type'] = 'family';
         recordData['subject_family_member_id'] = selectedFamilyMemberId;
-      } else if (subjectType == 'friend') {
+      } else if (relationshipType == 'friend') {
         recordData['subject_type'] = 'friend';
         recordData['subject_friend_circle_id'] = selectedFriendCircleId;
-      } else if (subjectType == 'user' && selectedUser != null) {
-        recordData['subject_type'] = 'self';
-        recordData['subject_user_id'] = selectedUser.id;
       }
 
       await _familyService.createHealthRecord(recordData);
@@ -255,7 +255,7 @@ class AddHealthRecordController extends ChangeNotifier {
     required String severity,
     required String notes,
     required bool isConfidential,
-    required String subjectType,
+    String? relationshipType,
     String? selectedFamilyMemberId,
     String? selectedFriendCircleId,
     UserSearchResult? selectedUser,
@@ -282,7 +282,7 @@ class AddHealthRecordController extends ChangeNotifier {
       severity: severity,
       notes: notes,
       isConfidential: isConfidential,
-      subjectType: subjectType,
+      relationshipType: relationshipType,
       selectedFamilyMemberId: selectedFamilyMemberId,
       selectedFriendCircleId: selectedFriendCircleId,
       selectedUser: selectedUser,
