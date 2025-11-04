@@ -28,10 +28,10 @@ def safe_object_id(id_str: str) -> ObjectId:
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid ID format")
 
-def convert_user_doc(user_doc: dict) -> dict:
+def convert_user_doc(user_doc: Optional[dict]) -> dict:
     """Convert MongoDB user document to response format with safe field handling"""
     if not user_doc:
-        return None
+        raise ValueError("User document cannot be None or empty")
     
     result = dict(user_doc)
     if "_id" in result:
@@ -120,6 +120,8 @@ async def update_user_me(
         )
         
         updated_user = await get_collection("users").find_one({"_id": ObjectId(current_user.id)})
+        if not updated_user:
+            raise HTTPException(status_code=404, detail="User not found after update")
         return UserResponse(**convert_user_doc(updated_user))
     except HTTPException:
         raise
@@ -176,7 +178,7 @@ async def upload_avatar(
         os.makedirs(user_avatar_dir, exist_ok=True)
         
         # Generate unique filename
-        file_extension = Path(file.filename).suffix
+        file_extension = Path(file.filename or "avatar.jpg").suffix
         filename = f"avatar{file_extension}"
         file_path = os.path.join(user_avatar_dir, filename)
         
@@ -193,6 +195,8 @@ async def upload_avatar(
         
         # Return updated user
         updated_user = await get_collection("users").find_one({"_id": ObjectId(current_user.id)})
+        if not updated_user:
+            raise HTTPException(status_code=404, detail="User not found after update")
         return UserResponse(**convert_user_doc(updated_user))
     except HTTPException:
         raise
@@ -216,6 +220,8 @@ async def get_user_settings(current_user: UserInDB = Depends(get_current_user)):
     """Get current user settings"""
     try:
         user = await get_collection("users").find_one({"_id": ObjectId(current_user.id)})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
         return user.get("settings", {
             "push_notifications": True,
             "email_notifications": True,
@@ -325,6 +331,8 @@ async def update_user_settings(
         )
         
         updated_user = await get_collection("users").find_one({"_id": ObjectId(current_user.id)})
+        if not updated_user:
+            raise HTTPException(status_code=404, detail="User not found after update")
         return UserResponse(**convert_user_doc(updated_user))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error updating settings: {str(e)}")
@@ -391,7 +399,7 @@ async def get_user_profile(
         }
         
         # Get recent public/friends memories (based on privacy and relationship)
-        memory_query = {"owner_id": user_obj_id}
+        memory_query: Dict[str, Any] = {"owner_id": user_obj_id}
         if str(user_id) != str(current_user.id):
             if relationship and relationship.get("status") == "accepted":
                 memory_query["privacy"] = {"$in": ["public", "friends"]}
