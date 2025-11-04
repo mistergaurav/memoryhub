@@ -5,11 +5,10 @@ from datetime import datetime
 
 from app.models.user import UserInDB
 from app.core.security import get_current_user
-from .repository import FamilyTimelineRepository
 from app.repositories.family_repository import (
     FamilyRepository, FamilyMilestonesRepository,
     FamilyRecipesRepository, FamilyTraditionsRepository, FamilyAlbumsRepository,
-    FamilyCalendarRepository
+    FamilyCalendarRepository, FamilyTimelineRepository
 )
 from app.repositories.base_repository import BaseRepository
 from app.models.responses import create_success_response, create_paginated_response
