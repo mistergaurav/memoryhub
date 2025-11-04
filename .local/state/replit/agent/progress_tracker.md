@@ -3,7 +3,27 @@
 [x] 3. Verify the project is working using the feedback tool
 [x] 4. Inform user the import is completed and they can start building, mark the import as completed using the complete_project_import tool
 
-## Latest Update - November 03, 2025 23:50 (Environment Reset - Migration Re-Completed Successfully):
+## Latest Update - November 04, 2025 00:00 (Health Records & Genealogy Refactor - IN PROGRESS):
+[x] - **API Routing Fixed**:
+  - Removed duplicate genealogy router registrations from api.py ✅
+  - Added `/genealogy` prefix to genealogy router to avoid route conflicts ✅
+  - All health records endpoints properly registered at `/family/health-records/*` ✅
+  - Verified endpoints in OpenAPI spec - all CRUD operations available ✅
+[x] - **FamilyService Audit Complete**:
+  - createHealthRecord method correctly implemented ✅
+  - Proper endpoint path `/family/health-records/` ✅
+  - Auth headers and comprehensive error handling in place ✅
+[ ] - **Health Dialog Box Refactor** (IN PROGRESS):
+  - Implementing dedicated controller for state management
+  - Adding proper validation and error feedback UI
+  - Integrating with health_records_controller for auto-refresh
+  - Clear loading states and user-friendly error messages
+[ ] - **Genealogy Endpoints Testing** (PENDING):
+  - Need to verify authenticated access works correctly
+  - Test persons, tree, and relationships endpoints
+  - Confirm `/family/genealogy/*` paths work end-to-end
+
+## Previous Update - November 03, 2025 23:50 (Environment Reset - Migration Re-Completed Successfully):
 [x] - **Python Dependencies Reinstalled After Environment Reset**:
   - Cleaned up duplicate entries in requirements.txt (reduced from 54 lines to 27 packages)
   - Installed all 27 Python packages successfully (aiofiles, argon2-cffi, bcrypt, boto3, email-validator, fastapi, httpx, itsdangerous, jinja2, motor, passlib, pillow, pydantic, pydantic-settings, pymongo, pyotp, pytest, python-dateutil, python-dotenv, python-jose, python-magic, python-multipart, pytz, qrcode, reportlab, requests, uvicorn)

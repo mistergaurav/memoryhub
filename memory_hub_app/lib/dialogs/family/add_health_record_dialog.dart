@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../services/auth_service.dart';
 import '../../services/family/family_service.dart';
 import '../../models/user_search_result.dart';
 import '../../widgets/user_search_autocomplete.dart';
+import 'controllers/add_health_record_controller.dart';
 
 class AddHealthRecordDialog extends StatefulWidget {
   const AddHealthRecordDialog({Key? key}) : super(key: key);
@@ -15,8 +15,8 @@ class AddHealthRecordDialog extends StatefulWidget {
 
 class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
-  final _authService = AuthService();
   final _familyService = FamilyService();
+  final _controller = AddHealthRecordController();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _providerController = TextEditingController();
@@ -27,8 +27,6 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
   String _severity = 'low';
   DateTime _selectedDate = DateTime.now();
   bool _isConfidential = true;
-  bool _isLoading = false;
-  String? _errorMessage;
 
   String _subjectType = 'self';
   String? _selectedFamilyMemberId;
@@ -101,6 +99,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
   @override
   void dispose() {
     _animationController.dispose();
+    _controller.dispose();
     _titleController.dispose();
     _descriptionController.dispose();
     _providerController.dispose();
@@ -190,101 +189,119 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
   }
 
   Future<void> _submit() async {
-    if (_formKey.currentState!.validate()) {
-      if (_subjectType == 'family' && _selectedFamilyMemberId == null) {
-        setState(() {
-          _errorMessage = 'Please select a family member';
-        });
-        return;
-      }
-      
-      if (_subjectType == 'friend' && _selectedFriendCircleId == null) {
-        setState(() {
-          _errorMessage = 'Please select a friend circle';
-        });
-        return;
-      }
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
-      if (_subjectType == 'user' && _selectedUser == null) {
-        setState(() {
-          _errorMessage = 'Please search and select a user';
-        });
-        return;
-      }
+    final subjectValidation = _controller.validateSubjectSelection(
+      subjectType: _subjectType,
+      selectedFamilyMemberId: _selectedFamilyMemberId,
+      selectedFriendCircleId: _selectedFriendCircleId,
+      selectedUser: _selectedUser,
+    );
 
-      if (_enableReminder && _reminderDueDate == null) {
-        setState(() {
-          _errorMessage = 'Please select a reminder due date';
-        });
-        return;
-      }
+    if (subjectValidation != null) {
+      setState(() {});
+      return;
+    }
 
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-      });
+    final reminderValidation = _controller.validateReminderDate(
+      enableReminder: _enableReminder,
+      reminderDueDate: _reminderDueDate,
+    );
 
-      try {
-        final userId = await _authService.getCurrentUserId();
-        if (userId == null) {
-          throw Exception('Unable to get user information. Please try logging in again.');
-        }
+    if (reminderValidation != null) {
+      setState(() {});
+      return;
+    }
 
-        final Map<String, dynamic> recordData = {
-          'record_type': _recordType,
-          'title': _titleController.text.trim(),
-          'description': _descriptionController.text.trim(),
-          'date': DateFormat('yyyy-MM-dd').format(_selectedDate),
-          'provider': _providerController.text.trim(),
-          'location': _locationController.text.trim(),
-          'severity': _severity,
-          'notes': _notesController.text.trim(),
-          'medications': [],
-          'attachments': [],
-          'is_confidential': _isConfidential,
-        };
+    final success = await _controller.submitHealthRecord(
+      recordType: _recordType,
+      title: _titleController.text,
+      description: _descriptionController.text,
+      selectedDate: _selectedDate,
+      provider: _providerController.text,
+      location: _locationController.text,
+      severity: _severity,
+      notes: _notesController.text,
+      isConfidential: _isConfidential,
+      subjectType: _subjectType,
+      selectedFamilyMemberId: _selectedFamilyMemberId,
+      selectedFriendCircleId: _selectedFriendCircleId,
+      selectedUser: _selectedUser,
+      enableReminder: _enableReminder,
+      reminderDueDate: _reminderDueDate,
+      reminderType: _reminderType,
+    );
 
-        // Map subject type: 'user' -> 'self' since backend only supports self/family/friend
-        if (_subjectType == 'self') {
-          recordData['subject_type'] = 'self';
-          recordData['subject_user_id'] = userId;
-        } else if (_subjectType == 'family') {
-          recordData['subject_type'] = 'family';
-          recordData['subject_family_member_id'] = _selectedFamilyMemberId;
-        } else if (_subjectType == 'friend') {
-          recordData['subject_type'] = 'friend';
-          recordData['subject_friend_circle_id'] = _selectedFriendCircleId;
-        } else if (_subjectType == 'user' && _selectedUser != null) {
-          // Map 'user' subject type to 'self' with the selected user's ID
-          recordData['subject_type'] = 'self';
-          recordData['subject_user_id'] = _selectedUser!.id;
-        }
-
-        await _familyService.createHealthRecord(recordData);
-
-        if (mounted) {
-          Navigator.of(context).pop(true);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: const [
-                  Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: 12),
-                  Text('Health record created successfully'),
-                ],
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: const [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text('Health record created successfully'),
               ),
-              backgroundColor: _primaryTeal,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              margin: const EdgeInsets.all(16),
-            ),
-          );
-        }
-      } catch (e) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = e.toString().replaceAll('Exception: ', '');
-        });
+            ],
+          ),
+          backgroundColor: _successGreen,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
+      
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        Navigator.of(context).pop(true);
+      }
+    }
+  }
+
+  Future<void> _retrySubmit() async {
+    final success = await _controller.retrySubmission(
+      recordType: _recordType,
+      title: _titleController.text,
+      description: _descriptionController.text,
+      selectedDate: _selectedDate,
+      provider: _providerController.text,
+      location: _locationController.text,
+      severity: _severity,
+      notes: _notesController.text,
+      isConfidential: _isConfidential,
+      subjectType: _subjectType,
+      selectedFamilyMemberId: _selectedFamilyMemberId,
+      selectedFriendCircleId: _selectedFriendCircleId,
+      selectedUser: _selectedUser,
+      enableReminder: _enableReminder,
+      reminderDueDate: _reminderDueDate,
+      reminderType: _reminderType,
+    );
+
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: const [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text('Health record created successfully'),
+              ),
+            ],
+          ),
+          backgroundColor: _successGreen,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
+      
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        Navigator.of(context).pop(true);
       }
     }
   }
@@ -529,40 +546,106 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+                    onPressed: _controller.isSubmitting ? null : () => Navigator.of(context).pop(),
                   ),
                 ],
               ),
             ),
-            if (_errorMessage != null)
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                color: const Color(0xFFFDEBEC),
-                child: Row(
-                  children: [
-                    const Icon(Icons.error_outline, color: _errorRed, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _errorMessage!,
-                        style: GoogleFonts.inter(
-                          color: _errorRed,
-                          fontSize: 14,
+            ListenableBuilder(
+              listenable: _controller,
+              builder: (context, _) {
+                if (_controller.errorMessage != null) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFDEBEC),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: _errorRed.withOpacity(0.3),
+                          width: 1,
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 18),
-                      onPressed: () => setState(() => _errorMessage = null),
-                      color: _errorRed,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: _errorRed.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.error_outline, color: _errorRed, size: 20),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Submission Failed',
+                                style: GoogleFonts.inter(
+                                  color: _errorRed,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _controller.errorMessage!,
+                                style: GoogleFonts.inter(
+                                  color: _errorRed.withOpacity(0.9),
+                                  fontSize: 13,
+                                  height: 1.4,
+                                ),
+                              ),
+                              if (_controller.canRetry) ...[
+                                const SizedBox(height: 12),
+                                ElevatedButton.icon(
+                                  onPressed: _retrySubmit,
+                                  icon: const Icon(Icons.refresh, size: 16),
+                                  label: Text(
+                                    'Retry',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _errorRed,
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 18),
+                          onPressed: () {
+                            _controller.clearError();
+                          },
+                          color: _errorRed,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
             Expanded(
               child: Form(
                 key: _formKey,
@@ -778,12 +861,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                             helperText: 'Brief description of the record',
                           ),
                           style: GoogleFonts.inter(),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Please enter a title';
-                            }
-                            return null;
-                          },
+                          validator: _controller.validateTitle,
                         ),
                         const SizedBox(height: 16),
                         LayoutBuilder(
@@ -880,12 +958,13 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                         TextFormField(
                           controller: _descriptionController,
                           decoration: _buildInputDecoration(
-                            label: 'Description',
+                            label: 'Description *',
                             icon: Icons.description,
-                            helperText: 'Additional details about the record',
+                            helperText: 'Additional details about the record (minimum 10 characters)',
                           ),
                           style: GoogleFonts.inter(),
                           maxLines: 2,
+                          validator: _controller.validateDescription,
                         ),
                       ],
                     ),
@@ -954,9 +1033,10 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                     decoration: _buildInputDecoration(
                                       label: 'Healthcare Provider',
                                       icon: Icons.local_hospital,
-                                      helperText: 'Doctor or clinic name',
+                                      helperText: 'Doctor or clinic name (optional)',
                                     ),
                                     style: GoogleFonts.inter(),
+                                    validator: _controller.validateProvider,
                                   ),
                                   const SizedBox(height: 16),
                                   TextFormField(
@@ -964,9 +1044,10 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                     decoration: _buildInputDecoration(
                                       label: 'Location',
                                       icon: Icons.location_on,
-                                      helperText: 'Where this occurred',
+                                      helperText: 'Where this occurred (optional)',
                                     ),
                                     style: GoogleFonts.inter(),
+                                    validator: _controller.validateLocation,
                                   ),
                                   const SizedBox(height: 16),
                                   Column(
@@ -1145,71 +1226,89 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                   ),
                 ],
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Semantics(
-                    label: 'Cancel button, closes the dialog without saving',
-                    button: true,
-                    enabled: !_isLoading,
-                    child: TextButton(
-                      onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
-                      style: TextButton.styleFrom(
-                        foregroundColor: _primaryTeal,
-                        minimumSize: const Size(88, 48),
-                      ),
-                      child: Text(
-                        'Cancel',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Semantics(
-                    label: 'OK button, saves the health record',
-                    button: true,
-                    enabled: !_isLoading,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _submit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _primaryTeal,
-                        foregroundColor: Colors.white,
-                        elevation: 2,
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        minimumSize: const Size(120, 48),
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.check, size: 18),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'OK',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
+              child: ListenableBuilder(
+                listenable: _controller,
+                builder: (context, _) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Semantics(
+                        label: 'Cancel button, closes the dialog without saving',
+                        button: true,
+                        enabled: !_controller.isSubmitting,
+                        child: TextButton(
+                          onPressed: _controller.isSubmitting ? null : () => Navigator.of(context).pop(),
+                          style: TextButton.styleFrom(
+                            foregroundColor: _primaryTeal,
+                            minimumSize: const Size(88, 48),
+                          ),
+                          child: Text(
+                            'Cancel',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
-                    ),
-                  ),
-                ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Semantics(
+                        label: 'OK button, saves the health record',
+                        button: true,
+                        enabled: !_controller.isSubmitting,
+                        child: ElevatedButton(
+                          onPressed: _controller.isSubmitting ? null : _submit,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _primaryTeal,
+                            foregroundColor: Colors.white,
+                            elevation: 2,
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            minimumSize: const Size(120, 48),
+                          ),
+                          child: _controller.isSubmitting
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Saving...',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.check, size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Save Record',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ],

@@ -34,7 +34,7 @@ router.include_router(milestones_router, tags=["family-milestones"])
 router.include_router(recipes_router, tags=["family-recipes"])
 router.include_router(timeline_router, tags=["family-timeline"])
 router.include_router(traditions_router, tags=["family-traditions"])
-router.include_router(genealogy_router, tags=["genealogy"])
+router.include_router(genealogy_router, prefix="/genealogy", tags=["genealogy"])
 router.include_router(letters_router, tags=["legacy-letters"])
 router.include_router(parental_router, tags=["parental-controls"])
 
