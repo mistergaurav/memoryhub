@@ -6,7 +6,6 @@ from app.api.v1.endpoints.memories import memories, memory_templates, tags, cate
 from app.api.v1.endpoints.content import comments, reactions, stories, voice_notes
 from app.api.v1.endpoints.collections import collections, vault, document_vault
 from app.api.v1.endpoints import family as family_hub
-from app.features.health_records.api import router as health_records_router
 from app.api.v1.endpoints.social import hub, activity, notifications
 from app.api.v1.endpoints.features import search, analytics, sharing, reminders, scheduled_posts, places
 from app.api.v1.endpoints.admin import admin, export, gdpr
@@ -38,7 +37,6 @@ api_router.include_router(vault.router, prefix="/vault", tags=["vault"])
 api_router.include_router(document_vault.router, prefix="/document-vault", tags=["document-vault"])
 
 api_router.include_router(family_hub.router, prefix="/family", tags=["family"])
-api_router.include_router(health_records_router, prefix="/family")
 
 api_router.include_router(hub.router, prefix="/hub", tags=["hub"])
 api_router.include_router(activity.router, prefix="/activity", tags=["activity"])
