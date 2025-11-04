@@ -38,7 +38,7 @@ async def create_hub(
     await get_collection("hub_members").insert_one(member_data)
     
     hub_doc = await get_collection("hubs").find_one({"_id": result.inserted_id})
-    return await _prepare_hub_response(hub_doc, current_user.id)
+    return await _prepare_hub_response(hub_doc, str(current_user.id))
 
 @router.get("/hubs", response_model=List[CollaborativeHubResponse])
 async def list_hubs(
@@ -69,7 +69,7 @@ async def list_hubs(
     
     hubs = []
     async for hub_doc in cursor:
-        hubs.append(await _prepare_hub_response(hub_doc, current_user.id))
+        hubs.append(await _prepare_hub_response(hub_doc, str(current_user.id)))
     
     return hubs
 
@@ -91,7 +91,7 @@ async def get_hub(
     if not member and hub_doc["privacy"] == HubPrivacy.PRIVATE:
         raise HTTPException(status_code=403, detail="Access denied")
     
-    return await _prepare_hub_response(hub_doc, current_user.id)
+    return await _prepare_hub_response(hub_doc, str(current_user.id))
 
 @router.put("/hubs/{hub_id}", response_model=CollaborativeHubResponse)
 async def update_hub(
@@ -117,7 +117,7 @@ async def update_hub(
     )
     
     hub_doc = await get_collection("hubs").find_one({"_id": ObjectId(hub_id)})
-    return await _prepare_hub_response(hub_doc, current_user.id)
+    return await _prepare_hub_response(hub_doc, str(current_user.id))
 
 @router.get("/hubs/{hub_id}/members", response_model=List[HubMemberResponse])
 async def get_hub_members(
@@ -209,6 +209,9 @@ async def create_invitation(
     result = await get_collection("hub_invitations").insert_one(invitation_data)
     
     invitation_doc = await get_collection("hub_invitations").find_one({"_id": result.inserted_id})
+    if not invitation_doc:
+        raise HTTPException(status_code=500, detail="Failed to create invitation")
+    
     hub_doc = await get_collection("hubs").find_one({"_id": invitation_doc["hub_id"]})
     inviter_doc = await get_collection("users").find_one({"_id": invitation_doc["inviter_id"]})
     
@@ -250,6 +253,9 @@ async def create_sharing_link(
     result = await get_collection("hub_sharing_links").insert_one(link_data)
     
     link_doc = await get_collection("hub_sharing_links").find_one({"_id": result.inserted_id})
+    if not link_doc:
+        raise HTTPException(status_code=500, detail="Failed to create sharing link")
+    
     hub_doc = await get_collection("hubs").find_one({"_id": link_doc["hub_id"]})
     
     return {
@@ -417,12 +423,12 @@ async def get_following(
 @router.get("/followers", response_model=List[RelationshipResponse])
 async def get_my_followers(current_user: UserInDB = Depends(get_current_user)):
     """Get current user's followers (convenience endpoint)"""
-    return await get_followers(current_user.id, current_user)
+    return await get_followers(str(current_user.id), current_user)
 
 @router.get("/following", response_model=List[RelationshipResponse])
 async def get_my_following(current_user: UserInDB = Depends(get_current_user)):
     """Get users that current user is following (convenience endpoint)"""
-    return await get_following(current_user.id, current_user)
+    return await get_following(str(current_user.id), current_user)
 
 async def _prepare_hub_response(hub_doc, current_user_id: str):
     """Prepare hub response with additional data"""

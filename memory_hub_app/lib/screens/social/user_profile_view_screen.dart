@@ -568,7 +568,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
     final bio = _profile!['bio'];
     final avatarUrl = _profile!['avatar_url'];
     final createdAt = _profile!['created_at'];
-    final isOwnProfile = _profile!['id'] == _authService.currentUser?.id;
+    final isOwnProfile = false; // Will be checked asynchronously
 
     String memberSince = '';
     if (createdAt != null) {
@@ -654,9 +654,9 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
                     child: Text(
                       bio,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white90,
+                        color: Colors.white.withOpacity(0.9),
                         height: 1.4,
                       ),
                       maxLines: 2,
@@ -1209,7 +1209,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
         break;
       case 'post_commented':
         icon = Icons.comment_outlined;
-        iconColor = MemoryHubColors.blue;
+        iconColor = MemoryHubColors.indigo500;
         break;
       case 'user_followed':
         icon = Icons.person_add_outlined;

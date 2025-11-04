@@ -142,6 +142,8 @@ async def create_memory(
     
     result = await get_collection("memories").insert_one(memory_data)
     memory = await get_collection("memories").find_one({"_id": result.inserted_id})
+    if not memory:
+        raise HTTPException(status_code=500, detail="Failed to create memory")
     
     # Send notifications to tagged family members (using validated list)
     for family_member in validated_family_tags:
@@ -159,7 +161,7 @@ async def create_memory(
             except:
                 pass  # Silent fail for notifications
     
-    return await _prepare_memory_response(memory, current_user.id)
+    return await _prepare_memory_response(memory, str(current_user.id))
 
 @router.get("/media/{filename}")
 async def get_media(filename: str):
@@ -193,7 +195,7 @@ async def search_memories(
         "limit": limit
     }
     
-    filters = await process_memory_search_filters(search_params, current_user.id)
+    filters = await process_memory_search_filters(search_params, str(current_user.id))
     sort = get_sort_params(sort_by, sort_order)
     
     skip = (page - 1) * limit
@@ -201,7 +203,7 @@ async def search_memories(
     
     memories = []
     async for memory in cursor:
-        memories.append(await _prepare_memory_response(memory, current_user.id))
+        memories.append(await _prepare_memory_response(memory, str(current_user.id)))
     
     return memories
 
@@ -217,7 +219,7 @@ async def get_memory(
     # Increment view count
     await increment_memory_counter(memory_id, "view_count")
     
-    return await _prepare_memory_response(memory, current_user.id)
+    return await _prepare_memory_response(memory, str(current_user.id))
 
 async def _prepare_memory_response(memory: dict, current_user_id: str) -> dict:
     memory["id"] = str(memory["_id"])
