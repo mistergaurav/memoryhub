@@ -804,7 +804,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                             onUserSelected: (UserSearchResult user) {
                               setState(() {
                                 _selectedUser = user;
-                                _selectedUserId = user.userId;
+                                _selectedUserId = user.id;
                               });
                             },
                           ),
