@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.config import settings
 from app.core.hashing import verify_password
-from app.db.mongodb import get_collection
+from app.db.dependencies import get_collection
 from app.models.user import UserInDB
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/token")
@@ -60,7 +60,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
         logging.info(f"Decoded payload: {payload}")
         if payload.get("type") != "access":
             raise credentials_exception
-        email: str = payload.get("sub")
+        email: Optional[str] = payload.get("sub")
         if email is None:
             raise credentials_exception
     except JWTError as e:
@@ -86,7 +86,7 @@ async def refresh_access_token(refresh_token: str) -> Dict[str, str]:
         )
         if payload.get("type") != "refresh":
             raise credentials_exception
-        email: str = payload.get("sub")
+        email: Optional[str] = payload.get("sub")
         if email is None:
             raise credentials_exception
     except JWTError:

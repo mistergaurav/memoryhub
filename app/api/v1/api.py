@@ -5,7 +5,7 @@ from app.api.v1.endpoints.users import users, social as social_users, privacy, u
 from app.api.v1.endpoints.memories import memories, memory_templates, tags, categories
 from app.api.v1.endpoints.content import comments, reactions, stories, voice_notes
 from app.api.v1.endpoints.collections import collections, vault, document_vault
-from app.api.v1.endpoints.family import family as family_hub
+from app.api.v1.endpoints import family as family_hub
 from app.features.health_records.api import router as health_records_router
 from app.api.v1.endpoints.social import hub, activity, notifications
 from app.api.v1.endpoints.features import search, analytics, sharing, reminders, scheduled_posts, places
