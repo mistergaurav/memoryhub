@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import '../../../services/auth_service.dart';
 import '../../../services/family/family_service.dart';
 import '../../../services/family/common/family_exceptions.dart';
-import '../../../models/user_search_result.dart';
 
 enum SubmissionState {
   idle,
@@ -74,21 +73,18 @@ class AddHealthRecordController extends ChangeNotifier {
   }
 
   String? validateSubjectSelection({
-    String? relationshipType,
+    required String subjectCategory,
+    String? selectedUserId,
     String? selectedFamilyMemberId,
     String? selectedFriendCircleId,
-    UserSearchResult? selectedUser,
   }) {
-    if (selectedUser == null) {
-      return 'Please search and select a user first';
+    if (subjectCategory == 'user' && selectedUserId == null) {
+      return 'Please select a user from the search results';
     }
-    if (relationshipType == null) {
-      return 'Please specify your relationship to this person';
-    }
-    if (relationshipType == 'family' && selectedFamilyMemberId == null) {
+    if (subjectCategory == 'family' && selectedFamilyMemberId == null) {
       return 'Please select a family member from the dropdown';
     }
-    if (relationshipType == 'friend' && selectedFriendCircleId == null) {
+    if (subjectCategory == 'friend' && selectedFriendCircleId == null) {
       return 'Please select a friend circle from the dropdown';
     }
     return null;
@@ -185,10 +181,10 @@ class AddHealthRecordController extends ChangeNotifier {
     required String severity,
     required String notes,
     required bool isConfidential,
-    String? relationshipType,
+    required String subjectCategory,
+    String? selectedUserId,
     String? selectedFamilyMemberId,
     String? selectedFriendCircleId,
-    UserSearchResult? selectedUser,
     bool enableReminder = false,
     DateTime? reminderDueDate,
     String? reminderType,
@@ -199,8 +195,8 @@ class AddHealthRecordController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final userId = await _authService.getCurrentUserId();
-      if (userId == null) {
+      final currentUserId = await _authService.getCurrentUserId();
+      if (currentUserId == null) {
         throw AuthException(
           message: 'Unable to get user information. Please try logging in again.',
         );
@@ -220,13 +216,16 @@ class AddHealthRecordController extends ChangeNotifier {
         'is_confidential': isConfidential,
       };
 
-      if (relationshipType == 'self') {
+      if (subjectCategory == 'myself') {
         recordData['subject_type'] = 'self';
-        recordData['subject_user_id'] = userId;
-      } else if (relationshipType == 'family') {
+        recordData['subject_user_id'] = currentUserId;
+      } else if (subjectCategory == 'user') {
+        recordData['subject_type'] = 'self';
+        recordData['subject_user_id'] = selectedUserId;
+      } else if (subjectCategory == 'family') {
         recordData['subject_type'] = 'family';
         recordData['subject_family_member_id'] = selectedFamilyMemberId;
-      } else if (relationshipType == 'friend') {
+      } else if (subjectCategory == 'friend') {
         recordData['subject_type'] = 'friend';
         recordData['subject_friend_circle_id'] = selectedFriendCircleId;
       }
@@ -255,10 +254,10 @@ class AddHealthRecordController extends ChangeNotifier {
     required String severity,
     required String notes,
     required bool isConfidential,
-    String? relationshipType,
+    required String subjectCategory,
+    String? selectedUserId,
     String? selectedFamilyMemberId,
     String? selectedFriendCircleId,
-    UserSearchResult? selectedUser,
     bool enableReminder = false,
     DateTime? reminderDueDate,
     String? reminderType,
@@ -282,10 +281,10 @@ class AddHealthRecordController extends ChangeNotifier {
       severity: severity,
       notes: notes,
       isConfidential: isConfidential,
-      relationshipType: relationshipType,
+      subjectCategory: subjectCategory,
+      selectedUserId: selectedUserId,
       selectedFamilyMemberId: selectedFamilyMemberId,
       selectedFriendCircleId: selectedFriendCircleId,
-      selectedUser: selectedUser,
       enableReminder: enableReminder,
       reminderDueDate: reminderDueDate,
       reminderType: reminderType,
