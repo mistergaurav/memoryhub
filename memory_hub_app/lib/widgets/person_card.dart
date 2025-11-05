@@ -165,34 +165,47 @@ class PersonCard extends StatelessWidget {
                     ],
                     const Spacer(),
                     if (healthRecordsCount > 0 || (hereditaryConditions != null && hereditaryConditions.isNotEmpty)) ...[
-                      Row(
-                        children: [
-                          if (healthRecordsCount > 0) ...[
-                            Icon(Icons.health_and_safety, size: 12, color: Colors.red.shade400),
-                            const SizedBox(width: 3),
-                            Text(
-                              '$healthRecordsCount',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.red.shade600,
-                                fontWeight: FontWeight.bold,
+                      Flexible(
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          children: [
+                            if (healthRecordsCount > 0) ...[
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.health_and_safety, size: 12, color: Colors.red.shade400),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    '$healthRecordsCount',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.red.shade600,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                          if (hereditaryConditions != null && hereditaryConditions.isNotEmpty) ...[
-                            if (healthRecordsCount > 0) const SizedBox(width: 8),
-                            Icon(Icons.family_restroom, size: 12, color: Colors.purple.shade400),
-                            const SizedBox(width: 3),
-                            Text(
-                              '${hereditaryConditions.length}',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors.purple.shade600,
-                                fontWeight: FontWeight.bold,
+                            ],
+                            if (hereditaryConditions != null && hereditaryConditions.isNotEmpty) ...[
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.family_restroom, size: 12, color: Colors.purple.shade400),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    '${hereditaryConditions.length}',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.purple.shade600,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
                     ],
                   ],

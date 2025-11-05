@@ -96,6 +96,26 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     }
   }
 
+  String _getInitial() {
+    if (_user?.fullName != null && _user!.fullName!.isNotEmpty) {
+      return _user!.fullName!.substring(0, 1).toUpperCase();
+    }
+    if (_user?.email != null && _user!.email.isNotEmpty) {
+      return _user!.email.substring(0, 1).toUpperCase();
+    }
+    return 'U';
+  }
+
+  String _getUsername() {
+    if (_user?.username != null && _user!.username!.isNotEmpty) {
+      return _user!.username!;
+    }
+    if (_user?.email != null && _user!.email.isNotEmpty && _user!.email.contains('@')) {
+      return _user!.email.split('@')[0];
+    }
+    return 'user';
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -240,7 +260,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                               : null,
                           child: _user!.avatarUrl == null
                               ? Text(
-                                  (_user!.fullName ?? _user!.email).substring(0, 1).toUpperCase(),
+                                  _getInitial(),
                                   style: TextStyle(
                                     fontSize: 52,
                                     fontWeight: FontWeight.bold,
@@ -269,7 +289,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     ),
                     const SizedBox(height: MemoryHubSpacing.xs),
                     Text(
-                      '@${_user!.username ?? _user!.email.split('@')[0]}',
+                      '@${_getUsername()}',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.white.withOpacity(0.9),

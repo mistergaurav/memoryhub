@@ -164,7 +164,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             : null) as ImageProvider?,
                     child: _avatarFile == null && _currentUser?.avatarUrl == null
                         ? Text(
-                            _currentUser?.email.substring(0, 1).toUpperCase() ?? 'U',
+                            (_currentUser?.email != null && _currentUser!.email.isNotEmpty)
+                                ? _currentUser!.email.substring(0, 1).toUpperCase()
+                                : 'U',
                             style: const TextStyle(fontSize: 48, color: Colors.white),
                           )
                         : null,
