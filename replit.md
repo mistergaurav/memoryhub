@@ -6,13 +6,35 @@ The Memory Hub is a full-stack digital legacy platform designed to help families
 
 Preferred communication style: Simple, everyday language.
 
-# Recent Bug Fixes (November 2025)
+# Recent Updates (November 2025)
 
-**Critical Genealogy & Frontend Stability Fixes:**
+**Genealogy Relationship System Overhaul (November 5, 2025):**
+- **Bidirectional Relationship Creation**: Implemented automatic bidirectional handling for all genealogy relationships. When a parent-child relationship is created, the system now automatically creates both parent→child and child→parent records. Spouse and sibling relationships are created symmetrically in both directions.
+- **Duplicate Prevention**: Added comprehensive validation to prevent duplicate and inverse relationships. System checks for existing relationships in both directions before creating new ones.
+- **Relationship Type Helpers**: Added utility functions `get_inverse_relationship_type()` and `is_symmetric_relationship()` for proper relationship type handling across parent/child, grandparent/grandchild, aunt_uncle/niece_nephew, spouse, sibling, and cousin types.
+- **Enhanced Repository Methods**: Added `find_existing_relationship()` and `find_any_relationship_between()` methods to GenealogyRelationshipRepository for efficient duplicate detection.
+
+**Tree Membership & Access Control (November 5, 2025):**
+- **Invitation Acceptance Fix**: When users accept genealogy tree invitations, the system now properly creates tree membership records with "member" role and transactional integrity.
+- **Automatic Owner Assignment**: Tree creators automatically receive "owner" role when creating their first person in their genealogy tree.
+- **Access Validation**: Enhanced `ensure_tree_access()` function validates tree access through membership records, ensuring only authorized users can view/modify trees.
+
+**Family Circles Feature (November 5, 2025):**
+- **Backend Implementation**: Complete CRUD API at `/api/v1/family/core/circles` with create, read, update, delete operations. Member management endpoints for adding/removing circle members.
+- **Flutter Models**: `FamilyCircle`, `CircleMember`, `FamilyCircleCreate`, and `FamilyCircleUpdate` models with proper JSON serialization.
+- **Flutter Service**: `FamilyCirclesService` extending FamilyApiClient with caching, retry logic, and comprehensive error handling (ApiException, NetworkException, AuthException).
+- **Flutter Screens**: 
+  - `FamilyCirclesScreen`: Grid layout with responsive columns, pull-to-refresh, infinite scroll pagination, loading shimmer effects, and empty/error states.
+  - `FamilyCircleDetailScreen`: SliverAppBar with gradient, member list with avatars, owner-only actions (edit/delete circle, remove members), add member functionality.
+  - `CreateFamilyCircleDialog`: Form-based dialog for creating/editing circles with circle type selection (Immediate Family, Extended Family, Close Friends, Work Friends, Custom) and color picker.
+- **Dashboard Integration**: Replaced "Coming Soon" snackbar on family dashboard with proper navigation to Family Circles screen.
+- **Design Consistency**: All components use MemoryHub design system (MemoryHubColors, MemoryHubSpacing, MemoryHubBorderRadius) and follow existing UI patterns.
+
+**Previous Bug Fixes:**
 - **Tree Service Data Parsing**: Fixed root cause of "Failed to load genealogy tree" error. Backend returns `{nodes: [...], relationships: [...], stats: {...}}` but frontend was treating it as a direct list. Updated `GenealogyTreeService.getTreeNodes()` to properly unwrap the response with defensive null checks and descriptive error messages.
-- **JSON Parser Type Safety**: Added `_parseStringList()` helper to `GenealogyPerson` and `GenealogyTreeNode` models to safely handle backend responses that can be `List<String>` or `List<Map>` (when friendship circles are enabled). This prevents type casting crashes in `family_circle_ids`, `hereditary_conditions`, `parent_ids`, `children_ids`, and `spouse_ids` fields.
-- **PersonCard Layout Overflow**: Fixed 21px RenderFlex overflow in genealogy grid view by changing `mainAxisAlignment: spaceBetween` to `mainAxisSize: min` and removing problematic `Spacer` widget. Added `maxLines` and `overflow: ellipsis` to prevent text overflow.
-- **Defensive Programming**: All list access now includes bounds checking and null guards. Empty list handling prevents `RangeError` exceptions throughout genealogy, relationship, and friendship circle features.
+- **JSON Parser Type Safety**: Added `_parseStringList()` helper to `GenealogyPerson` and `GenealogyTreeNode` models to safely handle backend responses that can be `List<String>` or `List<Map>`. This prevents type casting crashes.
+- **PersonCard Layout Overflow**: Fixed 21px RenderFlex overflow in genealogy grid view by changing `mainAxisAlignment: spaceBetween` to `mainAxisSize: min` and removing problematic `Spacer` widget.
+- **Defensive Programming**: All list access now includes bounds checking and null guards. Empty list handling prevents `RangeError` exceptions throughout genealogy, relationship, and family circle features.
 
 # System Architecture
 

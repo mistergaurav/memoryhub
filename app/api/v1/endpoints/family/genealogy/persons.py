@@ -107,6 +107,20 @@ async def create_genealogy_person(
     person_doc = await genealogy_person_repo.create(person_data)
     person_id = person_doc["_id"]
     
+    if tree_oid == ObjectId(current_user.id):
+        owner_membership = await tree_membership_repo.find_by_tree_and_user(
+            tree_id=str(tree_oid),
+            user_id=str(current_user.id)
+        )
+        
+        if not owner_membership:
+            await tree_membership_repo.create_membership(
+                tree_id=str(tree_oid),
+                user_id=str(current_user.id),
+                role="owner",
+                granted_by=str(current_user.id)
+            )
+    
     if person.relationships:
         for rel_spec in person.relationships:
             related_person_oid = genealogy_person_repo.validate_object_id(rel_spec.person_id, "related_person_id")

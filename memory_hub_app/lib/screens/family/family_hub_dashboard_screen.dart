@@ -37,6 +37,7 @@ import 'parental_controls_screen.dart';
 import 'family_document_vault_screen.dart';
 import 'genealogy_tree_screen.dart';
 import 'health_records_screen.dart';
+import 'family_circles_screen.dart';
 
 class FamilyHubDashboardScreen extends StatefulWidget {
   const FamilyHubDashboardScreen({Key? key}) : super(key: key);
@@ -387,9 +388,10 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                   value: _getStat('family_circles').toString(),
                   icon: Icons.groups,
                   gradientColors: MemoryHubGradients.milestones.colors,
-                  onTap: () {
-                    _showSnackBar('Family Circles feature coming soon!');
-                  },
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const FamilyCirclesScreen()),
+                  ),
                 ),
               ),
               Semantics(

@@ -1,12 +1,39 @@
 """Genealogy utility functions and mappers."""
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from bson import ObjectId
 from fastapi import HTTPException, status
 
-from .schemas import GenealogyPersonResponse, GenealogyRelationshipResponse, PersonSource
+from .schemas import GenealogyPersonResponse, GenealogyRelationshipResponse, PersonSource, RelationshipType
 from app.repositories.family_repository import UserRepository
 
 user_repo = UserRepository()
+
+
+def get_inverse_relationship_type(relationship_type: RelationshipType) -> Optional[RelationshipType]:
+    """Get the inverse relationship type for asymmetric relationships.
+    
+    For symmetric relationships (spouse, sibling, cousin), returns None as they don't need inversion.
+    For asymmetric relationships, returns the inverse type.
+    """
+    inverse_map = {
+        RelationshipType.PARENT: RelationshipType.CHILD,
+        RelationshipType.CHILD: RelationshipType.PARENT,
+        RelationshipType.GRANDPARENT: RelationshipType.GRANDCHILD,
+        RelationshipType.GRANDCHILD: RelationshipType.GRANDPARENT,
+        RelationshipType.AUNT_UNCLE: RelationshipType.NIECE_NEPHEW,
+        RelationshipType.NIECE_NEPHEW: RelationshipType.AUNT_UNCLE,
+    }
+    return inverse_map.get(relationship_type)
+
+
+def is_symmetric_relationship(relationship_type: RelationshipType) -> bool:
+    """Check if a relationship type is symmetric (bidirectional by nature)."""
+    symmetric_types = {
+        RelationshipType.SPOUSE,
+        RelationshipType.SIBLING,
+        RelationshipType.COUSIN,
+    }
+    return relationship_type in symmetric_types
 
 
 def person_doc_to_response(person_doc: dict) -> GenealogyPersonResponse:

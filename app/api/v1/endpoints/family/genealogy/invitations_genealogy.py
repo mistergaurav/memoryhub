@@ -216,12 +216,14 @@ async def redeem_invite_link(
             )
             
             if not membership_exists:
-                await tree_membership_repo.create_membership(
-                    tree_id=str(invite_doc["family_id"]),
-                    user_id=str(current_user.id),
-                    role="member",
-                    granted_by=str(invite_doc["created_by"])
-                )
+                membership_data = {
+                    "tree_id": invite_doc["family_id"],
+                    "user_id": ObjectId(current_user.id),
+                    "role": "member",
+                    "joined_at": datetime.utcnow(),
+                    "granted_by": invite_doc["created_by"]
+                }
+                await tree_membership_repo.collection.insert_one(membership_data, session=session)
     
     joiner_name = await get_user_display_name(
         {"username": getattr(current_user, 'username', None),
