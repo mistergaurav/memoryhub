@@ -3,7 +3,7 @@ import '../common/family_exceptions.dart';
 import '../../../models/family/genealogy_tree_node.dart';
 
 class GenealogyTreeService extends FamilyApiClient {
-  Future<Map<String, dynamic>> getTree({String? treeId}) async {
+  Future<dynamic> getTree({String? treeId}) async {
     try {
       final endpoint = treeId != null 
           ? '/family/genealogy/tree?tree_id=$treeId'
@@ -31,7 +31,7 @@ class GenealogyTreeService extends FamilyApiClient {
       
       // Check if we have a list (the data array from backend)
       if (tree is List) {
-        return tree
+        return (tree as List)
             .where((node) => node is Map<String, dynamic>)
             .map((node) => _convertNestedNodeToFlat(node as Map<String, dynamic>))
             .toList();
@@ -41,7 +41,7 @@ class GenealogyTreeService extends FamilyApiClient {
       if (tree is Map<String, dynamic>) {
         final nodesData = tree['nodes'] ?? tree['data'];
         if (nodesData is List) {
-          return nodesData
+          return (nodesData as List)
               .where((node) => node is Map<String, dynamic>)
               .map((node) => _convertNestedNodeToFlat(node as Map<String, dynamic>))
               .toList();
