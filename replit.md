@@ -6,6 +6,14 @@ The Memory Hub is a full-stack digital legacy platform designed to help families
 
 Preferred communication style: Simple, everyday language.
 
+# Recent Bug Fixes (November 2025)
+
+**Critical Genealogy & Frontend Stability Fixes:**
+- **Tree Service Data Parsing**: Fixed root cause of "Failed to load genealogy tree" error. Backend returns `{nodes: [...], relationships: [...], stats: {...}}` but frontend was treating it as a direct list. Updated `GenealogyTreeService.getTreeNodes()` to properly unwrap the response with defensive null checks and descriptive error messages.
+- **JSON Parser Type Safety**: Added `_parseStringList()` helper to `GenealogyPerson` and `GenealogyTreeNode` models to safely handle backend responses that can be `List<String>` or `List<Map>` (when friendship circles are enabled). This prevents type casting crashes in `family_circle_ids`, `hereditary_conditions`, `parent_ids`, `children_ids`, and `spouse_ids` fields.
+- **PersonCard Layout Overflow**: Fixed 21px RenderFlex overflow in genealogy grid view by changing `mainAxisAlignment: spaceBetween` to `mainAxisSize: min` and removing problematic `Spacer` widget. Added `maxLines` and `overflow: ellipsis` to prevent text overflow.
+- **Defensive Programming**: All list access now includes bounds checking and null guards. Empty list handling prevents `RangeError` exceptions throughout genealogy, relationship, and friendship circle features.
+
 # System Architecture
 
 ## Backend Architecture
