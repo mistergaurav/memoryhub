@@ -33,10 +33,30 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware
+# Build allowed origins list dynamically
+allowed_origins = [
+    "http://localhost:5000",
+    "https://localhost:5000",
+]
+
+# Add Replit preview domain if available
+replit_domain = os.getenv("REPLIT_DOMAINS")
+if replit_domain:
+    allowed_origins.extend([
+        f"https://{replit_domain}",
+        f"http://{replit_domain}",
+    ])
+
+# Add common localhost ports for development (iframe previews)
+for port in range(60000, 60300):
+    allowed_origins.append(f"http://localhost:{port}")
+
+# CORS middleware with specific origins to fix Access-Control-Allow-Origin header issue
+# Note: allow_origins=["*"] with allow_credentials=True causes Starlette to suppress
+# the Access-Control-Allow-Origin header, breaking CORS. We must enumerate origins.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

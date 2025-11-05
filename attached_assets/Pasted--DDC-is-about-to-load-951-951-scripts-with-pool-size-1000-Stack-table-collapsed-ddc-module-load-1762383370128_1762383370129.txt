@@ -1,0 +1,129 @@
+
+ DDC is about to load 951/951 scripts with pool size = 1000 Stack table collapsed
+ddc_module_loader.js:1015 DDC is about to load 951/951 scripts with pool size = 1000
+ This app is linked to the debug service: ws://127.0.0.1:60368/D_TDizzJE2E=/ws Stack table collapsed
+  This app is linked to the debug service: ws://127.0.0.1:60368/D_TDizzJE2E=/ws
+ Starting application from main method in: org-dartlang-app:/web_entrypoint.dart. Stack table collapsed
+ddc_module_loader.js:1583 Starting application from main method in: org-dartlang-app:/web_entrypoint.dart.
+ === Memory Hub Startup Debug === Stack table collapsed
+js_primitives.dart:28 === Memory Hub Startup Debug ===
+ API Config: {platform: web, baseUrl: http://localhost:5000/api/v1, wsBaseUrl: ws://localhost:5000/ws, environment: Local Web (localhost:5000), envBackendUrl: , envWsUrl: , defaultBackend: } Stack table collapsed
+js_primitives.dart:28 API Config: {platform: web, baseUrl: http://localhost:5000/api/v1, wsBaseUrl: ws://localhost:5000/ws, environment: Local Web (localhost:5000), envBackendUrl: , envWsUrl: , defaultBackend: }
+ Base URL: http://localhost:5000/api/v1 Stack table collapsed
+js_primitives.dart:28 Base URL: http://localhost:5000/api/v1
+ Environment: Local Web (localhost:5000) Stack table collapsed
+js_primitives.dart:28 Environment: Local Web (localhost:5000)
+ Checking authentication status... Stack table collapsed
+js_primitives.dart:28 Checking authentication status...
+ Is logged in: false Stack table collapsed
+js_primitives.dart:28 Is logged in: false
+ Navigating to LoginScreen Stack table collapsed
+js_primitives.dart:28 Navigating to LoginScreen
+ ══╡ EXCEPTION CAUGHT BY SCHEDULER LIBRARY ╞═════════════════════════════════════════════════════════ Stack table collapsed
+js_primitives.dart:28 ══╡ EXCEPTION CAUGHT BY SCHEDULER LIBRARY ╞═════════════════════════════════════════════════════════
+ The following DomException object was thrown during a scheduler callback: Stack table collapsed
+js_primitives.dart:28 The following DomException object was thrown during a scheduler callback:
+ InvalidStateError: Failed to execute 'setSelectionRange' on 'HTMLInputElement': The input Stack table collapsed
+js_primitives.dart:28   InvalidStateError: Failed to execute 'setSelectionRange' on 'HTMLInputElement': The input
+ element's type ('email') does not support selection. Stack table collapsed
+js_primitives.dart:28 element's type ('email') does not support selection.
+ Stack table collapsed
+js_primitives.dart:28 
+ When the exception was thrown, this was the stack: Stack table collapsed
+js_primitives.dart:28 When the exception was thrown, this was the stack:
+ lib/_engine/engine/dom.dart 1907:8 DomHTMLInputElement.setSelectionRange Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/dom.dart 1907:8                                                DomHTMLInputElement.setSelectionRange
+ lib/_engine/engine/text_editing/text_editing.dart 960:15 applyToDomElement Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/text_editing/text_editing.dart 960:15                          applyToDomElement
+ lib/_engine/engine/text_editing/text_editing.dart 1467:5 setEditingState Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/text_editing/text_editing.dart 1467:5                          setEditingState
+ lib/_engine/engine/text_editing/text_editing.dart 1633:7 enable Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/text_editing/text_editing.dart 1633:7                          enable
+ lib/_engine/engine/semantics/text_field.dart 81:11 activate Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/semantics/text_field.dart 81:11                                activate
+ lib/_engine/engine/semantics/text_field.dart 319:47 update Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/semantics/text_field.dart 319:47                               update
+ lib/_engine/engine/semantics/semantics.dart 2090:28 [_updateRole] Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/semantics/semantics.dart 2090:28                               [_updateRole]
+ lib/_engine/engine/semantics/semantics.dart 1758:5 updateSelf Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/semantics/semantics.dart 1758:5                                updateSelf
+ lib/_engine/engine/semantics/semantics.dart 2970:13 updateSemantics Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/semantics/semantics.dart 2970:13                               updateSemantics
+ lib/_engine/engine/window.dart 109:5 updateSemantics Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/window.dart 109:5                                              updateSemantics
+ package:flutter/src/rendering/view.dart 386:5 updateSemantics Stack table collapsed
+js_primitives.dart:28 package:flutter/src/rendering/view.dart 386:5                                     updateSemantics
+ package:flutter/src/rendering/binding.dart 268:48 <fn> Stack table collapsed
+js_primitives.dart:28 package:flutter/src/rendering/binding.dart 268:48                                 <fn>
+ package:flutter/src/semantics/semantics.dart 4358:22 sendSemanticsUpdate Stack table collapsed
+js_primitives.dart:28 package:flutter/src/semantics/semantics.dart 4358:22                              sendSemanticsUpdate
+ package:flutter/src/rendering/object.dart 1499:7 flushSemantics Stack table collapsed
+js_primitives.dart:28 package:flutter/src/rendering/object.dart 1499:7                                  flushSemantics
+ package:flutter/src/rendering/object.dart 1501:14 flushSemantics Stack table collapsed
+js_primitives.dart:28 package:flutter/src/rendering/object.dart 1501:14                                 flushSemantics
+ package:flutter/src/rendering/binding.dart 636:7 drawFrame Stack table collapsed
+js_primitives.dart:28 package:flutter/src/rendering/binding.dart 636:7                                  drawFrame
+ package:flutter/src/widgets/binding.dart 1261:13 drawFrame Stack table collapsed
+js_primitives.dart:28 package:flutter/src/widgets/binding.dart 1261:13                                  drawFrame
+ package:flutter/src/rendering/binding.dart 495:5 [_handlePersistentFrameCallback] Stack table collapsed
+js_primitives.dart:28 package:flutter/src/rendering/binding.dart 495:5                                  [_handlePersistentFrameCallback]
+ dart-sdk/lib/_internal/js_dev_runtime/private/ddc_runtime/operations.dart 118:77 tear Stack table collapsed
+js_primitives.dart:28 dart-sdk/lib/_internal/js_dev_runtime/private/ddc_runtime/operations.dart 118:77  tear
+ package:flutter/src/scheduler/binding.dart 1434:7 [_invokeFrameCallback] Stack table collapsed
+js_primitives.dart:28 package:flutter/src/scheduler/binding.dart 1434:7                                 [_invokeFrameCallback]
+ package:flutter/src/scheduler/binding.dart 1347:9 handleDrawFrame Stack table collapsed
+js_primitives.dart:28 package:flutter/src/scheduler/binding.dart 1347:9                                 handleDrawFrame
+ package:flutter/src/scheduler/binding.dart 1200:5 [_handleDrawFrame] Stack table collapsed
+js_primitives.dart:28 package:flutter/src/scheduler/binding.dart 1200:5                                 [_handleDrawFrame]
+ dart-sdk/lib/_internal/js_dev_runtime/private/ddc_runtime/operations.dart 118:77 tear Stack table collapsed
+js_primitives.dart:28 dart-sdk/lib/_internal/js_dev_runtime/private/ddc_runtime/operations.dart 118:77  tear
+ lib/_engine/engine/platform_dispatcher.dart 1522:5 invoke Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/platform_dispatcher.dart 1522:5                                invoke
+ lib/_engine/engine/platform_dispatcher.dart 265:5 invokeOnDrawFrame Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/platform_dispatcher.dart 265:5                                 invokeOnDrawFrame
+ lib/_engine/engine/frame_service.dart 192:32 [_renderFrame] Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/frame_service.dart 192:32                                      [_renderFrame]
+ lib/_engine/engine/frame_service.dart 99:9 <fn> Stack table collapsed
+js_primitives.dart:28 lib/_engine/engine/frame_service.dart 99:9                                        <fn>
+ dart-sdk/lib/async/zone.dart 1849:54 runUnary Stack table collapsed
+js_primitives.dart:28 dart-sdk/lib/async/zone.dart 1849:54                                              runUnary
+ dart-sdk/lib/async/zone.dart 1804:26 <fn> Stack table collapsed
+js_primitives.dart:28 dart-sdk/lib/async/zone.dart 1804:26                                              <fn>
+ dart-sdk/lib/_internal/js_dev_runtime/patch/js_allow_interop_patch.dart 224:27 _callDartFunctionFast1 Stack table collapsed
+js_primitives.dart:28 dart-sdk/lib/_internal/js_dev_runtime/patch/js_allow_interop_patch.dart 224:27    _callDartFunctionFast1
+ ════════════════════════════════════════════════════════════════════════════════════════════════════ Stack table collapsed
+js_primitives.dart:28 ════════════════════════════════════════════════════════════════════════════════════════════════════
+ Navigation completed successfully Stack table collapsed
+js_primitives.dart:28 Navigation completed successfully
+ === Memory Hub Startup Debug === Stack table collapsed
+js_primitives.dart:28 === Memory Hub Startup Debug ===
+ API Config: {platform: web, baseUrl: http://localhost:5000/api/v1, wsBaseUrl: ws://localhost:5000/ws, environment: Local Web (localhost:5000), envBackendUrl: , envWsUrl: , defaultBackend: } Stack table collapsed
+js_primitives.dart:28 API Config: {platform: web, baseUrl: http://localhost:5000/api/v1, wsBaseUrl: ws://localhost:5000/ws, environment: Local Web (localhost:5000), envBackendUrl: , envWsUrl: , defaultBackend: }
+ Base URL: http://localhost:5000/api/v1 Stack table collapsed
+js_primitives.dart:28 Base URL: http://localhost:5000/api/v1
+ Environment: Local Web (localhost:5000) Stack table collapsed
+js_primitives.dart:28 Environment: Local Web (localhost:5000)
+ Checking authentication status... Stack table collapsed
+js_primitives.dart:28 Checking authentication status...
+ Is logged in: true Stack table collapsed
+js_primitives.dart:28 Is logged in: true
+ Navigating to MainScreen Stack table collapsed
+js_primitives.dart:28 Navigating to MainScreen
+2
+ Another exception was thrown: A RenderFlex overflowed by 21 pixels on the bottom. Stack table collapsed
+js_primitives.dart:28 Another exception was thrown: A RenderFlex overflowed by 21 pixels on the bottom.
+Error
+(index):1 Access to fetch at 'http://localhost:5000/api/v1/activity/feed?page=1&limit=20' from origin 'http://localhost:60208' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. Stack table collapsed
+(index):1 Access to fetch at 'http://localhost:5000/api/v1/activity/feed?page=1&limit=20' from origin 'http://localhost:60208' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+Error
+:5000/api/v1/activit…d?page=1&limit=20:1 Failed to load resource: net::ERR_FAILED Stack table collapsed
+:5000/api/v1/activit…d?page=1&limit=20:1 Request unavailable in the network panel, try reloading the inspected page Failed to load resource: net::ERR_FAILED
+Error
+(index):1 Access to fetch at 'http://localhost:5000/api/v1/activity/?limit=10' (redirected from 'http://localhost:5000/api/v1/activity?limit=10') from origin 'http://localhost:60208' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. Stack table collapsed
+(index):1 Access to fetch at 'http://localhost:5000/api/v1/activity/?limit=10' (redirected from 'http://localhost:5000/api/v1/activity?limit=10') from origin 'http://localhost:60208' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+Error
+:5000/api/v1/activity/?limit=10:1 Failed to load resource: net::ERR_FAILED Stack table collapsed
+:5000/api/v1/activity/?limit=10:1 Request unavailable in the network panel, try reloading the inspected page Failed to load resource: net::ERR_FAILED
+Error
+:5000/api/v1/family/…f569d418d01f97db1:1 Failed to load resource: the server responded with a status of 404 (Not Found) Stack table collapsed
+:5000/api/v1/family/…f569d418d01f97db1:1 Request unavailable in the network panel, try reloading the inspected page Failed to load resource: the server responded with a status of 404 (Not Found)

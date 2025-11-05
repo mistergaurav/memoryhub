@@ -52,7 +52,7 @@ async def get_family_tree(
     tree_id: Optional[str] = Query(None, description="Tree ID (defaults to user's own tree)"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Get complete family tree structure"""
+    """Get complete family tree structure with nested person objects"""
     tree_oid = safe_object_id(tree_id) if tree_id else ObjectId(current_user.id)
     if not tree_oid:
         raise HTTPException(status_code=400, detail="Invalid tree_id")
@@ -75,7 +75,7 @@ async def get_family_tree(
     
     for rel_doc in relationships:
         rel = relationship_doc_to_response(rel_doc)
-        p1_id, p2_id = rel.person1_id, rel.person2_id
+        p1_id, p2_id = str(rel.person1_id), str(rel.person2_id)
         rel_type = rel.relationship_type.lower()
         
         if rel_type == "parent":
