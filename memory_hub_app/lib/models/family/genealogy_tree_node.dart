@@ -42,6 +42,27 @@ class GenealogyTreeNode {
     return parts.join(' ');
   }
 
+  static List<String> _parseStringList(dynamic value) {
+    if (value == null) return [];
+    
+    if (value is List) {
+      return value.map((item) {
+        if (item is String) {
+          return item;
+        } else if (item is Map) {
+          return item['id']?.toString() ?? item['name']?.toString() ?? '';
+        }
+        return item.toString();
+      }).where((s) => s.isNotEmpty).toList();
+    }
+    
+    if (value is String) {
+      return [value];
+    }
+    
+    return [];
+  }
+
   factory GenealogyTreeNode.fromJson(Map<String, dynamic> json) {
     return GenealogyTreeNode(
       id: json['id'] ?? json['_id'] ?? '',
@@ -53,9 +74,9 @@ class GenealogyTreeNode {
       generation: json['generation'] ?? 0,
       position: json['position'] ?? 0,
       photoUrl: json['photo_url'],
-      parentIds: List<String>.from(json['parent_ids'] ?? []),
-      childrenIds: List<String>.from(json['children_ids'] ?? []),
-      spouseIds: List<String>.from(json['spouse_ids'] ?? []),
+      parentIds: _parseStringList(json['parent_ids']),
+      childrenIds: _parseStringList(json['children_ids']),
+      spouseIds: _parseStringList(json['spouse_ids']),
       birthDate: json['birth_date'] != null 
           ? DateTime.parse(json['birth_date']) 
           : null,

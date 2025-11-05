@@ -25,17 +25,39 @@ class GenealogyTreeService extends FamilyApiClient {
   Future<List<GenealogyTreeNode>> getTreeNodes({String? treeId}) async {
     try {
       final tree = await getTree(treeId: treeId);
-      final data = tree['data'] ?? tree;
-      if (data is List) {
-        return data.map((node) => GenealogyTreeNode.fromJson(node as Map<String, dynamic>)).toList();
+      
+      // Backend returns: {nodes: [...], relationships: [...], stats: {...}}
+      // Try to unwrap the nodes array from different possible structures
+      dynamic nodesData = tree['nodes'] ?? tree['data'];
+      
+      // If still a map, try to get nodes or data from it
+      if (nodesData is Map<String, dynamic>) {
+        nodesData = nodesData['nodes'] ?? nodesData['data'];
       }
+      
+      // Now check if we have a list
+      if (nodesData is List) {
+        return nodesData
+            .where((node) => node is Map<String, dynamic>)
+            .map((node) => GenealogyTreeNode.fromJson(node as Map<String, dynamic>))
+            .toList();
+      }
+      
+      // If we couldn't find nodes, throw a descriptive error
+      if (tree is Map && tree.isNotEmpty) {
+        throw NetworkException(
+          message: 'Invalid tree data format. Expected "nodes" array but got: ${tree.keys.join(", ")}',
+          originalError: null,
+        );
+      }
+      
       return [];
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
       }
       throw NetworkException(
-        message: 'Failed to load tree nodes',
+        message: 'Failed to load tree nodes: ${e.toString()}',
         originalError: e,
       );
     }

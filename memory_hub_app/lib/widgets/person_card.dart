@@ -93,7 +93,7 @@ class PersonCard extends StatelessWidget {
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       fullName.isNotEmpty ? fullName : 'Unknown',
@@ -161,51 +161,49 @@ class PersonCard extends StatelessWidget {
                           color: Colors.grey.shade600,
                           fontStyle: FontStyle.italic,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    const Spacer(),
-                    if (healthRecordsCount > 0 || (hereditaryConditions != null && hereditaryConditions.isNotEmpty)) ...[
-                      Flexible(
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 4,
-                          children: [
-                            if (healthRecordsCount > 0) ...[
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.health_and_safety, size: 12, color: Colors.red.shade400),
-                                  const SizedBox(width: 3),
-                                  Text(
-                                    '$healthRecordsCount',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.red.shade600,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                    if (healthRecordsCount > 0 || hereditaryConditions.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: [
+                          if (healthRecordsCount > 0)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.health_and_safety, size: 12, color: Colors.red.shade400),
+                                const SizedBox(width: 3),
+                                Text(
+                                  '$healthRecordsCount',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.red.shade600,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ],
-                              ),
-                            ],
-                            if (hereditaryConditions != null && hereditaryConditions.isNotEmpty) ...[
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.family_restroom, size: 12, color: Colors.purple.shade400),
-                                  const SizedBox(width: 3),
-                                  Text(
-                                    '${hereditaryConditions.length}',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.purple.shade600,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                ),
+                              ],
+                            ),
+                          if (hereditaryConditions.isNotEmpty)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.family_restroom, size: 12, color: Colors.purple.shade400),
+                                const SizedBox(width: 3),
+                                Text(
+                                  '${hereditaryConditions.length}',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.purple.shade600,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ],
-                              ),
-                            ],
-                          ],
-                        ),
+                                ),
+                              ],
+                            ),
+                        ],
                       ),
                     ],
                   ],

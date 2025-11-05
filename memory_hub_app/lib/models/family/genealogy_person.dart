@@ -66,6 +66,27 @@ class GenealogyPerson {
     return fullName;
   }
 
+  static List<String> _parseStringList(dynamic value) {
+    if (value == null) return [];
+    
+    if (value is List) {
+      return value.map((item) {
+        if (item is String) {
+          return item;
+        } else if (item is Map) {
+          return item['id']?.toString() ?? item['name']?.toString() ?? '';
+        }
+        return item.toString();
+      }).where((s) => s.isNotEmpty).toList();
+    }
+    
+    if (value is String) {
+      return [value];
+    }
+    
+    return [];
+  }
+
   factory GenealogyPerson.fromJson(Map<String, dynamic> json) {
     return GenealogyPerson(
       id: json['id'] ?? json['_id'] ?? '',
@@ -87,13 +108,13 @@ class GenealogyPerson {
       photoUrl: json['photo_url'],
       generation: json['generation'] ?? 0,
       occupation: json['occupation'],
-      familyCircleIds: List<String>.from(json['family_circle_ids'] ?? []),
+      familyCircleIds: _parseStringList(json['family_circle_ids']),
       createdBy: json['created_by'] ?? '',
       createdByName: json['created_by_name'],
       age: json['age'],
       lifespan: json['lifespan'],
       healthRecordsCount: json['health_records_count'] ?? 0,
-      hereditaryConditions: List<String>.from(json['hereditary_conditions'] ?? []),
+      hereditaryConditions: _parseStringList(json['hereditary_conditions']),
       createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
       updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
     );
