@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/api_service.dart';
 import '../../../services/family/family_service.dart';
 import '../../../services/family/common/family_exceptions.dart';
 
@@ -13,6 +14,7 @@ enum SubmissionState {
 
 class AddHealthRecordController extends ChangeNotifier {
   final AuthService _authService = AuthService();
+  final ApiService _apiService = ApiService();
   final FamilyService _familyService = FamilyService();
 
   SubmissionState _state = SubmissionState.idle;
@@ -195,12 +197,9 @@ class AddHealthRecordController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final currentUserId = await _authService.getCurrentUserId();
-      if (currentUserId == null) {
-        throw AuthException(
-          message: 'Unable to get user information. Please try logging in again.',
-        );
-      }
+      // Get current user's ObjectId from /users/me endpoint
+      final currentUser = await _apiService.getCurrentUser();
+      final currentUserObjectId = currentUser.id;
 
       final Map<String, dynamic> recordData = {
         'record_type': recordType,
@@ -218,7 +217,7 @@ class AddHealthRecordController extends ChangeNotifier {
 
       if (subjectCategory == 'myself') {
         recordData['subject_type'] = 'self';
-        recordData['subject_user_id'] = currentUserId;
+        recordData['subject_user_id'] = currentUserObjectId;
       } else if (subjectCategory == 'user') {
         recordData['subject_type'] = 'self';
         recordData['subject_user_id'] = selectedUserId;

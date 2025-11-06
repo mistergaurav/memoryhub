@@ -113,6 +113,9 @@ async def create_health_record(
             message="Health record created successfully",
             data=health_record_to_response(record_doc, member_name)
         )
+    except HTTPException:
+        # Re-raise HTTPException as-is (don't wrap as 500)
+        raise
     except ValueError as e:
         logger.error(f"Validation error creating health record: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
@@ -125,6 +128,7 @@ async def create_health_record(
 
 
 @router.get("/")
+@router.get("")
 async def list_health_records(
     family_member_id: Optional[str] = Query(None),
     record_type: Optional[RecordType] = Query(None),

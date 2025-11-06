@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 from bson import ObjectId
 
@@ -42,7 +42,7 @@ async def create_notification(
     target_id: Optional[str] = None
 ):
     """Helper function to create a notification"""
-    notification_data = {
+    notification_data: Dict[str, Any] = {
         "user_id": ObjectId(user_id),
         "type": notification_type,
         "title": title,
@@ -68,7 +68,7 @@ async def list_notifications(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """List notifications for current user"""
-    query = {"user_id": ObjectId(current_user.id)}
+    query: Dict[str, Any] = {"user_id": ObjectId(current_user.id)}
     
     if is_read is not None:
         query["is_read"] = is_read

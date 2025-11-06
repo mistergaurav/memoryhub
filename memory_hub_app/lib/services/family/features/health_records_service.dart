@@ -76,4 +76,57 @@ class FamilyHealthRecordsService extends FamilyApiClient {
       );
     }
   }
+
+  Future<HealthRecord> approveHealthRecord(String recordId) async {
+    try {
+      if (recordId.isEmpty) {
+        throw ApiException(
+          message: 'Invalid record ID',
+          statusCode: 400,
+          detail: 'Record ID cannot be empty',
+        );
+      }
+
+      final data = await post('/family/health-records/$recordId/approve');
+      return HealthRecord.fromJson(data['data'] ?? data);
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to approve health record',
+        originalError: e,
+      );
+    }
+  }
+
+  Future<HealthRecord> rejectHealthRecord(String recordId, {String? rejectionReason}) async {
+    try {
+      if (recordId.isEmpty) {
+        throw ApiException(
+          message: 'Invalid record ID',
+          statusCode: 400,
+          detail: 'Record ID cannot be empty',
+        );
+      }
+
+      final params = rejectionReason != null && rejectionReason.isNotEmpty
+          ? {'rejection_reason': rejectionReason}
+          : null;
+
+      final data = await post(
+        '/family/health-records/$recordId/reject',
+        params: params,
+      );
+      return HealthRecord.fromJson(data['data'] ?? data);
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to reject health record',
+        originalError: e,
+      );
+    }
+  }
 }
