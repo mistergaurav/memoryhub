@@ -2003,7 +2003,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/family/relationships'),
+          Uri.parse('$baseUrl/family/core/relationships'),
           headers: headers,
         ),
       );
