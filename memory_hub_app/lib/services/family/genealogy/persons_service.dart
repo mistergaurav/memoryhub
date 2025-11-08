@@ -21,7 +21,7 @@ class GenealogyPersonsService extends FamilyApiClient {
         useCache: true,
       );
       
-      final items = data['data'] ?? data['items'] ?? [];
+      final items = data['data']?['items'] ?? data['items'] ?? [];
       if (items is List) {
         return items.map((item) => GenealogyPerson.fromJson(item as Map<String, dynamic>)).toList();
       }
@@ -110,7 +110,7 @@ class GenealogyPersonsService extends FamilyApiClient {
         useCache: true,
       );
       
-      final items = data['data'] ?? data['items'] ?? [];
+      final items = data['data']?['items'] ?? data['items'] ?? [];
       if (items is List) {
         return items.map((item) => GenealogyPerson.fromJson(item as Map<String, dynamic>)).toList();
       }

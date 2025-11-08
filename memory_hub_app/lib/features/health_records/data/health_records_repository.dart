@@ -44,7 +44,7 @@ class HealthRecordsRepository {
       subjectType: subjectType,
     );
 
-    final items = response['data'] ?? response['items'] ?? [];
+    final items = response['data']?['items'] ?? response['items'] ?? [];
     final records = (items as List)
         .map((item) => HealthRecord.fromJson(item as Map<String, dynamic>))
         .toList();

@@ -47,6 +47,13 @@ if replit_domain:
         f"http://{replit_domain}",
     ])
 
+# Add common Flutter development server ports (flutter run -d chrome usually uses 8080)
+for port in [3000, 3001, 4200, 5173, 8000, 8080, 8081, 8082, 5500, 5501]:
+    allowed_origins.extend([
+        f"http://localhost:{port}",
+        f"http://127.0.0.1:{port}",
+    ])
+
 # Add common localhost ports for development (iframe previews)
 for port in range(60000, 60300):
     allowed_origins.append(f"http://localhost:{port}")
