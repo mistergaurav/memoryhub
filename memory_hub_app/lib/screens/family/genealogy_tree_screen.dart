@@ -10,7 +10,7 @@ import '../../widgets/states/family_error_state.dart';
 import '../../widgets/states/family_empty_state.dart';
 import '../../widgets/animated/family_skeleton_loader.dart';
 import '../../widgets/person_card.dart';
-import '../../dialogs/family/add_person_dialog.dart';
+import '../../dialogs/family/add_person_wizard.dart';
 import '../../dialogs/family/add_relationship_dialog.dart';
 import '../../widgets/default_avatar.dart';
 import '../../design_system/family_design_system.dart';
@@ -296,11 +296,11 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
   }
 
   void _showAddPersonDialog() async {
-    final result = await showDialog(
+    final result = await showDialog<bool>(
       context: context,
-      builder: (context) => const AddPersonDialog(),
+      builder: (context) => const AddPersonWizard(),
     );
-    if (result != null) {
+    if (result == true) {
       _loadData();
     }
   }

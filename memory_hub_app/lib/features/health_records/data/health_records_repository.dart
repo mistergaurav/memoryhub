@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import '../models/health_record.dart';
 import 'health_records_api.dart';
 
@@ -17,11 +16,9 @@ class HealthRecordsRepository {
   void clearCache() {
     _cache.clear();
     _lastFetch = null;
-    debugPrint('🧹 HealthRecordsRepository: Cache cleared');
   }
 
   Future<Map<String, dynamic>> getDashboard() async {
-    debugPrint('📊 HealthRecordsRepository: Fetching dashboard');
     return await _api.getDashboard();
   }
 
@@ -36,11 +33,9 @@ class HealthRecordsRepository {
     final cacheKey = '${recordType ?? 'all'}_${severity ?? 'all'}_${subjectType ?? 'all'}';
     
     if (!forceRefresh && _isCacheValid && _cache.containsKey(cacheKey)) {
-      debugPrint('📦 HealthRecordsRepository: Returning ${_cache[cacheKey]!.length} records from cache');
       return _cache[cacheKey]!;
     }
 
-    debugPrint('🌐 HealthRecordsRepository: Fetching records from API (page: $page, limit: $limit, type: $recordType)');
     final response = await _api.getRecords(
       page: page,
       limit: limit,
@@ -49,33 +44,11 @@ class HealthRecordsRepository {
       subjectType: subjectType,
     );
 
-    debugPrint('📥 HealthRecordsRepository: Response keys: ${response.keys}');
-    
-    final items = response['items'] ?? response['data'] ?? [];
-    debugPrint('📋 HealthRecordsRepository: Extracted ${items is List ? items.length : 0} items');
-    
-    if (items is! List) {
-      debugPrint('❌ HealthRecordsRepository: Items is not a List, type: ${items.runtimeType}');
-      debugPrint('Full response: $response');
-      throw Exception('Invalid response format: items should be a List but got ${items.runtimeType}');
-    }
+    final items = response['data'] ?? response['items'] ?? [];
+    final records = (items as List)
+        .map((item) => HealthRecord.fromJson(item as Map<String, dynamic>))
+        .toList();
 
-    final records = <HealthRecord>[];
-    for (int i = 0; i < items.length; i++) {
-      try {
-        final item = items[i];
-        if (item is Map<String, dynamic>) {
-          records.add(HealthRecord.fromJson(item));
-        } else {
-          debugPrint('⚠️ HealthRecordsRepository: Item $i is not a Map<String, dynamic>, type: ${item.runtimeType}');
-        }
-      } catch (e, stackTrace) {
-        debugPrint('❌ HealthRecordsRepository: Error parsing record $i: $e');
-        debugPrint('Stack trace: $stackTrace');
-      }
-    }
-
-    debugPrint('✅ HealthRecordsRepository: Successfully parsed ${records.length} records');
     _cache[cacheKey] = records;
     _lastFetch = DateTime.now();
 

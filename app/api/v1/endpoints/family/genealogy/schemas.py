@@ -70,26 +70,14 @@ class GenealogyPersonCreate(BaseModel):
     def validate_date_format(cls, v):
         if v is None or v == "":
             return v
-        
-        # Try YYYY-MM-DD format first (preferred)
         date_pattern = r'^\d{4}-\d{2}-\d{2}$'
-        if re.match(date_pattern, v):
-            try:
-                datetime.strptime(v, '%Y-%m-%d')
-                return v
-            except ValueError:
-                raise ValueError('Invalid date value')
-        
-        # Try to parse ISO-8601 format (with time and timezone)
+        if not re.match(date_pattern, v):
+            raise ValueError('Date must be in YYYY-MM-DD format or empty')
         try:
-            # Parse ISO format and extract just the date part
-            parsed_date = datetime.fromisoformat(v.replace('Z', '+00:00'))
-            return parsed_date.strftime('%Y-%m-%d')
-        except (ValueError, AttributeError):
-            pass
-        
-        # If all parsing attempts fail, raise error
-        raise ValueError('Date must be in YYYY-MM-DD format or ISO-8601 format')
+            datetime.strptime(v, '%Y-%m-%d')
+        except ValueError:
+            raise ValueError('Invalid date value')
+        return v
 
 
 class GenealogyPersonUpdate(BaseModel):
@@ -114,26 +102,14 @@ class GenealogyPersonUpdate(BaseModel):
     def validate_date_format(cls, v):
         if v is None or v == "":
             return v
-        
-        # Try YYYY-MM-DD format first (preferred)
         date_pattern = r'^\d{4}-\d{2}-\d{2}$'
-        if re.match(date_pattern, v):
-            try:
-                datetime.strptime(v, '%Y-%m-%d')
-                return v
-            except ValueError:
-                raise ValueError('Invalid date value')
-        
-        # Try to parse ISO-8601 format (with time and timezone)
+        if not re.match(date_pattern, v):
+            raise ValueError('Date must be in YYYY-MM-DD format or empty')
         try:
-            # Parse ISO format and extract just the date part
-            parsed_date = datetime.fromisoformat(v.replace('Z', '+00:00'))
-            return parsed_date.strftime('%Y-%m-%d')
-        except (ValueError, AttributeError):
-            pass
-        
-        # If all parsing attempts fail, raise error
-        raise ValueError('Date must be in YYYY-MM-DD format or ISO-8601 format')
+            datetime.strptime(v, '%Y-%m-%d')
+        except ValueError:
+            raise ValueError('Invalid date value')
+        return v
 
 
 class GenealogyPersonResponse(BaseModel):
