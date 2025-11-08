@@ -1240,7 +1240,7 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       final response = await _handleRequest(
         () => http.get(
-          Uri.parse('$baseUrl/family/parental-controls/approvals'),
+          Uri.parse('$baseUrl/family/parental-controls/approval-requests/pending'),
           headers: headers,
         ),
       );
@@ -1275,8 +1275,9 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family/parental-controls/approvals/$requestId/approve'),
+          Uri.parse('$baseUrl/family/parental-controls/approval-requests/$requestId/review'),
           headers: headers,
+          body: jsonEncode({'status': 'approved'}),
         ),
       );
     } on ApiException {
@@ -1306,9 +1307,9 @@ class FamilyService {
       final headers = await _authService.getAuthHeaders();
       await _handleRequest(
         () => http.post(
-          Uri.parse('$baseUrl/family/parental-controls/approvals/$requestId/reject'),
+          Uri.parse('$baseUrl/family/parental-controls/approval-requests/$requestId/review'),
           headers: headers,
-          body: jsonEncode({'reason': reason}),
+          body: jsonEncode({'status': 'rejected', 'parent_notes': reason}),
         ),
       );
     } on ApiException {
