@@ -1,12 +1,16 @@
+import 'package:flutter/foundation.dart';
 import '../../../services/family/common/family_api_client.dart';
 import '../../../services/family/common/family_exceptions.dart';
 
 class HealthRecordsApi extends FamilyApiClient {
   Future<Map<String, dynamic>> getDashboard() async {
     try {
+      debugPrint('🔍 HealthRecordsApi: GET /family/health-records/dashboard');
       final data = await get('/family/health-records/dashboard', useCache: true);
+      debugPrint('✅ HealthRecordsApi: Dashboard response received');
       return data['data'] ?? data;
     } catch (e) {
+      debugPrint('❌ HealthRecordsApi: Dashboard error: $e');
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
       }
@@ -33,9 +37,13 @@ class HealthRecordsApi extends FamilyApiClient {
         if (subjectType != null) 'subject_type': subjectType,
       };
       
+      debugPrint('🔍 HealthRecordsApi: GET /family/health-records with params: $params');
       final data = await get('/family/health-records', params: params, useCache: true);
+      debugPrint('✅ HealthRecordsApi: Records response received with keys: ${data.keys}');
+      debugPrint('📊 HealthRecordsApi: Items count: ${data['items']?.length ?? data['data']?.length ?? 0}');
       return data;
     } catch (e) {
+      debugPrint('❌ HealthRecordsApi: Records error: $e');
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
       }

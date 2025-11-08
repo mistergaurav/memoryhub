@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
+@Deprecated('Use AddPersonDialog instead. This wizard is being replaced with a streamlined dialog that uses expandable sections for better UX. The new AddPersonDialog provides the same functionality with a simpler, more intuitive interface.')
 class AddPersonWizard extends StatefulWidget {
   const AddPersonWizard({Key? key}) : super(key: key);
 

@@ -43,6 +43,7 @@ class HealthRecordsController extends ChangeNotifier {
 
   Future<void> loadRecords({bool forceRefresh = false}) async {
     try {
+      debugPrint('🔄 HealthRecordsController: Loading records (forceRefresh: $forceRefresh)');
       _state = HealthRecordsState.loading;
       _errorMessage = null;
       notifyListeners();
@@ -51,14 +52,25 @@ class HealthRecordsController extends ChangeNotifier {
         forceRefresh: forceRefresh,
       );
 
+      debugPrint('📦 HealthRecordsController: Loaded ${_allRecords.length} records from repository');
+
       _applyFilters();
 
-      if (_filteredRecords.isEmpty) {
+      debugPrint('🔍 HealthRecordsController: After filtering: ${_filteredRecords.length} records');
+
+      if (_filteredRecords.isEmpty && _allRecords.isEmpty) {
+        debugPrint('📭 HealthRecordsController: No records found (empty state)');
         _state = HealthRecordsState.empty;
-      } else {
+      } else if (_filteredRecords.isNotEmpty) {
+        debugPrint('✅ HealthRecordsController: Records loaded successfully');
         _state = HealthRecordsState.loaded;
+      } else {
+        debugPrint('⚠️ HealthRecordsController: All records filtered out');
+        _state = HealthRecordsState.empty;
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('❌ HealthRecordsController: Error loading records: $e');
+      debugPrint('Stack trace: $stackTrace');
       _state = HealthRecordsState.error;
       _errorMessage = _extractErrorMessage(e.toString());
     } finally {

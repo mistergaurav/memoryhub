@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../services/family/family_service.dart';
 
 class AddPersonDialog extends StatefulWidget {
-  final Function(Map<String, dynamic>) onSubmit;
   final Map<String, dynamic>? initialData;
 
   const AddPersonDialog({
     Key? key,
-    required this.onSubmit,
     this.initialData,
   }) : super(key: key);
 
@@ -17,6 +16,8 @@ class AddPersonDialog extends StatefulWidget {
 
 class _AddPersonDialogState extends State<AddPersonDialog> {
   final _formKey = GlobalKey<FormState>();
+  final FamilyService _familyService = FamilyService();
+  
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _maidenNameController = TextEditingController();
@@ -29,6 +30,7 @@ class _AddPersonDialogState extends State<AddPersonDialog> {
   DateTime? _birthDate;
   DateTime? _deathDate;
   bool _isLoading = false;
+  bool _isAdvancedExpanded = false;
 
   @override
   void initState() {
@@ -119,13 +121,193 @@ class _AddPersonDialogState extends State<AddPersonDialog> {
     }
 
     try {
-      await widget.onSubmit(data);
+      final createdPerson = await _familyService.createPerson(data);
+      
       if (mounted) {
-        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Person added successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        Navigator.of(context).pop(createdPerson);
       }
     } catch (e) {
       setState(() => _isLoading = false);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to add person: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'Dismiss',
+              textColor: Colors.white,
+              onPressed: () {},
+            ),
+          ),
+        );
+      }
     }
+  }
+
+  Widget _buildCoreFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _firstNameController,
+                decoration: const InputDecoration(
+                  labelText: 'First Name *',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'First name is required';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: TextFormField(
+                controller: _lastNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Last Name *',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Last name is required';
+                  }
+                  return null;
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        InkWell(
+          onTap: () => _selectDate(context, true),
+          child: InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Birth Date',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.cake),
+            ),
+            child: Text(
+              _birthDate != null
+                  ? DateFormat('MMM d, yyyy').format(_birthDate!)
+                  : 'Select date',
+              style: TextStyle(
+                color: _birthDate != null ? Colors.black : Colors.grey,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        DropdownButtonFormField<String>(
+          value: _selectedGender,
+          decoration: const InputDecoration(
+            labelText: 'Gender *',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.wc),
+          ),
+          items: const [
+            DropdownMenuItem(value: 'male', child: Text('Male')),
+            DropdownMenuItem(value: 'female', child: Text('Female')),
+            DropdownMenuItem(value: 'other', child: Text('Other')),
+          ],
+          onChanged: (value) {
+            if (value != null) {
+              setState(() => _selectedGender = value);
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAdvancedFields() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _maidenNameController,
+          decoration: const InputDecoration(
+            labelText: 'Maiden Name',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.badge),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _birthPlaceController,
+          decoration: const InputDecoration(
+            labelText: 'Birth Place',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.location_on),
+          ),
+        ),
+        const SizedBox(height: 16),
+        InkWell(
+          onTap: () => _selectDate(context, false),
+          child: InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Death Date',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.event_busy),
+            ),
+            child: Text(
+              _deathDate != null
+                  ? DateFormat('MMM d, yyyy').format(_deathDate!)
+                  : 'Select date',
+              style: TextStyle(
+                color: _deathDate != null ? Colors.black : Colors.grey,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _deathPlaceController,
+          decoration: const InputDecoration(
+            labelText: 'Death Place',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.location_on_outlined),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _occupationController,
+          decoration: const InputDecoration(
+            labelText: 'Occupation',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.work),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _bioController,
+          decoration: const InputDecoration(
+            labelText: 'Biography / Notes',
+            border: OutlineInputBorder(),
+            prefixIcon: Icon(Icons.description),
+            alignLabelWithHint: true,
+          ),
+          maxLines: 4,
+        ),
+      ],
+    );
   }
 
   @override
@@ -173,152 +355,60 @@ class _AddPersonDialogState extends State<AddPersonDialog> {
                 ),
               ],
             ),
+            const SizedBox(height: 8),
+            Text(
+              'Fill out the essential information below. Tap "Advanced Options" for additional fields.',
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey[600],
+              ),
+            ),
             const SizedBox(height: 24),
             Expanded(
               child: Form(
                 key: _formKey,
                 child: ListView(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _firstNameController,
-                            decoration: const InputDecoration(
-                              labelText: 'First Name *',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.person),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'First name is required';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _lastNameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Last Name *',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.person_outline),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Last name is required';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
+                    _buildCoreFields(),
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _maidenNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Maiden Name',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.badge),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _selectedGender,
-                      decoration: const InputDecoration(
-                        labelText: 'Gender *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.wc),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 'male', child: Text('Male')),
-                        DropdownMenuItem(value: 'female', child: Text('Female')),
-                        DropdownMenuItem(value: 'other', child: Text('Other')),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => _selectedGender = value);
-                        }
+                    ExpansionPanelList(
+                      elevation: 1,
+                      expandedHeaderPadding: EdgeInsets.zero,
+                      expansionCallback: (int index, bool isExpanded) {
+                        setState(() {
+                          _isAdvancedExpanded = !isExpanded;
+                        });
                       },
-                    ),
-                    const SizedBox(height: 16),
-                    InkWell(
-                      onTap: () => _selectDate(context, true),
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Birth Date',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.cake),
-                        ),
-                        child: Text(
-                          _birthDate != null
-                              ? DateFormat('MMM d, yyyy').format(_birthDate!)
-                              : 'Select date',
-                          style: TextStyle(
-                            color: _birthDate != null ? Colors.black : Colors.grey,
+                      children: [
+                        ExpansionPanel(
+                          headerBuilder: (BuildContext context, bool isExpanded) {
+                            return ListTile(
+                              leading: Icon(
+                                Icons.tune,
+                                color: isExpanded ? const Color(0xFFF59E0B) : Colors.grey,
+                              ),
+                              title: Text(
+                                'Advanced Options',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: isExpanded ? const Color(0xFFF59E0B) : Colors.black,
+                                ),
+                              ),
+                              subtitle: Text(
+                                isExpanded 
+                                    ? 'Optional fields for additional details'
+                                    : 'Tap to add maiden name, dates, occupation, etc.',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            );
+                          },
+                          body: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: _buildAdvancedFields(),
                           ),
+                          isExpanded: _isAdvancedExpanded,
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _birthPlaceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Birth Place',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.location_on),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    InkWell(
-                      onTap: () => _selectDate(context, false),
-                      child: InputDecorator(
-                        decoration: const InputDecoration(
-                          labelText: 'Death Date',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.event_busy),
-                        ),
-                        child: Text(
-                          _deathDate != null
-                              ? DateFormat('MMM d, yyyy').format(_deathDate!)
-                              : 'Select date',
-                          style: TextStyle(
-                            color: _deathDate != null ? Colors.black : Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _deathPlaceController,
-                      decoration: const InputDecoration(
-                        labelText: 'Death Place',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.location_on_outlined),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _occupationController,
-                      decoration: const InputDecoration(
-                        labelText: 'Occupation',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.work),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _bioController,
-                      decoration: const InputDecoration(
-                        labelText: 'Biography',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.description),
-                        alignLabelWithHint: true,
-                      ),
-                      maxLines: 4,
+                      ],
                     ),
                   ],
                 ),

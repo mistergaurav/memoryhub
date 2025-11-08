@@ -75,6 +75,80 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
     );
   }
 
+  void _showStatistics() {
+    final stats = _controller.getRecordTypeStats();
+    final recentCount = _controller.getRecentRecordsCount(days: 30);
+    final recentWeekCount = _controller.getRecentRecordsCount(days: 7);
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(HealthRecordsDesignSystem.radiusLarge),
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.bar_chart_rounded,
+              color: HealthRecordsDesignSystem.deepCobalt,
+            ),
+            const SizedBox(width: HealthRecordsDesignSystem.spacing12),
+            const Text('Health Records Statistics'),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildStatRow('Total Records', _controller.totalRecords.toString()),
+              _buildStatRow('This Week', recentWeekCount.toString()),
+              _buildStatRow('This Month', recentCount.toString()),
+              const Divider(height: 24),
+              const Text(
+                'By Record Type',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              const SizedBox(height: 8),
+              ...stats.entries.map((entry) => _buildStatRow(
+                entry.key.replaceAll('_', ' ').toUpperCase(),
+                entry.value.toString(),
+              )),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: HealthRecordsDesignSystem.textTheme.bodyMedium,
+          ),
+          Text(
+            value,
+            style: HealthRecordsDesignSystem.textTheme.bodyLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: HealthRecordsDesignSystem.deepCobalt,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -187,15 +261,176 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
           offset: const Offset(0, 50),
           onSelected: (value) {
             switch (value) {
+              case 'sort_date_desc':
+                _controller.setSortBy('date_desc');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sorted by: Newest First'), duration: Duration(seconds: 1)),
+                );
+                break;
+              case 'sort_date_asc':
+                _controller.setSortBy('date_asc');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sorted by: Oldest First'), duration: Duration(seconds: 1)),
+                );
+                break;
+              case 'sort_title_asc':
+                _controller.setSortBy('title_asc');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sorted by: Title (A-Z)'), duration: Duration(seconds: 1)),
+                );
+                break;
+              case 'sort_title_desc':
+                _controller.setSortBy('title_desc');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Sorted by: Title (Z-A)'), duration: Duration(seconds: 1)),
+                );
+                break;
               case 'clear_filters':
                 _controller.clearFilters();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Filters cleared'), duration: Duration(seconds: 1)),
+                );
                 break;
               case 'refresh':
                 _handleRefresh();
                 break;
+              case 'export':
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Export feature coming soon'), duration: Duration(seconds: 2)),
+                );
+                break;
+              case 'statistics':
+                _showStatistics();
+                break;
+              case 'clear_cache':
+                _controller.clearCache();
+                _handleRefresh();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Cache cleared and refreshed'), duration: Duration(seconds: 1)),
+                );
+                break;
             }
           },
           itemBuilder: (context) => [
+            const PopupMenuItem(
+              enabled: false,
+              child: Text(
+                'Sort By',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'sort_date_desc',
+              child: Row(
+                children: [
+                  Icon(
+                    _controller.selectedSortBy == 'date_desc' ? Icons.check_circle_rounded : Icons.circle_outlined,
+                    size: 18,
+                    color: _controller.selectedSortBy == 'date_desc' 
+                        ? HealthRecordsDesignSystem.deepCobalt
+                        : HealthRecordsDesignSystem.textSecondary,
+                  ),
+                  const SizedBox(width: HealthRecordsDesignSystem.spacing12),
+                  Text(
+                    'Newest First',
+                    style: HealthRecordsDesignSystem.textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'sort_date_asc',
+              child: Row(
+                children: [
+                  Icon(
+                    _controller.selectedSortBy == 'date_asc' ? Icons.check_circle_rounded : Icons.circle_outlined,
+                    size: 18,
+                    color: _controller.selectedSortBy == 'date_asc' 
+                        ? HealthRecordsDesignSystem.deepCobalt
+                        : HealthRecordsDesignSystem.textSecondary,
+                  ),
+                  const SizedBox(width: HealthRecordsDesignSystem.spacing12),
+                  Text(
+                    'Oldest First',
+                    style: HealthRecordsDesignSystem.textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'sort_title_asc',
+              child: Row(
+                children: [
+                  Icon(
+                    _controller.selectedSortBy == 'title_asc' ? Icons.check_circle_rounded : Icons.circle_outlined,
+                    size: 18,
+                    color: _controller.selectedSortBy == 'title_asc' 
+                        ? HealthRecordsDesignSystem.deepCobalt
+                        : HealthRecordsDesignSystem.textSecondary,
+                  ),
+                  const SizedBox(width: HealthRecordsDesignSystem.spacing12),
+                  Text(
+                    'Title (A-Z)',
+                    style: HealthRecordsDesignSystem.textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'sort_title_desc',
+              child: Row(
+                children: [
+                  Icon(
+                    _controller.selectedSortBy == 'title_desc' ? Icons.check_circle_rounded : Icons.circle_outlined,
+                    size: 18,
+                    color: _controller.selectedSortBy == 'title_desc' 
+                        ? HealthRecordsDesignSystem.deepCobalt
+                        : HealthRecordsDesignSystem.textSecondary,
+                  ),
+                  const SizedBox(width: HealthRecordsDesignSystem.spacing12),
+                  Text(
+                    'Title (Z-A)',
+                    style: HealthRecordsDesignSystem.textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+            const PopupMenuDivider(),
+            PopupMenuItem(
+              value: 'statistics',
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.bar_chart_rounded,
+                    size: 18,
+                    color: HealthRecordsDesignSystem.textSecondary,
+                  ),
+                  const SizedBox(width: HealthRecordsDesignSystem.spacing12),
+                  Text(
+                    'View Statistics',
+                    style: HealthRecordsDesignSystem.textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'export',
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.download_rounded,
+                    size: 18,
+                    color: HealthRecordsDesignSystem.textSecondary,
+                  ),
+                  const SizedBox(width: HealthRecordsDesignSystem.spacing12),
+                  Text(
+                    'Export Records',
+                    style: HealthRecordsDesignSystem.textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+            const PopupMenuDivider(),
             PopupMenuItem(
               value: 'clear_filters',
               child: Row(
@@ -208,6 +443,23 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
                   const SizedBox(width: HealthRecordsDesignSystem.spacing12),
                   Text(
                     'Clear Filters',
+                    style: HealthRecordsDesignSystem.textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'clear_cache',
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.cleaning_services_rounded,
+                    size: 18,
+                    color: HealthRecordsDesignSystem.textSecondary,
+                  ),
+                  const SizedBox(width: HealthRecordsDesignSystem.spacing12),
+                  Text(
+                    'Clear Cache',
                     style: HealthRecordsDesignSystem.textTheme.bodyMedium,
                   ),
                 ],
