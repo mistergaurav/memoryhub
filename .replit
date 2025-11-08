@@ -1,4 +1,4 @@
-modules = ["python-3.12", "cpp-clang14", "bash", "postgresql-16"]
+modules = ["python-3.12", "cpp-clang14", "bash"]
 [agent]
 expertMode = true
 
@@ -64,6 +64,10 @@ externalPort = 5000
 [[ports]]
 localPort = 36693
 externalPort = 4200
+
+[[ports]]
+localPort = 37687
+externalPort = 6000
 
 [[ports]]
 localPort = 41347

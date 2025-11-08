@@ -7,8 +7,9 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     
-    # Security - Generate a random key for development, override with env var in production
-    SECRET_KEY: str = secrets.token_urlsafe(32)
+    # Security - Fixed key for development to prevent token invalidation on restart
+    # Override with SECRET_KEY environment variable in production
+    SECRET_KEY: str = "ruVHU-4Pol1dzKCpfrH51mExSE9ab38u5jyo5gPg9cU"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
