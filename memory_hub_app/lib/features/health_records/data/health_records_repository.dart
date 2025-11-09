@@ -92,6 +92,12 @@ class HealthRecordsRepository {
     clearCache();
   }
 
+  Future<Map<String, dynamic>> skipReminder(String reminderId) async {
+    final data = await _api.skipReminder(reminderId);
+    clearCache();
+    return data;
+  }
+
   Map<String, int> getRecordTypeStats(List<HealthRecord> records) {
     final stats = <String, int>{};
     for (final record in records) {

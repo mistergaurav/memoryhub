@@ -149,4 +149,19 @@ class HealthRecordsApi extends FamilyApiClient {
       );
     }
   }
+
+  Future<Map<String, dynamic>> skipReminder(String reminderId) async {
+    try {
+      final data = await post('/family/health-records/reminders/$reminderId/complete');
+      return data['data'] ?? data;
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to skip reminder',
+        originalError: e,
+      );
+    }
+  }
 }

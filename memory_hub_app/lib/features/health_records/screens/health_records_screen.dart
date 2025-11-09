@@ -8,6 +8,7 @@ import '../widgets/empty_state_widget.dart';
 import '../../../dialogs/family/add_health_record_dialog.dart';
 import '../../../widgets/shimmer_loading.dart';
 import '../../../widgets/enhanced_empty_state.dart';
+import 'health_record_details_screen.dart';
 
 class HealthRecordsScreen extends StatefulWidget {
   const HealthRecordsScreen({Key? key}) : super(key: key);
@@ -64,15 +65,12 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
   }
 
   void _showRecordDetails(String recordId) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Opening details for record: $recordId'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(HealthRecordsDesignSystem.radiusMedium),
-        ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HealthRecordDetailsScreen(recordId: recordId),
       ),
-    );
+    ).then((_) => _controller.loadRecords(forceRefresh: true));
   }
 
   @override

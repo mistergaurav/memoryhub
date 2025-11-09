@@ -22,11 +22,22 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
   final _providerController = TextEditingController();
   final _locationController = TextEditingController();
   final _notesController = TextEditingController();
+  
+  final _dosageController = TextEditingController();
+  final _vaccineNameController = TextEditingController();
+  final _doseNumberController = TextEditingController();
+  final _testNameController = TextEditingController();
+  final _resultsController = TextEditingController();
 
   String _recordType = 'medical';
   String _severity = 'low';
   DateTime _selectedDate = DateTime.now();
   bool _isConfidential = true;
+  
+  String _medicationFrequency = 'daily';
+  TimeOfDay? _dailyReminderTime;
+  DateTime? _vaccinationReminderDate;
+  DateTime? _labResultReminderDate;
 
   String _subjectCategory = 'myself';
   String? _selectedUserId;
@@ -81,6 +92,14 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
     {'value': 'refill', 'label': 'Refill'},
     {'value': 'custom', 'label': 'Custom'},
   ];
+  
+  final List<Map<String, String>> _medicationFrequencies = [
+    {'value': 'daily', 'label': 'Daily'},
+    {'value': 'twice_daily', 'label': 'Twice Daily'},
+    {'value': 'three_times_daily', 'label': 'Three Times Daily'},
+    {'value': 'weekly', 'label': 'Weekly'},
+    {'value': 'as_needed', 'label': 'As Needed'},
+  ];
 
   @override
   void initState() {
@@ -106,6 +125,11 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
     _providerController.dispose();
     _locationController.dispose();
     _notesController.dispose();
+    _dosageController.dispose();
+    _vaccineNameController.dispose();
+    _doseNumberController.dispose();
+    _testNameController.dispose();
+    _resultsController.dispose();
     super.dispose();
   }
 
@@ -261,6 +285,15 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
       enableReminder: _enableReminder,
       reminderDueDate: _reminderDueDate,
       reminderType: _reminderType,
+      dosage: _dosageController.text,
+      medicationFrequency: _medicationFrequency,
+      dailyReminderTime: _dailyReminderTime?.format(context),
+      vaccineName: _vaccineNameController.text,
+      doseNumber: _doseNumberController.text,
+      vaccinationReminderDate: _vaccinationReminderDate,
+      testName: _testNameController.text,
+      results: _resultsController.text,
+      labResultReminderDate: _labResultReminderDate,
     );
 
     if (success && mounted) {
@@ -295,6 +328,15 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
       title: _titleController.text,
       description: _descriptionController.text,
       selectedDate: _selectedDate,
+      dosage: _dosageController.text,
+      medicationFrequency: _medicationFrequency,
+      dailyReminderTime: _dailyReminderTime?.format(context),
+      vaccineName: _vaccineNameController.text,
+      doseNumber: _doseNumberController.text,
+      vaccinationReminderDate: _vaccinationReminderDate,
+      testName: _testNameController.text,
+      results: _resultsController.text,
+      labResultReminderDate: _labResultReminderDate,
       provider: _providerController.text,
       location: _locationController.text,
       severity: _severity,
@@ -1036,6 +1078,266 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                         ),
                       ],
                     ),
+                    if (_recordType == 'medication') ...[
+                      const SizedBox(height: 16),
+                      _buildSectionCard(
+                        title: 'Medication Details',
+                        icon: Icons.medication,
+                        helperText: 'Specific information about this medication',
+                        children: [
+                          TextFormField(
+                            controller: _dosageController,
+                            decoration: _buildInputDecoration(
+                              label: 'Dosage *',
+                              icon: Icons.healing,
+                              helperText: 'e.g., 500mg, 1 tablet',
+                            ),
+                            style: GoogleFonts.inter(),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Dosage is required for medications';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<String>(
+                            value: _medicationFrequency,
+                            decoration: _buildInputDecoration(
+                              label: 'Frequency *',
+                              icon: Icons.schedule,
+                              helperText: 'How often to take this medication',
+                            ),
+                            style: GoogleFonts.inter(color: _typographyDark),
+                            items: _medicationFrequencies.map((freq) {
+                              return DropdownMenuItem(
+                                value: freq['value'],
+                                child: Text(freq['label']!),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _medicationFrequency = value!;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          InkWell(
+                            onTap: () async {
+                              final TimeOfDay? picked = await showTimePicker(
+                                context: context,
+                                initialTime: _dailyReminderTime ?? TimeOfDay.now(),
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: Theme.of(context).copyWith(
+                                      colorScheme: const ColorScheme.light(
+                                        primary: _primaryTeal,
+                                        onPrimary: Colors.white,
+                                        surface: Colors.white,
+                                        onSurface: _typographyDark,
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                              );
+                              if (picked != null) {
+                                setState(() {
+                                  _dailyReminderTime = picked;
+                                });
+                              }
+                            },
+                            child: InputDecorator(
+                              decoration: _buildInputDecoration(
+                                label: 'Daily Reminder Time (optional)',
+                                icon: Icons.alarm,
+                                helperText: 'Set a time for daily reminder',
+                              ),
+                              child: Text(
+                                _dailyReminderTime != null
+                                    ? _dailyReminderTime!.format(context)
+                                    : 'Tap to set reminder time',
+                                style: GoogleFonts.inter(
+                                  color: _dailyReminderTime != null
+                                      ? _typographyDark
+                                      : const Color(0xFF6B7280),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (_recordType == 'vaccination') ...[
+                      const SizedBox(height: 16),
+                      _buildSectionCard(
+                        title: 'Vaccination Details',
+                        icon: Icons.vaccines,
+                        helperText: 'Information about this vaccination',
+                        children: [
+                          TextFormField(
+                            controller: _vaccineNameController,
+                            decoration: _buildInputDecoration(
+                              label: 'Vaccine Name *',
+                              icon: Icons.medical_services,
+                              helperText: 'e.g., COVID-19, Flu, MMR',
+                            ),
+                            style: GoogleFonts.inter(),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Vaccine name is required';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _doseNumberController,
+                            decoration: _buildInputDecoration(
+                              label: 'Dose Number',
+                              icon: Icons.numbers,
+                              helperText: 'e.g., 1st dose, 2nd dose, booster',
+                            ),
+                            style: GoogleFonts.inter(),
+                            keyboardType: TextInputType.text,
+                          ),
+                          const SizedBox(height: 16),
+                          InkWell(
+                            onTap: () async {
+                              final DateTime? picked = await showDatePicker(
+                                context: context,
+                                initialDate: _vaccinationReminderDate ?? DateTime.now().add(const Duration(days: 30)),
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime.now().add(const Duration(days: 365)),
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: Theme.of(context).copyWith(
+                                      colorScheme: const ColorScheme.light(
+                                        primary: _primaryTeal,
+                                        onPrimary: Colors.white,
+                                        surface: Colors.white,
+                                        onSurface: _typographyDark,
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                              );
+                              if (picked != null) {
+                                setState(() {
+                                  _vaccinationReminderDate = picked;
+                                });
+                              }
+                            },
+                            child: InputDecorator(
+                              decoration: _buildInputDecoration(
+                                label: 'Next Dose Reminder (optional)',
+                                icon: Icons.event_available,
+                                helperText: 'Set reminder for next dose',
+                              ),
+                              child: Text(
+                                _vaccinationReminderDate != null
+                                    ? DateFormat('MMM d, yyyy').format(_vaccinationReminderDate!)
+                                    : 'Tap to set reminder date',
+                                style: GoogleFonts.inter(
+                                  color: _vaccinationReminderDate != null
+                                      ? _typographyDark
+                                      : const Color(0xFF6B7280),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (_recordType == 'lab_result') ...[
+                      const SizedBox(height: 16),
+                      _buildSectionCard(
+                        title: 'Lab Result Details',
+                        icon: Icons.science,
+                        helperText: 'Details about this lab test',
+                        children: [
+                          TextFormField(
+                            controller: _testNameController,
+                            decoration: _buildInputDecoration(
+                              label: 'Test Name *',
+                              icon: Icons.biotech,
+                              helperText: 'e.g., Blood Test, X-Ray, MRI',
+                            ),
+                            style: GoogleFonts.inter(),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Test name is required';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _resultsController,
+                            decoration: _buildInputDecoration(
+                              label: 'Test Results *',
+                              icon: Icons.assignment_turned_in,
+                              helperText: 'Enter the lab test results',
+                            ),
+                            style: GoogleFonts.inter(),
+                            maxLines: 4,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Test results are required';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          InkWell(
+                            onTap: () async {
+                              final DateTime? picked = await showDatePicker(
+                                context: context,
+                                initialDate: _labResultReminderDate ?? DateTime.now().add(const Duration(days: 90)),
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime.now().add(const Duration(days: 365)),
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: Theme.of(context).copyWith(
+                                      colorScheme: const ColorScheme.light(
+                                        primary: _primaryTeal,
+                                        onPrimary: Colors.white,
+                                        surface: Colors.white,
+                                        onSurface: _typographyDark,
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
+                              );
+                              if (picked != null) {
+                                setState(() {
+                                  _labResultReminderDate = picked;
+                                });
+                              }
+                            },
+                            child: InputDecorator(
+                              decoration: _buildInputDecoration(
+                                label: 'Follow-up Reminder (optional)',
+                                icon: Icons.event_repeat,
+                                helperText: 'Set reminder for follow-up test',
+                              ),
+                              child: Text(
+                                _labResultReminderDate != null
+                                    ? DateFormat('MMM d, yyyy').format(_labResultReminderDate!)
+                                    : 'Tap to set reminder date',
+                                style: GoogleFonts.inter(
+                                  color: _labResultReminderDate != null
+                                      ? _typographyDark
+                                      : const Color(0xFF6B7280),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     Container(
                       decoration: BoxDecoration(

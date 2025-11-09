@@ -190,6 +190,15 @@ class AddHealthRecordController extends ChangeNotifier {
     bool enableReminder = false,
     DateTime? reminderDueDate,
     String? reminderType,
+    String? dosage,
+    String? medicationFrequency,
+    String? dailyReminderTime,
+    String? vaccineName,
+    String? doseNumber,
+    DateTime? vaccinationReminderDate,
+    String? testName,
+    String? results,
+    DateTime? labResultReminderDate,
   }) async {
     _state = SubmissionState.submitting;
     _errorMessage = null;
@@ -214,6 +223,38 @@ class AddHealthRecordController extends ChangeNotifier {
         'attachments': [],
         'is_confidential': isConfidential,
       };
+      
+      if (recordType == 'medication' && dosage != null) {
+        recordData['dosage'] = dosage.trim();
+        recordData['frequency'] = medicationFrequency;
+        if (dailyReminderTime != null) {
+          recordData['daily_reminder_time'] = dailyReminderTime;
+        }
+      }
+      
+      if (recordType == 'vaccination') {
+        if (vaccineName != null) {
+          recordData['vaccine_name'] = vaccineName.trim();
+        }
+        if (doseNumber != null && doseNumber.trim().isNotEmpty) {
+          recordData['dose_number'] = doseNumber.trim();
+        }
+        if (vaccinationReminderDate != null) {
+          recordData['vaccination_reminder_date'] = DateFormat('yyyy-MM-dd').format(vaccinationReminderDate);
+        }
+      }
+      
+      if (recordType == 'lab_result') {
+        if (testName != null) {
+          recordData['test_name'] = testName.trim();
+        }
+        if (results != null) {
+          recordData['results'] = results.trim();
+        }
+        if (labResultReminderDate != null) {
+          recordData['lab_result_reminder_date'] = DateFormat('yyyy-MM-dd').format(labResultReminderDate);
+        }
+      }
 
       if (subjectCategory == 'myself') {
         recordData['subject_type'] = 'self';
@@ -260,6 +301,15 @@ class AddHealthRecordController extends ChangeNotifier {
     bool enableReminder = false,
     DateTime? reminderDueDate,
     String? reminderType,
+    String? dosage,
+    String? medicationFrequency,
+    String? dailyReminderTime,
+    String? vaccineName,
+    String? doseNumber,
+    DateTime? vaccinationReminderDate,
+    String? testName,
+    String? results,
+    DateTime? labResultReminderDate,
   }) async {
     if (_retryCount >= _maxRetries) {
       _errorMessage = 'Maximum retry attempts reached. Please try again later.';
@@ -287,6 +337,15 @@ class AddHealthRecordController extends ChangeNotifier {
       enableReminder: enableReminder,
       reminderDueDate: reminderDueDate,
       reminderType: reminderType,
+      dosage: dosage,
+      medicationFrequency: medicationFrequency,
+      dailyReminderTime: dailyReminderTime,
+      vaccineName: vaccineName,
+      doseNumber: doseNumber,
+      vaccinationReminderDate: vaccinationReminderDate,
+      testName: testName,
+      results: results,
+      labResultReminderDate: labResultReminderDate,
     );
   }
 
