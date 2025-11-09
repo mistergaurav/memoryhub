@@ -86,8 +86,50 @@ For custom backend URLs, you can set:
 # For desktop builds
 flutter build windows --dart-define=BACKEND_URL=https://your-backend.com/api/v1
 
-# For connecting to Replit backend from Windows
-flutter build windows --dart-define=BACKEND_URL=https://your-replit-app.replit.dev/api/v1
+# For connecting to Replit backend from Windows (use your actual Replit domain)
+flutter build windows --dart-define=BACKEND_URL=https://bbc3e691-e1b8-41e3-ad62-a62a3159571d-00-2r3b07h1jb67b.janeway.replit.dev/api/v1
+
+# Or for running in development mode
+flutter run -d windows --dart-define=BACKEND_URL=https://bbc3e691-e1b8-41e3-ad62-a62a3159571d-00-2r3b07h1jb67b.janeway.replit.dev/api/v1
+```
+
+## Connecting Windows Desktop App to Replit Backend
+
+If you're running the Flutter app on Windows but want to connect to your Replit backend:
+
+### Quick Run Command
+
+```bash
+cd memory_hub_app
+flutter run -d windows --dart-define=BACKEND_URL=https://bbc3e691-e1b8-41e3-ad62-a62a3159571d-00-2r3b07h1jb67b.janeway.replit.dev/api/v1
+```
+
+### Fixing "ERR_CONNECTION_REFUSED" Error
+
+If you see connection refused errors when trying to register/login:
+
+1. **Ensure Replit Backend is Running**: Check that your Backend workflow in Replit shows "RUNNING" status
+2. **Verify the URL**: The domain above should match your Replit project's domain
+3. **Use HTTPS**: Replit requires `https://` not `http://`
+4. **Check Network**: Make sure your Windows machine can access the internet
+
+### Verifying Connection
+
+After running the app with the backend URL configured, you should be able to:
+- Sign up for a new account
+- Login with existing credentials
+- Access health records and other features
+
+If you still get connection errors, add this debug code temporarily to check the configuration:
+
+```dart
+import 'package:memory_hub_app/config/api_config.dart';
+
+void main() {
+  print('Backend URL: ${ApiConfig.baseUrl}');
+  print('Environment: ${ApiConfig.currentEnvironment}');
+  runApp(MyApp());
+}
 ```
 
 ## Troubleshooting
