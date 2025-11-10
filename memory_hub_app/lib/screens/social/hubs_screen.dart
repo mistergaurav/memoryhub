@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../../services/auth_service.dart';
 import '../../config/api_config.dart';
 import 'hub_detail_screen.dart';
+import '../../design_system/design_system.dart';
 
 class HubsScreen extends StatefulWidget {
   const HubsScreen({super.key});
@@ -61,7 +62,7 @@ class _HubsScreenState extends State<HubsScreen> {
                 hintText: 'Enter hub name',
               ),
             ),
-            const SizedBox(height: 16),
+            VGap.md,
             TextField(
               controller: descController,
               decoration: const InputDecoration(
@@ -77,7 +78,7 @@ class _HubsScreenState extends State<HubsScreen> {
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          PrimaryButton(
             onPressed: () async {
               if (nameController.text.isNotEmpty) {
                 final headers = await _authService.getAuthHeaders();
@@ -126,18 +127,17 @@ class _HubsScreenState extends State<HubsScreen> {
                       Icon(
                         Icons.workspaces_outline,
                         size: 64,
-                        color: Colors.grey[400],
+                        color: context.colors.onSurface.withOpacity(0.3),
                       ),
-                      const SizedBox(height: 16),
+                      VGap.md,
                       Text(
                         'No hubs yet',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey[600],
+                        style: context.text.titleMedium?.copyWith(
+                          color: context.colors.onSurface.withOpacity(0.6),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      ElevatedButton.icon(
+                      VGap.sm,
+                      PrimaryButton.icon(
                         onPressed: _createHub,
                         icon: const Icon(Icons.add),
                         label: const Text('Create Your First Hub'),
@@ -146,12 +146,12 @@ class _HubsScreenState extends State<HubsScreen> {
                   ),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: Spacing.edgeInsetsAll16,
                   itemCount: _hubs.length,
                   itemBuilder: (context, index) {
                     final hub = _hubs[index];
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
+                    return AppCard(
+                      margin: Spacing.edgeInsetsBottomSm,
                       child: ListTile(
                         leading: CircleAvatar(
                           child: Text(hub['name'][0].toUpperCase()),
@@ -164,13 +164,12 @@ class _HubsScreenState extends State<HubsScreen> {
                           children: [
                             Text(
                               '${hub['member_count']} members',
-                              style: const TextStyle(fontSize: 12),
+                              style: context.text.bodySmall,
                             ),
                             Text(
                               hub['my_role'] ?? '',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Theme.of(context).colorScheme.primary,
+                              style: context.text.labelSmall?.copyWith(
+                                color: context.colors.primary,
                               ),
                             ),
                           ],

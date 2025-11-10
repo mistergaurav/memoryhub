@@ -7,6 +7,7 @@ import '../../config/api_config.dart';
 import '../memories/memory_detail_screen.dart';
 import 'hub_info_screen.dart';
 import '../../widgets/share_bottom_sheet.dart';
+import '../../design_system/design_system.dart';
 
 class HubDetailScreen extends StatefulWidget {
   final String hubId;
@@ -25,7 +26,6 @@ class HubDetailScreen extends StatefulWidget {
 class _HubDetailScreenState extends State<HubDetailScreen> {
   final AuthService _authService = AuthService();
   List<dynamic> _memories = [];
-  // Map<String, dynamic>? _hubInfo; // Reserved for future use
   bool _isLoading = true;
 
   @override
@@ -44,10 +44,6 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
         headers: headers,
       );
 
-      // if (hubResponse.statusCode == 200) {
-      //   _hubInfo = jsonDecode(hubResponse.body);
-      // }
-
       final memoriesResponse = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/social/hubs/${widget.hubId}/memories'),
         headers: headers,
@@ -64,9 +60,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading hub: $e')),
-        );
+        AppSnackbar.error(context, 'Error loading hub: $e');
       }
     }
   }
@@ -97,7 +91,6 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
     bool isLoading = true;
     String? error;
 
-    // Load user's memories
     try {
       final headers = await _authService.getAuthHeaders();
       final response = await http.get(
@@ -124,8 +117,8 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
         builder: (context, setState) => AlertDialog(
           title: Row(
             children: [
-              Icon(Icons.share, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 12),
+              Icon(Icons.share, color: context.colors.primary),
+              HGap.sm,
               const Text('Share Memory to Hub'),
             ],
           ),
@@ -139,9 +132,9 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
-                            const SizedBox(height: 16),
-                            Text(error, style: TextStyle(color: Colors.red[700])),
+                            Icon(Icons.error_outline, size: 48, color: context.colors.error.withOpacity(0.7)),
+                            VGap.md,
+                            Text(error, style: TextStyle(color: context.colors.error)),
                           ],
                         ),
                       )
@@ -150,16 +143,20 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.photo_library_outlined, size: 64, color: Colors.grey[400]),
-                                const SizedBox(height: 16),
+                                Icon(Icons.photo_library_outlined, size: 64, color: context.colors.onSurface.withOpacity(0.3)),
+                                VGap.md,
                                 Text(
                                   'No memories to share',
-                                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                                  style: context.text.titleMedium?.copyWith(
+                                    color: context.colors.onSurface.withOpacity(0.6),
+                                  ),
                                 ),
-                                const SizedBox(height: 8),
+                                VGap.sm,
                                 Text(
                                   'Create a memory first',
-                                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                                  style: context.text.bodySmall?.copyWith(
+                                    color: context.colors.onSurface.withOpacity(0.5),
+                                  ),
                                 ),
                               ],
                             ),
@@ -168,12 +165,12 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                             itemCount: myMemories.length,
                             itemBuilder: (context, index) {
                               final memory = myMemories[index];
-                              return Card(
-                                margin: const EdgeInsets.only(bottom: 12),
+                              return AppCard(
+                                margin: Spacing.edgeInsetsBottomSm,
                                 child: ListTile(
                                   leading: memory['image_url'] != null
                                       ? ClipRRect(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: Radius.sm,
                                           child: Image.network(
                                             ApiConfig.getAssetUrl(memory['image_url']),
                                             width: 60,
@@ -183,7 +180,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                               return Container(
                                                 width: 60,
                                                 height: 60,
-                                                color: Colors.grey[300],
+                                                color: context.colors.surfaceVariant,
                                                 child: const Icon(Icons.broken_image, size: 24),
                                               );
                                             },
@@ -193,27 +190,28 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                           width: 60,
                                           height: 60,
                                           decoration: BoxDecoration(
-                                            color: Theme.of(context).colorScheme.primaryContainer,
-                                            borderRadius: BorderRadius.circular(8),
+                                            color: context.colors.primaryContainer,
+                                            borderRadius: Radius.sm,
                                           ),
                                           child: Icon(
                                             Icons.photo,
-                                            color: Theme.of(context).colorScheme.primary,
+                                            color: context.colors.primary,
                                           ),
                                         ),
                                   title: Text(
                                     memory['title'] ?? 'Untitled',
-                                    style: const TextStyle(fontWeight: FontWeight.w600),
+                                    style: context.text.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                                   ),
                                   subtitle: Text(
                                     _formatDate(memory['created_at']),
-                                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                                    style: context.text.bodySmall?.copyWith(
+                                      color: context.colors.onSurface.withOpacity(0.6),
+                                    ),
                                   ),
                                   trailing: IconButton(
                                     icon: const Icon(Icons.send),
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color: context.colors.primary,
                                     onPressed: () async {
-                                      // Share this memory to the hub
                                       try {
                                         final headers = await _authService.getAuthHeaders();
                                         final response = await http.post(
@@ -229,40 +227,21 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
 
                                         if (response.statusCode == 200 ||
                                             response.statusCode == 201) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content: Row(
-                                                children: [
-                                                  const Icon(Icons.check_circle,
-                                                      color: Colors.white),
-                                                  const SizedBox(width: 12),
-                                                  Text(
-                                                      '${memory['title'] ?? 'Memory'} shared to hub!'),
-                                                ],
-                                              ),
-                                              backgroundColor: Colors.green,
-                                              behavior: SnackBarBehavior.floating,
-                                            ),
+                                          AppSnackbar.success(
+                                            context,
+                                            '${memory['title'] ?? 'Memory'} shared to hub!',
                                           );
-                                          _loadHubData(); // Reload to show the new memory
+                                          _loadHubData();
                                         } else {
                                           final error = jsonDecode(response.body);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            SnackBar(
-                                              content:
-                                                  Text(error['detail'] ?? 'Failed to share memory'),
-                                              backgroundColor: Colors.red,
-                                            ),
+                                          AppSnackbar.error(
+                                            context,
+                                            error['detail'] ?? 'Failed to share memory',
                                           );
                                         }
                                       } catch (e) {
                                         Navigator.pop(context);
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text('Error: $e'),
-                                            backgroundColor: Colors.red,
-                                          ),
-                                        );
+                                        AppSnackbar.error(context, 'Error: $e');
                                       }
                                     },
                                   ),
@@ -298,9 +277,9 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.secondary,
-                      Theme.of(context).colorScheme.tertiary,
+                      context.colors.primary,
+                      context.colors.secondary,
+                      context.colors.tertiary,
                     ],
                   ),
                 ),
@@ -349,22 +328,20 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                     Icon(
                       Icons.photo_library_outlined,
                       size: 64,
-                      color: Colors.grey[400],
+                      color: context.colors.onSurface.withOpacity(0.3),
                     ),
-                    const SizedBox(height: 16),
+                    VGap.md,
                     Text(
                       'No memories in this hub yet',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey[600],
+                      style: context.text.titleMedium?.copyWith(
+                        color: context.colors.onSurface.withOpacity(0.6),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    VGap.sm,
                     Text(
                       'Memories shared to this hub will appear here',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
+                      style: context.text.bodyMedium?.copyWith(
+                        color: context.colors.onSurface.withOpacity(0.5),
                       ),
                     ),
                   ],
@@ -373,14 +350,13 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: Spacing.edgeInsetsAll16,
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     final memory = _memories[index];
-                    return Card(
-                      elevation: 2,
-                      margin: const EdgeInsets.only(bottom: 16),
+                    return AppCard(
+                      margin: Spacing.edgeInsetsBottom16,
                       child: InkWell(
                         onTap: () {
                           Navigator.push(
@@ -408,75 +384,74 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
                                       height: 200,
-                                      color: Colors.grey[300],
+                                      color: context.colors.surfaceVariant,
                                       child: const Icon(Icons.broken_image, size: 48),
                                     );
                                   },
                                 ),
                               ),
-                            Padding(
-                              padding: const EdgeInsets.all(16),
+                            Padded.all16(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     memory['title'] ?? 'Untitled',
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    style: context.text.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  VGap.sm,
                                   Text(
                                     memory['content'] ?? '',
-                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    style: context.text.bodyMedium,
                                     maxLines: 3,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 12),
+                                  VGap.sm,
                                   Row(
                                     children: [
                                       CircleAvatar(
                                         radius: 16,
-                                        backgroundColor: Theme.of(context).colorScheme.primary,
+                                        backgroundColor: context.colors.primary,
                                         child: Text(
                                           (memory['owner_name'] ?? 'U')[0].toUpperCase(),
                                           style: const TextStyle(color: Colors.white, fontSize: 14),
                                         ),
                                       ),
-                                      const SizedBox(width: 8),
+                                      HGap.sm,
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               memory['owner_name'] ?? 'Unknown',
-                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
+                                              style: context.text.bodySmall?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                             ),
                                             Text(
                                               _formatDate(memory['created_at']),
-                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                    color: Colors.grey[600],
-                                                  ),
+                                              style: context.text.bodySmall?.copyWith(
+                                                color: context.colors.onSurface.withOpacity(0.6),
+                                              ),
                                             ),
                                           ],
                                         ),
                                       ),
                                       Row(
                                         children: [
-                                          Icon(Icons.favorite_border, size: 20, color: Colors.grey[600]),
+                                          Icon(Icons.favorite_border, size: 20, color: context.colors.onSurface.withOpacity(0.6)),
                                           const SizedBox(width: 4),
                                           Text(
                                             '${memory['like_count'] ?? 0}',
-                                            style: TextStyle(color: Colors.grey[600]),
+                                            style: TextStyle(color: context.colors.onSurface.withOpacity(0.6)),
                                           ),
-                                          const SizedBox(width: 12),
-                                          Icon(Icons.comment_outlined, size: 20, color: Colors.grey[600]),
+                                          HGap.sm,
+                                          Icon(Icons.comment_outlined, size: 20, color: context.colors.onSurface.withOpacity(0.6)),
                                           const SizedBox(width: 4),
                                           Text(
                                             '${memory['comment_count'] ?? 0}',
-                                            style: TextStyle(color: Colors.grey[600]),
+                                            style: TextStyle(color: context.colors.onSurface.withOpacity(0.6)),
                                           ),
                                         ],
                                       ),
@@ -484,7 +459,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                   ),
                                   if (memory['tags'] != null && (memory['tags'] as List).isNotEmpty)
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 12),
+                                      padding: Spacing.edgeInsetsTopSm,
                                       child: Wrap(
                                         spacing: 8,
                                         runSpacing: 8,
@@ -493,7 +468,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                             .map((tag) => Chip(
                                                   label: Text(tag.toString()),
                                                   visualDensity: VisualDensity.compact,
-                                                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                                  backgroundColor: context.colors.primaryContainer,
                                                 ))
                                             .toList(),
                                       ),

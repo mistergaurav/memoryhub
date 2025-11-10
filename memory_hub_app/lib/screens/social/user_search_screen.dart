@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../services/auth_service.dart';
 import '../../config/api_config.dart';
+import '../../design_system/design_system.dart';
 
 class UserSearchScreen extends StatefulWidget {
   const UserSearchScreen({super.key});
@@ -44,9 +45,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Search error: $e')),
-      );
+      AppSnackbar.error(context, 'Search error: $e');
     }
   }
 
@@ -68,9 +67,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       _searchUsers(_searchController.text);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      AppSnackbar.error(context, 'Error: $e');
     }
   }
 
@@ -82,8 +79,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
+          Padded.all16(
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -111,7 +107,9 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                           _searchController.text.isEmpty
                               ? 'Search for users'
                               : 'No users found',
-                          style: TextStyle(color: Colors.grey[600]),
+                          style: context.text.bodyMedium?.copyWith(
+                            color: context.colors.onSurface.withOpacity(0.6),
+                          ),
                         ),
                       )
                     : ListView.builder(
@@ -120,7 +118,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                           final user = _users[index];
                           return ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              backgroundColor: context.colors.primary,
                               backgroundImage: user['avatar_url'] != null
                                   ? NetworkImage(ApiConfig.getAssetUrl(user['avatar_url']))
                                   : null,
@@ -140,22 +138,21 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                                 user['country']
                               ].where((e) => e != null).join(' • '),
                             ),
-                            trailing: ElevatedButton(
-                              onPressed: () => _toggleFollow(
-                                user['id'],
-                                user['is_following'] ?? false,
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: user['is_following'] == true
-                                    ? Colors.grey
-                                    : Theme.of(context).colorScheme.primary,
-                              ),
-                              child: Text(
-                                user['is_following'] == true
-                                    ? 'Unfollow'
-                                    : 'Follow',
-                              ),
-                            ),
+                            trailing: user['is_following'] == true
+                                ? SecondaryButton(
+                                    onPressed: () => _toggleFollow(
+                                      user['id'],
+                                      user['is_following'] ?? false,
+                                    ),
+                                    child: const Text('Unfollow'),
+                                  )
+                                : PrimaryButton(
+                                    onPressed: () => _toggleFollow(
+                                      user['id'],
+                                      user['is_following'] ?? false,
+                                    ),
+                                    child: const Text('Follow'),
+                                  ),
                             onTap: () {
                               Navigator.pushNamed(
                                 context,
