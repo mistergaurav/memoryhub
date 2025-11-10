@@ -261,7 +261,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
-                        label: 'Cancel',
+                        child: const Text('Cancel'),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(context, true),

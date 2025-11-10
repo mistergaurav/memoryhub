@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../tokens/duration_tokens.dart';
+import '../tokens/duration_tokens.dart' as custom;
 import 'motion.dart';
 
 /// Animated visibility widget with fade and size transitions
@@ -22,7 +22,7 @@ class AnimatedVisibilityX extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveDuration = Motion.duration(
       context,
-      duration ?? Durations.base,
+      duration ?? custom.Durations.base,
     );
     final effectiveCurve = curve ?? Motion.standard;
 

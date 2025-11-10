@@ -154,38 +154,39 @@ class _HubsScreenState extends State<HubsScreen> {
                       padding: Spacing.edgeInsetsBottomSm,
                       child: AppCard(
                         child: ListTile(
-                        leading: CircleAvatar(
-                          child: Text(hub['name'][0].toUpperCase()),
-                        ),
-                        title: Text(hub['name']),
-                        subtitle: Text(hub['description'] ?? ''),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '${hub['member_count']} members',
-                              style: context.text.bodySmall,
-                            ),
-                            Text(
-                              hub['my_role'] ?? '',
-                              style: context.text.labelSmall?.copyWith(
-                                color: context.colors.primary,
+                          leading: CircleAvatar(
+                            child: Text(hub['name'][0].toUpperCase()),
+                          ),
+                          title: Text(hub['name']),
+                          subtitle: Text(hub['description'] ?? ''),
+                          trailing: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '${hub['member_count']} members',
+                                style: context.text.bodySmall,
                               ),
-                            ),
-                          ],
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HubDetailScreen(
-                                hubId: hub['id'],
-                                hubName: hub['name'],
+                              Text(
+                                hub['my_role'] ?? '',
+                                style: context.text.labelSmall?.copyWith(
+                                  color: context.colors.primary,
+                                ),
                               ),
-                            ),
-                          ).then((_) => _loadHubs());
-                        },
+                            ],
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HubDetailScreen(
+                                  hubId: hub['id'],
+                                  hubName: hub['name'],
+                                ),
+                              ),
+                            ).then((_) => _loadHubs());
+                          },
+                        ),
                       ),
                     );
                   },

@@ -82,18 +82,18 @@ class Padded extends StatelessWidget {
 class ScreenPadding extends StatelessWidget {
   final Widget child;
   final bool responsive;
-  final double? override;
+  final double? customPadding;
 
   const ScreenPadding({
     required this.child,
     this.responsive = false,
-    this.override,
+    this.customPadding,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    final padding = override ?? 
+    final padding = customPadding ?? 
         (responsive ? context.responsivePadding() : Spacing.md);
     
     return Padding(

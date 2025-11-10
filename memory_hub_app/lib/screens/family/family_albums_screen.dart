@@ -737,12 +737,12 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            label: 'Cancel',
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            label: 'Delete',
+            child: const Text('Delete'),
           ),
         ],
       ),

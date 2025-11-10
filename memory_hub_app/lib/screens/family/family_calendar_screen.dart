@@ -642,7 +642,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
               PrimaryButton(
                 onPressed: _loadEvents,
                 label: 'Retry',
-                icon: Icons.refresh,
+                leading: const Icon(Icons.refresh),
               ),
             ],
           ),
@@ -721,7 +721,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
               PrimaryButton(
                 onPressed: _loadEvents,
                 label: 'Retry',
-                icon: Icons.refresh,
+                leading: const Icon(Icons.refresh),
               ),
             ],
           ),

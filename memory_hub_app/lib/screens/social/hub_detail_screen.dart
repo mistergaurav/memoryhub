@@ -462,7 +462,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                   ),
                                   if (memory['tags'] != null && (memory['tags'] as List).isNotEmpty)
                                     Padding(
-                                      padding: Spacing.edgeInsetsTopSm,
+                                      padding: const EdgeInsets.only(top: Spacing.sm),
                                       child: Wrap(
                                         spacing: 8,
                                         runSpacing: 8,

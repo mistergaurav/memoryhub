@@ -207,7 +207,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
         const VGap.xl(),
         PrimaryButton(
           onPressed: _isLoading ? null : _enable2FA,
-          child: const Text('Enable 2FA'),
+          label: 'Enable 2FA',
           leading: const Icon(Icons.shield),
           isLoading: _isLoading,
           fullWidth: true,
@@ -331,7 +331,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
         const VGap.lg(),
         PrimaryButton(
           onPressed: _isLoading ? null : _verify2FA,
-          child: const Text('Verify and Enable'),
+          label: 'Verify and Enable',
           isLoading: _isLoading,
           fullWidth: true,
         ),
@@ -381,7 +381,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
         const VGap.xl(),
         SecondaryButton(
           onPressed: _disable2FA,
-          child: const Text('Disable 2FA'),
+          label: 'Disable 2FA',
           fullWidth: true,
         ),
       ],

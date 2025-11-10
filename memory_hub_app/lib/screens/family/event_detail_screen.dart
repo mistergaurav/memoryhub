@@ -183,7 +183,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
               PrimaryButton(
                 onPressed: _loadEvent,
                 label: 'Retry',
-                icon: Icons.refresh,
+                leading: const Icon(Icons.refresh),
               ),
             ],
           ),

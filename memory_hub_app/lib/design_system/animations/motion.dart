@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../tokens/duration_tokens.dart';
+import '../tokens/duration_tokens.dart' as custom;
 
 /// Animation motion utilities
 /// Provides standard curves and durations with reduced motion support
@@ -30,21 +30,21 @@ class Motion {
 
   /// Fast duration with reduced motion support
   static Duration fast(BuildContext context) {
-    return duration(context, Durations.fast);
+    return duration(context, custom.Durations.fast);
   }
 
   /// Base duration with reduced motion support
   static Duration base(BuildContext context) {
-    return duration(context, Durations.base);
+    return duration(context, custom.Durations.base);
   }
 
   /// Slow duration with reduced motion support
   static Duration slow(BuildContext context) {
-    return duration(context, Durations.slow);
+    return duration(context, custom.Durations.slow);
   }
 
   /// Slower duration with reduced motion support
   static Duration slower(BuildContext context) {
-    return duration(context, Durations.slower);
+    return duration(context, custom.Durations.slower);
   }
 }

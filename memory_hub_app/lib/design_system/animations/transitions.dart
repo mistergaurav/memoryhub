@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../tokens/duration_tokens.dart';
+import '../tokens/duration_tokens.dart' as custom;
 import 'motion.dart';
 
 /// Fade route transition
@@ -7,8 +7,8 @@ Route fadeRoute(Widget page, {RouteSettings? settings}) {
   return PageRouteBuilder(
     settings: settings,
     pageBuilder: (context, animation, secondaryAnimation) => page,
-    transitionDuration: Durations.base,
-    reverseTransitionDuration: Durations.base,
+    transitionDuration: custom.Durations.base,
+    reverseTransitionDuration: custom.Durations.base,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       return FadeTransition(
         opacity: animation,
@@ -23,8 +23,8 @@ Route slideRoute(Widget page, {RouteSettings? settings}) {
   return PageRouteBuilder(
     settings: settings,
     pageBuilder: (context, animation, secondaryAnimation) => page,
-    transitionDuration: Durations.slow,
-    reverseTransitionDuration: Durations.slow,
+    transitionDuration: custom.Durations.slow,
+    reverseTransitionDuration: custom.Durations.slow,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(1.0, 0.0);
       const end = Offset.zero;
@@ -46,8 +46,8 @@ Route scaleRoute(Widget page, {RouteSettings? settings}) {
   return PageRouteBuilder(
     settings: settings,
     pageBuilder: (context, animation, secondaryAnimation) => page,
-    transitionDuration: Durations.base,
-    reverseTransitionDuration: Durations.base,
+    transitionDuration: custom.Durations.base,
+    reverseTransitionDuration: custom.Durations.base,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       return ScaleTransition(
         scale: Tween<double>(begin: 0.9, end: 1.0).animate(
