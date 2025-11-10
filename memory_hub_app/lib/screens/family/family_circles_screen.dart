@@ -6,6 +6,7 @@ import '../../widgets/enhanced_empty_state.dart';
 import '../../widgets/hero_header.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../design_system/design_tokens.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../dialogs/family/create_family_circle_dialog.dart';
 import 'family_circle_detail_screen.dart';
 
@@ -117,12 +118,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
         _isLoadingMore = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to load more circles: $e'),
-          backgroundColor: MemoryHubColors.red500,
-        ),
-      );
+      AppSnackbar.error(context: context, message: 'Failed to load more circles: $e');
     }
   }
 
@@ -152,7 +148,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
             ),
             if (_isLoading)
               SliverPadding(
-                padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                padding: Spacing.edgeInsetsAll(Spacing.lg),
                 sliver: SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: _getCrossAxisCount(context),
@@ -194,7 +190,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                padding: Spacing.edgeInsetsAll(Spacing.lg),
                 sliver: SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: _getCrossAxisCount(context),
@@ -209,14 +205,14 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                 ),
               ),
             if (_isLoadingMore)
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(MemoryHubSpacing.lg),
-                  child: Center(child: CircularProgressIndicator()),
+              SliverToBoxAdapter(
+                child: Padded.all(
+                  Spacing.lg,
+                  child: const Center(child: CircularProgressIndicator()),
                 ),
               ),
             const SliverToBoxAdapter(
-              child: SizedBox(height: 80),
+              child: VGap.xxxl(),
             ),
           ],
         ),
@@ -253,21 +249,11 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
       await _circlesService.createFamilyCircle(circleData);
       _loadCircles();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Circle created successfully'),
-            backgroundColor: MemoryHubColors.green500,
-          ),
-        );
+        AppSnackbar.success(context: context, message: 'Circle created successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to create circle: $e'),
-            backgroundColor: MemoryHubColors.red500,
-          ),
-        );
+        AppSnackbar.error(context: context, message: 'Failed to create circle: $e');
       }
       rethrow;
     }
@@ -313,7 +299,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                 ],
               ),
             ),
-            padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+            padding: Spacing.edgeInsetsAll(Spacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -341,9 +327,9 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: MemoryHubSpacing.md,
-                        vertical: MemoryHubSpacing.sm,
+                      padding: Spacing.edgeInsetsSymmetric(
+                        horizontal: Spacing.md,
+                        vertical: Spacing.sm,
                       ),
                       decoration: BoxDecoration(
                         color: _getCircleColor(circle.color).withOpacity(0.2),
@@ -357,7 +343,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                             size: 16,
                             color: _getCircleColor(circle.color),
                           ),
-                          const SizedBox(width: MemoryHubSpacing.xs),
+                          const HGap.xs(),
                           Text(
                             '${circle.memberCount}',
                             style: TextStyle(
@@ -370,27 +356,27 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: MemoryHubSpacing.lg),
+                const VGap.lg(),
                 Text(
                   circle.name,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  style: context.text.titleLarge?.copyWith(
                         fontWeight: MemoryHubTypography.bold,
                       ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: MemoryHubSpacing.xs),
+                const VGap.xs(),
                 Text(
                   circle.displayCircleType,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  style: context.text.bodySmall?.copyWith(
                         color: MemoryHubColors.gray600,
                       ),
                 ),
                 if (circle.description != null && circle.description!.isNotEmpty) ...[
-                  const SizedBox(height: MemoryHubSpacing.sm),
+                  const VGap.sm(),
                   Text(
                     circle.description!,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    style: context.text.bodyMedium?.copyWith(
                           color: MemoryHubColors.gray700,
                         ),
                     maxLines: 2,
@@ -400,7 +386,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                 const Spacer(),
                 Text(
                   'Created ${DateFormat.yMMMd().format(circle.createdAt)}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  style: context.text.bodySmall?.copyWith(
                         color: MemoryHubColors.gray500,
                       ),
                 ),
@@ -441,8 +427,8 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
       shape: RoundedRectangleBorder(
         borderRadius: MemoryHubBorderRadius.xlRadius,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      child: Padded.all(
+        Spacing.lg,
         child: ShimmerLoading(
           isLoading: true,
           child: Column(
@@ -463,19 +449,19 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                   ),
                 ],
               ),
-              const SizedBox(height: MemoryHubSpacing.lg),
+              const VGap.lg(),
               ShimmerBox(
                 width: 150,
                 height: 20,
                 borderRadius: MemoryHubBorderRadius.smRadius,
               ),
-              const SizedBox(height: MemoryHubSpacing.xs),
+              const VGap.xs(),
               ShimmerBox(
                 width: 100,
                 height: 16,
                 borderRadius: MemoryHubBorderRadius.smRadius,
               ),
-              const SizedBox(height: MemoryHubSpacing.sm),
+              const VGap.sm(),
               ShimmerBox(
                 width: double.infinity,
                 height: 32,

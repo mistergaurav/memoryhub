@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../widgets/collapsible_settings_group.dart';
 
 class NotificationsDetailScreen extends StatefulWidget {
@@ -49,11 +49,9 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
     await prefs.setBool('followers_notif', _followersNotif);
     
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Settings saved successfully'),
-          backgroundColor: Colors.green,
-        ),
+      AppSnackbar.success(
+        context: context,
+        message: 'Settings saved successfully',
       );
     }
   }
@@ -72,37 +70,35 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: Spacing.edgeInsetsAll20,
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: Spacing.edgeInsetsAll20,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [Color(0xFF10B981), Color(0xFF14B8A6)],
               ),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadius.lg,
             ),
             child: Row(
               children: [
-                Icon(Icons.notifications_active, color: Colors.white, size: 32),
-                const SizedBox(width: 16),
+                const Icon(Icons.notifications_active, color: Colors.white, size: 32),
+                const HGap.md(),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Master Control',
-                        style: GoogleFonts.inter(
+                        style: context.text.titleMedium?.copyWith(
                           color: Colors.white,
-                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
                         'Enable or disable all notifications',
-                        style: GoogleFonts.inter(
+                        style: context.text.bodyMedium?.copyWith(
                           color: Colors.white.withOpacity(0.9),
-                          fontSize: 14,
                         ),
                       ),
                     ],
@@ -119,7 +115,7 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const VGap.lg(),
           CollapsibleSettingsGroup(
             title: 'Notification Channels',
             icon: Icons.send,
@@ -146,7 +142,7 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const VGap.md(),
           CollapsibleSettingsGroup(
             title: 'Content Notifications',
             icon: Icons.auto_awesome,
@@ -183,7 +179,7 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const VGap.md(),
           CollapsibleSettingsGroup(
             title: 'Social Notifications',
             icon: Icons.people,

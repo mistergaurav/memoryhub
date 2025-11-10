@@ -7,6 +7,7 @@ import '../../models/user_search_result.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../design_system/design_tokens.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../dialogs/family/create_family_circle_dialog.dart';
 import '../../widgets/user_search_autocomplete.dart';
 
@@ -85,10 +86,10 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const CircularProgressIndicator(),
-                    const SizedBox(height: MemoryHubSpacing.lg),
+                    const VGap.lg(),
                     Text(
                       'Loading circle details...',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      style: context.text.bodyLarge?.copyWith(
                             color: MemoryHubColors.gray600,
                           ),
                     ),
@@ -111,7 +112,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
             _buildCircleInfo(),
             _buildMembersSection(),
           ],
-          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+          const SliverToBoxAdapter(child: VGap.xxxl()),
         ],
       ),
       floatingActionButton: _isOwner
@@ -197,8 +198,8 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
 
   Widget _buildCircleInfo() {
     return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      child: Padded.all(
+        Spacing.lg,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -211,7 +212,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                     value: _circle.displayCircleType,
                   ),
                 ),
-                const SizedBox(width: MemoryHubSpacing.md),
+                const HGap.md(),
                 Expanded(
                   child: _buildInfoCard(
                     icon: Icons.people,
@@ -222,47 +223,47 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
               ],
             ),
             if (_circle.description != null && _circle.description!.isNotEmpty) ...[
-              const SizedBox(height: MemoryHubSpacing.lg),
+              const VGap.lg(),
               Card(
                 elevation: MemoryHubElevation.sm,
                 shape: RoundedRectangleBorder(
                   borderRadius: MemoryHubBorderRadius.xlRadius,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                child: Padded.all(
+                  Spacing.lg,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.description,
                             color: MemoryHubColors.gray600,
                             size: 20,
                           ),
-                          const SizedBox(width: MemoryHubSpacing.sm),
+                          const HGap.sm(),
                           Text(
                             'Description',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            style: context.text.titleMedium?.copyWith(
                                   fontWeight: MemoryHubTypography.semiBold,
                                 ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: MemoryHubSpacing.md),
+                      const VGap.md(),
                       Text(
                         _circle.description!,
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: context.text.bodyMedium,
                       ),
                     ],
                   ),
                 ),
               ),
             ],
-            const SizedBox(height: MemoryHubSpacing.md),
+            const VGap.md(),
             Text(
               'Created ${DateFormat.yMMMMd().format(_circle.createdAt)}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              style: context.text.bodySmall?.copyWith(
                     color: MemoryHubColors.gray500,
                   ),
             ),
@@ -282,22 +283,22 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
       shape: RoundedRectangleBorder(
         borderRadius: MemoryHubBorderRadius.xlRadius,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      child: Padded.all(
+        Spacing.lg,
         child: Column(
           children: [
             Icon(icon, color: _getCircleColor(_circle.color), size: 32),
-            const SizedBox(height: MemoryHubSpacing.sm),
+            const VGap.sm(),
             Text(
               value,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              style: context.text.headlineSmall?.copyWith(
                     fontWeight: MemoryHubTypography.bold,
                   ),
             ),
-            const SizedBox(height: MemoryHubSpacing.xs),
+            const VGap.xs(),
             Text(
               label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              style: context.text.bodySmall?.copyWith(
                     color: MemoryHubColors.gray600,
                   ),
             ),
@@ -309,38 +310,38 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
 
   Widget _buildMembersSection() {
     return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      child: Padded.all(
+        Spacing.lg,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Members (${_circle.members.length})',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              style: context.text.headlineSmall?.copyWith(
                     fontWeight: MemoryHubTypography.bold,
                   ),
             ),
-            const SizedBox(height: MemoryHubSpacing.md),
+            const VGap.md(),
             if (_circle.members.isEmpty)
               Card(
                 elevation: MemoryHubElevation.sm,
                 shape: RoundedRectangleBorder(
                   borderRadius: MemoryHubBorderRadius.xlRadius,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+                child: Padded.all(
+                  Spacing.xl,
                   child: Center(
                     child: Column(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.people_outline,
                           size: 48,
                           color: MemoryHubColors.gray400,
                         ),
-                        const SizedBox(height: MemoryHubSpacing.md),
+                        const VGap.md(),
                         Text(
                           'No members yet',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: context.text.titleMedium?.copyWith(
                                 color: MemoryHubColors.gray600,
                               ),
                         ),
@@ -393,9 +394,9 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                           ),
                           if (member.id == _circle.ownerId)
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: MemoryHubSpacing.sm,
-                                vertical: MemoryHubSpacing.xs,
+                              padding: Spacing.edgeInsetsSymmetric(
+                                horizontal: Spacing.sm,
+                                vertical: Spacing.xs,
                               ),
                               decoration: BoxDecoration(
                                 color: MemoryHubColors.amber500.withOpacity(0.2),
@@ -480,21 +481,11 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
       await _circlesService.updateFamilyCircle(_circle.id, update);
       await _loadCircleDetails();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Circle updated successfully'),
-            backgroundColor: MemoryHubColors.green500,
-          ),
-        );
+        AppSnackbar.success(context: context, message: 'Circle updated successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update circle: $e'),
-            backgroundColor: MemoryHubColors.red500,
-          ),
-        );
+        AppSnackbar.error(context: context, message: 'Failed to update circle: $e');
       }
       rethrow;
     }
@@ -529,21 +520,11 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
       await _circlesService.deleteFamilyCircle(_circle.id);
       if (mounted) {
         Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Circle deleted successfully'),
-            backgroundColor: MemoryHubColors.green500,
-          ),
-        );
+        AppSnackbar.success(context: context, message: 'Circle deleted successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to delete circle: $e'),
-            backgroundColor: MemoryHubColors.red500,
-          ),
-        );
+        AppSnackbar.error(context: context, message: 'Failed to delete circle: $e');
       }
     }
   }
@@ -577,21 +558,11 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
       await _circlesService.removeCircleMember(_circle.id, member.id);
       await _loadCircleDetails();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Member removed successfully'),
-            backgroundColor: MemoryHubColors.green500,
-          ),
-        );
+        AppSnackbar.success(context: context, message: 'Member removed successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to remove member: $e'),
-            backgroundColor: MemoryHubColors.red500,
-          ),
-        );
+        AppSnackbar.error(context: context, message: 'Failed to remove member: $e');
       }
     }
   }

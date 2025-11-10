@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../../models/user.dart';
 import '../../config/api_config.dart';
 import '../../widgets/glassmorphic_card.dart';
 import '../../widgets/gradient_container.dart';
-import '../../design_system/design_tokens.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -65,27 +65,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   Future<void> _handleLogout() async {
-    final confirm = await showDialog<bool>(
+    final confirm = await AppDialog.showConfirm(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: MemoryHubColors.red500,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Logout'),
-          ),
-        ],
-      ),
+      title: 'Logout',
+      message: 'Are you sure you want to logout?',
+      confirmText: 'Logout',
+      cancelText: 'Cancel',
+      isDestructive: true,
     );
 
     if (confirm == true) {
@@ -148,10 +134,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.error_outline, size: 64, color: MemoryHubColors.red500),
-              const SizedBox(height: MemoryHubSpacing.lg),
+              const VGap.lg(),
               Text(_error ?? 'Failed to load profile'),
-              const SizedBox(height: MemoryHubSpacing.lg),
-              ElevatedButton(
+              const VGap.lg(),
+              PrimaryButton(
                 onPressed: _loadProfile,
                 child: const Text('Retry'),
               ),
@@ -409,7 +395,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             label,
             style: TextStyle(
               fontSize: 12,
-              color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
+              color: context.text.bodyMedium?.color?.withOpacity(0.7),
               fontWeight: FontWeight.w500,
             ),
           ),

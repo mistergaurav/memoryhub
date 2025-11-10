@@ -6,6 +6,7 @@ import '../../widgets/enhanced_empty_state.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../dialogs/family/add_event_dialog.dart';
 import '../../design_system/design_tokens.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import 'event_detail_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -175,17 +176,11 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
       final warning = result['conflict_warning'];
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              conflicts > 0 && warning != null
-                  ? warning
-                  : 'Event added successfully',
-            ),
-            backgroundColor: conflicts > 0 ? Colors.orange : Colors.green,
-            duration: Duration(seconds: conflicts > 0 ? 4 : 2),
-          ),
-        );
+        if (conflicts > 0 && warning != null) {
+          AppSnackbar.info(context: context, message: warning);
+        } else {
+          AppSnackbar.success(context: context, message: 'Event added successfully');
+        }
       }
     } catch (e) {
       if (!mounted) return;
@@ -195,12 +190,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
       });
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to add event: ${e.toString().replaceAll('Exception: ', '')}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        AppSnackbar.error(context: context, message: 'Failed to add event: ${e.toString().replaceAll('Exception: ', '')}');
       }
     }
   }
@@ -321,7 +311,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
   Widget _buildUpcomingBirthdaysSection() {
     return SliverToBoxAdapter(
       child: Container(
-        margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        margin: Spacing.edgeInsetsFromLTRB(Spacing.lg, Spacing.lg, Spacing.lg, Spacing.sm),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [Color(0xFFEC4899), Color(0xFFF472B6)],
@@ -345,12 +335,12 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                 builder: (context) => _buildBirthdaysDialog(),
               );
             },
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
+            child: Padded.all(
+              Spacing.lg,
               child: Row(
                 children: [
                   const Icon(Icons.cake, color: Colors.white, size: 28),
-                  const SizedBox(width: 12),
+                  const HGap.md(),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,7 +353,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const VGap.xs(),
                         Text(
                           '${_upcomingBirthdays.length} ${_upcomingBirthdays.length == 1 ? 'birthday' : 'birthdays'} in the next 30 days',
                           style: TextStyle(
@@ -372,7 +362,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                           ),
                         ),
                         if (_upcomingBirthdays.isNotEmpty) ...[
-                          const SizedBox(height: 8),
+                          const VGap.sm(),
                           _buildNextBirthdayPreview(),
                         ],
                       ],
@@ -393,7 +383,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
     final daysUntil = _getDaysToBirthday(nextBirthday.startDate);
     
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.2),
         borderRadius: BorderRadius.circular(8),
@@ -402,7 +392,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.celebration, color: Colors.white, size: 16),
-          const SizedBox(width: 6),
+          const HGap.xs(),
           Flexible(
             child: Text(
               daysUntil == 0
@@ -426,7 +416,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
       title: const Row(
         children: [
           Icon(Icons.cake, color: Color(0xFFEC4899)),
-          SizedBox(width: 8),
+          HGap.sm(),
           Text('Upcoming Birthdays'),
         ],
       ),
@@ -440,10 +430,10 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
             final daysUntil = _getDaysToBirthday(birthday.startDate);
             
             return Card(
-              margin: const EdgeInsets.only(bottom: 8),
+              margin: Spacing.edgeInsetsOnly(bottom: Spacing.sm),
               child: ListTile(
                 leading: Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: Spacing.edgeInsetsAll(Spacing.sm),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [Color(0xFFEC4899), Color(0xFFF472B6)],
@@ -483,7 +473,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
   Widget _buildViewToggle() {
     return SliverToBoxAdapter(
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: Spacing.edgeInsetsSymmetric(horizontal: Spacing.lg, vertical: Spacing.sm),
         decoration: BoxDecoration(
           color: Colors.grey.shade200,
           borderRadius: BorderRadius.circular(12),
@@ -586,7 +576,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
     final dayEvents = _getEventsForDay(_selectedDay);
     
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: Spacing.edgeInsetsFromLTRB(Spacing.lg, Spacing.sm, Spacing.lg, Spacing.sm),
       sliver: SliverToBoxAdapter(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -602,7 +592,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
             ),
             if (dayEvents.isNotEmpty)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.md, vertical: Spacing.xs),
                 decoration: BoxDecoration(
                   color: DesignTokens.primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -625,7 +615,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
   Widget _buildSelectedDayEvents() {
     if (_isLoading) {
       return SliverPadding(
-        padding: const EdgeInsets.all(16.0),
+        padding: Spacing.edgeInsetsAll(Spacing.lg),
         sliver: SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) => const ShimmerEventCard(),
@@ -642,20 +632,17 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
-              const SizedBox(height: 16),
+              const VGap.lg(),
               Text(
                 _error!.replaceAll('Exception: ', ''),
                 style: TextStyle(color: Colors.grey.shade600),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
+              const VGap.xl(),
+              PrimaryButton(
                 onPressed: _loadEvents,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: DesignTokens.primaryColor,
-                ),
+                label: 'Retry',
+                icon: Icons.refresh,
               ),
             ],
           ),
@@ -676,7 +663,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                 size: 64,
                 color: Colors.grey.shade300,
               ),
-              const SizedBox(height: 16),
+              const VGap.lg(),
               Text(
                 'No events for this day',
                 style: TextStyle(
@@ -691,7 +678,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+      padding: Spacing.edgeInsetsFromLTRB(Spacing.lg, 0, Spacing.lg, 100),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
@@ -707,7 +694,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
   Widget _buildAgendaView() {
     if (_isLoading) {
       return SliverPadding(
-        padding: const EdgeInsets.all(16.0),
+        padding: Spacing.edgeInsetsAll(Spacing.lg),
         sliver: SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) => const ShimmerEventCard(),
@@ -724,20 +711,17 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
-              const SizedBox(height: 16),
+              const VGap.lg(),
               Text(
                 _error!.replaceAll('Exception: ', ''),
                 style: TextStyle(color: Colors.grey.shade600),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
+              const VGap.xl(),
+              PrimaryButton(
                 onPressed: _loadEvents,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: DesignTokens.primaryColor,
-                ),
+                label: 'Retry',
+                icon: Icons.refresh,
               ),
             ],
           ),
@@ -767,7 +751,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
       ..sort((a, b) => DateTime.parse(a).compareTo(DateTime.parse(b)));
 
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+      padding: Spacing.edgeInsetsFromLTRB(Spacing.lg, 0, Spacing.lg, 100),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
@@ -779,11 +763,11 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  padding: Spacing.edgeInsetsSymmetric(vertical: Spacing.md),
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: Spacing.edgeInsetsAll(Spacing.md),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             colors: [Color(0xFF06B6D4), Color(0xFF22D3EE)],
@@ -811,7 +795,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                           ],
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const HGap.md(),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -834,7 +818,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
                         decoration: BoxDecoration(
                           color: DesignTokens.primaryColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
@@ -853,7 +837,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                 ...events.asMap().entries.map((entry) {
                   return _buildEventCard(entry.value, entry.key);
                 }).toList(),
-                const SizedBox(height: 8),
+                const VGap.sm(),
               ],
             );
           },
@@ -881,7 +865,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
         );
       },
       child: Card(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: Spacing.edgeInsetsOnly(bottom: Spacing.md),
         elevation: isBirthday ? 6 : 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -904,15 +888,15 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                     )
                   : null,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
+            child: Padded.all(
+              Spacing.lg,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: Spacing.edgeInsetsAll(Spacing.sm),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: gradient),
                           borderRadius: BorderRadius.circular(12),
@@ -926,7 +910,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                         ),
                         child: Icon(icon, color: Colors.white, size: 20),
                       ),
-                      const SizedBox(width: 12),
+                      const HGap.md(),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -946,7 +930,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                                   Tooltip(
                                     message: _formatRecurrence(event.recurrenceRule!),
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
                                       decoration: BoxDecoration(
                                         color: Colors.blue.shade50,
                                         borderRadius: BorderRadius.circular(8),
@@ -956,7 +940,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(Icons.repeat, size: 12, color: Colors.blue.shade700),
-                                          const SizedBox(width: 4),
+                                          const HGap.xs(),
                                           Text(
                                             _getRecurrenceShortForm(event.recurrenceRule!),
                                             style: TextStyle(
@@ -971,7 +955,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                                   ),
                               ],
                             ),
-                            const SizedBox(height: 4),
+                            const VGap.xs(),
                             Row(
                               children: [
                                 Icon(
@@ -979,7 +963,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                                   size: 14,
                                   color: Colors.grey.shade600,
                                 ),
-                                const SizedBox(width: 4),
+                                const HGap.xs(),
                                 Text(
                                   event.isAllDay
                                       ? 'All Day'
@@ -1006,7 +990,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                     ],
                   ),
                   if (event.description != null && event.description!.isNotEmpty) ...[
-                    const SizedBox(height: 12),
+                    const VGap.md(),
                     Text(
                       event.description!,
                       maxLines: 2,
@@ -1019,11 +1003,11 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                     ),
                   ],
                   if (event.location != null && event.location!.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                    const VGap.sm(),
                     Row(
                       children: [
                         Icon(Icons.location_on, size: 14, color: Colors.grey.shade600),
-                        const SizedBox(width: 4),
+                        const HGap.xs(),
                         Expanded(
                           child: Text(
                             event.location!,
@@ -1037,11 +1021,11 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                       ],
                     ),
                   ],
-                  const SizedBox(height: 12),
+                  const VGap.md(),
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: gradient),
                           borderRadius: BorderRadius.circular(8),
@@ -1060,7 +1044,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                         Row(
                           children: [
                             Icon(Icons.people, size: 14, color: Colors.grey.shade600),
-                            const SizedBox(width: 4),
+                            const HGap.xs(),
                             Text(
                               '${event.attendeeIds.length}',
                               style: TextStyle(
@@ -1071,7 +1055,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                           ],
                         ),
                       if (event.autoGenerated) ...[
-                        const SizedBox(width: 8),
+                        const HGap.sm(),
                         Tooltip(
                           message: 'Auto-generated from Family Tree',
                           child: Icon(

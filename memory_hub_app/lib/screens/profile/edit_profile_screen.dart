@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../services/api_service.dart';
 import '../../models/user.dart';
 import '../../config/api_config.dart';
@@ -54,8 +55,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading profile: $e')),
+      AppSnackbar.error(
+        context: context,
+        message: 'Error loading profile: $e',
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -77,8 +79,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
+      AppSnackbar.error(
+        context: context,
+        message: 'Error picking image: $e',
       );
     }
   }
@@ -111,20 +114,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (!mounted) return;
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated successfully!'),
-          backgroundColor: Colors.green,
-        ),
+      AppSnackbar.success(
+        context: context,
+        message: 'Profile updated successfully!',
       );
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceAll('Exception: ', '')),
-          backgroundColor: Colors.red,
-        ),
+      AppSnackbar.error(
+        context: context,
+        message: e.toString().replaceAll('Exception: ', ''),
       );
     } finally {
       if (mounted) {
@@ -149,14 +148,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: Spacing.edgeInsetsAll16,
           children: [
             Center(
               child: Stack(
                 children: [
                   CircleAvatar(
                     radius: 60,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    backgroundColor: context.colors.primary,
                     backgroundImage: _avatarFile != null
                         ? FileImage(_avatarFile!)
                         : (_currentUser?.avatarUrl != null
@@ -175,7 +174,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     bottom: 0,
                     right: 0,
                     child: CircleAvatar(
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                      backgroundColor: context.colors.secondary,
                       child: IconButton(
                         icon: const Icon(Icons.camera_alt, color: Colors.white),
                         onPressed: _pickAvatar,
@@ -186,7 +185,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            const VGap.xxl(),
             TextFormField(
               controller: _emailController,
               decoration: const InputDecoration(
@@ -205,7 +204,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const VGap.md(),
             TextFormField(
               controller: _usernameController,
               decoration: const InputDecoration(
@@ -229,7 +228,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const VGap.md(),
             TextFormField(
               controller: _fullNameController,
               decoration: const InputDecoration(
@@ -238,7 +237,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 16),
+            const VGap.md(),
             TextFormField(
               controller: _bioController,
               decoration: const InputDecoration(
@@ -250,38 +249,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               maxLines: 4,
             ),
-            const SizedBox(height: 32),
-            SizedBox(
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _isSaving ? null : _handleSave,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
-                ),
-                child: _isSaving
-                    ? const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Text('Saving...'),
-                        ],
-                      )
-                    : const Text(
-                        'Save Changes',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-              ),
+            const VGap.xxl(),
+            PrimaryButton(
+              onPressed: _isSaving ? null : _handleSave,
+              isLoading: _isSaving,
+              child: const Text('Save Changes'),
             ),
-            const SizedBox(height: 16),
+            const VGap.md(),
           ],
         ),
       ),

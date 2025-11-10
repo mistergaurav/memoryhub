@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../services/api_service.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
@@ -41,20 +42,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Password changed successfully!'),
-            backgroundColor: Colors.green,
-          ),
+        AppSnackbar.success(
+          context: context,
+          message: 'Password changed successfully!',
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: Colors.red,
-          ),
+        AppSnackbar.error(
+          context: context,
+          message: e.toString().replaceAll('Exception: ', ''),
         );
       }
     } finally {
@@ -73,7 +70,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: Spacing.edgeInsetsAll16,
           children: [
             TextFormField(
               controller: _currentPasswordController,
@@ -101,7 +98,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const VGap.md(),
             TextFormField(
               controller: _newPasswordController,
               obscureText: _obscureNewPassword,
@@ -131,7 +128,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const VGap.md(),
             TextFormField(
               controller: _confirmPasswordController,
               obscureText: _obscureConfirmPassword,
@@ -161,26 +158,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 24),
-            SizedBox(
-              height: 48,
-              child: ElevatedButton(
-                onPressed: _isLoading ? null : _handleChangePassword,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text('Change Password'),
-              ),
+            const VGap.lg(),
+            PrimaryButton(
+              onPressed: _isLoading ? null : _handleChangePassword,
+              isLoading: _isLoading,
+              child: const Text('Change Password'),
             ),
           ],
         ),

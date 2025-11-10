@@ -3,6 +3,7 @@ import '../../services/family/family_service.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import 'package:intl/intl.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 
 class PersonTimelineScreen extends StatefulWidget {
   final String personId;
@@ -104,7 +105,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(3),
+                          padding: Spacing.edgeInsetsAll(3),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
@@ -125,13 +126,13 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                                 : null,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const HGap.md(),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.md, vertical: Spacing.xs),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.9),
                                 borderRadius: BorderRadius.circular(20),
@@ -140,7 +141,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const Icon(Icons.history, size: 16, color: Color(0xFF4F46E5)),
-                                  const SizedBox(width: 6),
+                                  const HGap.xs(),
                                   Text(
                                     '${_memories.length} ${_memories.length == 1 ? 'Memory' : 'Memories'}',
                                     style: const TextStyle(
@@ -195,7 +196,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: Spacing.edgeInsetsAll(Spacing.lg),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) => _buildTimelineItem(_memories[index], index),
@@ -220,7 +221,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
     final firstMediaUrl = hasMedia ? mediaUrls.first : null;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: Spacing.edgeInsetsOnly(bottom: Spacing.xl),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -248,7 +249,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                 Container(
                   width: 2,
                   height: 80,
-                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  margin: Spacing.edgeInsetsSymmetric(vertical: Spacing.xs),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -262,7 +263,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                 ),
             ],
           ),
-          const SizedBox(width: 16),
+          const HGap.lg(),
           Expanded(
             child: Card(
               elevation: 3,
@@ -285,15 +286,15 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                         ),
                       ),
                     ),
-                  Padding(
-                    padding: const EdgeInsets.all(16),
+                  Padded.all(
+                    Spacing.lg,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF4F46E5).withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(12),
@@ -308,12 +309,12 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                               ),
                             ),
                             if (location != null && location['name'] != null) ...[
-                              const SizedBox(width: 8),
+                              const HGap.sm(),
                               Expanded(
                                 child: Row(
                                   children: [
                                     Icon(Icons.location_on, size: 14, color: Colors.grey.shade600),
-                                    const SizedBox(width: 4),
+                                    const HGap.xs(),
                                     Expanded(
                                       child: Text(
                                         location['name'],
@@ -328,13 +329,13 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                             ],
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const VGap.md(),
                         Text(
                           title,
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         if (description.isNotEmpty) ...[
-                          const SizedBox(height: 8),
+                          const VGap.sm(),
                           Text(
                             description,
                             style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
@@ -343,12 +344,12 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                           ),
                         ],
                         if (tags.isNotEmpty) ...[
-                          const SizedBox(height: 12),
+                          const VGap.md(),
                           Wrap(
                             spacing: 6,
                             runSpacing: 6,
                             children: tags.map((tag) => Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade200,
                                 borderRadius: BorderRadius.circular(12),
@@ -361,11 +362,11 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                           ),
                         ],
                         if (mediaUrls.length > 1) ...[
-                          const SizedBox(height: 12),
+                          const VGap.md(),
                           Row(
                             children: [
                               Icon(Icons.photo_library, size: 14, color: Colors.grey.shade600),
-                              const SizedBox(width: 6),
+                              const HGap.xs(),
                               Text(
                                 '+${mediaUrls.length - 1} more ${mediaUrls.length - 1 == 1 ? 'photo' : 'photos'}',
                                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
@@ -387,25 +388,25 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
 
   Widget _buildShimmerCard() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.lg, vertical: Spacing.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ShimmerBox(width: 40, height: 40, borderRadius: BorderRadius.circular(20)),
-          const SizedBox(width: 16),
+          const HGap.lg(),
           Expanded(
             child: Card(
               elevation: 2,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
+              child: Padded.all(
+                Spacing.lg,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ShimmerBox(width: 100, height: 12, borderRadius: BorderRadius.circular(6)),
-                    const SizedBox(height: 12),
+                    const VGap.md(),
                     ShimmerBox(width: double.infinity, height: 16, borderRadius: BorderRadius.circular(4)),
-                    const SizedBox(height: 8),
+                    const VGap.sm(),
                     ShimmerBox(width: 200, height: 12, borderRadius: BorderRadius.circular(4)),
                   ],
                 ),

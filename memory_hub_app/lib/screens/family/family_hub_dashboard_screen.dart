@@ -20,6 +20,7 @@ import '../../widgets/timeline_card.dart';
 import '../../widgets/recent_section.dart';
 import '../../design_system/family_design_system.dart';
 import '../../design_system/design_tokens.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../dialogs/family/add_album_dialog.dart';
 import '../../dialogs/family/add_event_dialog.dart';
 import '../../dialogs/family/add_milestone_dialog.dart';
@@ -159,20 +160,11 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
 
   void _showSnackBar(String message, {bool isError = false}) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: isError ? MemoryHubColors.red500 : null,
-        behavior: SnackBarBehavior.floating,
-        action: SnackBarAction(
-          label: 'Dismiss',
-          textColor: Colors.white,
-          onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-        ),
-      ),
-    );
+    if (isError) {
+      AppSnackbar.error(context: context, message: message);
+    } else {
+      AppSnackbar.success(context: context, message: message);
+    }
   }
 
   Future<void> _handleAction(Future<void> Function() action, String successMessage, String errorPrefix) async {
@@ -229,7 +221,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                 SliverToBoxAdapter(child: _buildRecentItemsSection()),
                 SliverToBoxAdapter(child: _buildWhatsNewSection()),
                 SliverToBoxAdapter(child: _buildFeaturesSection()),
-                const SliverToBoxAdapter(child: SizedBox(height: 80)),
+                const SliverToBoxAdapter(child: VGap.xxxl),
               ],
             ),
           ),
@@ -237,7 +229,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             GestureDetector(
               onTap: _toggleFab,
               child: Container(
-                color: Colors.black.withOpacity(0.5),
+                color: context.colors.surface.withOpacity(0.5),
               ),
             ),
         ],
@@ -322,8 +314,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
       ),
     ];
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MemoryHubSpacing.lg),
+    return Padded.symmetric(
+      vertical: Spacing.lg,
       child: QuickActionHorizontalList(
         title: 'Quick Actions',
         actions: quickActions,
@@ -332,18 +324,18 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
   }
 
   Widget _buildStatsSection() {
-    return Padding(
-      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+    return Padded.all(
+      Spacing.lg,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'At a Glance',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            style: context.text.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: MemoryHubSpacing.md),
+          const VGap.md(),
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -424,18 +416,18 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
       return const SizedBox.shrink();
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+    return Padded.all(
+      Spacing.lg,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Recent Activity',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            style: context.text.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: MemoryHubSpacing.md),
+          const VGap.md(),
           if (recentAlbums.isNotEmpty) ...[
             RecentSection(
               title: 'Recent Albums',
@@ -447,7 +439,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                 MaterialPageRoute(builder: (context) => const FamilyAlbumsScreen()),
               ),
             ),
-            const SizedBox(height: MemoryHubSpacing.md),
+            const VGap.md(),
           ],
           if (upcomingEvents.isNotEmpty) ...[
             RecentSection(
@@ -460,7 +452,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                 MaterialPageRoute(builder: (context) => const FamilyCalendarScreen()),
               ),
             ),
-            const SizedBox(height: MemoryHubSpacing.md),
+            const VGap.md(),
           ],
           if (recentMilestones.isNotEmpty) ...[
             RecentSection(
@@ -481,8 +473,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
 
   Widget _buildWhatsNewSection() {
     if (_recentActivities.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      return Padded.all(
+        Spacing.lg,
         child: EnhancedEmptyState(
           icon: Icons.event_note,
           title: 'No Recent Activity',
@@ -497,8 +489,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+    return Padded.all(
+      Spacing.lg,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -507,7 +499,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             children: [
               Text(
                 "What's New",
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                style: context.text.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -528,7 +520,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               ),
             ],
           ),
-          const SizedBox(height: MemoryHubSpacing.md),
+          const VGap.md(),
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -555,18 +547,18 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
   }
 
   Widget _buildFeaturesSection() {
-    return Padding(
-      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+    return Padded.all(
+      Spacing.lg,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'More Features',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            style: context.text.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: MemoryHubSpacing.md),
+          const VGap.md(),
           Semantics(
             label: 'Document Vault - Secure family documents',
             button: true,
@@ -581,7 +573,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               ),
             ),
           ),
-          const SizedBox(height: MemoryHubSpacing.md),
+          const VGap.md(),
           Semantics(
             label: 'Genealogy Tree - Build your family tree',
             button: true,
@@ -596,7 +588,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               ),
             ),
           ),
-          const SizedBox(height: MemoryHubSpacing.md),
+          const VGap.md(),
           Semantics(
             label: 'Parental Controls - Manage family settings',
             button: true,
@@ -623,54 +615,48 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
     required List<Color> gradientColors,
     required VoidCallback onTap,
   }) {
-    return Card(
-      elevation: MemoryHubElevation.md,
-      shape: RoundedRectangleBorder(
-        borderRadius: MemoryHubBorderRadius.xlRadius,
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: MemoryHubBorderRadius.xlRadius,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: gradientColors,
-            ),
-            borderRadius: MemoryHubBorderRadius.xlRadius,
+    return AppCard(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: gradientColors,
           ),
-          padding: const EdgeInsets.all(MemoryHubSpacing.lg),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(MemoryHubSpacing.md),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: MemoryHubBorderRadius.mdRadius,
-                ),
-                child: Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 32,
-                ),
+          borderRadius: MemoryHubBorderRadius.xlRadius,
+        ),
+        padding: Spacing.edgeInsetsAll(Spacing.lg),
+        child: Row(
+          children: [
+            Container(
+              padding: Spacing.edgeInsetsAll(Spacing.md),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: MemoryHubBorderRadius.mdRadius,
               ),
-              const SizedBox(width: MemoryHubSpacing.lg),
+              child: const Icon(
+                icon,
+                color: Colors.white,
+                size: 32,
+              ),
+            ),
+            const HGap.lg(),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      style: context.text.titleLarge?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
                           ),
                     ),
-                    const SizedBox(height: MemoryHubSpacing.xs),
+                    const VGap.xs(),
                     Text(
                       subtitle,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      style: context.text.bodyMedium?.copyWith(
                             color: Colors.white.withOpacity(0.9),
                           ),
                     ),
@@ -698,11 +684,11 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(),
-          const SizedBox(height: MemoryHubSpacing.lg),
+          const VGap.lg(),
           Text(
             'Loading your family hub...',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Colors.grey[600],
+            style: context.text.bodyLarge?.copyWith(
+              color: context.colors.onSurface.withOpacity(0.6),
             ),
           ),
         ],
@@ -712,8 +698,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
 
   Widget _buildErrorState() {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+      child: Padded.all(
+        Spacing.xl,
         child: EnhancedEmptyState(
           icon: Icons.error_outline,
           title: 'Unable to Load Dashboard',
@@ -863,7 +849,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               onTap: () => _showDialog('album'),
             ),
           ),
-          const SizedBox(height: MemoryHubSpacing.sm),
+          const VGap.sm(),
           Semantics(
             label: 'Create new event',
             button: true,
@@ -873,7 +859,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               onTap: () => _showDialog('event'),
             ),
           ),
-          const SizedBox(height: MemoryHubSpacing.sm),
+          const VGap.sm(),
           Semantics(
             label: 'Create new milestone',
             button: true,
@@ -883,7 +869,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               onTap: () => _showDialog('milestone'),
             ),
           ),
-          const SizedBox(height: MemoryHubSpacing.sm),
+          const VGap.sm(),
           Semantics(
             label: 'Create new recipe',
             button: true,
@@ -893,7 +879,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               onTap: () => _showDialog('recipe'),
             ),
           ),
-          const SizedBox(height: MemoryHubSpacing.sm),
+          const VGap.sm(),
           Semantics(
             label: 'Add health record',
             button: true,
@@ -903,7 +889,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               onTap: () => _showDialog('health'),
             ),
           ),
-          const SizedBox(height: MemoryHubSpacing.sm),
+          const VGap.sm(),
           Semantics(
             label: 'Create legacy letter',
             button: true,
@@ -913,7 +899,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               onTap: () => _showDialog('letter'),
             ),
           ),
-          const SizedBox(height: MemoryHubSpacing.md),
+          const VGap.md(),
         ],
         Semantics(
           label: _isFabExpanded ? 'Close create menu' : 'Open create menu',
@@ -947,24 +933,22 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           },
           borderRadius: MemoryHubBorderRadius.smRadius,
           child: Material(
-            color: Theme.of(context).cardColor,
+            color: context.colors.surface,
             elevation: MemoryHubElevation.md,
             borderRadius: MemoryHubBorderRadius.smRadius,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: MemoryHubSpacing.md,
-                vertical: MemoryHubSpacing.sm,
-              ),
+            child: Padded.symmetric(
+              horizontal: Spacing.md,
+              vertical: Spacing.sm,
               child: Text(
                 label,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                style: context.text.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
         ),
-        const SizedBox(width: MemoryHubSpacing.sm),
+        const HGap.sm(),
         FloatingActionButton.small(
           heroTag: 'family_hub_fab_$label',
           onPressed: () {

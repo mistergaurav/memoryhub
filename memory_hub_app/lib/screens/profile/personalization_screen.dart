@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../widgets/collapsible_settings_group.dart';
 import '../../widgets/modern_list_tile.dart';
 
@@ -34,11 +35,9 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
     await prefs.setString('language', _language);
     
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Settings saved successfully'),
-          backgroundColor: Colors.green,
-        ),
+      AppSnackbar.success(
+        context: context,
+        message: 'Settings saved successfully',
       );
     }
   }
@@ -57,13 +56,13 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: Spacing.edgeInsetsAll20,
         children: [
           CollapsibleSettingsGroup(
             title: 'Appearance',
             icon: Icons.palette,
             children: [
-              const SizedBox(height: 8),
+              const VGap.sm(),
               SwitchListTile(
                 title: const Text('Dark Mode'),
                 subtitle: const Text('Use dark theme'),
@@ -74,41 +73,41 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const VGap.md(),
           CollapsibleSettingsGroup(
             title: 'Content Preferences',
             icon: Icons.tune,
             children: [
-              const SizedBox(height: 8),
+              const VGap.sm(),
               ModernListTile(
                 icon: Icons.label,
                 title: 'Tags Management',
                 subtitle: 'Organize and manage your tags',
                 onTap: () => Navigator.pushNamed(context, '/tags/management'),
               ),
-              const SizedBox(height: 8),
+              const VGap.sm(),
               ModernListTile(
                 icon: Icons.category,
                 title: 'Categories',
                 subtitle: 'Manage content categories',
                 onTap: () => Navigator.pushNamed(context, '/categories'),
               ),
-              const SizedBox(height: 8),
+              const VGap.sm(),
               ModernListTile(
                 icon: Icons.description,
                 title: 'Memory Templates',
                 subtitle: 'Use and create templates',
                 onTap: () => Navigator.pushNamed(context, '/templates'),
               ),
-              const SizedBox(height: 8),
+              const VGap.sm(),
             ],
           ),
-          const SizedBox(height: 16),
+          const VGap.md(),
           CollapsibleSettingsGroup(
             title: 'Language & Region',
             icon: Icons.language,
             children: [
-              const SizedBox(height: 8),
+              const VGap.sm(),
               ListTile(
                 title: const Text('Language'),
                 subtitle: Text(_language),

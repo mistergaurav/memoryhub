@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../widgets/settings_category_card.dart';
 import '../../widgets/gradient_container.dart';
 
@@ -20,7 +20,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
     super.dispose();
   }
 
-  final List<Map<String, dynamic>> _categories = [
+  final List<Map<String, dynamic>> _categories = const [
     {
       'title': 'Account & Security',
       'description': 'Password, 2FA, and security settings',
@@ -94,33 +94,33 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
               background: GradientContainer(
                 height: 180,
                 colors: [
-                  Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.secondary,
-                  Theme.of(context).colorScheme.tertiary,
+                  context.colors.primary,
+                  context.colors.secondary,
+                  context.colors.tertiary,
                 ],
                 child: Container(),
               ),
               title: Text(
                 'Settings',
-                style: GoogleFonts.inter(
+                style: context.text.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
               centerTitle: false,
-              titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+              titlePadding: Spacing.edgeInsetsOnly(left: 20, bottom: 16),
             ),
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: Spacing.edgeInsetsAll20,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: AppRadius.md,
                       border: Border.all(color: Colors.grey[300]!),
                     ),
                     child: TextField(
@@ -145,42 +145,41 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
                               )
                             : null,
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
+                        contentPadding: Spacing.edgeInsetsSymmetric(
                           horizontal: 20,
                           vertical: 16,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const VGap.lg(),
                   Text(
                     _searchQuery.isEmpty ? 'Categories' : 'Search Results',
-                    style: GoogleFonts.inter(
-                      fontSize: 18,
+                    style: context.text.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const VGap.md(),
                 ],
               ),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: Spacing.edgeInsetsSymmetric(horizontal: 20),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final category = _filteredCategories[index];
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
+                    padding: Spacing.edgeInsetsOnly(bottom: 16),
                     child: SettingsCategoryCard(
-                      title: category['title'],
-                      description: category['description'],
-                      icon: category['icon'],
-                      gradientColors: List<Color>.from(category['colors']),
-                      itemCount: category['items'],
+                      title: category['title'] as String,
+                      description: category['description'] as String,
+                      icon: category['icon'] as IconData,
+                      gradientColors: List<Color>.from(category['colors'] as List),
+                      itemCount: category['items'] as int,
                       onTap: () {
-                        Navigator.of(context).pushNamed(category['route']);
+                        Navigator.of(context).pushNamed(category['route'] as String);
                       },
                     ),
                   );
@@ -190,7 +189,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
             ),
           ),
           const SliverToBoxAdapter(
-            child: SizedBox(height: 100),
+            child: VGap.xxl(multiplier: 5),
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -47,11 +48,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setBool('allow_tagging', _allowTagging);
     
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Settings saved successfully'),
-          backgroundColor: Colors.green,
-        ),
+      AppSnackbar.success(
+        context: context,
+        message: 'Settings saved successfully',
       );
     }
   }
@@ -559,17 +558,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+          padding: Spacing.edgeInsetsOnly(left: 16, top: 24, right: 16, bottom: 8),
           child: Row(
             children: [
-              Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 8),
+              Icon(icon, size: 20, color: context.colors.primary),
+              const HGap.sm(),
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 14,
+                style: context.text.labelLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: context.colors.primary,
                 ),
               ),
             ],
@@ -581,44 +579,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showAboutDialog() {
-    showDialog(
+    AppDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('About The Memory Hub'),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Version: 1.0.0'),
-            SizedBox(height: 8),
-            Text('The Memory Hub - Your Family\'s Digital Legacy'),
-            SizedBox(height: 16),
-            Text('A platform to preserve and share your precious memories with loved ones.'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
+      title: 'About The Memory Hub',
+      content: const Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Version: 1.0.0'),
+          VGap.sm(),
+          Text('The Memory Hub - Your Family\'s Digital Legacy'),
+          VGap.md(),
+          Text('A platform to preserve and share your precious memories with loved ones.'),
         ],
       ),
+      actions: [
+        SecondaryButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+      ],
     );
   }
 
   void _showComingSoonDialog(String feature) {
-    showDialog(
+    AppDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(feature),
-        content: const Text('This feature is coming soon!'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
+      title: feature,
+      content: const Text('This feature is coming soon!'),
+      actions: [
+        SecondaryButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 }

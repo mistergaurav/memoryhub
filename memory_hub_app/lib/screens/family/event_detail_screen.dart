@@ -5,6 +5,7 @@ import '../../models/family/family_calendar.dart';
 import '../../services/family/family_service.dart';
 import '../../dialogs/family/add_event_dialog.dart';
 import '../../design_system/design_tokens.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final String eventId;
@@ -80,20 +81,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         await _familyService.deleteCalendarEvent(widget.eventId);
         if (mounted) {
           Navigator.pop(context, true);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Event deleted successfully'),
-              backgroundColor: Colors.green,
-            ),
+          AppSnackbar.success(
+            context: context,
+            message: 'Event deleted successfully',
           );
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Failed to delete event: $e'),
-              backgroundColor: Colors.red,
-            ),
+          AppSnackbar.error(
+            context: context,
+            message: 'Failed to delete event: $e',
           );
         }
       }
@@ -128,26 +125,18 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         final conflicts = result['conflicts'] ?? 0;
         final warning = result['conflict_warning'];
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              conflicts > 0 && warning != null
-                  ? warning
-                  : 'Event updated successfully',
-            ),
-            backgroundColor: conflicts > 0 ? Colors.orange : Colors.green,
-            duration: Duration(seconds: conflicts > 0 ? 4 : 2),
-          ),
-        );
+        if (conflicts > 0 && warning != null) {
+          AppSnackbar.info(context: context, message: warning);
+        } else {
+          AppSnackbar.success(context: context, message: 'Event updated successfully');
+        }
         _loadEvent();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to update event: ${e.toString().replaceAll('Exception: ', '')}'),
-            backgroundColor: Colors.red,
-          ),
+        AppSnackbar.error(
+          context: context,
+          message: 'Failed to update event: ${e.toString().replaceAll('Exception: ', '')}',
         );
       }
     }
@@ -166,11 +155,9 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
 ''';
 
     Clipboard.setData(ClipboardData(text: eventDetails));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Event details copied to clipboard'),
-        backgroundColor: DesignTokens.primaryColor,
-      ),
+    AppSnackbar.success(
+      context: context,
+      message: 'Event details copied to clipboard',
     );
   }
 
@@ -195,16 +182,16 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
-              const SizedBox(height: 16),
+              const VGap.lg(),
               Text(
                 _error ?? 'Event not found',
                 style: TextStyle(color: Colors.grey.shade600),
               ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
+              const VGap.xl(),
+              PrimaryButton(
                 onPressed: _loadEvent,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                label: 'Retry',
+                icon: Icons.refresh,
               ),
             ],
           ),
@@ -269,7 +256,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                       child: Row(
                         children: [
                           Icon(Icons.edit, size: 20),
-                          SizedBox(width: 8),
+                          HGap.sm(),
                           Text('Edit'),
                         ],
                       ),
@@ -279,7 +266,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                       child: Row(
                         children: [
                           Icon(Icons.delete, size: 20, color: Colors.red),
-                          SizedBox(width: 8),
+                          HGap.sm(),
                           Text('Delete', style: TextStyle(color: Colors.red)),
                         ],
                       ),
@@ -296,16 +283,16 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
             ],
           ),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
+            child: Padded.all(
+              Spacing.lg,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (event.autoGenerated) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
+                      padding: Spacing.edgeInsetsSymmetric(
+                        horizontal: Spacing.md,
+                        vertical: Spacing.xs,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.blue.shade50,
@@ -319,7 +306,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                             size: 16, 
                             color: Colors.blue.shade700,
                           ),
-                          const SizedBox(width: 6),
+                          const HGap.xs(),
                           Text(
                             'Auto-generated from Family Tree',
                             style: TextStyle(
@@ -331,7 +318,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.lg(),
                   ],
                   _buildInfoCard(
                     icon: Icons.calendar_today,
@@ -344,7 +331,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                             : DateFormat('EEEE, MMMM d, yyyy h:mm a').format(event.startDate),
                       ),
                       if (event.endDate != null) ...[
-                        const SizedBox(height: 8),
+                        const VGap.sm(),
                         _buildInfoRow(
                           'End',
                           event.isAllDay
@@ -353,7 +340,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                       ],
                       if (event.recurrenceRule != null && event.recurrenceRule != 'none') ...[
-                        const SizedBox(height: 8),
+                        const VGap.sm(),
                         _buildInfoRow(
                           'Repeats',
                           _formatRecurrence(event.recurrenceRule!),
@@ -361,7 +348,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                       ],
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const VGap.lg(),
                   if (event.description != null && event.description!.isNotEmpty) ...[
                     _buildInfoCard(
                       icon: Icons.description,
@@ -373,7 +360,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.lg(),
                   ],
                   if (event.location != null && event.location!.isNotEmpty) ...[
                     _buildInfoCard(
@@ -386,16 +373,16 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.lg(),
                   ],
                   _buildInfoCard(
                     icon: Icons.category,
                     title: 'Event Type',
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
+                        padding: Spacing.edgeInsetsSymmetric(
+                          horizontal: Spacing.md,
+                          vertical: Spacing.xs,
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: gradient),
@@ -411,7 +398,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const VGap.lg(),
                   if (event.reminder != null) ...[
                     _buildInfoCard(
                       icon: Icons.notifications_active,
@@ -423,7 +410,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.lg(),
                   ],
                   if (event.genealogyPersonName != null) ...[
                     _buildInfoCard(
@@ -439,7 +426,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.lg(),
                   ],
                   if (event.attendeeIds.isNotEmpty) ...[
                     _buildInfoCard(
@@ -452,7 +439,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.lg(),
                   ],
                   _buildInfoCard(
                     icon: Icons.info_outline,
@@ -462,13 +449,13 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         'Created by',
                         event.createdByName ?? 'Unknown',
                       ),
-                      const SizedBox(height: 8),
+                      const VGap.sm(),
                       _buildInfoRow(
                         'Created',
                         DateFormat('MMM d, yyyy h:mm a').format(event.createdAt),
                       ),
                       if (event.createdAt != event.updatedAt) ...[
-                        const SizedBox(height: 8),
+                        const VGap.sm(),
                         _buildInfoRow(
                           'Last updated',
                           DateFormat('MMM d, yyyy h:mm a').format(event.updatedAt),
@@ -476,7 +463,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                       ],
                     ],
                   ),
-                  const SizedBox(height: 80),
+                  const VGap(80),
                 ],
               ),
             ),
@@ -494,22 +481,22 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+      child: Padded.all(
+        Spacing.lg,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: Spacing.edgeInsetsAll(Spacing.sm),
                   decoration: BoxDecoration(
                     color: DesignTokens.primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(icon, color: DesignTokens.primaryColor, size: 20),
                 ),
-                const SizedBox(width: 12),
+                const HGap.md(),
                 Text(
                   title,
                   style: const TextStyle(
@@ -519,7 +506,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const VGap.md(),
             ...children,
           ],
         ),
