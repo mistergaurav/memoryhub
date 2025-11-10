@@ -98,7 +98,7 @@ class _MilestoneDetailScreenState extends State<MilestoneDetailScreen> with Sing
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            label: 'Cancel',
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -248,9 +248,8 @@ class _MilestoneDetailScreenState extends State<MilestoneDetailScreen> with Sing
               const SizedBox(height: 16),
               Text('Error: $_error'),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _loadMilestone,
-                label: 'Retry',
+              ElevatedButton(onPressed: _loadMilestone,
+                child: const Text('Retry'),
               ),
             ],
           ),
@@ -261,7 +260,7 @@ class _MilestoneDetailScreenState extends State<MilestoneDetailScreen> with Sing
     if (_milestone == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Milestone Details')),
-        body: const Center(label: 'Milestone not found'),
+        body: const Center(child: const Text('Milestone not found')),
       );
     }
 

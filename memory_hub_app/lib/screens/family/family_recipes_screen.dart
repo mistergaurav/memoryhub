@@ -295,35 +295,29 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
+                child: Row(children: [
                     _buildFilterChip(
                       label: 'All',
                       isSelected: _selectedCategory == null,
                       onTap: () => setState(() => _selectedCategory = null),
                     ),
-                    _buildFilterChip(
-                      label: 'Main Course',
+                    _buildFilterChip(label: 'Main Course',
                       isSelected: _selectedCategory == 'main_course',
                       onTap: () => setState(() => _selectedCategory = 'main_course'),
                     ),
-                    _buildFilterChip(
-                      label: 'Appetizer',
+                    _buildFilterChip(label: 'Appetizer',
                       isSelected: _selectedCategory == 'appetizer',
                       onTap: () => setState(() => _selectedCategory = 'appetizer'),
                     ),
-                    _buildFilterChip(
-                      label: 'Dessert',
+                    _buildFilterChip(label: 'Dessert',
                       isSelected: _selectedCategory == 'dessert',
                       onTap: () => setState(() => _selectedCategory = 'dessert'),
                     ),
-                    _buildFilterChip(
-                      label: 'Breakfast',
+                    _buildFilterChip(label: 'Breakfast',
                       isSelected: _selectedCategory == 'breakfast',
                       onTap: () => setState(() => _selectedCategory = 'breakfast'),
                     ),
-                    _buildFilterChip(
-                      label: 'Soup',
+                    _buildFilterChip(label: 'Soup',
                       isSelected: _selectedCategory == 'soup',
                       onTap: () => setState(() => _selectedCategory = 'soup'),
                     ),
@@ -349,10 +343,10 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                         isExpanded: true,
                         underline: Container(),
                         items: const [
-                          DropdownMenuItem(value: 'newest', label: 'Newest'),
-                          DropdownMenuItem(value: 'most_popular', label: 'Most Popular'),
-                          DropdownMenuItem(value: 'highest_rated', label: 'Highest Rated'),
-                          DropdownMenuItem(value: 'most_made', label: 'Most Made'),
+                          DropdownMenuItem(value: 'newest', child: const Text('Newest')),
+                          DropdownMenuItem(value: 'most_popular', child: const Text('Most Popular')),
+                          DropdownMenuItem(value: 'highest_rated', child: const Text('Highest Rated')),
+                          DropdownMenuItem(value: 'most_made', child: const Text('Most Made')),
                         ],
                         onChanged: (value) {
                           if (value != null) {

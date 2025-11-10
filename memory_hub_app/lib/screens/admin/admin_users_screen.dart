@@ -81,7 +81,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _users.isEmpty
-                    ? const Center(label: 'No users found')
+                    ? const Center(child: const Text('No users found'))
                     : RefreshIndicator(
                         onRefresh: _loadUsers,
                         child: ListView.builder(

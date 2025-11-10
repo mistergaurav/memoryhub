@@ -112,9 +112,9 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                 trailing: DropdownButton<String>(
                   value: _language,
                   items: const [
-                    DropdownMenuItem(value: 'English', label: 'English'),
-                    DropdownMenuItem(value: 'Spanish', label: 'Spanish'),
-                    DropdownMenuItem(value: 'French', label: 'French'),
+                    DropdownMenuItem(value: 'English', child: const Text('English')),
+                    DropdownMenuItem(value: 'Spanish', child: const Text('Spanish')),
+                    DropdownMenuItem(value: 'French', child: const Text('French')),
                   ],
                   onChanged: (value) {
                     if (value != null) {

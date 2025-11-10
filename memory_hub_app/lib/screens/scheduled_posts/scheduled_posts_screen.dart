@@ -180,9 +180,9 @@ class _ScheduledPostsScreenState extends State<ScheduledPostsScreen> {
             ),
             trailing: PopupMenuButton(
               itemBuilder: (context) => [
-                if (isPending) const PopupMenuItem(value: 'publish_now', label: 'Publish Now'),
-                const PopupMenuItem(value: 'edit', label: 'Edit'),
-                const PopupMenuItem(value: 'delete', label: 'Delete'),
+                if (isPending) const PopupMenuItem(value: 'publish_now', child: const Text('Publish Now')),
+                const PopupMenuItem(value: 'edit', child: const Text('Edit')),
+                const PopupMenuItem(value: 'delete', child: const Text('Delete')),
               ],
               onSelected: (value) {
                 if (value == 'publish_now') {

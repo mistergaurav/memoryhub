@@ -165,12 +165,13 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                             itemCount: myMemories.length,
                             itemBuilder: (context, index) {
                               final memory = myMemories[index];
-                              return AppCard(
-                                margin: Spacing.edgeInsetsBottomSm,
-                                child: ListTile(
-                                  leading: memory['image_url'] != null
-                                      ? ClipRRect(
-                                          borderRadius: Radius.sm,
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: Spacing.sm),
+                                child: AppCard(
+                                  child: ListTile(
+                                    leading: memory['image_url'] != null
+                                        ? ClipRRect(
+                                            borderRadius: BorderRadius.circular(Spacing.sm),
                                           child: Image.network(
                                             ApiConfig.getAssetUrl(memory['image_url']),
                                             width: 60,
@@ -191,7 +192,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                           height: 60,
                                           decoration: BoxDecoration(
                                             color: context.colors.primaryContainer,
-                                            borderRadius: Radius.sm,
+                                            borderRadius: BorderRadius.circular(Spacing.sm),
                                           ),
                                           child: Icon(
                                             Icons.photo,
@@ -246,6 +247,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                     },
                                   ),
                                 ),
+                              ),
                               );
                             },
                           ),
@@ -253,7 +255,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              label: 'Cancel',
+              child: const Text('Cancel'),
             ),
           ],
         ),
@@ -355,9 +357,10 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     final memory = _memories[index];
-                    return AppCard(
-                      margin: Spacing.edgeInsetsBottom16,
-                      child: InkWell(
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: AppCard(
+                        child: InkWell(
                         onTap: () {
                           Navigator.push(
                             context,
@@ -390,7 +393,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                   },
                                 ),
                               ),
-                            const Padded.md(
+                            Padded.md(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -478,6 +481,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                             ),
                           ],
                         ),
+                      ),
                       ),
                     );
                   },

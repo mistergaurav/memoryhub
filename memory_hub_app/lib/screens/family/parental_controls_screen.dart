@@ -123,14 +123,14 @@ class _ParentalControlsScreenState extends State<ParentalControlsScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            label: 'Cancel',
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, controller.text),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFEF4444),
             ),
-            label: 'Reject',
+            child: const Text('Reject'),
           ),
         ],
       ),

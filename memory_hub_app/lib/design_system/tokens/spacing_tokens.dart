@@ -68,4 +68,12 @@ class Spacing {
   
   @Deprecated('Use const EdgeInsets.only(bottom: Spacing.lg) instead')
   static const EdgeInsets edgeInsetsBottomLg = EdgeInsets.only(bottom: lg);
+
+  // Method-style backward compatibility shims
+  @Deprecated('Use const EdgeInsets.all(spacing) instead')
+  static EdgeInsets edgeInsetsAll(double spacing) => EdgeInsets.all(spacing);
+
+  @Deprecated('Use const EdgeInsets.fromLTRB(...) instead')
+  static EdgeInsets edgeInsetsFromLTRB(double left, double top, double right, double bottom) =>
+      EdgeInsets.fromLTRB(left, top, right, bottom);
 }

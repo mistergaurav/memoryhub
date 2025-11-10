@@ -104,9 +104,8 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
               const SizedBox(height: 16),
               Text(_error ?? 'Memory not found'),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _loadMemory,
-                label: 'Retry',
+              ElevatedButton(onPressed: _loadMemory,
+                child: const Text('Retry'),
               ),
             ],
           ),

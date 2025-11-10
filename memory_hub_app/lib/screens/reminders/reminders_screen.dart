@@ -166,8 +166,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
         ),
         trailing: PopupMenuButton(
           itemBuilder: (context) => [
-            const PopupMenuItem(value: 'edit', label: 'Edit'),
-            const PopupMenuItem(value: 'delete', label: 'Delete'),
+            const PopupMenuItem(value: 'edit', child: const Text('Edit')),
+            const PopupMenuItem(value: 'delete', child: const Text('Delete')),
           ],
           onSelected: (value) {
             if (value == 'delete') {

@@ -160,9 +160,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 trailing: DropdownButton<String>(
                   value: _privacyLevel,
                   items: const [
-                    DropdownMenuItem(value: 'public', label: 'Public'),
-                    DropdownMenuItem(value: 'friends', label: 'Friends'),
-                    DropdownMenuItem(value: 'private', label: 'Private'),
+                    DropdownMenuItem(value: 'public', child: Text('Public')),
+                    DropdownMenuItem(value: 'friends', child: Text('Friends')),
+                    DropdownMenuItem(value: 'private', child: Text('Private')),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -488,11 +488,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          label: 'Cancel',
+                          child: const Text('Cancel'),
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          label: 'Clear',
+                          child: const Text('Clear'),
                         ),
                       ],
                     ),
@@ -556,7 +556,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: Spacing.edgeInsetsOnly(left: 16, top: 24, right: 16, bottom: 8),
+          padding: Spacing.edgeInsetsOnly(left: Spacing.md, top: Spacing.lg, right: Spacing.md, bottom: Spacing.xs),
           child: Row(
             children: [
               Icon(icon, size: 20, color: context.colors.primary),
@@ -577,40 +577,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showAboutDialog() {
-    AppDialog.info(
+    showDialog(
       context: context,
-      title: 'About The Memory Hub',
-      content: const Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Version: 1.0.0'),
-          VGap.sm(),
-          Text('The Memory Hub - Your Family\'s Digital Legacy'),
-          VGap.md(),
-          Text('A platform to preserve and share your precious memories with loved ones.'),
+      builder: (context) => AlertDialog(
+        title: const Text('About The Memory Hub'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Version: 1.0.0'),
+            VGap.sm(),
+            Text('The Memory Hub - Your Family\'s Digital Legacy'),
+            VGap.md(),
+            Text('A platform to preserve and share your precious memories with loved ones.'),
+          ],
+        ),
+        actions: [
+          SecondaryButton(
+            onPressed: () => Navigator.pop(context),
+            label: 'Close',
+          ),
         ],
       ),
-      actions: [
-        SecondaryButton(
-          onPressed: () => Navigator.pop(context),
-          label: 'Close',
-        ),
-      ],
     );
   }
 
   void _showComingSoonDialog(String feature) {
-    AppDialog.info(
+    showDialog(
       context: context,
-      title: feature,
-      content: const Text('This feature is coming soon!'),
-      actions: [
-        SecondaryButton(
-          onPressed: () => Navigator.pop(context),
-          label: 'OK',
-        ),
-      ],
+      builder: (context) => AlertDialog(
+        title: Text(feature),
+        content: const Text('This feature is coming soon!'),
+        actions: [
+          SecondaryButton(
+            onPressed: () => Navigator.pop(context),
+            label: 'OK',
+          ),
+        ],
+      ),
     );
   }
 }

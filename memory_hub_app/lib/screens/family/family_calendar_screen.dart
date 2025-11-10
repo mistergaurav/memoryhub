@@ -464,7 +464,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          label: 'Close',
+          child: const Text('Close'),
         ),
       ],
     );

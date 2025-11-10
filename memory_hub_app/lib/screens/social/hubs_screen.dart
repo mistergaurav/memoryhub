@@ -76,7 +76,7 @@ class _HubsScreenState extends State<HubsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            label: 'Cancel',
+            child: const Text('Cancel'),
           ),
           PrimaryButton(
             onPressed: () async {
@@ -137,10 +137,10 @@ class _HubsScreenState extends State<HubsScreen> {
                         ),
                       ),
                       const VGap.sm(),
-                      PrimaryButton.icon(
+                      PrimaryButton(
                         onPressed: _createHub,
-                        icon: const Icon(Icons.add),
-                        label: const Text('Create Your First Hub'),
+                        leading: const Icon(Icons.add),
+                        label: 'Create Your First Hub',
                       ),
                     ],
                   ),

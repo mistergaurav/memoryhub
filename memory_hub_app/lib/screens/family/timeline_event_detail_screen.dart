@@ -300,8 +300,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
@@ -315,8 +314,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildInteractionButton(
+                      Expanded(child: _buildInteractionButton(
                           icon: Icons.chat_bubble_outline,
                           label: '$_commentsCount ${_commentsCount == 1 ? 'Comment' : 'Comments'}',
                           color: const Color(0xFF06B6D4),

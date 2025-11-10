@@ -45,8 +45,7 @@ class _VaultDetailScreenState extends State<VaultDetailScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Download URL: $downloadUrl'),
-        action: SnackBarAction(
-          label: 'Copy',
+        action: SnackBarAction(child: const Text('Copy'),
           onPressed: () {},
         ),
       ),
@@ -73,9 +72,8 @@ class _VaultDetailScreenState extends State<VaultDetailScreen> {
               const SizedBox(height: 16),
               Text(_error ?? 'File not found'),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _loadFile,
-                label: 'Retry',
+              ElevatedButton(onPressed: _loadFile,
+                child: const Text('Retry'),
               ),
             ],
           ),

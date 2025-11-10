@@ -113,14 +113,14 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
           ),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(Spacing.lg),
+              padding: Spacing.edgeInsetsAll(Spacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[100],
-                      borderRadius: Radii.md,
+                      borderRadius: Radii.mdRadius,
                       border: Border.all(color: Colors.grey[300]!),
                     ),
                     child: TextField(
@@ -189,7 +189,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
             ),
           ),
           const SliverToBoxAdapter(
-            child: const VGap.xxl()(multiplier: 5),
+            child: SizedBox(height: 100),
           ),
         ],
       ),

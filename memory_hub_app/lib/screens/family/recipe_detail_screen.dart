@@ -174,9 +174,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
               const SizedBox(height: 16),
               const Text('Failed to load recipe'),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _loadRecipe,
-                label: 'Retry',
+              ElevatedButton(onPressed: _loadRecipe,
+                child: const Text('Retry'),
               ),
             ],
           ),
@@ -350,8 +349,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
         ),
         const SizedBox(width: 12),
         // Times Made
-        Expanded(
-          child: _buildStatCard(
+        Expanded(child: _buildStatCard(
             icon: Icons.restaurant,
             value: '${_recipe!.timesMade}',
             label: 'Times Made',
@@ -360,8 +358,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
         ),
         const SizedBox(width: 12),
         // Favorites
-        Expanded(
-          child: _buildStatCard(
+        Expanded(child: _buildStatCard(
             icon: Icons.favorite,
             value: '${_recipe!.favoritesCount}',
             label: 'Favorites',
@@ -415,8 +412,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
   }
 
   Widget _buildInfoBadges() {
-    return Wrap(
-      spacing: 12,
+    return Wrap(spacing: 12,
       runSpacing: 12,
       children: [
         _buildBadge(
@@ -425,20 +421,17 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
           value: '${_recipe!.prepTimeMinutes ?? 0} min',
           color: const Color(0xFF06B6D4),
         ),
-        _buildBadge(
-          icon: Icons.timer,
+        _buildBadge(icon: Icons.timer,
           label: 'Cook',
           value: '${_recipe!.cookTimeMinutes ?? 0} min',
           color: const Color(0xFF7C3AED),
         ),
-        _buildBadge(
-          icon: Icons.bar_chart,
+        _buildBadge(icon: Icons.bar_chart,
           label: 'Difficulty',
           value: _recipe!.difficulty.toUpperCase(),
           color: _getDifficultyColor(_recipe!.difficulty),
         ),
-        _buildBadge(
-          icon: Icons.category,
+        _buildBadge(icon: Icons.category,
           label: 'Category',
           value: _recipe!.categoryDisplay,
           color: const Color(0xFFF59E0B),

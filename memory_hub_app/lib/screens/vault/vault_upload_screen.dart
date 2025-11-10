@@ -197,9 +197,9 @@ class _VaultUploadScreenState extends State<VaultUploadScreen> {
                 border: OutlineInputBorder(),
               ),
               items: const [
-                DropdownMenuItem(value: 'private', label: 'Private'),
-                DropdownMenuItem(value: 'friends', label: 'Friends'),
-                DropdownMenuItem(value: 'public', label: 'Public'),
+                DropdownMenuItem(value: 'private', child: const Text('Private')),
+                DropdownMenuItem(value: 'friends', child: const Text('Friends')),
+                DropdownMenuItem(value: 'public', child: const Text('Public')),
               ],
               onChanged: (value) {
                 if (value != null) {

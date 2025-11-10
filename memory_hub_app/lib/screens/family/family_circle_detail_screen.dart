@@ -197,8 +197,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
   }
 
   Widget _buildCircleInfo() {
-    return SliverToBoxAdapter(
-      child: Padded.all(
+    return SliverToBoxAdapter(child: Padded.all(
         Spacing.lg,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,8 +212,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                   ),
                 ),
                 const HGap.md(),
-                Expanded(
-                  child: _buildInfoCard(
+                Expanded(child: _buildInfoCard(
                     icon: Icons.people,
                     label: 'Members',
                     value: '${_circle.memberCount}',
@@ -452,7 +450,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            label: 'Close',
+            child: const Text('Close'),
           ),
         ],
       ),
@@ -500,7 +498,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            label: 'Cancel',
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
@@ -508,7 +506,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
               await _handleDelete();
             },
             style: TextButton.styleFrom(foregroundColor: MemoryHubColors.red500),
-            label: 'Delete',
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -538,7 +536,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            label: 'Cancel',
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () async {
@@ -546,7 +544,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
               await _handleRemoveMember(member);
             },
             style: TextButton.styleFrom(foregroundColor: MemoryHubColors.red500),
-            label: 'Remove',
+            child: const Text('Remove'),
           ),
         ],
       ),

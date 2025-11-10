@@ -66,7 +66,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(Spacing.md),
+          padding: Spacing.edgeInsetsAll(Spacing.md),
           children: [
             TextFormField(
               controller: _currentPasswordController,

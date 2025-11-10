@@ -79,7 +79,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       ),
       body: Column(
         children: [
-          const Padded.md(
+          Padded.md(
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(

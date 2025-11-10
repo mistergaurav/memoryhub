@@ -15,7 +15,7 @@ class AccountSecurityScreen extends StatelessWidget {
       ),
       body: ListView(
         padding: const EdgeInsets.all(Spacing.lg),
-        children: const [
+        children: [
           CollapsibleSettingsGroup(
             title: 'Authentication',
             icon: Icons.lock_outline,
@@ -25,14 +25,14 @@ class AccountSecurityScreen extends StatelessWidget {
                 icon: Icons.vpn_key,
                 title: 'Change Password',
                 subtitle: 'Update your password',
-                onTap: _navigateToChangePassword,
+                onTap: () => _navigateToChangePassword(context),
               ),
               const VGap.sm(),
               ModernListTile(
                 icon: Icons.security,
                 title: 'Two-Factor Authentication',
                 subtitle: 'Add extra security to your account',
-                onTap: _navigateToTwoFactor,
+                onTap: () => _navigateToTwoFactor(context),
               ),
               const VGap.sm(),
             ],
@@ -47,14 +47,14 @@ class AccountSecurityScreen extends StatelessWidget {
                 icon: Icons.block,
                 title: 'Blocked Users',
                 subtitle: 'Manage blocked accounts',
-                onTap: _navigateToBlockedUsers,
+                onTap: () => _navigateToBlockedUsers(context),
               ),
               const VGap.sm(),
               ModernListTile(
                 icon: Icons.privacy_tip,
                 title: 'Privacy Settings',
                 subtitle: 'Control your privacy preferences',
-                onTap: _navigateToPrivacySettings,
+                onTap: () => _navigateToPrivacySettings(context),
               ),
               const VGap.sm(),
             ],
@@ -69,7 +69,7 @@ class AccountSecurityScreen extends StatelessWidget {
                 icon: Icons.person,
                 title: 'Edit Profile',
                 subtitle: 'Update your profile information',
-                onTap: _navigateToEditProfile,
+                onTap: () => _navigateToEditProfile(context),
               ),
               const VGap.sm(),
             ],

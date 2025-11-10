@@ -297,10 +297,9 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
                 ),
               ),
               const Divider(),
-              Expanded(
-                child: users.isEmpty
+              Expanded(child: users.isEmpty
                     ? Center(
-                        label: 'No $title yet',
+                        child: Text('No $title yet'),
                       )
                     : ListView.builder(
                         controller: scrollController,
@@ -740,8 +739,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
-      child: Row(
-        children: [
+      child: Row(children: [
           Expanded(
             child: _buildStatCard(
               label: 'Posts',
@@ -754,8 +752,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
             ),
           ),
           const SizedBox(width: MemoryHubSpacing.md),
-          Expanded(
-            child: _buildStatCard(
+          Expanded(child: _buildStatCard(
               label: 'Followers',
               value: followersCount.toString(),
               icon: Icons.people,
@@ -764,8 +761,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
             ),
           ),
           const SizedBox(width: MemoryHubSpacing.md),
-          Expanded(
-            child: _buildStatCard(
+          Expanded(child: _buildStatCard(
               label: 'Following',
               value: followingCount.toString(),
               icon: Icons.person_add,

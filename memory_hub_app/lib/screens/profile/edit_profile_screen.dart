@@ -140,7 +140,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(Spacing.md),
+          padding: Spacing.edgeInsetsAll(Spacing.md),
           children: [
             Center(
               child: Stack(
