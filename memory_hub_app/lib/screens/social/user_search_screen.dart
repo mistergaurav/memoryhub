@@ -79,7 +79,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       ),
       body: Column(
         children: [
-          Padded.all16(
+          const Padded.md(
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -144,14 +144,14 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                                       user['id'],
                                       user['is_following'] ?? false,
                                     ),
-                                    child: const Text('Unfollow'),
+                                    label: 'Unfollow',
                                   )
                                 : PrimaryButton(
                                     onPressed: () => _toggleFollow(
                                       user['id'],
                                       user['is_following'] ?? false,
                                     ),
-                                    child: const Text('Follow'),
+                                    label: 'Follow',
                                   ),
                             onTap: () {
                               Navigator.pushNamed(

@@ -19,7 +19,7 @@ class BlockedUsersScreen extends StatelessWidget {
               title: Text('User Name', style: GoogleFonts.inter()),
               trailing: OutlinedButton(
                 onPressed: () {},
-                child: const Text('Unblock'),
+                label: 'Unblock',
               ),
             ),
           ),

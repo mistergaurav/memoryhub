@@ -349,10 +349,10 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                         isExpanded: true,
                         underline: Container(),
                         items: const [
-                          DropdownMenuItem(value: 'newest', child: Text('Newest')),
-                          DropdownMenuItem(value: 'most_popular', child: Text('Most Popular')),
-                          DropdownMenuItem(value: 'highest_rated', child: Text('Highest Rated')),
-                          DropdownMenuItem(value: 'most_made', child: Text('Most Made')),
+                          DropdownMenuItem(value: 'newest', label: 'Newest'),
+                          DropdownMenuItem(value: 'most_popular', label: 'Most Popular'),
+                          DropdownMenuItem(value: 'highest_rated', label: 'Highest Rated'),
+                          DropdownMenuItem(value: 'most_made', label: 'Most Made'),
                         ],
                         onChanged: (value) {
                           if (value != null) {

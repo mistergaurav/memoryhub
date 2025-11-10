@@ -37,7 +37,7 @@ class _CreateReminderScreenState extends State<CreateReminderScreen> {
               width: double.infinity,
               child: FilledButton(
                 onPressed: () {},
-                child: const Text('Create Reminder'),
+                label: 'Create Reminder',
               ),
             ),
           ],

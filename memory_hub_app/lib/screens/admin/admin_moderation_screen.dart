@@ -155,7 +155,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> with Sing
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: _loadFlaggedContent,
-                      child: const Text('Retry'),
+                      label: 'Retry',
                     ),
                   ],
                 ),

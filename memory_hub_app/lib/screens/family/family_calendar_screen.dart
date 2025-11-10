@@ -177,9 +177,9 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
       
       if (mounted) {
         if (conflicts > 0 && warning != null) {
-          AppSnackbar.info(context: context, message: warning);
+          AppSnackbar.info(context, warning);
         } else {
-          AppSnackbar.success(context: context, message: 'Event added successfully');
+          AppSnackbar.success(context, 'Event added successfully');
         }
       }
     } catch (e) {
@@ -190,7 +190,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
       });
       
       if (mounted) {
-        AppSnackbar.error(context: context, message: 'Failed to add event: ${e.toString().replaceAll('Exception: ', '')}');
+        AppSnackbar.error(context, 'Failed to add event: ${e.toString().replaceAll('Exception: ', '')}');
       }
     }
   }
@@ -464,7 +464,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
+          label: 'Close',
         ),
       ],
     );

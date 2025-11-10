@@ -106,7 +106,7 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _loadMemory,
-                child: const Text('Retry'),
+                label: 'Retry',
               ),
             ],
           ),

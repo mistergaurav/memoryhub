@@ -55,9 +55,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      AppSnackbar.error(
-        context: context,
-        message: 'Error loading profile: $e',
+      AppSnackbar.error(context, 'Error loading profile: $e',
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -79,9 +77,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      AppSnackbar.error(
-        context: context,
-        message: 'Error picking image: $e',
+      AppSnackbar.error(context, 'Error picking image: $e',
       );
     }
   }
@@ -114,16 +110,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (!mounted) return;
       
-      AppSnackbar.success(
-        context: context,
-        message: 'Profile updated successfully!',
+      AppSnackbar.success(context, 'Profile updated successfully!',
       );
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
-      AppSnackbar.error(
-        context: context,
-        message: e.toString().replaceAll('Exception: ', ''),
+      AppSnackbar.error(context, e.toString().replaceAll('Exception: ', ''),
       );
     } finally {
       if (mounted) {
@@ -148,7 +140,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: Spacing.edgeInsetsAll16,
+          padding: const EdgeInsets.all(Spacing.md),
           children: [
             Center(
               child: Stack(
@@ -253,7 +245,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             PrimaryButton(
               onPressed: _isSaving ? null : _handleSave,
               isLoading: _isSaving,
-              child: const Text('Save Changes'),
+              label: 'Save Changes',
             ),
             const VGap.md(),
           ],

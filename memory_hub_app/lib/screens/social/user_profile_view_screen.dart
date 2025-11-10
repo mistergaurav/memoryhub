@@ -300,7 +300,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
               Expanded(
                 child: users.isEmpty
                     ? Center(
-                        child: Text('No $title yet'),
+                        label: 'No $title yet',
                       )
                     : ListView.builder(
                         controller: scrollController,

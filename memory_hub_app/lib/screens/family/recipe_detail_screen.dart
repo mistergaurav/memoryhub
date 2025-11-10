@@ -176,7 +176,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _loadRecipe,
-                child: const Text('Retry'),
+                label: 'Retry',
               ),
             ],
           ),

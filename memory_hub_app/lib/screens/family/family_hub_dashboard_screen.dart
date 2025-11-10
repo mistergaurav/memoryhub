@@ -161,9 +161,9 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
   void _showSnackBar(String message, {bool isError = false}) {
     if (!mounted) return;
     if (isError) {
-      AppSnackbar.error(context: context, message: message);
+      AppSnackbar.error(context, message);
     } else {
-      AppSnackbar.success(context: context, message: message);
+      AppSnackbar.success(context, message);
     }
   }
 
@@ -221,7 +221,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                 SliverToBoxAdapter(child: _buildRecentItemsSection()),
                 SliverToBoxAdapter(child: _buildWhatsNewSection()),
                 SliverToBoxAdapter(child: _buildFeaturesSection()),
-                const SliverToBoxAdapter(child: VGap.xxxl),
+                const SliverToBoxAdapter(child: const VGap.xxxl()),
               ],
             ),
           ),
@@ -515,7 +515,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                       ),
                     );
                   },
-                  child: const Text('View All'),
+                  label: 'View All',
                 ),
               ),
             ],

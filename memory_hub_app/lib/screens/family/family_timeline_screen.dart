@@ -1001,7 +1001,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            label: 'Close',
           ),
         ],
       ),

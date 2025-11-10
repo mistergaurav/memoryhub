@@ -48,9 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await prefs.setBool('allow_tagging', _allowTagging);
     
     if (mounted) {
-      AppSnackbar.success(
-        context: context,
-        message: 'Settings saved successfully',
+      AppSnackbar.success(context, 'Settings saved successfully',
       );
     }
   }
@@ -162,9 +160,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 trailing: DropdownButton<String>(
                   value: _privacyLevel,
                   items: const [
-                    DropdownMenuItem(value: 'public', child: Text('Public')),
-                    DropdownMenuItem(value: 'friends', child: Text('Friends')),
-                    DropdownMenuItem(value: 'private', child: Text('Private')),
+                    DropdownMenuItem(value: 'public', label: 'Public'),
+                    DropdownMenuItem(value: 'friends', label: 'Friends'),
+                    DropdownMenuItem(value: 'private', label: 'Private'),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -490,11 +488,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancel'),
+                          label: 'Cancel',
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Clear'),
+                          label: 'Clear',
                         ),
                       ],
                     ),
@@ -579,7 +577,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showAboutDialog() {
-    AppDialog.show(
+    AppDialog.info(
       context: context,
       title: 'About The Memory Hub',
       content: const Column(
@@ -596,21 +594,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
       actions: [
         SecondaryButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
+          label: 'Close',
         ),
       ],
     );
   }
 
   void _showComingSoonDialog(String feature) {
-    AppDialog.show(
+    AppDialog.info(
       context: context,
       title: feature,
       content: const Text('This feature is coming soon!'),
       actions: [
         SecondaryButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('OK'),
+          label: 'OK',
         ),
       ],
     );

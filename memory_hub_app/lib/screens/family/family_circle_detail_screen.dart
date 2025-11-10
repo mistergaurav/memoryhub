@@ -452,7 +452,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            label: 'Close',
           ),
         ],
       ),
@@ -481,11 +481,11 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
       await _circlesService.updateFamilyCircle(_circle.id, update);
       await _loadCircleDetails();
       if (mounted) {
-        AppSnackbar.success(context: context, message: 'Circle updated successfully');
+        AppSnackbar.success(context, 'Circle updated successfully');
       }
     } catch (e) {
       if (mounted) {
-        AppSnackbar.error(context: context, message: 'Failed to update circle: $e');
+        AppSnackbar.error(context, 'Failed to update circle: $e');
       }
       rethrow;
     }
@@ -500,7 +500,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            label: 'Cancel',
           ),
           TextButton(
             onPressed: () async {
@@ -508,7 +508,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
               await _handleDelete();
             },
             style: TextButton.styleFrom(foregroundColor: MemoryHubColors.red500),
-            child: const Text('Delete'),
+            label: 'Delete',
           ),
         ],
       ),
@@ -520,11 +520,11 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
       await _circlesService.deleteFamilyCircle(_circle.id);
       if (mounted) {
         Navigator.pop(context, true);
-        AppSnackbar.success(context: context, message: 'Circle deleted successfully');
+        AppSnackbar.success(context, 'Circle deleted successfully');
       }
     } catch (e) {
       if (mounted) {
-        AppSnackbar.error(context: context, message: 'Failed to delete circle: $e');
+        AppSnackbar.error(context, 'Failed to delete circle: $e');
       }
     }
   }
@@ -538,7 +538,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            label: 'Cancel',
           ),
           TextButton(
             onPressed: () async {
@@ -546,7 +546,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
               await _handleRemoveMember(member);
             },
             style: TextButton.styleFrom(foregroundColor: MemoryHubColors.red500),
-            child: const Text('Remove'),
+            label: 'Remove',
           ),
         ],
       ),
@@ -558,11 +558,11 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
       await _circlesService.removeCircleMember(_circle.id, member.id);
       await _loadCircleDetails();
       if (mounted) {
-        AppSnackbar.success(context: context, message: 'Member removed successfully');
+        AppSnackbar.success(context, 'Member removed successfully');
       }
     } catch (e) {
       if (mounted) {
-        AppSnackbar.error(context: context, message: 'Failed to remove member: $e');
+        AppSnackbar.error(context, 'Failed to remove member: $e');
       }
     }
   }

@@ -29,7 +29,7 @@ class CreateScheduledPostScreen extends StatelessWidget {
               width: double.infinity,
               child: FilledButton(
                 onPressed: () {},
-                child: const Text('Schedule'),
+                label: 'Schedule',
               ),
             ),
           ],

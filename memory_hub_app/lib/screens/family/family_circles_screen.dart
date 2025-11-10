@@ -118,7 +118,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
         _isLoadingMore = false;
       });
 
-      AppSnackbar.error(context: context, message: 'Failed to load more circles: $e');
+      AppSnackbar.error(context, 'Failed to load more circles: $e');
     }
   }
 
@@ -249,11 +249,11 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
       await _circlesService.createFamilyCircle(circleData);
       _loadCircles();
       if (mounted) {
-        AppSnackbar.success(context: context, message: 'Circle created successfully');
+        AppSnackbar.success(context, 'Circle created successfully');
       }
     } catch (e) {
       if (mounted) {
-        AppSnackbar.error(context: context, message: 'Failed to create circle: $e');
+        AppSnackbar.error(context, 'Failed to create circle: $e');
       }
       rethrow;
     }

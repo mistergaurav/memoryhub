@@ -42,16 +42,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
       if (mounted) {
         Navigator.of(context).pop();
-        AppSnackbar.success(
-          context: context,
-          message: 'Password changed successfully!',
+        AppSnackbar.success(context, 'Password changed successfully!',
         );
       }
     } catch (e) {
       if (mounted) {
-        AppSnackbar.error(
-          context: context,
-          message: e.toString().replaceAll('Exception: ', ''),
+        AppSnackbar.error(context, e.toString().replaceAll('Exception: ', ''),
         );
       }
     } finally {
@@ -70,7 +66,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: Spacing.edgeInsetsAll16,
+          padding: const EdgeInsets.all(Spacing.md),
           children: [
             TextFormField(
               controller: _currentPasswordController,
@@ -162,7 +158,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             PrimaryButton(
               onPressed: _isLoading ? null : _handleChangePassword,
               isLoading: _isLoading,
-              child: const Text('Change Password'),
+              label: 'Change Password',
             ),
           ],
         ),

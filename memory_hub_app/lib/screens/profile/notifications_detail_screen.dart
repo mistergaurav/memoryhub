@@ -49,9 +49,7 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
     await prefs.setBool('followers_notif', _followersNotif);
     
     if (mounted) {
-      AppSnackbar.success(
-        context: context,
-        message: 'Settings saved successfully',
+      AppSnackbar.success(context, 'Settings saved successfully',
       );
     }
   }
@@ -70,15 +68,15 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
         ],
       ),
       body: ListView(
-        padding: Spacing.edgeInsetsAll20,
+        padding: const EdgeInsets.all(Spacing.lg),
         children: [
           Container(
-            padding: Spacing.edgeInsetsAll20,
+            padding: const EdgeInsets.all(Spacing.lg),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFF10B981), Color(0xFF14B8A6)],
               ),
-              borderRadius: AppRadius.lg,
+              borderRadius: Radii.lg,
             ),
             child: Row(
               children: [

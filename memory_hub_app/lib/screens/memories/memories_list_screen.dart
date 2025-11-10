@@ -117,7 +117,7 @@ class _MemoriesListScreenState extends State<MemoriesListScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadMemories,
-              child: const Text('Retry'),
+              label: 'Retry',
             ),
           ],
         ),

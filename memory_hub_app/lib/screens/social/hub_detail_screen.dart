@@ -118,7 +118,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
           title: Row(
             children: [
               Icon(Icons.share, color: context.colors.primary),
-              HGap.sm,
+              const HGap.sm(),
               const Text('Share Memory to Hub'),
             ],
           ),
@@ -133,7 +133,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.error_outline, size: 48, color: context.colors.error.withOpacity(0.7)),
-                            VGap.md,
+                            const VGap.md(),
                             Text(error, style: TextStyle(color: context.colors.error)),
                           ],
                         ),
@@ -144,14 +144,14 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.photo_library_outlined, size: 64, color: context.colors.onSurface.withOpacity(0.3)),
-                                VGap.md,
+                                const VGap.md(),
                                 Text(
                                   'No memories to share',
                                   style: context.text.titleMedium?.copyWith(
                                     color: context.colors.onSurface.withOpacity(0.6),
                                   ),
                                 ),
-                                VGap.sm,
+                                const VGap.sm(),
                                 Text(
                                   'Create a memory first',
                                   style: context.text.bodySmall?.copyWith(
@@ -253,7 +253,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              label: 'Cancel',
             ),
           ],
         ),
@@ -330,14 +330,14 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                       size: 64,
                       color: context.colors.onSurface.withOpacity(0.3),
                     ),
-                    VGap.md,
+                    const VGap.md(),
                     Text(
                       'No memories in this hub yet',
                       style: context.text.titleMedium?.copyWith(
                         color: context.colors.onSurface.withOpacity(0.6),
                       ),
                     ),
-                    VGap.sm,
+                    const VGap.sm(),
                     Text(
                       'Memories shared to this hub will appear here',
                       style: context.text.bodyMedium?.copyWith(
@@ -350,7 +350,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
             )
           else
             SliverPadding(
-              padding: Spacing.edgeInsetsAll16,
+              padding: const EdgeInsets.all(Spacing.md),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -390,7 +390,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                   },
                                 ),
                               ),
-                            Padded.all16(
+                            const Padded.md(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -400,14 +400,14 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  VGap.sm,
+                                  const VGap.sm(),
                                   Text(
                                     memory['content'] ?? '',
                                     style: context.text.bodyMedium,
                                     maxLines: 3,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  VGap.sm,
+                                  const VGap.sm(),
                                   Row(
                                     children: [
                                       CircleAvatar(
@@ -418,7 +418,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                           style: const TextStyle(color: Colors.white, fontSize: 14),
                                         ),
                                       ),
-                                      HGap.sm,
+                                      const HGap.sm(),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,7 +446,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                             '${memory['like_count'] ?? 0}',
                                             style: TextStyle(color: context.colors.onSurface.withOpacity(0.6)),
                                           ),
-                                          HGap.sm,
+                                          const HGap.sm(),
                                           Icon(Icons.comment_outlined, size: 20, color: context.colors.onSurface.withOpacity(0.6)),
                                           const SizedBox(width: 4),
                                           Text(

@@ -81,7 +81,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _users.isEmpty
-                    ? const Center(child: Text('No users found'))
+                    ? const Center(label: 'No users found')
                     : RefreshIndicator(
                         onRefresh: _loadUsers,
                         child: ListView.builder(
@@ -232,7 +232,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              label: 'Cancel',
             ),
             FilledButton(
               style: FilledButton.styleFrom(backgroundColor: Colors.red),
@@ -254,7 +254,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   }
                 }
               },
-              child: const Text('Delete'),
+              label: 'Delete',
             ),
           ],
         ),

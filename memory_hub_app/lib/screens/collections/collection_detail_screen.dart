@@ -119,7 +119,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            label: 'Cancel',
           ),
         ],
       ),
@@ -171,11 +171,11 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            label: 'Cancel',
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Remove'),
+            label: 'Remove',
           ),
         ],
       ),
@@ -272,14 +272,14 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
-                            child: const Text('Cancel'),
+                            label: 'Cancel',
                           ),
                           FilledButton(
                             style: FilledButton.styleFrom(
                               backgroundColor: Colors.red,
                             ),
                             onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Delete'),
+                            label: 'Delete',
                           ),
                         ],
                       ),

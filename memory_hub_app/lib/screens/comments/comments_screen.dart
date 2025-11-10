@@ -185,7 +185,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 PopupMenuButton(
                   icon: const Icon(Icons.more_vert, size: 20),
                   itemBuilder: (context) => [
-                    const PopupMenuItem(value: 'delete', child: Text('Delete')),
+                    const PopupMenuItem(value: 'delete', label: 'Delete'),
                   ],
                   onSelected: (value) {
                     if (value == 'delete') {

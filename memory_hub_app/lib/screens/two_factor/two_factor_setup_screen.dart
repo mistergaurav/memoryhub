@@ -94,14 +94,14 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            label: 'Cancel',
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(
               backgroundColor: context.colors.error,
             ),
-            child: const Text('Disable'),
+            label: 'Disable',
           ),
         ],
       ),

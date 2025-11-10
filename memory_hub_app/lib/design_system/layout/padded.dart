@@ -15,14 +15,14 @@ class Padded extends StatelessWidget {
   });
 
   /// All sides with same padding
-  const Padded.all(
+  Padded.all(
     double value, {
     required this.child,
     super.key,
   }) : padding = EdgeInsets.all(value);
 
   /// Symmetric padding
-  const Padded.symmetric({
+  Padded.symmetric({
     required this.child,
     double horizontal = 0,
     double vertical = 0,
@@ -33,7 +33,7 @@ class Padded extends StatelessWidget {
         );
 
   /// Custom padding for each side
-  const Padded.only({
+  Padded.only({
     required this.child,
     double left = 0,
     double top = 0,

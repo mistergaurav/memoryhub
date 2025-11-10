@@ -62,7 +62,7 @@ class _HubsScreenState extends State<HubsScreen> {
                 hintText: 'Enter hub name',
               ),
             ),
-            VGap.md,
+            const VGap.md(),
             TextField(
               controller: descController,
               decoration: const InputDecoration(
@@ -76,7 +76,7 @@ class _HubsScreenState extends State<HubsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            label: 'Cancel',
           ),
           PrimaryButton(
             onPressed: () async {
@@ -94,7 +94,7 @@ class _HubsScreenState extends State<HubsScreen> {
                 Navigator.pop(context, true);
               }
             },
-            child: const Text('Create'),
+            label: 'Create',
           ),
         ],
       ),
@@ -129,14 +129,14 @@ class _HubsScreenState extends State<HubsScreen> {
                         size: 64,
                         color: context.colors.onSurface.withOpacity(0.3),
                       ),
-                      VGap.md,
+                      const VGap.md(),
                       Text(
                         'No hubs yet',
                         style: context.text.titleMedium?.copyWith(
                           color: context.colors.onSurface.withOpacity(0.6),
                         ),
                       ),
-                      VGap.sm,
+                      const VGap.sm(),
                       PrimaryButton.icon(
                         onPressed: _createHub,
                         icon: const Icon(Icons.add),
@@ -146,7 +146,7 @@ class _HubsScreenState extends State<HubsScreen> {
                   ),
                 )
               : ListView.builder(
-                  padding: Spacing.edgeInsetsAll16,
+                  padding: const EdgeInsets.all(Spacing.md),
                   itemCount: _hubs.length,
                   itemBuilder: (context, index) {
                     final hub = _hubs[index];

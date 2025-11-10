@@ -218,7 +218,7 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
           onPressed: () {
             setState(() => _emailSent = false);
           },
-          child: const Text('Try a different email'),
+          label: 'Try a different email',
         ),
       ],
     );

@@ -28,8 +28,8 @@ class SharedFilesScreen extends StatelessWidget {
             subtitle: Text('Shared by User Name', style: GoogleFonts.inter(fontSize: 13)),
             trailing: PopupMenuButton(
               itemBuilder: (context) => [
-                const PopupMenuItem(value: 'download', child: Text('Download')),
-                const PopupMenuItem(value: 'remove', child: Text('Remove Access')),
+                const PopupMenuItem(value: 'download', label: 'Download'),
+                const PopupMenuItem(value: 'remove', label: 'Remove Access'),
               ],
             ),
           ),

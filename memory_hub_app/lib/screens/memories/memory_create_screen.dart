@@ -178,9 +178,9 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                 border: OutlineInputBorder(),
               ),
               items: const [
-                DropdownMenuItem(value: 'private', child: Text('Private')),
-                DropdownMenuItem(value: 'friends', child: Text('Friends')),
-                DropdownMenuItem(value: 'public', child: Text('Public')),
+                DropdownMenuItem(value: 'private', label: 'Private'),
+                DropdownMenuItem(value: 'friends', label: 'Friends'),
+                DropdownMenuItem(value: 'public', label: 'Public'),
               ],
               onChanged: (value) {
                 if (value != null) {

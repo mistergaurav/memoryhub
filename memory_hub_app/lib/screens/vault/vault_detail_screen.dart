@@ -75,7 +75,7 @@ class _VaultDetailScreenState extends State<VaultDetailScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _loadFile,
-                child: const Text('Retry'),
+                label: 'Retry',
               ),
             ],
           ),

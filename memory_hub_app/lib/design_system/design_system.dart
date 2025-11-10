@@ -2,6 +2,10 @@
 /// Import this file to access all design system tokens and components
 library design_system;
 
+// Legacy design tokens (for backward compatibility)
+export 'design_tokens.dart';
+export 'legacy_compat.dart';
+
 // Tokens
 export 'tokens/spacing_tokens.dart';
 export 'tokens/radius_tokens.dart';

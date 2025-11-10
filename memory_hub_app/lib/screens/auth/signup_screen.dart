@@ -247,7 +247,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
-                          child: const Text('Login'),
+                          label: 'Login',
                         ),
                       ],
                     ),

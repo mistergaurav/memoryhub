@@ -19,14 +19,14 @@ class SupportLegalScreen extends StatelessWidget {
   }
 
   void _showComingSoonDialog(BuildContext context, String feature) {
-    AppDialog.show(
+    AppDialog.info(
       context: context,
       title: feature,
       content: const Text('This feature is coming soon!'),
       actions: [
         SecondaryButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('OK'),
+          label: 'OK',
         ),
       ],
     );
@@ -39,7 +39,7 @@ class SupportLegalScreen extends StatelessWidget {
         title: const Text('Support & Legal'),
       ),
       body: ListView(
-        padding: Spacing.edgeInsetsAll20,
+        padding: const EdgeInsets.all(Spacing.lg),
         children: [
           CollapsibleSettingsGroup(
             title: 'Data Rights (GDPR)',

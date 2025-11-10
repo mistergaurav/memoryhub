@@ -35,9 +35,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
     await prefs.setString('language', _language);
     
     if (mounted) {
-      AppSnackbar.success(
-        context: context,
-        message: 'Settings saved successfully',
+      AppSnackbar.success(context, 'Settings saved successfully',
       );
     }
   }
@@ -56,7 +54,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
         ],
       ),
       body: ListView(
-        padding: Spacing.edgeInsetsAll20,
+        padding: const EdgeInsets.all(Spacing.lg),
         children: [
           CollapsibleSettingsGroup(
             title: 'Appearance',
@@ -114,9 +112,9 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                 trailing: DropdownButton<String>(
                   value: _language,
                   items: const [
-                    DropdownMenuItem(value: 'English', child: Text('English')),
-                    DropdownMenuItem(value: 'Spanish', child: Text('Spanish')),
-                    DropdownMenuItem(value: 'French', child: Text('French')),
+                    DropdownMenuItem(value: 'English', label: 'English'),
+                    DropdownMenuItem(value: 'Spanish', label: 'Spanish'),
+                    DropdownMenuItem(value: 'French', label: 'French'),
                   ],
                   onChanged: (value) {
                     if (value != null) {

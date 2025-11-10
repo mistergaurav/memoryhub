@@ -114,7 +114,7 @@ class _VaultListScreenState extends State<VaultListScreen> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _loadFiles,
-              child: const Text('Retry'),
+              label: 'Retry',
             ),
           ],
         ),

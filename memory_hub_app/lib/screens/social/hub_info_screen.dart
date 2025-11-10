@@ -190,7 +190,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
               descController.dispose();
               Navigator.pop(context);
             },
-            child: const Text('Cancel'),
+            label: 'Cancel',
           ),
           ElevatedButton.icon(
             onPressed: () async {
@@ -308,7 +308,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            label: 'Close',
           ),
           ElevatedButton.icon(
             onPressed: () async {
@@ -526,7 +526,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                 selectedRole.dispose();
                 Navigator.pop(context);
               },
-              child: const Text('Cancel'),
+              label: 'Cancel',
             ),
             ElevatedButton.icon(
               onPressed: selectedUser == null

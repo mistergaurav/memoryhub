@@ -76,12 +76,12 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            label: 'Cancel',
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Revoke'),
+            label: 'Revoke',
           ),
         ],
       ),

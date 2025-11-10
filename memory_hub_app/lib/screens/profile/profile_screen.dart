@@ -65,13 +65,13 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   Future<void> _handleLogout() async {
-    final confirm = await AppDialog.showConfirm(
-      context: context,
+    final confirm = await AppDialog.confirm(
+      context,
       title: 'Logout',
       message: 'Are you sure you want to logout?',
       confirmText: 'Logout',
       cancelText: 'Cancel',
-      isDestructive: true,
+      isDangerous: true,
     );
 
     if (confirm == true) {
@@ -139,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               const VGap.lg(),
               PrimaryButton(
                 onPressed: _loadProfile,
-                child: const Text('Retry'),
+                label: 'Retry',
               ),
             ],
           ),

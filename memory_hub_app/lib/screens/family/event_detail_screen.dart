@@ -65,12 +65,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            label: 'Cancel',
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            label: 'Delete',
           ),
         ],
       ),
@@ -81,16 +81,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         await _familyService.deleteCalendarEvent(widget.eventId);
         if (mounted) {
           Navigator.pop(context, true);
-          AppSnackbar.success(
-            context: context,
-            message: 'Event deleted successfully',
+          AppSnackbar.success(context, 'Event deleted successfully',
           );
         }
       } catch (e) {
         if (mounted) {
-          AppSnackbar.error(
-            context: context,
-            message: 'Failed to delete event: $e',
+          AppSnackbar.error(context, 'Failed to delete event: $e',
           );
         }
       }
@@ -126,17 +122,15 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         final warning = result['conflict_warning'];
         
         if (conflicts > 0 && warning != null) {
-          AppSnackbar.info(context: context, message: warning);
+          AppSnackbar.info(context, warning);
         } else {
-          AppSnackbar.success(context: context, message: 'Event updated successfully');
+          AppSnackbar.success(context, 'Event updated successfully');
         }
         _loadEvent();
       }
     } catch (e) {
       if (mounted) {
-        AppSnackbar.error(
-          context: context,
-          message: 'Failed to update event: ${e.toString().replaceAll('Exception: ', '')}',
+        AppSnackbar.error(context, 'Failed to update event: ${e.toString().replaceAll('Exception: ', '')}',
         );
       }
     }
@@ -155,9 +149,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
 ''';
 
     Clipboard.setData(ClipboardData(text: eventDetails));
-    AppSnackbar.success(
-      context: context,
-      message: 'Event details copied to clipboard',
+    AppSnackbar.success(context, 'Event details copied to clipboard',
     );
   }
 
