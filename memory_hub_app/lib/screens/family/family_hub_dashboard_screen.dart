@@ -240,7 +240,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
 
   Widget _buildQuickActionSection() {
     final quickActions = [
-      QuickActionTileData(child: const Text('Albums'),
+      QuickActionTileData(
+        label: 'Albums',
         icon: Icons.photo_library,
         color: MemoryHubColors.purple600,
         onTap: () => Navigator.push(
@@ -248,7 +249,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           MaterialPageRoute(builder: (context) => const FamilyAlbumsScreen()),
         ),
       ),
-      QuickActionTileData(child: const Text('Timeline'),
+      QuickActionTileData(
+        label: 'Timeline',
         icon: Icons.timeline,
         color: MemoryHubColors.pink500,
         onTap: () => Navigator.push(
@@ -256,7 +258,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           MaterialPageRoute(builder: (context) => const FamilyTimelineScreen()),
         ),
       ),
-      QuickActionTileData(child: const Text('Calendar'),
+      QuickActionTileData(
+        label: 'Calendar',
         icon: Icons.calendar_today,
         color: MemoryHubColors.cyan500,
         onTap: () => Navigator.push(
@@ -264,7 +267,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           MaterialPageRoute(builder: (context) => const FamilyCalendarScreen()),
         ),
       ),
-      QuickActionTileData(child: const Text('Milestones'),
+      QuickActionTileData(
+        label: 'Milestones',
         icon: Icons.celebration,
         color: MemoryHubColors.amber500,
         onTap: () => Navigator.push(
@@ -272,7 +276,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           MaterialPageRoute(builder: (context) => const FamilyMilestonesScreen()),
         ),
       ),
-      QuickActionTileData(child: const Text('Recipes'),
+      QuickActionTileData(
+        label: 'Recipes',
         icon: Icons.restaurant_menu,
         color: MemoryHubColors.red500,
         onTap: () => Navigator.push(
@@ -280,7 +285,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           MaterialPageRoute(builder: (context) => const FamilyRecipesScreen()),
         ),
       ),
-      QuickActionTileData(child: const Text('Health'),
+      QuickActionTileData(
+        label: 'Health',
         icon: Icons.health_and_safety,
         color: MemoryHubColors.green500,
         onTap: () => Navigator.push(
@@ -288,7 +294,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           MaterialPageRoute(builder: (context) => const HealthRecordsScreen()),
         ),
       ),
-      QuickActionTileData(child: const Text('Letters'),
+      QuickActionTileData(
+        label: 'Letters',
         icon: Icons.mail,
         color: MemoryHubColors.purple500,
         onTap: () => Navigator.push(
@@ -296,7 +303,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           MaterialPageRoute(builder: (context) => const LegacyLettersScreen()),
         ),
       ),
-      QuickActionTileData(child: const Text('Traditions'),
+      QuickActionTileData(
+        label: 'Traditions',
         icon: Icons.local_florist,
         color: MemoryHubColors.teal500,
         onTap: () => Navigator.push(
@@ -336,9 +344,11 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             mainAxisSpacing: MemoryHubSpacing.md,
             childAspectRatio: 1.4,
             children: [
-              Semantics(child: const Text('Albums count: ${_getStat(')albums')}',
+              Semantics(
+                label: 'Albums count: ${_getStat('albums')}',
                 button: true,
-                child: StatCard(child: const Text('Albums'),
+                child: StatCard(
+                  title: 'Albums',
                   value: _getStat('albums').toString(),
                   icon: Icons.photo_library,
                   gradientColors: MemoryHubGradients.albums.colors,
@@ -348,9 +358,11 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                   ),
                 ),
               ),
-              Semantics(child: const Text('Upcoming events count: ${_getStat(')upcoming_events')}',
+              Semantics(
+                label: 'Upcoming events count: ${_getStat('upcoming_events')}',
                 button: true,
-                child: StatCard(child: const Text('Events'),
+                child: StatCard(
+                  title: 'Events',
                   value: _getStat('upcoming_events').toString(),
                   icon: Icons.event,
                   gradientColors: MemoryHubGradients.secondary.colors,
@@ -360,9 +372,11 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                   ),
                 ),
               ),
-              Semantics(child: const Text('Family circles count: ${_getStat(')family_circles')}',
+              Semantics(
+                label: 'Family circles count: ${_getStat('family_circles')}',
                 button: true,
-                child: StatCard(child: const Text('Circles'),
+                child: StatCard(
+                  title: 'Circles',
                   value: _getStat('family_circles').toString(),
                   icon: Icons.groups,
                   gradientColors: MemoryHubGradients.milestones.colors,
@@ -372,9 +386,11 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                   ),
                 ),
               ),
-              Semantics(child: const Text('Relationships count: ${_getStat(')relationships')}',
+              Semantics(
+                label: 'Relationships count: ${_getStat('relationships')}',
                 button: true,
-                child: StatCard(child: const Text('Relations'),
+                child: StatCard(
+                  title: 'Relations',
                   value: _getStat('relationships').toString(),
                   icon: Icons.account_tree,
                   gradientColors: MemoryHubGradients.recipes.colors,
@@ -510,7 +526,8 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             itemCount: _recentActivities.length,
             itemBuilder: (context, index) {
               final event = _recentActivities[index];
-              return Semantics(child: const Text('${event.title}, ${event.description ?? ')'}, ${DateFormat.yMMMd().format(event.eventDate)}',
+              return Semantics(
+                label: '${event.title}, ${event.description ?? ''}, ${DateFormat.yMMMd().format(event.eventDate)}',
                 button: true,
                 child: TimelineCard(
                   title: event.title,
