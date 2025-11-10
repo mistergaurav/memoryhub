@@ -181,6 +181,40 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const VGap.md(),
                     Row(
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padded.symmetric(horizontal: Spacing.md, child: Text(
+                          'OR',
+                          style: context.text.bodySmall?.copyWith(
+                            color: context.colors.onSurfaceVariant,
+                          ),
+                        )),
+                        const Expanded(child: Divider()),
+                      ],
+                    ),
+                    const VGap.md(),
+                    OutlinedButton.icon(
+                      onPressed: _isLoading ? null : () {
+                        AppSnackbar.info(
+                          context,
+                          'Google Sign In coming soon! Please add your Google OAuth credentials to enable this feature.',
+                        );
+                      },
+                      icon: Icon(Icons.login, color: context.colors.primary),
+                      label: const Text('Continue with Google'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: Spacing.md,
+                          vertical: Spacing.md,
+                        ),
+                        side: BorderSide(color: context.colors.outline),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: Radii.lgRadius,
+                        ),
+                      ),
+                    ),
+                    const VGap.md(),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(

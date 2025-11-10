@@ -182,3 +182,152 @@ async def refresh_alias(refresh_token_str: str):
 async def logout():
     """Logout endpoint (client-side token invalidation)"""
     return {"message": "Logged out successfully"}
+
+# Google OAuth Endpoints
+@router.get("/google/login")
+async def google_login():
+    """Initiate Google OAuth flow"""
+    if not settings.is_google_oauth_configured():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google OAuth is not configured. Please add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables."
+        )
+    
+    from urllib.parse import urlencode
+    params = {
+        "client_id": settings.GOOGLE_CLIENT_ID,
+        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline",
+        "prompt": "consent"
+    }
+    auth_url = f"{settings.GOOGLE_AUTH_URL}?{urlencode(params)}"
+    return {"auth_url": auth_url}
+
+@router.get("/google/callback")
+async def google_callback(code: str):
+    """Handle Google OAuth callback"""
+    if not settings.is_google_oauth_configured():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Google OAuth is not configured"
+        )
+    
+    import httpx
+    from datetime import datetime
+    
+    # Exchange authorization code for tokens
+    async with httpx.AsyncClient() as client:
+        token_response = await client.post(
+            settings.GOOGLE_TOKEN_URL,
+            data={
+                "code": code,
+                "client_id": settings.GOOGLE_CLIENT_ID,
+                "client_secret": settings.GOOGLE_CLIENT_SECRET,
+                "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+                "grant_type": "authorization_code"
+            }
+        )
+        
+        if token_response.status_code != 200:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to exchange authorization code for token"
+            )
+        
+        token_data = token_response.json()
+        google_access_token = token_data.get("access_token")
+        
+        if not google_access_token:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No access token received from Google"
+            )
+        
+        # Get user info from Google
+        user_info_response = await client.get(
+            settings.GOOGLE_USER_INFO_URL,
+            headers={"Authorization": f"Bearer {google_access_token}"}
+        )
+        
+        if user_info_response.status_code != 200:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to get user info from Google"
+            )
+        
+        user_info = user_info_response.json()
+    
+    email = user_info.get("email")
+    if not email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email not provided by Google"
+        )
+    
+    # Check if user exists
+    user = await get_user_by_email(email)
+    
+    if not user:
+        # Create new user
+        from app.utils.username_generator import generate_unique_username
+        
+        name = user_info.get("name", email.split('@')[0])
+        avatar_url = user_info.get("picture")
+        
+        user_dict = {
+            "email": email,
+            "full_name": name,
+            "username": await generate_unique_username(),
+            "hashed_password": None,  # OAuth users don't have password
+            "avatar_url": avatar_url,
+            "email_verified": True,  # Google verifies emails
+            "created_at": datetime.utcnow(),
+            "is_active": True,
+            "role": "user",
+        }
+        
+        result = await get_collection("users").insert_one(user_dict)
+        user_id = str(result.inserted_id)
+    else:
+        # User exists, get their ID
+        user_data = await get_collection("users").find_one({"email": email})
+        if not user_data:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="User data not found after verification"
+            )
+        user_id = str(user_data["_id"])
+        
+        # Update avatar if Google provides a new one
+        if user_info.get("picture"):
+            await get_collection("users").update_one(
+                {"email": email},
+                {"$set": {"avatar_url": user_info.get("picture")}}
+            )
+    
+    # Generate JWT tokens
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": email}, 
+        expires_delta=access_token_expires
+    )
+    
+    refresh_token_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    refresh_token = create_refresh_token(
+        data={"sub": email},
+        expires_delta=refresh_token_expires
+    )
+    
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user_id,
+            "email": email,
+            "full_name": user_info.get("name"),
+            "avatar_url": user_info.get("picture"),
+        }
+    }

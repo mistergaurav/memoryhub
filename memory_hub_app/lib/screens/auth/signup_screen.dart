@@ -46,7 +46,7 @@ class _SignupScreenState extends State<SignupScreen> {
           context,
           'Welcome! Your account has been created successfully.',
         );
-        Navigator.of(context).pushReplacementNamed('/dashboard');
+        Navigator.of(context).pushReplacementNamed('/');
       }
     } catch (e) {
       if (mounted) {
@@ -172,6 +172,14 @@ class _SignupScreenState extends State<SignupScreen> {
                         if (value.length < 8) {
                           return 'Password must be at least 8 characters';
                         }
+                        // Check for at least one letter
+                        if (!RegExp(r'[a-zA-Z]').hasMatch(value)) {
+                          return 'Password must contain at least one letter';
+                        }
+                        // Check for at least one number or special character
+                        if (!RegExp(r'[0-9!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+                          return 'Password must contain a number or special character';
+                        }
                         return null;
                       },
                     ),
@@ -181,6 +189,40 @@ class _SignupScreenState extends State<SignupScreen> {
                       label: 'Sign Up',
                       isLoading: _isLoading,
                       fullWidth: true,
+                    ),
+                    const VGap.md(),
+                    Row(
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padded.symmetric(horizontal: Spacing.md, child: Text(
+                          'OR',
+                          style: context.text.bodySmall?.copyWith(
+                            color: context.colors.onSurfaceVariant,
+                          ),
+                        )),
+                        const Expanded(child: Divider()),
+                      ],
+                    ),
+                    const VGap.md(),
+                    OutlinedButton.icon(
+                      onPressed: _isLoading ? null : () {
+                        AppSnackbar.info(
+                          context,
+                          'Google Sign In coming soon! Please add your Google OAuth credentials to enable this feature.',
+                        );
+                      },
+                      icon: Icon(Icons.login, color: context.colors.primary),
+                      label: const Text('Continue with Google'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: Spacing.md,
+                          vertical: Spacing.md,
+                        ),
+                        side: BorderSide(color: context.colors.outline),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: Radii.lgRadius,
+                        ),
+                      ),
                     ),
                     const VGap.md(),
                     Row(

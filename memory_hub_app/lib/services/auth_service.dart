@@ -149,4 +149,55 @@ class AuthService {
       return null;
     }
   }
+
+  Future<AuthTokens?> signInWithGoogle() async {
+    try {
+      // Step 1: Get Google OAuth auth URL from backend
+      final response = await http.get(
+        Uri.parse('$baseUrl/auth/google/login'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 503) {
+        throw Exception('Google Sign In is not configured on the server');
+      }
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to initiate Google Sign In');
+      }
+
+      final authData = jsonDecode(response.body);
+      final authUrl = authData['auth_url'];
+
+      // Step 2: Open Google OAuth in browser/webview
+      // Note: This requires url_launcher package
+      // For now, return the URL so the UI can handle it
+      throw Exception('Google Sign In URL: $authUrl\n\nPlease implement url_launcher to open this URL');
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('Google Sign In error: $e');
+    }
+  }
+
+  Future<AuthTokens?> handleGoogleCallback(String code) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/auth/google/callback?code=$code'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final tokens = AuthTokens.fromJson(responseData);
+        await _saveTokens(tokens);
+        return tokens;
+      } else {
+        final errorBody = jsonDecode(response.body);
+        throw Exception(errorBody['detail'] ?? 'Google Sign In failed');
+      }
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('Google callback error: $e');
+    }
+  }
 }
