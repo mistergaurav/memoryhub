@@ -1,0 +1,192 @@
+
+**Goal:**
+Refactor the existing Flutter codebase so **no screen contains inline styles** (padding, colors, typography, margins, borders, animations, etc). Move **all design decisions** into a reusable, well-documented **global design system** with clear folder structure and naming. Keep business logic and UI layouts lean, readable, and maintainable.
+
+## High-level requirements
+
+* Use **Material 3**, **ColorScheme.fromSeed**, support **light/dark** themes, and prepare for **high contrast**.
+* Centralize **tokens** (spacing, radii, elevation, durations, breakpoints, colors, typography).
+* Create **themed components** (buttons, inputs, app bars, cards, chips, list tiles, nav bars, etc).
+* Add **layout primitives** (spacers, gaps, responsive paddings/margins, section containers).
+* Provide **animation utilities** (curves, durations, standard transitions, reduced-motion handling).
+* Enforce **accessibility**: min 44x44 touch targets, focus indicators, semantic labels, screen reader hints, and contrast ≥ WCAG AA where possible.
+* No magic numbers in screens. Only use design tokens and components.
+
+## Target folder structure (under `lib/`)
+
+```
+lib/
+  app/
+    app.dart                 // MaterialApp + theme wiring
+    routes.dart              // named routes / GoRouter (if used)
+  design_system/
+    tokens/
+      color_tokens.dart
+      spacing_tokens.dart
+      radius_tokens.dart
+      elevation_tokens.dart
+      duration_tokens.dart
+      breakpoint_tokens.dart
+      typography_tokens.dart
+      border_tokens.dart
+      shadow_tokens.dart
+    theme/
+      app_theme.dart         // ThemeData builder (light/dark)
+      text_theme.dart
+      component_themes.dart  // ButtonTheme, InputDecorationTheme, etc.
+      extensions.dart        // ThemeExtension(s) for custom tokens
+    layout/
+      gap.dart               // Gap, VGap/HGap widgets
+      padded.dart            // Padded / SafeAreaPadded wrappers
+      section.dart           // Section, CardSection containers
+      responsive.dart        // helpers using breakpoints
+    components/
+      buttons/
+        primary_button.dart
+        secondary_button.dart
+        icon_button_x.dart
+      inputs/
+        text_field_x.dart
+        dropdown_x.dart
+        checkbox_x.dart
+      surfaces/
+        app_card.dart
+        app_sheet.dart
+      navigation/
+        app_appbar.dart
+        app_navbar.dart
+      feedback/
+        app_snackbar.dart
+        app_dialog.dart
+    animations/
+      motion.dart            // durations, curves, reduced-motion check
+      transitions.dart       // fade/scale/slide route/page transitions
+      animated_visibility.dart
+    utils/
+      a11y.dart              // semantics helpers, focus highlight
+      context_ext.dart       // context.ds, context.text, context.colors
+      images.dart            // image placeholders, safe loaders
+```
+
+## Design tokens (use everywhere)
+
+* **Spacing scale:** `xxs=4, xs=8, sm=12, md=16, lg=24, xl=32, xxl=48`
+* **Radii:** `sm=8, md=12, lg=20, pill=999`
+* **Elevation (M3):** `level0..level5` mapped to shadows
+* **Durations:** `fast=120ms, base=200ms, slow=300ms, slower=450ms`
+* **Curves:** `standard=Curves.easeInOut, emphasized=Curves.easeInOutCubic, decel=Curves.decelerate`
+* **Breakpoints (logical px):** `sm<600, md<904, lg<1232, xl≥1232`
+* **Borders:** `thin=1, regular=1.5, thick=2`
+* **Typography:** define display/headline/title/label/body with weights and scalable sizes
+* **Colors:** generate from `seedColor`, expose semantic roles (`primary`, `surface`, `success`, `warning`, `error`, `info`) via `ThemeExtension`.
+
+## Theme setup
+
+* Build `ThemeData` in `theme/app_theme.dart`:
+
+  * `ColorScheme.fromSeed(seedColor: …)`
+  * Configure `textTheme`, `useMaterial3: true`
+  * Component themes: `AppBarTheme`, `FilledButtonTheme`, `OutlinedButtonTheme`, `InputDecorationTheme`, `CardTheme`, `ChipTheme`, `NavigationBarTheme`, `SnackBarTheme`, `DialogTheme`, `DividerTheme`, `ListTileTheme`.
+  * Add a `ThemeExtension<AppTokens>` to expose custom tokens (spacing, radii, etc.) to `BuildContext`.
+
+## Layout primitives
+
+* `Gap`/`HGap`/`VGap` widgets using spacing tokens.
+* `Padded(all: md)` and `ScreenPadding(responsive: true)` wrappers.
+* `Section` with standard padding, background surface, optional header and divider.
+* `Responsive` helpers: `context.isSm`, `isMd`, `isLg`, and `responsivePadding()`.
+
+## Animation utilities
+
+* `motion.dart`: durations/curves + `bool reducedMotion(BuildContext)` (respect platform “reduce motion”).
+* `transitions.dart`: `fadeRoute()`, `slideRoute()`, `scaleRoute()`, and `PageTransitionsTheme` wiring.
+* `AnimatedVisibilityX` with fade/size transitions using tokens.
+
+## Components (examples; build more as needed)
+
+* Buttons: `PrimaryButton`, `SecondaryButton`, `TonalButton`, `DangerButton`, `IconButtonX`.
+* Inputs: `TextFieldX` with consistent paddings, `DropdownX`, `CheckboxX`, `SwitchX`.
+* Surfaces: `AppCard` (rounded, elevation), `AppSheet` (modal bottom sheet style).
+* Navigation: `AppAppBar` (title, actions), `AppNavBar` (bottom navigation with labels).
+* Feedback: `AppSnackbar.show(context, ...)`, `AppDialog.confirm(...)`.
+
+## Accessibility requirements
+
+* All tap targets ≥ **44×44**.
+* Visible **focus** state for keyboard/switch access.
+* Provide **Semantics** labels/hints for custom widgets.
+* Respect **text scaling** (no clipped text) and **reduced motion**.
+* Maintain color contrast; avoid text on busy backgrounds.
+
+## Code quality rules
+
+* **No inline styling** in screens: no raw `EdgeInsets`, `SizedBox(height: 12)`, hardcoded `Color(0xFF…)`, or `TextStyle(...)`. Use tokens, components, or theme.
+* Prefer `const` constructors where possible.
+* Extract repeated UI into components.
+* Keep screens focused on **layout & logic** only.
+* Add DartDoc comments to tokens and public components.
+* Run `dart fix` and `flutter analyze` clean.
+
+## Refactor scope & deliverables
+
+1. **Create** the `design_system` folder structure and files above.
+2. **Implement** tokens, theme, layout primitives, animations, and representative components.
+3. **Migrate** all existing screens to:
+
+   * Import components and tokens.
+   * Replace magic numbers with tokens.
+   * Replace ad-hoc widgets with design-system components.
+4. **Add** simple usage examples in each component file.
+5. **Provide** a short **README** (`design_system/README.md`) describing tokens, usage, and examples.
+6. **Add** unit/widget tests for:
+
+   * Theme builds without exceptions.
+   * Buttons and inputs render with correct sizes, semantics, and tap areas.
+   * Reduced-motion path doesn’t animate.
+
+## Sample usage expectations (after refactor)
+
+```dart
+// Before: (avoid)
+Padding(
+  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+  child: Text('Hello', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+);
+
+// After: (use tokens & components)
+Padded.all(Spacing.md)(
+  child: Text('Hello', style: context.text.titleMedium),
+);
+
+// Button
+PrimaryButton(
+  onPressed: onTap,
+  label: 'Continue',
+  leading: const Icon(Icons.arrow_forward),
+);
+
+// Section
+Section(
+  title: Text('Profile', style: context.text.titleLarge),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: const [
+      VGap.lg(),
+      AppCard(child: ProfileSummary()),
+    ],
+  ),
+);
+```
+
+## Acceptance checklist
+
+* [ ] No screen Dart file contains raw `EdgeInsets`, `SizedBox(height/width: …)`, hex `Color`, or ad-hoc `TextStyle`.
+* [ ] All paddings/margins use `Spacing.*` or layout primitives.
+* [ ] All colors route through `ColorScheme` or semantic tokens.
+* [ ] Animations use `motion.dart` and respect reduced motion.
+* [ ] Components and tokens are documented with examples.
+* [ ] Light/Dark themes verified; contrast meets AA for primary text.
+* [ ] `flutter analyze` passes with zero warnings; tests pass.
+
+**Now proceed to implement the design system, migrate existing screens, and open a PR with a clear migration diff and README.**
+
