@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../services/api_service.dart';
-import '../../widgets/gradient_container.dart';
 
 class PasswordResetConfirmScreen extends StatefulWidget {
   final String? token;
@@ -51,11 +50,9 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
       setState(() => _resetSuccess = true);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+        AppSnackbar.error(
+          context,
+          'Error: ${e.toString()}',
         );
       }
     } finally {
@@ -66,43 +63,13 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 200,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: GradientContainer(
-                height: 200,
-                colors: [
-                  Colors.indigo,
-                  Colors.purple,
-                  Colors.pink,
-                ],
-                child: Center(
-                  child: Icon(
-                    Icons.vpn_key,
-                    size: 80,
-                    color: Colors.white.withOpacity(0.9),
-                  ),
-                ),
-              ),
-              title: Text(
-                'Set New Password',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: _resetSuccess ? _buildSuccessView() : _buildFormView(),
-            ),
-          ),
-        ],
+      appBar: AppBar(
+        title: const Text('Set New Password'),
+      ),
+      body: SingleChildScrollView(
+        child: Padded.lg(
+          child: _resetSuccess ? _buildSuccessView() : _buildFormView(),
+        ),
       ),
     );
   }
@@ -113,35 +80,56 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 16),
+          const VGap.xl(),
+          Icon(
+            Icons.vpn_key,
+            size: 80,
+            color: context.colors.primary,
+          ),
+          const VGap.md(),
           Text(
             'Create new password',
-            style: GoogleFonts.inter(
-              fontSize: 28,
+            style: context.text.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 12),
+          const VGap.sm(),
           Text(
             'Your new password must be different from previously used passwords.',
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: Colors.grey[600],
+            style: context.text.bodyLarge?.copyWith(
+              color: context.colors.onSurfaceVariant,
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 32),
+          const VGap.xl(),
           TextFormField(
             controller: _tokenController,
             decoration: InputDecoration(
               labelText: 'Reset Token',
               hintText: 'Enter the token from your email',
               prefixIcon: const Icon(Icons.confirmation_number),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: Spacing.md,
+                vertical: Spacing.md,
+              ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: Radii.lgRadius,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: Radii.lgRadius,
+                borderSide: BorderSide(
+                  color: context.colors.outline,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: Radii.lgRadius,
+                borderSide: BorderSide(
+                  color: context.colors.primary,
+                  width: 2,
+                ),
               ),
               filled: true,
-              fillColor: Colors.grey[50],
+              fillColor: context.colors.surfaceVariant.withOpacity(0.3),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -150,7 +138,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               return null;
             },
           ),
-          const SizedBox(height: 16),
+          const VGap.md(),
           TextFormField(
             controller: _passwordController,
             obscureText: !_passwordVisible,
@@ -158,6 +146,26 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               labelText: 'New Password',
               hintText: 'At least 8 characters',
               prefixIcon: const Icon(Icons.lock_outline),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: Spacing.md,
+                vertical: Spacing.md,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: Radii.lgRadius,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: Radii.lgRadius,
+                borderSide: BorderSide(
+                  color: context.colors.outline,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: Radii.lgRadius,
+                borderSide: BorderSide(
+                  color: context.colors.primary,
+                  width: 2,
+                ),
+              ),
               suffixIcon: IconButton(
                 icon: Icon(
                   _passwordVisible ? Icons.visibility : Icons.visibility_off,
@@ -166,11 +174,8 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
                   setState(() => _passwordVisible = !_passwordVisible);
                 },
               ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
               filled: true,
-              fillColor: Colors.grey[50],
+              fillColor: context.colors.surfaceVariant.withOpacity(0.3),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -182,7 +187,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               return null;
             },
           ),
-          const SizedBox(height: 16),
+          const VGap.md(),
           TextFormField(
             controller: _confirmPasswordController,
             obscureText: !_confirmPasswordVisible,
@@ -190,6 +195,26 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               labelText: 'Confirm Password',
               hintText: 'Re-enter your password',
               prefixIcon: const Icon(Icons.lock_outline),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: Spacing.md,
+                vertical: Spacing.md,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: Radii.lgRadius,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: Radii.lgRadius,
+                borderSide: BorderSide(
+                  color: context.colors.outline,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: Radii.lgRadius,
+                borderSide: BorderSide(
+                  color: context.colors.primary,
+                  width: 2,
+                ),
+              ),
               suffixIcon: IconButton(
                 icon: Icon(
                   _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
@@ -198,11 +223,8 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
                   setState(() => _confirmPasswordVisible = !_confirmPasswordVisible);
                 },
               ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
               filled: true,
-              fillColor: Colors.grey[50],
+              fillColor: context.colors.surfaceVariant.withOpacity(0.3),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -214,63 +236,44 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               return null;
             },
           ),
-          const SizedBox(height: 24),
+          const VGap.lg(),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(Spacing.md),
             decoration: BoxDecoration(
-              color: Colors.amber[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.amber[200]!),
+              color: context.colors.secondaryContainer,
+              borderRadius: Radii.lgRadius,
+              border: Border.all(color: context.colors.secondary.withOpacity(0.3)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(Icons.tips_and_updates, color: Colors.amber[700], size: 20),
-                    const SizedBox(width: 8),
+                    Icon(Icons.tips_and_updates, color: context.colors.secondary, size: 20),
+                    const HGap.xs(),
                     Text(
                       'Password Tips:',
-                      style: GoogleFonts.inter(
+                      style: context.text.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: Colors.amber[900],
+                        color: context.colors.onSecondaryContainer,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const VGap.xs(),
                 _buildPasswordTip('At least 8 characters'),
                 _buildPasswordTip('Include upper & lowercase letters'),
                 _buildPasswordTip('Include numbers and symbols'),
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: _isLoading ? null : _handleSubmit,
-            icon: _isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Icon(Icons.check),
-            label: Text(
-              _isLoading ? 'Resetting...' : 'Reset Password',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
+          const VGap.lg(),
+          PrimaryButton(
+            onPressed: _handleSubmit,
+            label: _isLoading ? 'Resetting...' : 'Reset Password',
+            leading: _isLoading ? null : const Icon(Icons.check),
+            isLoading: _isLoading,
+            fullWidth: true,
           ),
         ],
       ),
@@ -279,16 +282,15 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
 
   Widget _buildPasswordTip(String text) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4, top: 4),
+      padding: const EdgeInsets.only(left: Spacing.xxs, top: Spacing.xxs),
       child: Row(
         children: [
-          Icon(Icons.check_circle_outline, size: 16, color: Colors.amber[700]),
-          const SizedBox(width: 8),
+          Icon(Icons.check_circle_outline, size: 16, color: context.colors.secondary),
+          const HGap.xs(),
           Text(
             text,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: Colors.amber[900],
+            style: context.text.bodySmall?.copyWith(
+              color: context.colors.onSecondaryContainer,
             ),
           ),
         ],
@@ -299,55 +301,42 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
   Widget _buildSuccessView() {
     return Column(
       children: [
-        const SizedBox(height: 32),
+        const VGap.xl(),
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(Spacing.lg),
           decoration: BoxDecoration(
-            color: Colors.green[50],
+            color: context.colors.primaryContainer,
             shape: BoxShape.circle,
           ),
           child: Icon(
             Icons.check_circle,
             size: 80,
-            color: Colors.green[600],
+            color: context.colors.primary,
           ),
         ),
-        const SizedBox(height: 24),
+        const VGap.lg(),
         Text(
           'Password Reset!',
-          style: GoogleFonts.inter(
-            fontSize: 28,
+          style: context.text.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 12),
+        const VGap.sm(),
         Text(
           'Your password has been successfully reset.',
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            color: Colors.grey[600],
+          style: context.text.bodyLarge?.copyWith(
+            color: context.colors.onSurfaceVariant,
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 32),
-        FilledButton.icon(
+        const VGap.xl(),
+        PrimaryButton(
           onPressed: () {
             Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
           },
-          icon: const Icon(Icons.login),
-          label: Text(
-            'Go to Login',
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          style: FilledButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+          label: 'Go to Login',
+          leading: const Icon(Icons.login),
+          fullWidth: true,
         ),
       ],
     );

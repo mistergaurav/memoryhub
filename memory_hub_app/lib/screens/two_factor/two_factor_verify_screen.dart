@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 
 class TwoFactorVerifyScreen extends StatelessWidget {
   const TwoFactorVerifyScreen({super.key});
@@ -8,27 +8,77 @@ class TwoFactorVerifyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Verify 2FA Code', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Verify 2FA Code',
+          style: context.text.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
+      body: Padded.lg(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Icon(
+              Icons.security,
+              size: 80,
+              color: context.colors.primary,
+            ),
+            const VGap.lg(),
+            Text(
+              'Enter Verification Code',
+              style: context.text.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const VGap.sm(),
+            Text(
+              'Enter the 6-digit code from your authenticator app',
+              style: context.text.bodyMedium?.copyWith(
+                color: context.colors.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const VGap.xl(),
             TextField(
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
               maxLength: 6,
-              style: GoogleFonts.inter(fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 8),
-              decoration: const InputDecoration(hintText: '000000'),
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () {},
-                child: const Text('Verify'),
+              style: context.text.headlineLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                letterSpacing: 8,
               ),
+              decoration: InputDecoration(
+                hintText: '000000',
+                counterText: '',
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: Spacing.md,
+                  vertical: Spacing.lg,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: Radii.lgRadius,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: Radii.lgRadius,
+                  borderSide: BorderSide(
+                    color: context.colors.outline,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: Radii.lgRadius,
+                  borderSide: BorderSide(
+                    color: context.colors.primary,
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+            const VGap.xl(),
+            PrimaryButton(
+              onPressed: () {},
+              label: 'Verify',
+              fullWidth: true,
             ),
           ],
         ),

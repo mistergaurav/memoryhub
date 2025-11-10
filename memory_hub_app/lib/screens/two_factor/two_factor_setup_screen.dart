@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../services/api_service.dart';
 
 class TwoFactorSetupScreen extends StatefulWidget {
@@ -51,18 +51,14 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        AppSnackbar.error(context, 'Error: ${e.toString()}');
       }
     }
   }
 
   Future<void> _verify2FA() async {
     if (_codeController.text.length != 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a 6-digit code')),
-      );
+      AppSnackbar.info(context, 'Please enter a 6-digit code');
       return;
     }
 
@@ -70,17 +66,13 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
     try {
       await _apiService.verifyEnable2FA(_codeController.text);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('2FA enabled successfully!')),
-        );
+        AppSnackbar.success(context, '2FA enabled successfully!');
         Navigator.pop(context, true);
       }
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Verification failed: ${e.toString()}')),
-        );
+        AppSnackbar.error(context, 'Verification failed: ${e.toString()}');
       }
     }
   }
@@ -89,10 +81,15 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Disable 2FA?', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Disable 2FA?',
+          style: context.text.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         content: Text(
           'Are you sure you want to disable two-factor authentication?',
-          style: GoogleFonts.inter(),
+          style: context.text.bodyMedium,
         ),
         actions: [
           TextButton(
@@ -101,7 +98,9 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(
+              backgroundColor: context.colors.error,
+            ),
             child: const Text('Disable'),
           ),
         ],
@@ -112,16 +111,12 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
       try {
         await _apiService.disable2FA();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('2FA disabled')),
-          );
+          AppSnackbar.success(context, '2FA disabled');
           Navigator.pop(context);
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: ${e.toString()}')),
-          );
+          AppSnackbar.error(context, 'Error: ${e.toString()}');
         }
       }
     }
@@ -131,21 +126,27 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Two-Factor Authentication', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Two-Factor Authentication',
+          style: context.text.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_isEnabled && _setupData == null) ...[
-              _buildEnabledView(),
-            ] else if (_setupData != null) ...[
-              _buildSetupView(),
-            ] else ...[
-              _buildInitialView(),
+        child: Padded.lg(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_isEnabled && _setupData == null) ...[
+                _buildEnabledView(),
+              ] else if (_setupData != null) ...[
+                _buildSetupView(),
+              ] else ...[
+                _buildInitialView(),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -156,67 +157,60 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(Spacing.lg),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                context.colors.primary.withOpacity(0.1),
+                context.colors.secondary.withOpacity(0.1),
               ],
             ),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: Radii.xlRadius,
           ),
           child: Column(
             children: [
               Icon(
                 Icons.security,
                 size: 64,
-                color: Theme.of(context).colorScheme.primary,
+                color: context.colors.primary,
               ),
-              const SizedBox(height: 16),
+              const VGap.md(),
               Text(
                 'Secure Your Account',
-                style: GoogleFonts.inter(
-                  fontSize: 22,
+                style: context.text.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
+              const VGap.xs(),
               Text(
                 'Add an extra layer of security to your account with two-factor authentication',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: Colors.grey,
+                style: context.text.bodyMedium?.copyWith(
+                  color: context.colors.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,
               ),
             ],
           ),
         ),
-        const SizedBox(height: 32),
+        const VGap.xl(),
         Text(
           'How it works',
-          style: GoogleFonts.inter(
-            fontSize: 18,
+          style: context.text.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 16),
+        const VGap.md(),
         _buildStep(1, 'Scan QR Code', 'Use an authenticator app to scan the QR code'),
         _buildStep(2, 'Enter Code', 'Enter the 6-digit code from your app'),
         _buildStep(3, 'All Set!', 'Your account is now extra secure'),
-        const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: _isLoading ? null : _enable2FA,
-            icon: const Icon(Icons.shield),
-            label: const Text('Enable 2FA'),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.all(16),
-            ),
-          ),
+        const VGap.xl(),
+        PrimaryButton(
+          onPressed: _isLoading ? null : _enable2FA,
+          label: 'Enable 2FA',
+          leading: const Icon(Icons.shield),
+          isLoading: _isLoading,
+          fullWidth: true,
         ),
       ],
     );
@@ -228,29 +222,27 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
       children: [
         Text(
           'Scan QR Code',
-          style: GoogleFonts.inter(
-            fontSize: 22,
+          style: context.text.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 8),
+        const VGap.xs(),
         Text(
           'Use Google Authenticator or similar app',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            color: Colors.grey,
+          style: context.text.bodyMedium?.copyWith(
+            color: context.colors.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 24),
+        const VGap.lg(),
         if (_setupData?['qr_code'] != null)
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(Spacing.md),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              color: context.colors.surface,
+              borderRadius: Radii.xlRadius,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: context.colors.shadow.withOpacity(0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 4),
                 ),
@@ -261,77 +253,87 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                 Container(
                   width: 200,
                   height: 200,
-                  color: Colors.grey[300],
-                  child: const Center(
-                    child: Text('QR Code Here'),
+                  color: context.colors.surfaceVariant,
+                  child: Center(
+                    child: Text(
+                      'QR Code Here',
+                      style: context.text.bodyMedium,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const VGap.md(),
                 Text(
                   'Secret Key',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: Colors.grey,
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.colors.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const VGap.xxs(),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(Spacing.sm),
                   decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(8),
+                    color: context.colors.surfaceVariant,
+                    borderRadius: Radii.mdRadius,
                   ),
                   child: Text(
                     _setupData?['secret'] ?? '',
-                    style: GoogleFonts.robotoMono(
-                      fontSize: 14,
+                    style: context.text.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
+                      fontFamily: 'monospace',
                     ),
                   ),
                 ),
               ],
             ),
           ),
-        const SizedBox(height: 32),
+        const VGap.xl(),
         Text(
           'Enter Verification Code',
-          style: GoogleFonts.inter(
-            fontSize: 16,
+          style: context.text.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 16),
+        const VGap.md(),
         TextField(
           controller: _codeController,
           keyboardType: TextInputType.number,
           maxLength: 6,
           textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            fontSize: 24,
+          style: context.text.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
             letterSpacing: 8,
           ),
           decoration: InputDecoration(
             hintText: '000000',
             counterText: '',
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: Spacing.md,
+              vertical: Spacing.md,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: Radii.lgRadius,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: Radii.lgRadius,
+              borderSide: BorderSide(
+                color: context.colors.outline,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: Radii.lgRadius,
+              borderSide: BorderSide(
+                color: context.colors.primary,
+                width: 2,
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton(
-            onPressed: _isLoading ? null : _verify2FA,
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.all(16),
-            ),
-            child: _isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                  )
-                : const Text('Verify and Enable'),
-          ),
+        const VGap.lg(),
+        PrimaryButton(
+          onPressed: _isLoading ? null : _verify2FA,
+          label: 'Verify and Enable',
+          isLoading: _isLoading,
+          fullWidth: true,
         ),
       ],
     );
@@ -341,97 +343,88 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(32),
+          padding: const EdgeInsets.all(Spacing.xl),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Colors.green.withOpacity(0.1),
-                Colors.green.withOpacity(0.05),
+                context.colors.primaryContainer,
+                context.colors.primaryContainer.withOpacity(0.5),
               ],
             ),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: Radii.xlRadius,
           ),
           child: Column(
             children: [
-              const Icon(Icons.check_circle, size: 64, color: Colors.green),
-              const SizedBox(height: 16),
+              Icon(
+                Icons.check_circle,
+                size: 64,
+                color: context.colors.primary,
+              ),
+              const VGap.md(),
               Text(
                 '2FA is Enabled',
-                style: GoogleFonts.inter(
-                  fontSize: 22,
+                style: context.text.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 8),
+              const VGap.xs(),
               Text(
                 'Your account is protected with two-factor authentication',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: Colors.grey,
+                style: context.text.bodyMedium?.copyWith(
+                  color: context.colors.onSurfaceVariant,
                 ),
                 textAlign: TextAlign.center,
               ),
             ],
           ),
         ),
-        const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton(
-            onPressed: _disable2FA,
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.all(16),
-              side: const BorderSide(color: Colors.red),
-            ),
-            child: Text(
-              'Disable 2FA',
-              style: GoogleFonts.inter(color: Colors.red),
-            ),
-          ),
+        const VGap.xl(),
+        SecondaryButton(
+          onPressed: _disable2FA,
+          label: 'Disable 2FA',
+          fullWidth: true,
         ),
       ],
     );
   }
 
   Widget _buildStep(int number, String title, String description) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+    return Padded.only(
+      bottom: Spacing.md,
       child: Row(
         children: [
           Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: context.colors.primary.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
                 number.toString(),
-                style: GoogleFonts.inter(
+                style: context.text.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: context.colors.primary,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          const HGap.md(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.inter(
+                  style: context.text.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
-                    fontSize: 16,
                   ),
                 ),
                 Text(
                   description,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    color: Colors.grey,
+                  style: context.text.bodySmall?.copyWith(
+                    color: context.colors.onSurfaceVariant,
                   ),
                 ),
               ],

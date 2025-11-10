@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../design_system/design_tokens.dart';
+import '../design_system/theme/extensions.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
@@ -19,6 +20,7 @@ class AppTheme {
       colorScheme: colorScheme,
       useMaterial3: true,
       scaffoldBackgroundColor: MemoryHubColors.gray50,
+      extensions: [AppTokens.light()],
       
       textTheme: _buildTextTheme(Brightness.light),
       
@@ -239,6 +241,7 @@ class AppTheme {
       colorScheme: colorScheme,
       useMaterial3: true,
       scaffoldBackgroundColor: MemoryHubColors.gray900,
+      extensions: [AppTokens.dark()],
       
       textTheme: _buildTextTheme(Brightness.dark),
       

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../services/api_service.dart';
-import '../../widgets/gradient_container.dart';
 
 class PasswordResetRequestScreen extends StatefulWidget {
   const PasswordResetRequestScreen({super.key});
@@ -32,11 +31,9 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
       setState(() => _emailSent = true);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+        AppSnackbar.error(
+          context,
+          'Error: ${e.toString()}',
         );
       }
     } finally {
@@ -47,43 +44,13 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 200,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: GradientContainer(
-                height: 200,
-                colors: [
-                  Colors.indigo,
-                  Colors.purple,
-                  Colors.pink,
-                ],
-                child: Center(
-                  child: Icon(
-                    Icons.lock_reset,
-                    size: 80,
-                    color: Colors.white.withOpacity(0.9),
-                  ),
-                ),
-              ),
-              title: Text(
-                'Reset Password',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: _emailSent ? _buildSuccessView() : _buildFormView(),
-            ),
-          ),
-        ],
+      appBar: AppBar(
+        title: const Text('Reset Password'),
+      ),
+      body: SingleChildScrollView(
+        child: Padded.lg(
+          child: _emailSent ? _buildSuccessView() : _buildFormView(),
+        ),
       ),
     );
   }
@@ -94,24 +61,28 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 16),
+          const VGap.xl(),
+          Icon(
+            Icons.lock_reset,
+            size: 80,
+            color: context.colors.primary,
+          ),
+          const VGap.md(),
           Text(
             'Forgot your password?',
-            style: GoogleFonts.inter(
-              fontSize: 28,
+            style: context.text.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 12),
+          const VGap.sm(),
           Text(
             'Enter your email address and we\'ll send you instructions to reset your password.',
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: Colors.grey[600],
+            style: context.text.bodyLarge?.copyWith(
+              color: context.colors.onSurfaceVariant,
               height: 1.5,
             ),
           ),
-          const SizedBox(height: 32),
+          const VGap.xl(),
           TextFormField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
@@ -120,11 +91,28 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
               labelText: 'Email Address',
               hintText: 'your@email.com',
               prefixIcon: const Icon(Icons.email_outlined),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: Spacing.md,
+                vertical: Spacing.md,
+              ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: Radii.lgRadius,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: Radii.lgRadius,
+                borderSide: BorderSide(
+                  color: context.colors.outline,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: Radii.lgRadius,
+                borderSide: BorderSide(
+                  color: context.colors.primary,
+                  width: 2,
+                ),
               ),
               filled: true,
-              fillColor: Colors.grey[50],
+              fillColor: context.colors.surfaceVariant.withOpacity(0.3),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -136,41 +124,20 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
               return null;
             },
           ),
-          const SizedBox(height: 24),
-          FilledButton.icon(
-            onPressed: _isLoading ? null : _handleSubmit,
-            icon: _isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Icon(Icons.send),
-            label: Text(
-              _isLoading ? 'Sending...' : 'Send Reset Link',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
+          const VGap.lg(),
+          PrimaryButton(
+            onPressed: _handleSubmit,
+            label: _isLoading ? 'Sending...' : 'Send Reset Link',
+            leading: _isLoading ? null : const Icon(Icons.send),
+            isLoading: _isLoading,
+            fullWidth: true,
           ),
-          const SizedBox(height: 16),
-          TextButton.icon(
+          const VGap.md(),
+          SecondaryButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back),
-            label: Text(
-              'Back to Login',
-              style: GoogleFonts.inter(fontSize: 16),
-            ),
+            label: 'Back to Login',
+            leading: const Icon(Icons.arrow_back),
+            fullWidth: true,
           ),
         ],
       ),
@@ -180,93 +147,78 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
   Widget _buildSuccessView() {
     return Column(
       children: [
-        const SizedBox(height: 32),
+        const VGap.xl(),
         Container(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(Spacing.lg),
           decoration: BoxDecoration(
-            color: Colors.green[50],
+            color: context.colors.primaryContainer,
             shape: BoxShape.circle,
           ),
           child: Icon(
             Icons.check_circle,
             size: 80,
-            color: Colors.green[600],
+            color: context.colors.primary,
           ),
         ),
-        const SizedBox(height: 24),
+        const VGap.lg(),
         Text(
           'Check your email!',
-          style: GoogleFonts.inter(
-            fontSize: 28,
+          style: context.text.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 12),
+        const VGap.sm(),
         Text(
           'We\'ve sent password reset instructions to:',
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            color: Colors.grey[600],
+          style: context.text.bodyLarge?.copyWith(
+            color: context.colors.onSurfaceVariant,
           ),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
+        const VGap.xs(),
         Text(
           _emailController.text,
-          style: GoogleFonts.inter(
-            fontSize: 16,
+          style: context.text.bodyLarge?.copyWith(
             fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.primary,
+            color: context.colors.primary,
           ),
         ),
-        const SizedBox(height: 32),
+        const VGap.xl(),
         Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(Spacing.md),
           decoration: BoxDecoration(
-            color: Colors.blue[50],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blue[200]!),
+            color: context.colors.tertiaryContainer,
+            borderRadius: Radii.lgRadius,
+            border: Border.all(color: context.colors.tertiary.withOpacity(0.3)),
           ),
           child: Row(
             children: [
-              Icon(Icons.info_outline, color: Colors.blue[700]),
-              const SizedBox(width: 12),
+              Icon(Icons.info_outline, color: context.colors.tertiary),
+              const HGap.sm(),
               Expanded(
                 child: Text(
                   'The link will expire in 1 hour for security reasons.',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: Colors.blue[900],
+                  style: context.text.bodyMedium?.copyWith(
+                    color: context.colors.onTertiaryContainer,
                   ),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 24),
-        OutlinedButton.icon(
+        const VGap.lg(),
+        SecondaryButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back),
-          label: Text(
-            'Back to Login',
-            style: GoogleFonts.inter(fontSize: 16),
-          ),
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+          label: 'Back to Login',
+          leading: const Icon(Icons.arrow_back),
+          fullWidth: true,
         ),
-        const SizedBox(height: 16),
+        const VGap.md(),
         TextButton(
           onPressed: () {
             setState(() => _emailSent = false);
           },
-          child: Text(
-            'Try a different email',
-            style: GoogleFonts.inter(fontSize: 14),
-          ),
+          child: const Text('Try a different email'),
         ),
       ],
     );

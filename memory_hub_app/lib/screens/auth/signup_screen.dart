@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../services/auth_service.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -44,21 +45,17 @@ class _SignupScreenState extends State<SignupScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Account created successfully! Please login.'),
-            backgroundColor: Colors.green,
-          ),
+        AppSnackbar.success(
+          context,
+          'Account created successfully! Please login.',
         );
         Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: Colors.red,
-          ),
+        AppSnackbar.error(
+          context,
+          e.toString().replaceAll('Exception: ', ''),
         );
       }
     } finally {
@@ -76,8 +73,7 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
       body: Center(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
+          child: Padded.lg(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
               child: Form(
@@ -89,37 +85,76 @@ class _SignupScreenState extends State<SignupScreen> {
                     Icon(
                       Icons.person_add,
                       size: 80,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: context.colors.primary,
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
+                    const VGap.md(),
+                    Text(
                       'Create Account',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 28,
+                      style: context.text.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 32),
-TextFormField(
-  controller: _emailController,
-  keyboardType: kIsWeb ? TextInputType.text : TextInputType.emailAddress,
-  decoration: const InputDecoration(
-    labelText: 'Email',
-  ),
-  validator: (value) {
-    if (value == null || value.isEmpty) return 'Please enter your email';
-    return null;
-  },
-),
-                    const SizedBox(height: 16),
+                    const VGap.xl(),
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: kIsWeb ? TextInputType.text : TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        prefixIcon: const Icon(Icons.email),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: Spacing.md,
+                          vertical: Spacing.md,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                          borderSide: BorderSide(
+                            color: context.colors.outline,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                          borderSide: BorderSide(
+                            color: context.colors.primary,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'Please enter your email';
+                        return null;
+                      },
+                    ),
+                    const VGap.md(),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         labelText: 'Password',
                         prefixIcon: const Icon(Icons.lock),
-                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: Spacing.md,
+                          vertical: Spacing.md,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                          borderSide: BorderSide(
+                            color: context.colors.outline,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                          borderSide: BorderSide(
+                            color: context.colors.primary,
+                            width: 2,
+                          ),
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
@@ -143,14 +178,33 @@ TextFormField(
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.md(),
                     TextFormField(
                       controller: _confirmPasswordController,
                       obscureText: _obscureConfirmPassword,
                       decoration: InputDecoration(
                         labelText: 'Confirm Password',
                         prefixIcon: const Icon(Icons.lock_outline),
-                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: Spacing.md,
+                          vertical: Spacing.md,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                          borderSide: BorderSide(
+                            color: context.colors.outline,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                          borderSide: BorderSide(
+                            color: context.colors.primary,
+                            width: 2,
+                          ),
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscureConfirmPassword
@@ -174,31 +228,21 @@ TextFormField(
                         return null;
                       },
                     ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleSignup,
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text(
-                                'Sign Up',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                      ),
+                    const VGap.lg(),
+                    PrimaryButton(
+                      onPressed: _handleSignup,
+                      label: 'Sign Up',
+                      isLoading: _isLoading,
+                      fullWidth: true,
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.md(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('Already have an account? '),
+                        Text(
+                          'Already have an account? ',
+                          style: context.text.bodyMedium,
+                        ),
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pop();

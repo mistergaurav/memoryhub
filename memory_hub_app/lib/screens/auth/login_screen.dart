@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -39,11 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: Colors.red,
-          ),
+        AppSnackbar.error(
+          context,
+          e.toString().replaceAll('Exception: ', ''),
         );
       }
     } finally {
@@ -58,8 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
+          child: Padded.lg(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
               child: Form(
@@ -71,34 +69,51 @@ class _LoginScreenState extends State<LoginScreen> {
                     Icon(
                       Icons.memory,
                       size: 80,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: context.colors.primary,
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
+                    const VGap.md(),
+                    Text(
                       'The Memory Hub',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 32,
+                      style: context.text.displaySmall?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    const VGap.xs(),
+                    Text(
                       'Login to your account',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
+                      style: context.text.bodyLarge?.copyWith(
+                        color: context.colors.onSurfaceVariant,
                       ),
                     ),
-                    const SizedBox(height: 48),
+                    const VGap.xxl(),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Email',
-                        prefixIcon: Icon(Icons.email),
-                        border: OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.email),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: Spacing.md,
+                          vertical: Spacing.md,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                          borderSide: BorderSide(
+                            color: context.colors.outline,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                          borderSide: BorderSide(
+                            color: context.colors.primary,
+                            width: 2,
+                          ),
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -110,14 +125,33 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.md(),
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         labelText: 'Password',
                         prefixIcon: const Icon(Icons.lock),
-                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: Spacing.md,
+                          vertical: Spacing.md,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                          borderSide: BorderSide(
+                            color: context.colors.outline,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: Radii.lgRadius,
+                          borderSide: BorderSide(
+                            color: context.colors.primary,
+                            width: 2,
+                          ),
+                        ),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscurePassword
@@ -138,31 +172,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleLogin,
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text(
-                                'Login',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                      ),
+                    const VGap.lg(),
+                    PrimaryButton(
+                      onPressed: _handleLogin,
+                      label: 'Login',
+                      isLoading: _isLoading,
+                      fullWidth: true,
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.md(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Don't have an account? "),
+                        Text(
+                          "Don't have an account? ",
+                          style: context.text.bodyMedium,
+                        ),
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pushNamed('/signup');
