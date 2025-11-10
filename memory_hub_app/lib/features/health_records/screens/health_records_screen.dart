@@ -50,7 +50,10 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
   }
 
   Future<void> _handleRefresh() async {
-    await _controller.loadRecords(forceRefresh: true);
+    await Future.wait([
+      _controller.loadRecords(forceRefresh: true),
+      _controller.loadDashboard(),
+    ]);
   }
 
   void _showAddDialog() async {
@@ -60,7 +63,10 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
     );
 
     if (result == true && mounted) {
-      await _controller.loadRecords(forceRefresh: true);
+      await Future.wait([
+        _controller.loadRecords(forceRefresh: true),
+        _controller.loadDashboard(),
+      ]);
     }
   }
 
@@ -70,7 +76,13 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
       MaterialPageRoute(
         builder: (context) => HealthRecordDetailsScreen(recordId: recordId),
       ),
-    ).then((_) => _controller.loadRecords(forceRefresh: true));
+    ).then((_) async {
+      if (!mounted) return;
+      await Future.wait([
+        _controller.loadRecords(forceRefresh: true),
+        _controller.loadDashboard(),
+      ]);
+    });
   }
 
   @override

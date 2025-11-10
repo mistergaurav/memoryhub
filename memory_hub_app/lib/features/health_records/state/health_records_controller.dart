@@ -159,7 +159,10 @@ class HealthRecordsController extends ChangeNotifier {
   Future<void> createRecord(Map<String, dynamic> recordData) async {
     try {
       await _repository.createRecord(recordData);
-      await loadRecords(forceRefresh: true);
+      await Future.wait([
+        loadRecords(forceRefresh: true),
+        loadDashboard(),
+      ]);
     } catch (e) {
       _errorMessage = _extractErrorMessage(e.toString());
       rethrow;
@@ -176,6 +179,7 @@ class HealthRecordsController extends ChangeNotifier {
         _state = HealthRecordsState.empty;
       }
       
+      await loadDashboard();
       notifyListeners();
     } catch (e) {
       _errorMessage = _extractErrorMessage(e.toString());
