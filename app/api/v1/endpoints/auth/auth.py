@@ -19,6 +19,9 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
@@ -60,9 +63,9 @@ async def login_for_access_token(login_data: LoginRequest):
     }
 
 @router.post("/refresh-token", response_model=TokenResponse)
-async def refresh_token(refresh_token: str):
+async def refresh_token(token_data: RefreshTokenRequest):
     try:
-        tokens = await refresh_access_token(refresh_token)
+        tokens = await refresh_access_token(token_data.refresh_token)
         return tokens
     except HTTPException as e:
         raise e
@@ -165,10 +168,10 @@ async def login_alias(login_data: LoginRequest):
     return await login_for_access_token(login_data)
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh_alias(refresh_token_str: str):
+async def refresh_alias(token_data: RefreshTokenRequest):
     """Alias for /refresh-token endpoint"""
     try:
-        tokens = await refresh_access_token(refresh_token_str)
+        tokens = await refresh_access_token(token_data.refresh_token)
         return tokens
     except HTTPException as e:
         raise e
