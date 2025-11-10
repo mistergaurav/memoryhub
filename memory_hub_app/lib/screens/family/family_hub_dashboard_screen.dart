@@ -241,7 +241,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
   Widget _buildQuickActionSection() {
     final quickActions = [
       QuickActionTileData(
-        label: 'Albums',
+        child: const Text('Albums'),
         icon: Icons.photo_library,
         color: MemoryHubColors.purple600,
         onTap: () => Navigator.push(
@@ -250,7 +250,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
         ),
       ),
       QuickActionTileData(
-        label: 'Timeline',
+        child: const Text('Timeline'),
         icon: Icons.timeline,
         color: MemoryHubColors.pink500,
         onTap: () => Navigator.push(
@@ -259,7 +259,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
         ),
       ),
       QuickActionTileData(
-        label: 'Calendar',
+        child: const Text('Calendar'),
         icon: Icons.calendar_today,
         color: MemoryHubColors.cyan500,
         onTap: () => Navigator.push(
@@ -268,7 +268,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
         ),
       ),
       QuickActionTileData(
-        label: 'Milestones',
+        child: const Text('Milestones'),
         icon: Icons.celebration,
         color: MemoryHubColors.amber500,
         onTap: () => Navigator.push(
@@ -277,7 +277,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
         ),
       ),
       QuickActionTileData(
-        label: 'Recipes',
+        child: const Text('Recipes'),
         icon: Icons.restaurant_menu,
         color: MemoryHubColors.red500,
         onTap: () => Navigator.push(
@@ -286,7 +286,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
         ),
       ),
       QuickActionTileData(
-        label: 'Health',
+        child: const Text('Health'),
         icon: Icons.health_and_safety,
         color: MemoryHubColors.green500,
         onTap: () => Navigator.push(
@@ -295,7 +295,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
         ),
       ),
       QuickActionTileData(
-        label: 'Letters',
+        child: const Text('Letters'),
         icon: Icons.mail,
         color: MemoryHubColors.purple500,
         onTap: () => Navigator.push(
@@ -304,7 +304,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
         ),
       ),
       QuickActionTileData(
-        label: 'Traditions',
+        child: const Text('Traditions'),
         icon: Icons.local_florist,
         color: MemoryHubColors.teal500,
         onTap: () => Navigator.push(
@@ -514,7 +514,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                       ),
                     );
                   },
-                  label: 'View All',
+                  child: const Text('View All'),
                 ),
               ),
             ],
@@ -839,7 +839,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           Semantics(child: const Text('Create new album'),
             button: true,
             child: _buildFABOption(
-              label: 'Album',
+              child: const Text('Album'),
               icon: Icons.photo_library,
               onTap: () => _showDialog('album'),
             ),
@@ -848,7 +848,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           Semantics(child: const Text('Create new event'),
             button: true,
             child: _buildFABOption(
-              label: 'Event',
+              child: const Text('Event'),
               icon: Icons.event,
               onTap: () => _showDialog('event'),
             ),
@@ -857,7 +857,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           Semantics(child: const Text('Create new milestone'),
             button: true,
             child: _buildFABOption(
-              label: 'Milestone',
+              child: const Text('Milestone'),
               icon: Icons.celebration,
               onTap: () => _showDialog('milestone'),
             ),
@@ -866,7 +866,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           Semantics(child: const Text('Create new recipe'),
             button: true,
             child: _buildFABOption(
-              label: 'Recipe',
+              child: const Text('Recipe'),
               icon: Icons.restaurant_menu,
               onTap: () => _showDialog('recipe'),
             ),
@@ -875,7 +875,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           Semantics(child: const Text('Add health record'),
             button: true,
             child: _buildFABOption(
-              label: 'Health',
+              child: const Text('Health'),
               icon: Icons.health_and_safety,
               onTap: () => _showDialog('health'),
             ),
@@ -884,7 +884,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           Semantics(child: const Text('Create legacy letter'),
             button: true,
             child: _buildFABOption(
-              label: 'Letter',
+              child: const Text('Letter'),
               icon: Icons.mail,
               onTap: () => _showDialog('letter'),
             ),

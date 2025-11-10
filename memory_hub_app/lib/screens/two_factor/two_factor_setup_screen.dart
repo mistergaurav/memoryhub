@@ -94,14 +94,14 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            label: 'Cancel',
+            child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: FilledButton.styleFrom(
               backgroundColor: context.colors.error,
             ),
-            label: 'Disable',
+            child: const Text('Disable'),
           ),
         ],
       ),
@@ -207,7 +207,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
         const VGap.xl(),
         PrimaryButton(
           onPressed: _isLoading ? null : _enable2FA,
-          label: 'Enable 2FA',
+          child: const Text('Enable 2FA'),
           leading: const Icon(Icons.shield),
           isLoading: _isLoading,
           fullWidth: true,
@@ -331,7 +331,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
         const VGap.lg(),
         PrimaryButton(
           onPressed: _isLoading ? null : _verify2FA,
-          label: 'Verify and Enable',
+          child: const Text('Verify and Enable'),
           isLoading: _isLoading,
           fullWidth: true,
         ),
@@ -381,7 +381,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
         const VGap.xl(),
         SecondaryButton(
           onPressed: _disable2FA,
-          label: 'Disable 2FA',
+          child: const Text('Disable 2FA'),
           fullWidth: true,
         ),
       ],

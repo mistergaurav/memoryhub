@@ -66,12 +66,12 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            label: 'Cancel',
+            child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            label: 'Yes, Delete My Account',
+            child: const Text('Yes, Delete My Account'),
           ),
         ],
       ),

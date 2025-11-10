@@ -652,7 +652,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
-                      label: 'Cancel',
+                      child: const Text('Cancel'),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -692,7 +692,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                           }
                         }
                       },
-                      label: 'Create',
+                      child: const Text('Create'),
                     ),
                   ),
                 ],

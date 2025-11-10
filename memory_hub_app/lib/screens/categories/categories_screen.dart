@@ -201,7 +201,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            label: 'Cancel',
+            child: const Text('Cancel'),
           ),
           FilledButton(
             onPressed: () async {
@@ -224,7 +224,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 }
               }
             },
-            label: 'Create',
+            child: const Text('Create'),
           ),
         ],
       ),

@@ -45,7 +45,8 @@ class _VaultDetailScreenState extends State<VaultDetailScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Download URL: $downloadUrl'),
-        action: SnackBarAction(child: const Text('Copy'),
+        action: SnackBarAction(
+          label: 'Copy',
           onPressed: () {},
         ),
       ),

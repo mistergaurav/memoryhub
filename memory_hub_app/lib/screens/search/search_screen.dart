@@ -187,7 +187,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                   onPressed: () {
                     setState(() => _recentSearches.clear());
                   },
-                  label: 'Clear All',
+                  child: const Text('Clear All'),
                 ),
               ],
             ),

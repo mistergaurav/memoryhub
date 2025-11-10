@@ -76,7 +76,7 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
               gradient: const LinearGradient(
                 colors: [Color(0xFF10B981), Color(0xFF14B8A6)],
               ),
-              borderRadius: Radii.lg,
+              borderRadius: BorderRadius.circular(Radii.lg),
             ),
             child: Row(
               children: [

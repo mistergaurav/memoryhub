@@ -232,7 +232,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              label: 'Cancel',
+              child: const Text('Cancel'),
             ),
             FilledButton(
               style: FilledButton.styleFrom(backgroundColor: Colors.red),
@@ -254,7 +254,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   }
                 }
               },
-              label: 'Delete',
+              child: const Text('Delete'),
             ),
           ],
         ),

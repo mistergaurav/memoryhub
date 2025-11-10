@@ -34,7 +34,7 @@ class TemplateEditorScreen extends StatelessWidget {
               width: double.infinity,
               child: FilledButton(
                 onPressed: () {},
-                label: 'Save Template',
+                child: const Text('Save Template'),
               ),
             ),
           ],

@@ -150,9 +150,10 @@ class _HubsScreenState extends State<HubsScreen> {
                   itemCount: _hubs.length,
                   itemBuilder: (context, index) {
                     final hub = _hubs[index];
-                    return AppCard(
-                      margin: Spacing.edgeInsetsBottomSm,
-                      child: ListTile(
+                    return Padding(
+                      padding: Spacing.edgeInsetsBottomSm,
+                      child: AppCard(
+                        child: ListTile(
                         leading: CircleAvatar(
                           child: Text(hub['name'][0].toUpperCase()),
                         ),

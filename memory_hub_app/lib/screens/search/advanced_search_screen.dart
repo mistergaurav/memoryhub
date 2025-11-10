@@ -53,7 +53,7 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
           const SizedBox(height: 32),
           FilledButton(
             onPressed: () {},
-            label: 'Search',
+            child: const Text('Search'),
           ),
         ],
       ),
