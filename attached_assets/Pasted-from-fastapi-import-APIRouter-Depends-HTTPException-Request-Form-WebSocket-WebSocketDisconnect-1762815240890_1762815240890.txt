@@ -1,0 +1,167 @@
+from fastapi import APIRouter, Depends, HTTPException, Request, Form, WebSocket, WebSocketDisconnect
+from fastapi.responses import RedirectResponse
+from models import User, UserInDB, Token
+from core.dependencies import current_user, verify_user, get_token, get_user_from_token
+from core.utils import verify_password, get_password_hash, create_access_token
+from core.config import settings
+from database import get_database
+from bson import ObjectId
+import httpx
+from urllib.parse import urlencode
+import logging
+from typing import Optional, List
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+router = APIRouter()
+
+@router.post("/register")
+async def register(
+    username: str = Form(...),
+    password: str = Form(...),
+    email: Optional[str] = Form(None),
+    profile_photo: Optional[str] = Form(None),
+    bio: Optional[str] = Form(None)
+):
+    db = get_database()
+    if await db.users.find_one({"username": username}):
+        raise HTTPException(status_code=400, detail="Username already registered")
+    user_id = str(ObjectId())
+    user_dict = {
+        "_id": ObjectId(user_id),
+        "id": user_id,
+        "username": username,
+        "email": email,
+        "hashed_password": get_password_hash(password),
+        "profile_photo": profile_photo or "/static/default-avatar.png",
+        "bio": bio or "No bio yet.",
+        "following": []
+    }
+    await db.users.insert_one(user_dict)
+    logger.info(f"Registered user: {username} with ID: {user_id}")
+    return {"message": "User registered successfully"}
+
+@router.post("/token")
+async def login(username: str = Form(...), password: str = Form(...)):
+    db = get_database()
+    db_user = await db.users.find_one({"username": username})
+    if not db_user or not verify_password(password, db_user.get("hashed_password")):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    user_id = db_user.get("id", str(db_user["_id"]))
+    access_token = create_access_token({"sub": username, "id": user_id})
+    logger.info(f"Login successful for {username}, returning token")
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user_id": user_id
+    }
+
+@router.get("/login/google")
+async def login_google():
+    params = {
+        "client_id": settings.GOOGLE_CLIENT_ID,
+        "redirect_uri": settings.REDIRECT_URI,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline",
+        "prompt": "consent"
+    }
+    auth_url = f"{settings.GOOGLE_AUTH_URL}?{urlencode(params)}"
+    logger.info(f"Redirecting to Google auth URL: {auth_url}")
+    return RedirectResponse(auth_url)
+
+@router.get("/callback")
+async def google_callback(request: Request):
+    code = request.query_params.get("code")
+    if not code:
+        logger.error("No authorization code provided in callback")
+        raise HTTPException(status_code=400, detail="Authorization code not provided")
+    async with httpx.AsyncClient() as client:
+        token_response = await client.post(
+            settings.GOOGLE_TOKEN_URL,
+            data={
+                "code": code,
+                "client_id": settings.GOOGLE_CLIENT_ID,
+                "client_secret": settings.GOOGLE_CLIENT_SECRET,
+                "redirect_uri": settings.REDIRECT_URI,
+                "grant_type": "authorization_code"
+            }
+        )
+        token_data = token_response.json()
+    if "error" in token_data:
+        logger.error(f"Token exchange failed: {token_data['error_description']}")
+        raise HTTPException(status_code=400, detail=token_data["error_description"])
+    access_token = token_data.get("access_token")
+    if not access_token:
+        logger.error("No access token received from Google")
+        raise HTTPException(status_code=400, detail="No access token received")
+    async with httpx.AsyncClient() as client:
+        user_info = (await client.get(settings.GOOGLE_USER_INFO, headers={"Authorization": f"Bearer {access_token}"})) \
+            .json()
+    email = user_info.get("email")
+    username = user_info.get("name", email.split('@')[0])
+    profile_photo = user_info.get("picture", "/static/default-avatar.png")
+    db = get_database()
+    existing_user = await db.users.find_one({"email": email})
+    if not existing_user:
+        user_id = str(ObjectId())
+        user_dict = {
+            "_id": ObjectId(user_id),
+            "id": user_id,
+            "username": username,
+            "email": email,
+            "hashed_password": None,
+            "profile_photo": profile_photo,
+            "bio": "Joined via Google",
+            "following": []
+        }
+        await db.users.insert_one(user_dict)
+    else:
+        user_id = existing_user["id"]
+    access_token = create_access_token({"sub": username, "id": user_id})
+    response = RedirectResponse(url=f"/dashboard/{user_id}", status_code=302)
+    response.set_cookie(key="access_token", value=access_token, httponly=True, samesite="lax", secure=False)
+    logger.info(f"Google login successful for {username}, redirecting to /dashboard/{user_id}")
+    return response
+
+@router.get("/logout", response_class=RedirectResponse)
+async def logout():
+    response = RedirectResponse(url="/", status_code=302)
+    response.delete_cookie(key="access_token", httponly=True, samesite="lax")
+    return response
+
+@router.get("/search", response_model=List[UserInDB])
+async def search_users(query: str, current_user: UserInDB = Depends(verify_user)):
+    db = get_database()
+    users = await db.users.find({"username": {"$regex": f"^{query}", "$options": "i"}, "id": {"$ne": current_user.id}}).to_list(length=None)
+    return [UserInDB(id=str(user["_id"]), username=user["username"], hashed_password=user.get("hashed_password"),
+                     email=user.get("email"), profile_photo=user.get("profile_photo"), bio=user.get("bio"),
+                     following=user.get("following", [])) for user in users]
+
+active_connections = {}
+
+@router.websocket("/ws/chat")
+async def chat(websocket: WebSocket):
+    token = websocket.query_params.get("token")
+    current_user = await get_user_from_token(token)
+    if not current_user:
+        await websocket.close(code=1008)
+        return
+    await websocket.accept()
+    active_connections[current_user.id] = websocket
+    try:
+        while True:
+            data = await websocket.receive_json()
+            target_id, message = data.get("target_id"), data.get("message")
+            if not target_id or not message:
+                await websocket.send_text("Invalid message format")
+                continue
+            db = get_database()
+            if not await db.users.find_one({"id": current_user.id, "following": target_id}) or not await db.users.find_one({"id": target_id, "following": current_user.id}):
+                await websocket.send_text("You can only chat with mutual followers")
+                continue
+            if target_id in active_connections:
+                await active_connections[target_id].send_text(f"{current_user.username}: {message}")
+    except WebSocketDisconnect:
+        active_connections.pop(current_user.id, None)
