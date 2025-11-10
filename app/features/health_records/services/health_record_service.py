@@ -148,20 +148,27 @@ class HealthRecordService:
         Raises:
             HTTPException: If user doesn't have permission to update
         """
+        from fastapi import HTTPException, status
+        
         record_doc = await self.repository.find_by_id(
             record_id,
             raise_404=True,
             error_message="Health record not found"
         )
         
+        if not record_doc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Health record not found")
+        
         has_access = await self.check_user_has_access(record_doc, current_user_id)
         if not has_access:
-            from fastapi import HTTPException, status
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this record")
         
         update_data = {k: v for k, v in record_update.dict(exclude_unset=True).items() if v is not None}
         
         updated_record = await self.repository.update_by_id(record_id, update_data)
+        
+        if not updated_record:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update health record")
         
         await log_audit_event(
             user_id=str(current_user_id),
@@ -193,15 +200,19 @@ class HealthRecordService:
         Raises:
             HTTPException: If user doesn't have permission to delete
         """
+        from fastapi import HTTPException, status
+        
         record_doc = await self.repository.find_by_id(
             record_id,
             raise_404=True,
             error_message="Health record not found"
         )
         
+        if not record_doc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Health record not found")
+        
         has_access = await self.check_user_has_access(record_doc, current_user_id)
         if not has_access:
-            from fastapi import HTTPException, status
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to delete this record")
         
         await self.repository.delete_by_id(record_id)
@@ -248,6 +259,9 @@ class HealthRecordService:
             error_message="Health record not found"
         )
         
+        if not record_doc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Health record not found")
+        
         subject_user_id = record_doc.get("subject_user_id")
         if not subject_user_id or str(subject_user_id) != current_user_id:
             raise HTTPException(
@@ -275,17 +289,23 @@ class HealthRecordService:
         
         updated_record = await self.repository.update_by_id(record_id, update_data)
         
-        creator_id = str(record_doc["created_by"])
-        if creator_id != current_user_id:
-            await create_notification(
-                user_id=creator_id,
-                notification_type=NotificationType.HEALTH_RECORD_APPROVED,
-                title="Health Record Approved",
-                message=f"{current_user_name or 'Someone'} approved the health record '{record_doc['title']}' you created for them.",
-                actor_id=str(current_user_id),
-                target_type="health_record",
-                target_id=record_id
-            )
+        if not updated_record:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update health record")
+        
+        created_by = record_doc.get("created_by")
+        if created_by:
+            creator_id = str(created_by)
+            if creator_id != current_user_id:
+                record_title = record_doc.get("title", "Untitled")
+                await create_notification(
+                    user_id=creator_id,
+                    notification_type=NotificationType.HEALTH_RECORD_APPROVED,
+                    title="Health Record Approved",
+                    message=f"{current_user_name or 'Someone'} approved the health record '{record_title}' you created for them.",
+                    actor_id=str(current_user_id),
+                    target_type="health_record",
+                    target_id=record_id
+                )
         
         await log_audit_event(
             user_id=str(current_user_id),
@@ -294,7 +314,7 @@ class HealthRecordService:
                 "resource_type": "health_record",
                 "resource_id": record_id,
                 "record_type": record_doc.get("record_type"),
-                "created_by": str(record_doc.get("created_by"))
+                "created_by": str(record_doc.get("created_by")) if record_doc.get("created_by") else None
             }
         )
         
@@ -332,6 +352,9 @@ class HealthRecordService:
             error_message="Health record not found"
         )
         
+        if not record_doc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Health record not found")
+        
         subject_user_id = record_doc.get("subject_user_id")
         if not subject_user_id or str(subject_user_id) != current_user_id:
             raise HTTPException(
@@ -360,18 +383,24 @@ class HealthRecordService:
         
         updated_record = await self.repository.update_by_id(record_id, update_data)
         
-        creator_id = str(record_doc["created_by"])
-        if creator_id != current_user_id:
-            reason_text = f" Reason: {rejection_reason}" if rejection_reason else ""
-            await create_notification(
-                user_id=creator_id,
-                notification_type=NotificationType.HEALTH_RECORD_REJECTED,
-                title="Health Record Rejected",
-                message=f"{current_user_name or 'Someone'} rejected the health record '{record_doc['title']}' you created for them.{reason_text}",
-                actor_id=str(current_user_id),
-                target_type="health_record",
-                target_id=record_id
-            )
+        if not updated_record:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update health record")
+        
+        created_by = record_doc.get("created_by")
+        if created_by:
+            creator_id = str(created_by)
+            if creator_id != current_user_id:
+                reason_text = f" Reason: {rejection_reason}" if rejection_reason else ""
+                record_title = record_doc.get("title", "Untitled")
+                await create_notification(
+                    user_id=creator_id,
+                    notification_type=NotificationType.HEALTH_RECORD_REJECTED,
+                    title="Health Record Rejected",
+                    message=f"{current_user_name or 'Someone'} rejected the health record '{record_title}' you created for them.{reason_text}",
+                    actor_id=str(current_user_id),
+                    target_type="health_record",
+                    target_id=record_id
+                )
         
         await log_audit_event(
             user_id=str(current_user_id),
@@ -380,7 +409,7 @@ class HealthRecordService:
                 "resource_type": "health_record",
                 "resource_id": record_id,
                 "record_type": record_doc.get("record_type"),
-                "created_by": str(record_doc.get("created_by")),
+                "created_by": str(record_doc.get("created_by")) if record_doc.get("created_by") else None,
                 "rejection_reason": rejection_reason
             }
         )
@@ -499,23 +528,33 @@ class HealthRecordService:
         Returns:
             Dashboard data with statistics, pending approvals, and reminders
         """
-        user_oid = ObjectId(current_user_id)
+        try:
+            user_oid = self.repository.validate_object_id(current_user_id, "user_id")
+        except Exception as e:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=400, detail=f"Invalid user ID: {str(e)}")
         
         from app.repositories.base_repository import BaseRepository
         reminders_repo = BaseRepository("health_record_reminders")
         
         family_repo = FamilyRepository()
-        user_circles = await family_repo.find_by_member(current_user_id, limit=100)
-        user_circle_ids = [circle["_id"] for circle in user_circles]
+        try:
+            user_circles = await family_repo.find_by_member(current_user_id, limit=100)
+        except Exception:
+            user_circles = []
         
-        all_records_query = {
-            "$or": [
-                {"family_id": user_oid},
-                {"subject_user_id": user_oid},
-                {"assigned_user_ids": user_oid},
-                {"family_id": {"$in": user_circle_ids}} if user_circle_ids else {"_id": None}
-            ]
-        }
+        user_circle_ids = [circle["_id"] for circle in user_circles if circle and "_id" in circle]
+        
+        query_conditions: List[Dict[str, Any]] = [
+            {"family_id": user_oid},
+            {"subject_user_id": user_oid},
+            {"assigned_user_ids": user_oid}
+        ]
+        
+        if user_circle_ids:
+            query_conditions.append({"family_id": {"$in": user_circle_ids}})
+        
+        all_records_query = {"$or": query_conditions}
         
         all_records = await self.repository.find_many(
             filter_dict=all_records_query,

@@ -24,6 +24,13 @@ class TokenResponse(BaseModel):
     refresh_token: str
     token_type: str = "bearer"
 
+class RegisterResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+    user: dict
+    email_verified: bool
+
 @router.post("/token", response_model=TokenResponse)
 async def login_for_access_token(login_data: LoginRequest):
     user = await get_user_by_email(login_data.email)
@@ -65,7 +72,7 @@ async def refresh_token(refresh_token: str):
             detail="Invalid refresh token"
         )
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED, response_model=RegisterResponse)
 async def register(user: UserCreate):
     if await get_user_by_email(user.email):
         raise HTTPException(
@@ -119,14 +126,35 @@ async def register(user: UserCreate):
     else:
         print(f"Email service not configured - verification token: {verification_token}")
     
+    # Generate JWT tokens for auto-login
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email}, 
+        expires_delta=access_token_expires
+    )
+    
+    refresh_token_expires = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+    refresh_token = create_refresh_token(
+        data={"sub": user.email},
+        expires_delta=refresh_token_expires
+    )
+    
+    # Return tokens with user info
     return {
-        "id": user_id,
-        "message": "Registration successful. Please check your email to verify your account.",
-        "email_sent": email_service.is_configured()
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user_id,
+            "email": user.email,
+            "username": user_dict["username"],
+            "full_name": user.full_name,
+        },
+        "email_verified": False
     }
 
 # Alias endpoints for better API compatibility
-@router.post("/signup", status_code=status.HTTP_201_CREATED)
+@router.post("/signup", status_code=status.HTTP_201_CREATED, response_model=RegisterResponse)
 async def signup_alias(user: UserCreate):
     """Alias for /register endpoint"""
     return await register(user)

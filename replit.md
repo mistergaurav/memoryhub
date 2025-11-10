@@ -8,6 +8,19 @@ Preferred communication style: Simple, everyday language.
 
 # Recent Updates (November 2025)
 
+**Critical Bug Fixes & Signup Flow Improvements (November 10, 2025):**
+- **User Search Enhancement**: Fixed `/api/v1/users/search` endpoint to return proper "No users found" messaging when search returns empty results. Search is now scoped to connected users only (prevents user enumeration attacks).
+- **Activity Endpoint Routing**: Verified and fixed activity feed routing at `/api/v1/activity` to properly route to `/api/v1/social/hub/activity`, ensuring frontend can fetch activity feeds correctly.
+- **Health Records Dashboard Fix**: Resolved 500 errors in `get_health_dashboard()` by adding defensive None checks and proper ObjectId validation to prevent crashes when records have missing or invalid data.
+- **Health Record Detail Fix**: Fixed 400 errors when viewing health record details by improving ObjectId validation to return proper 404 responses for invalid IDs instead of validation errors.
+- **Type Safety Improvements**: Fixed 19 LSP type errors in `health_record_service.py` by adding proper None guards, type annotations, and defensive programming patterns to handle potentially None values from database operations.
+- **Improved Signup Flow**: Completely redesigned user registration experience for better UX:
+  - **Backend**: Modified `/auth/register` endpoint to return JWT tokens immediately (RegisterResponse with access_token, refresh_token, user info, and email_verified flag)
+  - **Frontend**: Removed confirm password field from signup form, reducing friction
+  - **Auto-Login**: Users are automatically logged in after signup with tokens saved to SharedPreferences
+  - **Dashboard Redirect**: New users are redirected directly to dashboard instead of login screen
+  - **Security Maintained**: All password hashing, validation, and security measures preserved; email verification still sent but doesn't block initial access
+
 **Genealogy Relationship System Overhaul (November 5, 2025):**
 - **Bidirectional Relationship Creation**: Implemented automatic bidirectional handling for all genealogy relationships. When a parent-child relationship is created, the system now automatically creates both parent→child and child→parent records. Spouse and sibling relationships are created symmetrically in both directions.
 - **Duplicate Prevention**: Added comprehensive validation to prevent duplicate and inverse relationships. System checks for existing relationships in both directions before creating new ones.

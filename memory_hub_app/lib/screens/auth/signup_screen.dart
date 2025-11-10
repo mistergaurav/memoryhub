@@ -14,18 +14,15 @@ class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
   final _fullNameController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
   bool _obscurePassword = true;
-  bool _obscureConfirmPassword = true;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     _fullNameController.dispose();
     super.dispose();
   }
@@ -47,9 +44,9 @@ class _SignupScreenState extends State<SignupScreen> {
       if (mounted) {
         AppSnackbar.success(
           context,
-          'Account created successfully! Please login.',
+          'Welcome! Your account has been created successfully.',
         );
-        Navigator.of(context).pop();
+        Navigator.of(context).pushReplacementNamed('/dashboard');
       }
     } catch (e) {
       if (mounted) {
@@ -174,56 +171,6 @@ class _SignupScreenState extends State<SignupScreen> {
                         }
                         if (value.length < 8) {
                           return 'Password must be at least 8 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    const VGap.md(),
-                    TextFormField(
-                      controller: _confirmPasswordController,
-                      obscureText: _obscureConfirmPassword,
-                      decoration: InputDecoration(
-                        labelText: 'Confirm Password',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: Spacing.md,
-                          vertical: Spacing.md,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: Radii.lgRadius,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: Radii.lgRadius,
-                          borderSide: BorderSide(
-                            color: context.colors.outline,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: Radii.lgRadius,
-                          borderSide: BorderSide(
-                            color: context.colors.primary,
-                            width: 2,
-                          ),
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureConfirmPassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureConfirmPassword = !_obscureConfirmPassword;
-                            });
-                          },
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please confirm your password';
-                        }
-                        if (value != _passwordController.text) {
-                          return 'Passwords do not match';
                         }
                         return null;
                       },

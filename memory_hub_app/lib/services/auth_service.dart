@@ -40,7 +40,7 @@ class AuthService {
     }
   }
 
-  Future<bool> signup(String email, String password, String? fullName) async {
+  Future<AuthTokens> signup(String email, String password, String? fullName) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/register'),
@@ -53,7 +53,10 @@ class AuthService {
       );
 
       if (response.statusCode == 201) {
-        return true;
+        final responseData = jsonDecode(response.body);
+        final tokens = AuthTokens.fromJson(responseData);
+        await _saveTokens(tokens);
+        return tokens;
       } else {
         try {
           final errorBody = jsonDecode(response.body);

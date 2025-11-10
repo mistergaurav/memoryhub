@@ -174,9 +174,11 @@ async def search_users_unified(
             }
         )
         
+        message = "No users found" if len(unified_results) == 0 else f"Found {len(unified_results)} connected users"
+        
         return create_success_response(
             data={"results": unified_results},
-            message=f"Found {len(unified_results)} connected users"
+            message=message
         )
         
     except HTTPException:

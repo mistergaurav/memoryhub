@@ -208,24 +208,53 @@ async def get_health_dashboard(
         if not dashboard_data:
             raise ValueError("Failed to retrieve dashboard data")
         
+        recent_records = []
         for record_doc in dashboard_data.get("statistics", {}).get("recent_records", []):
             if isinstance(record_doc, dict):
-                member_id = record_doc.get("family_member_id")
-                if member_id:
-                    member_name = await get_member_name(member_id)
-                    record_doc["family_member_name"] = member_name
+                try:
+                    member_id = record_doc.get("family_member_id")
+                    member_name = None
+                    if member_id:
+                        member_name = await get_member_name(member_id)
+                    recent_records.append(health_record_to_response(record_doc, member_name))
+                except Exception as e:
+                    logger.error(f"Error processing recent record: {str(e)}")
+                    continue
         
         pending_approvals = []
         for r in dashboard_data.get("pending_approvals", []):
             if r:
-                pending_approvals.append(health_record_to_response(r))
+                try:
+                    pending_approvals.append(health_record_to_response(r))
+                except Exception as e:
+                    logger.error(f"Error processing pending approval: {str(e)}")
+                    continue
+        
+        stats = dashboard_data.get("statistics", {})
+        stats["recent_records"] = recent_records
+        
+        reminders = []
+        for reminder in dashboard_data.get("upcoming_reminders", []):
+            if reminder:
+                try:
+                    reminder_formatted = {
+                        "id": str(reminder.get("_id", "")),
+                        "title": reminder.get("title", ""),
+                        "due_at": reminder.get("due_at"),
+                        "status": reminder.get("status", "pending"),
+                        "record_id": str(reminder.get("record_id", "")) if reminder.get("record_id") else None
+                    }
+                    reminders.append(reminder_formatted)
+                except Exception as e:
+                    logger.error(f"Error processing reminder: {str(e)}")
+                    continue
         
         return create_success_response(
             message="Health dashboard retrieved successfully",
             data={
-                "statistics": dashboard_data.get("statistics", {}),
+                "statistics": stats,
                 "pending_approvals": pending_approvals,
-                "upcoming_reminders": dashboard_data.get("upcoming_reminders", [])
+                "upcoming_reminders": reminders
             }
         )
     except ValueError as e:
@@ -247,13 +276,18 @@ async def get_health_record(
     """Get a specific health record"""
     try:
         if not record_id:
-            raise ValueError("Record ID is required")
+            raise HTTPException(status_code=404, detail="Health record not found")
         
-        record_doc = await health_records_repo.find_by_id(
-            record_id,
-            raise_404=True,
-            error_message="Health record not found"
-        )
+        try:
+            record_doc = await health_records_repo.find_by_id(
+                record_id,
+                raise_404=True,
+                error_message="Health record not found"
+            )
+        except HTTPException as e:
+            if e.status_code == 400:
+                raise HTTPException(status_code=404, detail="Health record not found")
+            raise
         
         if not record_doc:
             raise HTTPException(status_code=404, detail="Health record not found")
@@ -271,9 +305,6 @@ async def get_health_record(
         )
     except HTTPException:
         raise
-    except ValueError as e:
-        logger.error(f"Validation error getting health record {record_id}: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
     except PyMongoError as e:
         logger.error(f"Database error getting health record {record_id}: {str(e)}")
         raise HTTPException(status_code=500, detail="Database error occurred")
