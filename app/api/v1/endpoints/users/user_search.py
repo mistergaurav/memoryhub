@@ -120,61 +120,90 @@ async def search_users_unified(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """
-    Unified user search endpoint that returns ONLY connected users formatted as UserSearchResult objects.
+    Unified user search endpoint that searches ALL platform users.
     
-    SECURITY: This endpoint ONLY returns users that the current user has an existing relationship with:
-    - Users in family circles (where current user is owner or member)
-    - Users who are in the current user's network/connections
-    
-    Does NOT expose arbitrary platform users to prevent enumeration and protect user privacy.
+    This endpoint allows users to search for other users by name, username, or email
+    to connect with them or add them to circles. Returns public user information only.
     
     Returns a unified list with proper UserSearchResult structure compatible with Flutter app.
     Each result includes: id, full_name, email, avatar_url, relation_type, source, requires_approval
     
     **Query Parameters:**
-    - query: Search string (min 1 character, searches name and email)
+    - query: Search string (min 1 character, searches name, username, and email)
     - limit: Max total results (1-50, default 20)
     
     **Returns:**
-    - results: List of UserSearchResult objects (ONLY connected users)
+    - results: List of UserSearchResult objects
+    - message: "User not found" if no results, otherwise count of results
     """
     try:
-        # SECURITY FIX: Only search circle members (users with existing relationships)
-        # This prevents arbitrary user enumeration and protects privacy
+        # Use text search index for efficient searching across full_name, username, and email
+        # Exclude current user from results
+        search_filter = {
+            "$text": {"$search": query},
+            "_id": {"$ne": ObjectId(current_user.id)}
+        }
+        
+        # Fallback to regex search if text search doesn't find results
+        users_cursor = users_repo.collection.find(search_filter).limit(limit)
+        users = await users_cursor.to_list(length=limit)
+        
+        # If text search returns no results, try case-insensitive regex search
+        if len(users) == 0:
+            regex_search_filter = {
+                "$or": [
+                    {"full_name": {"$regex": query, "$options": "i"}},
+                    {"username": {"$regex": query, "$options": "i"}},
+                    {"email": {"$regex": query, "$options": "i"}}
+                ],
+                "_id": {"$ne": ObjectId(current_user.id)}
+            }
+            users_cursor = users_repo.collection.find(regex_search_filter).limit(limit)
+            users = await users_cursor.to_list(length=limit)
+        
+        # Get circle members to determine relation type
         circle_members = await family_repo.search_circle_members(
             user_id=str(current_user.id),
-            query=query,
-            limit=limit
+            query="",  # Get all circle members
+            limit=1000  # High limit to get all
         )
+        circle_member_ids = {str(member["_id"]) for member in circle_members}
         
         # Format results with proper structure
         unified_results = []
         seen_ids = set()
         
-        for member in circle_members:
-            member_id = str(member["_id"])
-            if member_id not in seen_ids:
-                seen_ids.add(member_id)
+        for user in users:
+            user_id = str(user["_id"])
+            if user_id not in seen_ids:
+                seen_ids.add(user_id)
+                
+                # Determine if user is already in a circle
+                is_connected = user_id in circle_member_ids
+                
+                # Privacy protection: Only expose email for connected users
+                # Non-connected users only see public profile information
                 unified_results.append({
-                    "id": member_id,
-                    "full_name": member.get("full_name", ""),
-                    "email": member.get("email"),
-                    "avatar_url": member.get("avatar_url"),
-                    "relation_type": "circle",
-                    "source": "family_circle",
-                    "requires_approval": False
+                    "id": user_id,
+                    "full_name": user.get("full_name", ""),
+                    "email": user.get("email") if is_connected else None,
+                    "avatar_url": user.get("avatar_url"),
+                    "username": user.get("username"),
+                    "relation_type": "circle" if is_connected else "none",
+                    "source": "family_circle" if is_connected else "platform",
+                    "requires_approval": not is_connected
                 })
         
         await log_audit_event(
             user_id=str(current_user.id),
-            event_type="authorized_user_search",
+            event_type="user_search",
             event_details={
                 "query": query,
                 "total_results": len(unified_results)
             }
         )
         
-        message = "No users found" if len(unified_results) == 0 else f"Found {len(unified_results)} connected users"
+        message = "User not found" if len(unified_results) == 0 else f"Found {len(unified_results)} user(s)"
         
         return create_success_response(
             data={"results": unified_results},

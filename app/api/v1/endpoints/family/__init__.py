@@ -39,6 +39,8 @@ router.include_router(timeline_router, prefix="/timeline", tags=["family-timelin
 router.include_router(traditions_router, prefix="/traditions", tags=["family-traditions"])
 router.include_router(genealogy_router, prefix="/genealogy", tags=["genealogy"])
 router.include_router(letters_router, prefix="/letters", tags=["legacy-letters"])
+# Add alias for frontend compatibility: /legacy-letters -> /letters
+router.include_router(letters_router, prefix="/legacy-letters", tags=["legacy-letters"])
 router.include_router(parental_router, prefix="/parental-controls", tags=["parental-controls"])
 router.include_router(health_records_router, tags=["health-records"])
 

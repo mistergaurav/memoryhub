@@ -9,6 +9,7 @@ from app.db.mongodb import get_collection
 
 router = APIRouter()
 
+# Register both routes to handle with and without trailing slash
 @router.get("/")
 async def get_activity(
     page: int = Query(1, ge=1),

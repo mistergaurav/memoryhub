@@ -39,6 +39,18 @@ api_router.include_router(document_vault.router, prefix="/document-vault", tags=
 api_router.include_router(family_hub.router, prefix="/family", tags=["family"])
 
 api_router.include_router(hub.router, prefix="/hub", tags=["hub"])
+# Include activity router with special handling for trailing slash compatibility
+# FastAPI creates /activity/ with @router.get("/"), so we add a route for /activity (no slash)
+from fastapi import APIRouter as Router
+activity_no_slash_router = Router()
+activity_no_slash_router.add_api_route(
+    "",
+    activity.get_activity,
+    methods=["GET"],
+    tags=["activity"],
+    response_model=None
+)
+api_router.include_router(activity_no_slash_router, prefix="/activity", tags=["activity"])
 api_router.include_router(activity.router, prefix="/activity", tags=["activity"])
 api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 

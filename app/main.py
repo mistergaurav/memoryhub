@@ -58,6 +58,40 @@ for port in [3000, 3001, 4200, 5173, 8000, 8080, 8081, 8082, 5500, 5501]:
 for port in range(60000, 60300):
     allowed_origins.append(f"http://localhost:{port}")
 
+# Global OPTIONS handler for CORS preflight requests MUST be added BEFORE including routers
+# This catches all OPTIONS requests before they reach endpoint validators that would fail on missing body
+from fastapi import Response, Request
+
+@app.options("/{path:path}", include_in_schema=False)
+async def global_options_handler(path: str, request: Request):
+    """
+    Handle CORS preflight OPTIONS requests globally.
+    
+    This is necessary because OPTIONS preflight requests don't include request bodies,
+    but FastAPI endpoint validators expect bodies for POST requests. This handler
+    intercepts all OPTIONS requests before they reach route-specific handlers that
+    would fail validation with 400 Bad Request.
+    
+    IMPORTANT: We echo the request origin instead of using "*" because browsers
+    reject credentialed requests (Access-Control-Allow-Credentials: true) when
+    Access-Control-Allow-Origin is set to "*". This is a security requirement.
+    """
+    origin = request.headers.get("origin", "")
+    
+    # If origin is in allowed_origins, echo it; otherwise use first allowed origin as fallback
+    allowed_origin = origin if origin in allowed_origins else allowed_origins[0]
+    
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": allowed_origin,
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+            "Access-Control-Allow-Headers": "Authorization, Content-Type, Accept, Origin, User-Agent, DNT, Cache-Control, X-Mx-ReqToken, Keep-Alive, X-Requested-With, If-Modified-Since",
+            "Access-Control-Max-Age": "86400",
+            "Access-Control-Allow-Credentials": "true",
+        }
+    )
+
 # CORS middleware with specific origins to fix Access-Control-Allow-Origin header issue
 # Note: allow_origins=["*"] with allow_credentials=True causes Starlette to suppress
 # the Access-Control-Allow-Origin header, breaking CORS. We must enumerate origins.
@@ -65,8 +99,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 # Include API routers

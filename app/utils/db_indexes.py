@@ -12,6 +12,8 @@ async def create_all_indexes():
     await get_collection("users").create_index("email", unique=True)
     await get_collection("users").create_index("username", unique=True, sparse=True)
     await get_collection("users").create_index("created_at")
+    # Text index for user search on full_name and email (for efficient search queries)
+    await get_collection("users").create_index([("full_name", "text"), ("email", "text"), ("username", "text")])
     
     # Family relationships indexes
     await get_collection("family_relationships").create_index([("user_id", 1), ("relation_type", 1)])

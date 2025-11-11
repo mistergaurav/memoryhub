@@ -1,0 +1,22 @@
+Collecting google-auth
+  Downloading google_auth-2.43.0-py2.py3-none-any.whl.metadata (6.6 kB)
+Collecting google-auth-httplib2
+  Downloading google_auth_httplib2-0.2.1-py3-none-any.whl.metadata (3.0 kB)
+Collecting cachetools<7.0,>=2.0.0 (from google-auth)
+  Downloading cachetools-6.2.1-py3-none-any.whl.metadata (5.5 kB)
+Collecting pyasn1-modules>=0.2.1 (from google-auth)
+  Downloading pyasn1_modules-0.4.2-py3-none-any.whl.metadata (3.5 kB)
+Requirement already satisfied: rsa<5,>=3.1.4 in ./.pythonlibs/lib/python3.12/site-packages (from google-auth) (4.9.1)
+Collecting httplib2<1.0.0,>=0.19.0 (from google-auth-httplib2)
+  Downloading httplib2-0.31.0-py3-none-any.whl.metadata (2.2 kB)
+Collecting pyparsing<4,>=3.0.4 (from httplib2<1.0.0,>=0.19.0->google-auth-httplib2)
+  Downloading pyparsing-3.2.5-py3-none-any.whl.metadata (5.0 kB)
+Requirement already satisfied: pyasn1<0.7.0,>=0.6.1 in ./.pythonlibs/lib/python3.12/site-packages (from pyasn1-modules>=0.2.1->google-auth) (0.6.1)
+Downloading google_auth-2.43.0-py2.py3-none-any.whl (223 kB)
+Downloading google_auth_httplib2-0.2.1-py3-none-any.whl (9.5 kB)
+Downloading cachetools-6.2.1-py3-none-any.whl (11 kB)
+Downloading httplib2-0.31.0-py3-none-any.whl (91 kB)
+Downloading pyasn1_modules-0.4.2-py3-none-any.whl (181 kB)
+Downloading pyparsing-3.2.5-py3-none-any.whl (113 kB)
+Installing collected packages: pyparsing, pyasn1-modules, cachetools, httplib2, google-auth, google-auth-httplib2
+Successfully installed cachetools-6.2.1 google-auth-2.43.0 google-auth-httplib2-0.2.1 httplib2-0.31.0 pyasn1-modules-0.4.2 pyparsing-3.2.5
