@@ -32,6 +32,7 @@ Preferred communication style: Simple, everyday language.
 
 ## System Design Choices
 
+**CORS Configuration**: Regex-based origin matching for local development using `allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"` to support any localhost port (e.g., Windows Flutter development on random ports like 61364). Global OPTIONS handler mirrors this logic for proper preflight request handling. Production origins use a static allowlist.
 **UI/UX Decisions**: Modern Material 3 design system with design tokens, light/dark theme support, reusable component library, vibrant gradient color schemes, Google Fonts (Inter), and glassmorphic effects. Specific features like health records have professional, color-coded interfaces with animations and filtering.
 **Feature Specifications**:
 - **Admin Panel**: Dashboard with statistics, user management, and activity tracking.

@@ -33,7 +33,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Build allowed origins list dynamically
+# Build allowed origins list for CORS
+# Keep a short list of static origins for production/Replit
 allowed_origins = [
     "http://localhost:5000",
     "https://localhost:5000",
@@ -47,16 +48,18 @@ if replit_domain:
         f"http://{replit_domain}",
     ])
 
-# Add common Flutter development server ports (flutter run -d chrome usually uses 8080)
-for port in [3000, 3001, 4200, 5173, 8000, 8080, 8081, 8082, 5500, 5501]:
-    allowed_origins.extend([
-        f"http://localhost:{port}",
-        f"http://127.0.0.1:{port}",
-    ])
+# Import re for regex pattern matching
+import re
 
-# Add common localhost ports for development (iframe previews)
-for port in range(60000, 60300):
-    allowed_origins.append(f"http://localhost:{port}")
+# Helper function to check if origin matches localhost pattern
+def is_localhost_origin(origin: str) -> bool:
+    """Check if origin is localhost or 127.0.0.1 with any port"""
+    if not origin:
+        return False
+    # Match http://localhost or http://localhost:port or http://127.0.0.1 or http://127.0.0.1:port
+    # Also match https variants
+    pattern = r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
+    return bool(re.match(pattern, origin))
 
 # Global OPTIONS handler for CORS preflight requests MUST be added BEFORE including routers
 # This catches all OPTIONS requests before they reach endpoint validators that would fail on missing body
@@ -78,8 +81,11 @@ async def global_options_handler(path: str, request: Request):
     """
     origin = request.headers.get("origin", "")
     
-    # If origin is in allowed_origins, echo it; otherwise use first allowed origin as fallback
-    allowed_origin = origin if origin in allowed_origins else allowed_origins[0]
+    # Check if origin is in allowed_origins or matches localhost pattern
+    if origin in allowed_origins or is_localhost_origin(origin):
+        allowed_origin = origin
+    else:
+        allowed_origin = allowed_origins[0]
     
     return Response(
         status_code=200,
@@ -92,12 +98,12 @@ async def global_options_handler(path: str, request: Request):
         }
     )
 
-# CORS middleware with specific origins to fix Access-Control-Allow-Origin header issue
-# Note: allow_origins=["*"] with allow_credentials=True causes Starlette to suppress
-# the Access-Control-Allow-Origin header, breaking CORS. We must enumerate origins.
+# CORS middleware with regex-based origin matching for localhost
+# This allows any localhost port for local development while being secure for production
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["*"],
