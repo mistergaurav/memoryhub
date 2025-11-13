@@ -9,8 +9,7 @@ db = MongoDB()
 
 async def connect_to_mongo():
     db.client = AsyncIOMotorClient(settings.MONGODB_URL)
-    # Create indexes
-    await db.client[settings.DB_NAME]["users"].create_index("email", unique=True)
+    # Note: Indexes are created by utils/db_indexes.py via create_indexes() function
 
 async def close_mongo_connection():
     if db.client:

@@ -5,7 +5,36 @@
 [x] 5. Fixed all Flutter front-end compilation errors (200+ errors resolved)
 [x] 6. Backend and frontend are now running successfully
 
-## Latest Update - November 13, 2025 23:22 (Environment Reset - Services Restored & Flutter Rebuilt ✅):
+## Latest Update - November 13, 2025 23:32 (User Search Fix - MongoDB Text Index Created ✅):
+
+### Critical Bug Fixed:
+[x] - **500 Internal Server Error on /api/v1/users/search FIXED**:
+  - Root Cause: MongoDB text index missing on users collection
+  - Impact: Add Health dialog user search completely broken
+  - Solution implemented:
+    - Fixed conflicting email index (email_1 vs email_unique)
+    - Created users_text_search TEXT INDEX on full_name, email, username fields
+    - Removed duplicate index creation code from app/db/mongodb.py
+    - All 4 user indexes now created successfully ✅
+
+### Files Modified:
+[x] - **scripts/fix_user_indexes.py** (NEW FILE - index repair utility)
+[x] - **app/db/mongodb.py** (removed conflicting index creation)
+
+### Verification:
+[x] - Text search index verified in MongoDB (users_text_search)
+[x] - Backend startup successful with "✅ All database indexes created successfully"
+[x] - Zero LSP errors ✅
+[x] - All workflows running (Backend on port 5000, MongoDB on port 27017) ✅
+
+### User Search Endpoint Now Functional:
+- `/api/v1/users/search?query=...` endpoint ready for testing
+- Text search works across full_name, username, and email fields
+- Privacy protection: email only visible for connected users
+- Results include relation_type (circle/none) and requires_approval flags
+- Add Health dialog can now search for users without 500 errors ✅
+
+## Previous Update - November 13, 2025 23:22 (Environment Reset - Services Restored & Flutter Rebuilt ✅):
 
 ### Tasks Completed:
 [x] - **Python Dependencies Reinstalled After Environment Reset**:
