@@ -18,9 +18,15 @@ class UserSearchResult {
   });
 
   factory UserSearchResult.fromJson(Map<String, dynamic> json) {
+    // Use full_name if available, otherwise fall back to email or username
+    String displayName = json['full_name'] ?? json['name'] ?? '';
+    if (displayName.isEmpty) {
+      displayName = json['email'] ?? json['username'] ?? 'Unknown User';
+    }
+    
     return UserSearchResult(
       id: json['id'] ?? json['_id'] ?? '',
-      fullName: json['full_name'] ?? json['name'] ?? '',
+      fullName: displayName,
       email: json['email'],
       avatarUrl: json['avatar_url'],
       relationType: json['relation_type'] ?? 'family',
