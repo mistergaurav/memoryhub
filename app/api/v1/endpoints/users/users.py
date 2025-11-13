@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query
 from fastapi.responses import FileResponse
 from bson import ObjectId
 import os
@@ -365,6 +365,64 @@ async def delete_user_me(
         return None
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting account: {str(e)}")
+
+@router.get("/search")
+async def search_users(
+    query: Optional[str] = Query(None, min_length=1, description="Search query"),
+    limit: int = Query(10, ge=1, le=50, description="Maximum number of results"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """
+    Search users by name, email, or username.
+    Returns users within the current user's family circles or all users.
+    """
+    try:
+        # Handle empty/short queries
+        if not query or len(query.strip()) < 1:
+            return {"success": True, "data": [], "total": 0}
+        
+        query_text = query.strip()
+        
+        # Build search query using regex for flexible matching
+        search_conditions = [
+            {"full_name": {"$regex": query_text, "$options": "i"}},
+            {"email": {"$regex": query_text, "$options": "i"}},
+            {"username": {"$regex": query_text, "$options": "i"}}
+        ]
+        
+        # Only search active users
+        user_query: Dict[str, Any] = {
+            "is_active": True,
+            "$or": search_conditions
+        }
+        
+        # Get user's family circles for scoping (optional - for now search all users)
+        # In the future, this could be restricted to family circle members only
+        
+        cursor = get_collection("users").find(user_query).limit(limit)
+        
+        results = []
+        async for user_doc in cursor:
+            # Don't include the current user in results
+            if str(user_doc["_id"]) == str(current_user.id):
+                continue
+                
+            results.append({
+                "id": str(user_doc["_id"]),
+                "full_name": user_doc.get("full_name", ""),
+                "email": user_doc.get("email", ""),
+                "username": user_doc.get("username"),
+                "profile_picture_url": user_doc.get("avatar_url")
+            })
+        
+        return {
+            "success": True,
+            "data": results,
+            "total": len(results)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error searching users: {str(e)}")
+
 
 @router.get("/{user_id}/profile")
 async def get_user_profile(

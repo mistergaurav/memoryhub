@@ -8,12 +8,12 @@ from app.db.mongodb import get_collection
 async def create_all_indexes():
     """Create all database indexes for optimal performance"""
     
-    # User collection indexes
-    await get_collection("users").create_index("email", unique=True)
-    await get_collection("users").create_index("username", unique=True, sparse=True)
-    await get_collection("users").create_index("created_at")
+    # User collection indexes with explicit names to prevent conflicts
+    await get_collection("users").create_index("email", unique=True, name="email_unique")
+    await get_collection("users").create_index("username", unique=True, sparse=True, name="username_unique_sparse")
+    await get_collection("users").create_index("created_at", name="created_at_1")
     # Text index for user search on full_name and email (for efficient search queries)
-    await get_collection("users").create_index([("full_name", "text"), ("email", "text"), ("username", "text")])
+    await get_collection("users").create_index([("full_name", "text"), ("email", "text"), ("username", "text")], name="users_text_search")
     
     # Family relationships indexes
     await get_collection("family_relationships").create_index([("user_id", 1), ("relation_type", 1)])

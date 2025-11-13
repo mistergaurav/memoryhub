@@ -8,6 +8,7 @@ from ..schemas.health_records import (
     HealthRecordUpdate,
     HealthRecordResponse,
     ApprovalStatus,
+    VisibilityScope,
 )
 from app.api.v1.endpoints.social.notifications import create_notification
 from app.schemas.notification import NotificationType
@@ -96,10 +97,13 @@ class HealthRecordService:
         
         if record.subject_user_id and record.subject_user_id != current_user_id:
             record_data["approval_status"] = "pending_approval"
+            record_data["requested_visibility"] = record.requested_visibility if record.requested_visibility else "private"
+            record_data["visibility_scope"] = "private"
         else:
             record_data["approval_status"] = "approved"
             record_data["approved_at"] = datetime.utcnow()
             record_data["approved_by"] = str(current_user_id)
+            record_data["visibility_scope"] = record.requested_visibility if record.requested_visibility else "private"
         
         record_doc = await self.repository.create(record_data)
         
@@ -233,10 +237,11 @@ class HealthRecordService:
         self,
         record_id: str,
         current_user_id: str,
-        current_user_name: Optional[str] = None
+        current_user_name: Optional[str] = None,
+        visibility_scope: Optional[VisibilityScope] = None
     ) -> Dict[str, Any]:
         """
-        Approve a health record that was created for you.
+        Approve a health record that was created for you with visibility selection.
         
         Only the subject user can approve a record created for them.
         
@@ -244,6 +249,7 @@ class HealthRecordService:
             record_id: ID of the record to approve
             current_user_id: ID of the user approving the record
             current_user_name: Name of the user approving the record
+            visibility_scope: Visibility scope for the approved record (required)
             
         Returns:
             Approved health record document
@@ -252,6 +258,12 @@ class HealthRecordService:
             HTTPException: If user is not authorized or record status is invalid
         """
         from fastapi import HTTPException, status
+        
+        if not visibility_scope:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="visibility_scope is required when approving a health record"
+            )
         
         record_doc = await self.repository.find_by_id(
             record_id,
@@ -284,7 +296,8 @@ class HealthRecordService:
         update_data = {
             "approval_status": "approved",
             "approved_at": datetime.utcnow(),
-            "approved_by": str(current_user_id)
+            "approved_by": str(current_user_id),
+            "visibility_scope": visibility_scope.value if isinstance(visibility_scope, VisibilityScope) else str(visibility_scope)
         }
         
         updated_record = await self.repository.update_by_id(record_id, update_data)
@@ -297,11 +310,12 @@ class HealthRecordService:
             creator_id = str(created_by)
             if creator_id != current_user_id:
                 record_title = record_doc.get("title", "Untitled")
+                visibility_label = visibility_scope.value if isinstance(visibility_scope, VisibilityScope) else str(visibility_scope)
                 await create_notification(
                     user_id=creator_id,
                     notification_type=NotificationType.HEALTH_RECORD_APPROVED,
                     title="Health Record Approved",
-                    message=f"{current_user_name or 'Someone'} approved the health record '{record_title}' you created for them.",
+                    message=f"{current_user_name or 'Someone'} approved the health record '{record_title}' you created for them with {visibility_label} visibility.",
                     actor_id=str(current_user_id),
                     target_type="health_record",
                     target_id=record_id
@@ -314,7 +328,8 @@ class HealthRecordService:
                 "resource_type": "health_record",
                 "resource_id": record_id,
                 "record_type": record_doc.get("record_type"),
-                "created_by": str(record_doc.get("created_by")) if record_doc.get("created_by") else None
+                "created_by": str(record_doc.get("created_by")) if record_doc.get("created_by") else None,
+                "visibility_scope": visibility_scope.value if isinstance(visibility_scope, VisibilityScope) else str(visibility_scope)
             }
         )
         
@@ -545,16 +560,33 @@ class HealthRecordService:
         
         user_circle_ids = [circle["_id"] for circle in user_circles if circle and "_id" in circle]
         
+        # Build visibility-aware query
+        # Records visible to user are:
+        # 1. Records where user is subject (always visible)
+        # 2. Records where user is creator (always visible)
+        # 3. Records where user is assigned (always visible)
+        # 4. Records with family/public visibility in user's family circles
+        
         query_conditions: List[Dict[str, Any]] = [
-            {"family_id": user_oid},
+            # Always visible: user is subject
             {"subject_user_id": user_oid},
+            # Always visible: user created the record
+            {"created_by": user_oid},
+            # Always visible: user is assigned
             {"assigned_user_ids": user_oid}
         ]
         
+        # Add family/public visibility from user's circles
         if user_circle_ids:
-            query_conditions.append({"family_id": {"$in": user_circle_ids}})
+            query_conditions.append({
+                "family_id": {"$in": user_circle_ids},
+                "visibility_scope": {"$in": ["family", "public"]}
+            })
         
-        all_records_query = {"$or": query_conditions}
+        all_records_query = {
+            "approval_status": "approved",
+            "$or": query_conditions
+        }
         
         all_records = await self.repository.find_many(
             filter_dict=all_records_query,

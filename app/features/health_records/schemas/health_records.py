@@ -47,6 +47,13 @@ class ApprovalStatus(str, Enum):
     REJECTED = "rejected"
 
 
+class VisibilityScope(str, Enum):
+    """Visibility scope for approved health records"""
+    PRIVATE = "private"  # Visible only to subject user and assigned users
+    FAMILY = "family"    # Visible to all family circle members
+    PUBLIC = "public"    # Visible to all family members (same as family for now)
+
+
 class HealthRecordCreate(BaseModel):
     subject_type: SubjectType = SubjectType.SELF
     subject_user_id: Optional[str] = None
@@ -71,6 +78,7 @@ class HealthRecordCreate(BaseModel):
     age_of_onset: Optional[int] = None
     affected_relatives: List[str] = []
     genetic_test_results: Optional[str] = Field(None, max_length=2000)
+    requested_visibility: Optional[VisibilityScope] = VisibilityScope.PRIVATE
     
     @model_validator(mode='after')
     def validate_subject_consistency(self):
@@ -121,6 +129,7 @@ class HealthRecordUpdate(BaseModel):
     approved_at: Optional[datetime] = None
     approved_by: Optional[str] = None
     rejection_reason: Optional[str] = None
+    visibility_scope: Optional[VisibilityScope] = None
     
     @model_validator(mode='after')
     def validate_subject_consistency_on_update(self):
@@ -180,6 +189,7 @@ class HealthRecordResponse(BaseModel):
     approved_at: Optional[datetime] = None
     approved_by: Optional[str] = None
     rejection_reason: Optional[str] = None
+    visibility_scope: VisibilityScope = VisibilityScope.PRIVATE
     created_at: datetime
     updated_at: datetime
     created_by: str
@@ -305,3 +315,8 @@ class HealthRecordReminderResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     created_by: str
+
+
+class HealthRecordApprovalRequest(BaseModel):
+    """Request schema for approving a health record with visibility selection"""
+    visibility_scope: VisibilityScope = Field(..., description="Visibility scope for the approved record")

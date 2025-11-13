@@ -191,7 +191,7 @@ async def search_users_unified(
                     "username": user.get("username"),
                     "relation_type": "circle" if is_connected else "none",
                     "source": "family_circle" if is_connected else "platform",
-                    "requires_approval": not is_connected
+                    "requires_approval": False
                 })
         
         await log_audit_event(

@@ -10,6 +10,7 @@ from ..schemas.health_records import (
     HealthRecordResponse,
     RecordType,
     ApprovalStatus,
+    HealthRecordApprovalRequest,
 )
 from ..services.health_record_service import HealthRecordService
 from ..repositories.health_records_repository import HealthRecordsRepository
@@ -63,6 +64,7 @@ def health_record_to_response(record_doc: dict, member_name: Optional[str] = Non
             approved_at=record_doc.get("approved_at"),
             approved_by=record_doc.get("approved_by"),
             rejection_reason=record_doc.get("rejection_reason"),
+            visibility_scope=record_doc.get("visibility_scope", "private"),
             created_at=record_doc["created_at"],
             updated_at=record_doc["updated_at"],
             created_by=str(record_doc["created_by"])
@@ -143,12 +145,36 @@ async def list_health_records(
         except Exception:
             raise ValueError(f"Invalid user ID format: {current_user.id}")
         
+        # Build visibility-aware query
+        # Get user's family circles for visibility filtering
+        from app.repositories.family_repository import FamilyRepository
+        family_repo = FamilyRepository()
+        try:
+            user_circles = await family_repo.find_by_member(str(current_user.id), limit=100)
+            user_circle_ids = [circle["_id"] for circle in user_circles if circle and "_id" in circle]
+        except Exception:
+            user_circle_ids = []
+        
+        # Build query with visibility scope filtering
+        query_conditions: List[Dict[str, Any]] = [
+            # Always visible: user is subject
+            {"subject_user_id": user_oid},
+            # Always visible: user created the record
+            {"created_by": user_oid},
+            # Always visible: user is assigned
+            {"assigned_user_ids": user_oid}
+        ]
+        
+        # Add family/public visibility from user's circles
+        if user_circle_ids:
+            query_conditions.append({
+                "family_id": {"$in": user_circle_ids},
+                "visibility_scope": {"$in": ["family", "public"]}
+            })
+        
         query: Dict[str, Any] = {
-            "$or": [
-                {"family_id": user_oid},
-                {"subject_user_id": user_oid},
-                {"assigned_user_ids": user_oid}
-            ]
+            "approval_status": "approved",
+            "$or": query_conditions
         }
         
         if family_member_id:
@@ -377,9 +403,10 @@ async def delete_health_record(
 @router.post("/{record_id}/approve", status_code=status.HTTP_200_OK)
 async def approve_health_record(
     record_id: str,
+    approval_request: HealthRecordApprovalRequest,
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Approve a health record that was created for you"""
+    """Approve a health record that was created for you with visibility selection"""
     try:
         if not record_id:
             raise ValueError("Record ID is required")
@@ -387,7 +414,8 @@ async def approve_health_record(
         updated_record = await health_record_service.approve_health_record(
             record_id,
             str(current_user.id),
-            current_user.full_name
+            current_user.full_name,
+            approval_request.visibility_scope
         )
         
         if not updated_record:
