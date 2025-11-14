@@ -43,4 +43,21 @@ class NotificationsService {
       headers: headers,
     );
   }
+
+  Future<Map<String, dynamic>> getNotificationDetails(String notificationId) async {
+    final headers = await _getHeaders();
+    final response = await http.get(
+      Uri.parse('$baseUrl/notifications/$notificationId/details'),
+      headers: headers,
+    );
+    
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['data'] ?? data;
+    } else if (response.statusCode == 404) {
+      throw Exception('Notification not found');
+    } else {
+      throw Exception('Failed to load notification details');
+    }
+  }
 }

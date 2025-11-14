@@ -80,6 +80,9 @@ dependencies:
   
   # Carousel slider for photo galleries
   carousel_slider: ^5.0.0
+  
+  # WebSocket for real-time notifications
+  web_socket_channel: ^2.4.0
 
 dev_dependencies:
   flutter_test:

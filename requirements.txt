@@ -56,3 +56,4 @@ qrcode
 reportlab
 requests
 uvicorn
+websockets

@@ -92,6 +92,41 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
       body: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {
+          if (_controller.lastStatusChangeMessage != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(
+                        _controller.lastStatusChangeMessage!.contains('approved')
+                            ? Icons.check_circle
+                            : Icons.info,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _controller.lastStatusChangeMessage!,
+                          style: const TextStyle(fontSize: 15),
+                        ),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: _controller.lastStatusChangeMessage!.contains('approved')
+                      ? Colors.green
+                      : Colors.blue,
+                  duration: const Duration(seconds: 4),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
+              _controller.clearStatusChangeMessage();
+            });
+          }
+
           return RefreshIndicator(
             onRefresh: _handleRefresh,
             color: HealthRecordsDesignSystem.tealAccent,

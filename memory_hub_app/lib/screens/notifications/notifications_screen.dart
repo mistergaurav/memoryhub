@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../../services/notifications_service.dart';
-import '../../services/family/family_service.dart';
+import 'package:provider/provider.dart';
+import '../../providers/notifications_provider.dart';
+import '../../models/notification.dart' as models;
 import '../../widgets/gradient_container.dart';
 import '../../widgets/animated_list_item.dart';
+import '../../services/websocket_service.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -14,175 +16,281 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  final NotificationsService _service = NotificationsService();
-  final FamilyService _familyService = FamilyService();
-  bool _isLoading = true;
-  List<dynamic> _notifications = [];
-  int _unreadCount = 0;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _loadNotifications();
+    _scrollController.addListener(_onScroll);
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<NotificationsProvider>(context, listen: false);
+      if (provider.notifications.isEmpty) {
+        provider.loadNotifications();
+      }
+    });
   }
 
-  Future<void> _loadNotifications() async {
-    setState(() => _isLoading = true);
-    try {
-      final data = await _service.getNotifications();
-      setState(() {
-        _notifications = data['notifications'] ?? [];
-        _unreadCount = data['unread_count'] ?? 0;
-      });
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading notifications: $e')),
-        );
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.9) {
+      final provider = Provider.of<NotificationsProvider>(context, listen: false);
+      if (provider.hasMore && !provider.isLoading) {
+        provider.loadMore();
       }
-    } finally {
-      setState(() => _isLoading = false);
     }
   }
 
-  Future<void> _markAllAsRead() async {
-    try {
-      await _service.markAllAsRead();
-      await _loadNotifications();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
-    }
+  Future<void> _onRefresh() async {
+    final provider = Provider.of<NotificationsProvider>(context, listen: false);
+    await provider.refresh();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 180,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: GradientContainer(
-                height: 180,
-                colors: [
-                  Colors.indigo,
-                  Colors.purple,
-                  Colors.pink,
-                ],
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.notifications,
-                        size: 70,
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                      if (_unreadCount > 0) ...[
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(20),
+    return ChangeNotifierProvider(
+      create: (_) => NotificationsProvider(),
+      child: Consumer<NotificationsProvider>(
+        builder: (context, provider, child) {
+          return Scaffold(
+            body: CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                _buildAppBar(provider),
+                if (provider.isLoading && provider.notifications.isEmpty)
+                  const SliverFillRemaining(
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (provider.notifications.isEmpty)
+                  _buildEmptyState()
+                else
+                  _buildNotificationsList(provider),
+                if (provider.isLoading && provider.notifications.isNotEmpty)
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildAppBar(NotificationsProvider provider) {
+    return SliverAppBar(
+      expandedHeight: 180,
+      pinned: true,
+      flexibleSpace: FlexibleSpaceBar(
+        background: GradientContainer(
+          height: 180,
+          colors: [
+            Colors.indigo,
+            Colors.purple,
+            Colors.pink,
+          ],
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Stack(
+                  children: [
+                    Icon(
+                      Icons.notifications,
+                      size: 70,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                    if (provider.unreadCount > 0)
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
                           ),
                           child: Text(
-                            '$_unreadCount New',
+                            provider.unreadCount > 99 ? '99+' : '${provider.unreadCount}',
                             style: GoogleFonts.inter(
                               color: Colors.white,
+                              fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
                             ),
                           ),
                         ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-              title: Text(
-                'Notifications',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            actions: [
-              if (_unreadCount > 0)
-                IconButton(
-                  icon: const Icon(Icons.done_all, color: Colors.white),
-                  onPressed: _markAllAsRead,
-                  tooltip: 'Mark all as read',
-                ),
-            ],
-          ),
-          if (_isLoading)
-            const SliverFillRemaining(
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (_notifications.isEmpty)
-            SliverFillRemaining(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.notifications_none,
-                      size: 80,
-                      color: Colors.grey[300],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No notifications yet',
-                      style: GoogleFonts.inter(
-                        fontSize: 18,
-                        color: Colors.grey[600],
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'We\'ll notify you when something happens',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                      ),
-                    ),
                   ],
                 ),
-              ),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final notif = _notifications[index];
-                    return AnimatedListItem(
-                      index: index,
-                      child: _buildNotificationCard(notif),
-                    );
-                  },
-                  childCount: _notifications.length,
-                ),
-              ),
+                if (provider.unreadCount > 0) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '${provider.unreadCount} New',
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                _buildConnectionStatus(provider),
+              ],
             ),
+          ),
+        ),
+        title: Text(
+          'Notifications',
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      actions: [
+        if (provider.unreadCount > 0)
+          IconButton(
+            icon: const Icon(Icons.done_all, color: Colors.white),
+            onPressed: () async {
+              try {
+                await provider.markAllAsRead();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'All notifications marked as read',
+                        style: GoogleFonts.inter(),
+                      ),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error: $e', style: GoogleFonts.inter()),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            tooltip: 'Mark all as read',
+          ),
+        IconButton(
+          icon: const Icon(Icons.refresh, color: Colors.white),
+          onPressed: _onRefresh,
+          tooltip: 'Refresh',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConnectionStatus(NotificationsProvider provider) {
+    final isConnected = provider.wsConnectionState == WebSocketConnectionState.connected;
+    final isConnecting = provider.wsConnectionState == WebSocketConnectionState.connecting;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: isConnected ? Colors.green : (isConnecting ? Colors.orange : Colors.red),
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            isConnected ? 'Live' : (isConnecting ? 'Connecting' : 'Offline'),
+            style: GoogleFonts.inter(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildNotificationCard(Map<String, dynamic> notif) {
-    final isRead = notif['is_read'] ?? false;
-    final type = notif['type'] ?? 'general';
-    final createdAt = notif['created_at'];
-    final timeAgo = createdAt != null ? _getTimeAgo(DateTime.parse(createdAt)) : '';
+  Widget _buildEmptyState() {
+    return SliverFillRemaining(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.notifications_none,
+              size: 80,
+              color: Colors.grey[300],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No notifications yet',
+              style: GoogleFonts.inter(
+                fontSize: 18,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'We\'ll notify you when something happens',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: Colors.grey[500],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationsList(NotificationsProvider provider) {
+    return SliverPadding(
+      padding: const EdgeInsets.all(16),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            final notification = provider.notifications[index];
+            return AnimatedListItem(
+              index: index,
+              child: _buildNotificationCard(notification, provider),
+            );
+          },
+          childCount: provider.notifications.length,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationCard(models.Notification notification, NotificationsProvider provider) {
+    final isRead = notification.isRead;
+    final timeAgo = _getTimeAgo(notification.createdAt);
 
     return Card(
       elevation: isRead ? 0 : 2,
@@ -198,8 +306,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       child: InkWell(
         onTap: () async {
           if (!isRead) {
-            await _service.markAsRead(notif['id']);
-            await _loadNotifications();
+            await provider.markAsRead(notification.id);
+          }
+
+          if (notification.type == models.NotificationType.healthRecordAssignment) {
+            if (mounted) {
+              final result = await Navigator.pushNamed(
+                context,
+                '/notifications/detail',
+                arguments: notification.id,
+              );
+
+              if (result == true && mounted) {
+                await provider.refresh();
+              }
+            }
           }
         },
         borderRadius: BorderRadius.circular(16),
@@ -211,12 +332,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _getColorForType(type).withOpacity(0.2),
+                  color: _getColorForType(notification.type).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  _getIconForType(type),
-                  color: _getColorForType(type),
+                  _getIconForType(notification.type),
+                  color: _getColorForType(notification.type),
                   size: 24,
                 ),
               ),
@@ -229,7 +350,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            notif['title'] ?? 'Notification',
+                            notification.title,
                             style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: isRead ? FontWeight.w500 : FontWeight.bold,
@@ -249,64 +370,56 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      notif['message'] ?? '',
+                      notification.message,
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         color: Colors.grey[700],
                         height: 1.4,
                       ),
                     ),
-                    if (timeAgo.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
-                          const SizedBox(width: 4),
-                          Text(
-                            timeAgo,
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: Colors.grey[500],
-                            ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
+                        const SizedBox(width: 4),
+                        Text(
+                          timeAgo,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.grey[500],
                           ),
-                        ],
-                      ),
-                    ],
-                    if ((type == 'health_record_assignment' || type == 'HEALTH_RECORD_ASSIGNMENT') && 
-                        notif['metadata'] != null && 
-                        notif['metadata']['health_record_id'] != null) ...[
+                        ),
+                      ],
+                    ),
+                    if (notification.type == models.NotificationType.healthRecordAssignment) ...[
                       const SizedBox(height: 12),
                       Row(
                         children: [
                           Expanded(
                             child: OutlinedButton.icon(
-                              icon: const Icon(Icons.cancel, size: 16),
-                              label: Text('Reject', style: GoogleFonts.inter(fontSize: 13)),
+                              icon: const Icon(Icons.visibility, size: 16),
+                              label: Text('View Details', style: GoogleFonts.inter(fontSize: 13)),
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.red,
-                                side: const BorderSide(color: Colors.red),
+                                foregroundColor: Colors.blue,
                                 padding: const EdgeInsets.symmetric(vertical: 8),
                               ),
-                              onPressed: () => _rejectHealthRecord(
-                                notif['id'],
-                                notif['metadata']['health_record_id'],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              icon: const Icon(Icons.check_circle, size: 16),
-                              label: Text('Approve', style: GoogleFonts.inter(fontSize: 13)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                              ),
-                              onPressed: () => _approveHealthRecord(
-                                notif['id'],
-                                notif['metadata']['health_record_id'],
-                              ),
+                              onPressed: () async {
+                                if (!isRead) {
+                                  await provider.markAsRead(notification.id);
+                                }
+
+                                if (mounted) {
+                                  final result = await Navigator.pushNamed(
+                                    context,
+                                    '/notifications/detail',
+                                    arguments: notification.id,
+                                  );
+
+                                  if (result == true && mounted) {
+                                    await provider.refresh();
+                                  }
+                                }
+                              },
                             ),
                           ),
                         ],
@@ -339,148 +452,53 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  Future<void> _approveHealthRecord(String notificationId, String recordId) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Approve Health Record', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-        content: Text('Are you sure you want to approve this health record?', style: GoogleFonts.inter()),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Cancel', style: GoogleFonts.inter()),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            child: Text('Approve', style: GoogleFonts.inter(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      try {
-        await _familyService.approveHealthRecord(recordId);
-        await _service.markAsRead(notificationId);
-        await _loadNotifications();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Health record approved successfully', style: GoogleFonts.inter()),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error approving record: $e', style: GoogleFonts.inter())),
-          );
-        }
-      }
-    }
-  }
-
-  Future<void> _rejectHealthRecord(String notificationId, String recordId) async {
-    String? reason;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Reject Health Record', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Are you sure you want to reject this health record?', style: GoogleFonts.inter()),
-            const SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Reason (optional)',
-                border: OutlineInputBorder(),
-                labelStyle: GoogleFonts.inter(),
-              ),
-              style: GoogleFonts.inter(),
-              maxLines: 3,
-              onChanged: (value) => reason = value,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Cancel', style: GoogleFonts.inter()),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text('Reject', style: GoogleFonts.inter(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      try {
-        await _familyService.rejectHealthRecord(recordId, reason);
-        await _service.markAsRead(notificationId);
-        await _loadNotifications();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Health record rejected', style: GoogleFonts.inter()),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error rejecting record: $e', style: GoogleFonts.inter())),
-          );
-        }
-      }
-    }
-  }
-
-  IconData _getIconForType(String? type) {
+  IconData _getIconForType(models.NotificationType type) {
     switch (type) {
-      case 'like':
+      case models.NotificationType.like:
         return Icons.favorite;
-      case 'comment':
+      case models.NotificationType.comment:
         return Icons.comment;
-      case 'follow':
+      case models.NotificationType.follow:
         return Icons.person_add;
-      case 'mention':
+      case models.NotificationType.mention:
         return Icons.alternate_email;
-      case 'share':
+      case models.NotificationType.memoryShare:
         return Icons.share;
-      case 'memory':
-        return Icons.photo;
-      case 'health_record_assignment':
-      case 'HEALTH_RECORD_ASSIGNMENT':
+      case models.NotificationType.hubInvite:
+        return Icons.group_add;
+      case models.NotificationType.healthRecordAssignment:
+      case models.NotificationType.healthReminderAssignment:
         return Icons.medical_services;
+      case models.NotificationType.healthRecordApproved:
+        return Icons.check_circle;
+      case models.NotificationType.healthRecordRejected:
+        return Icons.cancel;
       default:
         return Icons.notifications;
     }
   }
 
-  Color _getColorForType(String? type) {
+  Color _getColorForType(models.NotificationType type) {
     switch (type) {
-      case 'like':
+      case models.NotificationType.like:
         return Colors.red;
-      case 'comment':
+      case models.NotificationType.comment:
         return Colors.blue;
-      case 'health_record_assignment':
-      case 'HEALTH_RECORD_ASSIGNMENT':
+      case models.NotificationType.healthRecordAssignment:
+      case models.NotificationType.healthReminderAssignment:
         return Colors.teal;
-      case 'follow':
+      case models.NotificationType.healthRecordApproved:
         return Colors.green;
-      case 'mention':
+      case models.NotificationType.healthRecordRejected:
+        return Colors.red;
+      case models.NotificationType.follow:
+        return Colors.green;
+      case models.NotificationType.mention:
         return Colors.purple;
-      case 'share':
+      case models.NotificationType.memoryShare:
         return Colors.orange;
-      case 'memory':
-        return Colors.pink;
+      case models.NotificationType.hubInvite:
+        return Colors.indigo;
       default:
         return Colors.grey;
     }

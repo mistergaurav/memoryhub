@@ -1,0 +1,48 @@
+When a user assigns a health record to another user, the assignee receives a notification. Opening the notification currently shows a blank page and the assignee cannot approve or reject the record. The notification must reliably open to a details view (who assigned it, timestamp, reminder flag), show Approve / Reject buttons, use WebSockets for realtime updates, and the assigner should see the record’s status update on their health-record dashboard. Work with the architect to design and implement a robust, testable solution.
+ 
+Goals
+1. 
+Fix the blank notification details page so assignees can view record details and act (approve/reject).
+2. 
+Ensure notifications are delivered and updated in real time using WebSockets.
+3. 
+Show metadata in details: assigner, assignment time, reminder (if set), record summary or link to full record.
+4. 
+Persist an audit trail and update status so assigner sees current status in their dashboard.
+5. 
+Add error handling and clear UX for failure states.
+6. 
+Provide automated and manual test cases and a short rollout plan.
+ 
+Problems to resolve (observed)
+• 
+Notification opens to a blank page for the assignee.
+• 
+Approve/Reject actions missing or nonfunctional.
+• 
+No reliable real-time status update for the assigner.
+• 
+Unclear whether notifications are delivered over HTTP polling or sockets — requirement: use WebSockets.
+• 
+Missing audit/log entries for who did what and when.
+ 
+Functional requirements
+Notification details view (assignee)
+• 
+Displays: record title, brief summary, link to full health record, assigner name & ID, assigned timestamp (ISO 8601), reminder flag (yes/no and next reminder time if applicable).
+• 
+Buttons: Approve, Reject, Close. Approve/Reject must show an immediate UI state change (optimistic) and then confirm server result.
+• 
+If record requires more inputs before approval, show the required fields or a clear message.
+Realtime behavior
+• 
+Notifications delivered and updated over a secure WebSocket connection (WSS).
+• 
+When the assigner updates the record status, the assignee’s UI and the assigner’s dashboard should reflect the change in under 2s (typical RTT).
+• 
+WebSocket should publish events: notification.created, notification.updated, record.status_changed, with payloads documented.
+Assigner dashboard
+• 
+Shows assigned records with current status (Pending / Approved / Rejected).
+• 
+Status updates automatically via WebSocket; fallback to HTTP polling as a degraded mode.

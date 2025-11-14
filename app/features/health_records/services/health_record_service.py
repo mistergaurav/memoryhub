@@ -11,9 +11,12 @@ from ..schemas.health_records import (
     VisibilityScope,
 )
 from app.api.v1.endpoints.social.notifications import create_notification
-from app.schemas.notification import NotificationType
+from app.schemas.notification import NotificationType, NotificationStatus
 from app.utils.audit_logger import log_audit_event
 from app.repositories.family_repository import FamilyRepository, FamilyMembersRepository
+from app.services.notification_service import NotificationService
+from app.schemas.audit_log import AuditAction
+from app.db.mongodb import get_collection
 
 
 class HealthRecordService:
@@ -29,6 +32,7 @@ class HealthRecordService:
     
     def __init__(self):
         self.repository = HealthRecordsRepository()
+        self.notification_service = NotificationService()
     
     async def create_health_record(
         self,
@@ -305,7 +309,41 @@ class HealthRecordService:
         if not updated_record:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update health record")
         
+        # Find associated notification and update its status
+        notification = await get_collection("notifications").find_one({
+            "health_record_id": ObjectId(record_id),
+            "type": "health_record_assigned",
+            "user_id": ObjectId(current_user_id)
+        })
+        
+        if notification:
+            await self.notification_service.update_notification_status(
+                notification_id=str(notification["_id"]),
+                approval_status=NotificationStatus.APPROVED,
+                resolved_by=current_user_id,
+                resolved_by_name=current_user_name or "Unknown"
+            )
+        
+        # Create audit log
         created_by = record_doc.get("created_by")
+        await self.notification_service.create_audit_log(
+            resource_type="health_record",
+            resource_id=record_id,
+            action=AuditAction.APPROVED,
+            actor_id=current_user_id,
+            actor_name=current_user_name or "Unknown",
+            target_user_id=str(created_by) if created_by else None,
+            target_user_name=None,
+            old_value={"approval_status": record_doc.get("approval_status")},
+            new_value={"approval_status": "approved", "visibility_scope": visibility_scope.value if isinstance(visibility_scope, VisibilityScope) else str(visibility_scope)},
+            remarks=f"Health record approved with {visibility_scope.value if isinstance(visibility_scope, VisibilityScope) else str(visibility_scope)} visibility",
+            metadata={
+                "record_type": record_doc.get("record_type"),
+                "record_title": record_doc.get("title")
+            }
+        )
+        
+        # Send notification to creator via legacy notification system
         if created_by:
             creator_id = str(created_by)
             if creator_id != current_user_id:
@@ -401,7 +439,42 @@ class HealthRecordService:
         if not updated_record:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update health record")
         
+        # Find associated notification and update its status
+        notification = await get_collection("notifications").find_one({
+            "health_record_id": ObjectId(record_id),
+            "type": "health_record_assigned",
+            "user_id": ObjectId(current_user_id)
+        })
+        
+        if notification:
+            await self.notification_service.update_notification_status(
+                notification_id=str(notification["_id"]),
+                approval_status=NotificationStatus.REJECTED,
+                resolved_by=current_user_id,
+                resolved_by_name=current_user_name or "Unknown"
+            )
+        
+        # Create audit log
         created_by = record_doc.get("created_by")
+        await self.notification_service.create_audit_log(
+            resource_type="health_record",
+            resource_id=record_id,
+            action=AuditAction.REJECTED,
+            actor_id=current_user_id,
+            actor_name=current_user_name or "Unknown",
+            target_user_id=str(created_by) if created_by else None,
+            target_user_name=None,
+            old_value={"approval_status": record_doc.get("approval_status")},
+            new_value={"approval_status": "rejected"},
+            remarks=rejection_reason or "No reason provided",
+            metadata={
+                "record_type": record_doc.get("record_type"),
+                "record_title": record_doc.get("title"),
+                "rejection_reason": rejection_reason
+            }
+        )
+        
+        # Send notification to creator via legacy notification system
         if created_by:
             creator_id = str(created_by)
             if creator_id != current_user_id:

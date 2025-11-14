@@ -113,6 +113,10 @@ app.add_middleware(
 # Include API routers
 app.include_router(api_router, prefix="/api/v1")
 
+# Include WebSocket router
+from app.api.v1.endpoints.social.notifications_ws import router as ws_router
+app.include_router(ws_router, prefix="/api/v1", tags=["websocket"])
+
 # Serve uploaded media files
 from app.api.v1.endpoints.media import router as media_router
 app.include_router(media_router, tags=["media"])

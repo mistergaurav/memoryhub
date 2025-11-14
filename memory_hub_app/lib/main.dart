@@ -27,6 +27,7 @@ import 'screens/social/hubs_screen.dart';
 import 'screens/social/user_search_screen.dart';
 import 'screens/social/user_profile_view_screen.dart';
 import 'screens/notifications/notifications_screen.dart';
+import 'screens/notifications/notification_detail_screen.dart';
 import 'screens/collections/collections_screen.dart';
 import 'screens/analytics/analytics_screen.dart';
 import 'screens/activity/activity_feed_screen.dart';
@@ -150,6 +151,11 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (_) => const UserSearchScreen());
           case '/notifications':
             return MaterialPageRoute(builder: (_) => const NotificationsScreen());
+          case '/notifications/detail':
+            final notificationId = settings.arguments as String;
+            return MaterialPageRoute(
+              builder: (_) => NotificationDetailScreen(notificationId: notificationId),
+            );
           case '/collections':
             return MaterialPageRoute(builder: (_) => const CollectionsScreen());
           case '/analytics':

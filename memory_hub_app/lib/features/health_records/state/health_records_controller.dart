@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/health_record.dart';
 import '../data/health_records_repository.dart';
+import '../../../services/websocket_service.dart';
 
 enum HealthRecordsState {
   initial,
@@ -12,6 +14,7 @@ enum HealthRecordsState {
 
 class HealthRecordsController extends ChangeNotifier {
   final HealthRecordsRepository _repository = HealthRecordsRepository();
+  final WebSocketService _wsService = WebSocketService();
 
   HealthRecordsState _state = HealthRecordsState.initial;
   List<HealthRecord> _allRecords = [];
@@ -23,6 +26,9 @@ class HealthRecordsController extends ChangeNotifier {
   String _selectedSortBy = 'date_desc';
   String? _selectedSeverity;
   String? _selectedSubjectType;
+
+  StreamSubscription<WebSocketEvent>? _wsEventSubscription;
+  String? _lastStatusChangeMessage;
 
   HealthRecordsState get state => _state;
   List<HealthRecord> get records => _filteredRecords;
@@ -40,6 +46,7 @@ class HealthRecordsController extends ChangeNotifier {
 
   int get totalRecords => _allRecords.length;
   int get filteredCount => _filteredRecords.length;
+  String? get lastStatusChangeMessage => _lastStatusChangeMessage;
 
   Future<void> loadRecords({bool forceRefresh = false}) async {
     try {
@@ -58,12 +65,110 @@ class HealthRecordsController extends ChangeNotifier {
       } else {
         _state = HealthRecordsState.loaded;
       }
+
+      if (_wsEventSubscription == null) {
+        _initializeWebSocket();
+      }
     } catch (e) {
       _state = HealthRecordsState.error;
       _errorMessage = _extractErrorMessage(e.toString());
     } finally {
       notifyListeners();
     }
+  }
+
+  void _initializeWebSocket() {
+    _wsEventSubscription?.cancel();
+    _wsEventSubscription = _wsService.events.listen(_handleWebSocketEvent);
+    
+    if (_wsService.currentState != WebSocketConnectionState.connected) {
+      _wsService.connect();
+    }
+  }
+
+  void _handleWebSocketEvent(WebSocketEvent event) {
+    switch (event.type) {
+      case 'health_record.status_changed':
+      case 'health_record_status_changed':
+        _handleHealthRecordStatusChanged(event.data);
+        break;
+      case 'health_record.approved':
+      case 'health_record_approved':
+        _handleHealthRecordApproved(event.data);
+        break;
+      case 'health_record.rejected':
+      case 'health_record_rejected':
+        _handleHealthRecordRejected(event.data);
+        break;
+      case 'health_record.created':
+      case 'health_record_created':
+        _handleHealthRecordCreated(event.data);
+        break;
+      case 'health_record.updated':
+      case 'health_record_updated':
+        _handleHealthRecordUpdated(event.data);
+        break;
+    }
+  }
+
+  void _handleHealthRecordStatusChanged(Map<String, dynamic> data) {
+    final recordId = data['health_record_id'] ?? data['record_id'];
+    final status = data['status'] ?? data['approval_status'];
+    
+    if (recordId == null) return;
+
+    final index = _allRecords.indexWhere((r) => r.id == recordId);
+    if (index != -1) {
+      loadRecords(forceRefresh: true);
+      loadDashboard();
+      
+      _lastStatusChangeMessage = 'Health record ${status == 'approved' ? 'approved' : 'rejected'}';
+      notifyListeners();
+    }
+  }
+
+  void _handleHealthRecordApproved(Map<String, dynamic> data) {
+    _handleHealthRecordStatusChanged({
+      ...data,
+      'status': 'approved',
+      'approval_status': 'approved',
+    });
+    
+    final recordTitle = data['record_title'] ?? 'Health record';
+    _lastStatusChangeMessage = '$recordTitle has been approved';
+    notifyListeners();
+  }
+
+  void _handleHealthRecordRejected(Map<String, dynamic> data) {
+    _handleHealthRecordStatusChanged({
+      ...data,
+      'status': 'rejected',
+      'approval_status': 'rejected',
+    });
+    
+    final recordTitle = data['record_title'] ?? 'Health record';
+    _lastStatusChangeMessage = '$recordTitle has been rejected';
+    notifyListeners();
+  }
+
+  void _handleHealthRecordCreated(Map<String, dynamic> data) {
+    loadRecords(forceRefresh: true);
+    loadDashboard();
+  }
+
+  void _handleHealthRecordUpdated(Map<String, dynamic> data) {
+    final recordId = data['health_record_id'] ?? data['record_id'];
+    if (recordId == null) return;
+
+    final index = _allRecords.indexWhere((r) => r.id == recordId);
+    if (index != -1) {
+      loadRecords(forceRefresh: true);
+    }
+  }
+
+  void clearStatusChangeMessage() {
+    _lastStatusChangeMessage = null;
+    notifyListeners();
   }
 
   Future<void> loadDashboard() async {
@@ -209,6 +314,7 @@ class HealthRecordsController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _wsEventSubscription?.cancel();
     _repository.clearCache();
     super.dispose();
   }
