@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:memory_hub_app/design_system/design_tokens.dart';
 import '../../models/family/family_milestone.dart';
 
 class AddMilestoneDialog extends StatefulWidget {
@@ -30,14 +31,14 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
   final List<String> _photoUrls = [];
 
   final List<Map<String, dynamic>> _milestoneTypes = [
-    {'value': 'birth', 'label': 'Birth', 'icon': Icons.child_care, 'color': Color(0xFFEC4899)},
-    {'value': 'graduation', 'label': 'Graduation', 'icon': Icons.school, 'color': Color(0xFF8B5CF6)},
-    {'value': 'wedding', 'label': 'Wedding', 'icon': Icons.favorite, 'color': Color(0xFFEF4444)},
-    {'value': 'anniversary', 'label': 'Anniversary', 'icon': Icons.cake, 'color': Color(0xFFF59E0B)},
-    {'value': 'achievement', 'label': 'Achievement', 'icon': Icons.emoji_events, 'color': Color(0xFFEAB308)},
-    {'value': 'first_words', 'label': 'First Words', 'icon': Icons.chat_bubble, 'color': Color(0xFF06B6D4)},
-    {'value': 'first_steps', 'label': 'First Steps', 'icon': Icons.directions_walk, 'color': Color(0xFF10B981)},
-    {'value': 'other', 'label': 'Other', 'icon': Icons.star, 'color': Color(0xFF6366F1)},
+    {'value': 'birth', 'label': 'Birth', 'icon': Icons.child_care, 'color': MemoryHubColors.pink500},
+    {'value': 'graduation', 'label': 'Graduation', 'icon': Icons.school, 'color': MemoryHubColors.purple500},
+    {'value': 'wedding', 'label': 'Wedding', 'icon': Icons.favorite, 'color': MemoryHubColors.red500},
+    {'value': 'anniversary', 'label': 'Anniversary', 'icon': Icons.cake, 'color': MemoryHubColors.amber500},
+    {'value': 'achievement', 'label': 'Achievement', 'icon': Icons.emoji_events, 'color': MemoryHubColors.amber500},
+    {'value': 'first_words', 'label': 'First Words', 'icon': Icons.chat_bubble, 'color': MemoryHubColors.cyan500},
+    {'value': 'first_steps', 'label': 'First Steps', 'icon': Icons.directions_walk, 'color': MemoryHubColors.green500},
+    {'value': 'other', 'label': 'Other', 'icon': Icons.star, 'color': MemoryHubColors.indigo500},
   ];
 
   @override
@@ -144,30 +145,30 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
     final maxDescriptionLength = 500;
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.xlRadius),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(MemoryHubSpacing.md),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFF59E0B), Color(0xFFFBBF24)],
+                      colors: [MemoryHubColors.amber500, MemoryHubColors.amber400],
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                   ),
                   child: const Icon(Icons.celebration, color: Colors.white),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: MemoryHubSpacing.lg),
                 Expanded(
                   child: Text(
                     isEdit ? 'Edit Milestone' : 'Add Milestone',
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: MemoryHubTypography.h2, fontWeight: MemoryHubTypography.bold),
                   ),
                 ),
                 IconButton(
@@ -176,7 +177,7 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: MemoryHubSpacing.xl),
             Expanded(
               child: SingleChildScrollView(
                 child: Form(
@@ -189,27 +190,27 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                         decoration: InputDecoration(
                           labelText: 'Title *',
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: MemoryHubBorderRadius.mdRadius,
                           ),
                           prefixIcon: const Icon(Icons.title),
                           hintText: 'e.g., First Day of School',
                           filled: true,
-                          fillColor: Colors.grey[50],
+                          fillColor: MemoryHubColors.gray50,
                         ),
                         validator: (value) => value?.trim().isEmpty ?? true ? 'Title is required' : null,
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: MemoryHubSpacing.lg),
                       TextFormField(
                         controller: _descriptionController,
                         decoration: InputDecoration(
                           labelText: 'Description',
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: MemoryHubBorderRadius.mdRadius,
                           ),
                           prefixIcon: const Icon(Icons.description),
                           hintText: 'Share details about this milestone...',
                           filled: true,
-                          fillColor: Colors.grey[50],
+                          fillColor: MemoryHubColors.gray50,
                           counterText: '$descriptionLength / $maxDescriptionLength',
                         ),
                         maxLines: 3,
@@ -218,26 +219,26 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                           setState(() {});
                         },
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
+                      SizedBox(height: MemoryHubSpacing.lg),
+                      Text(
                         'Milestone Type *',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: TextStyle(fontSize: MemoryHubTypography.h5, fontWeight: MemoryHubTypography.semiBold),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: MemoryHubSpacing.md),
                       Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                        spacing: MemoryHubSpacing.sm,
+                        runSpacing: MemoryHubSpacing.sm,
                         children: _milestoneTypes.map((type) {
                           final isSelected = _milestoneType == type['value'];
                           return InkWell(
                             onTap: () => setState(() => _milestoneType = type['value'] as String),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.md),
                               decoration: BoxDecoration(
-                                color: isSelected ? type['color'] as Color : Colors.grey[100],
-                                borderRadius: BorderRadius.circular(12),
+                                color: isSelected ? type['color'] as Color : MemoryHubColors.gray100,
+                                borderRadius: MemoryHubBorderRadius.mdRadius,
                                 border: Border.all(
-                                  color: isSelected ? type['color'] as Color : Colors.grey[300]!,
+                                  color: isSelected ? type['color'] as Color : MemoryHubColors.gray300,
                                   width: 2,
                                 ),
                                 boxShadow: isSelected
@@ -256,14 +257,14 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                                   Icon(
                                     type['icon'] as IconData,
                                     size: 20,
-                                    color: isSelected ? Colors.white : Colors.grey[700],
+                                    color: isSelected ? Colors.white : MemoryHubColors.gray700,
                                   ),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: MemoryHubSpacing.sm),
                                   Text(
                                     type['label'] as String,
                                     style: TextStyle(
-                                      color: isSelected ? Colors.white : Colors.grey[700],
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      color: isSelected ? Colors.white : MemoryHubColors.gray700,
+                                      fontWeight: isSelected ? MemoryHubTypography.bold : MemoryHubTypography.regular,
                                     ),
                                   ),
                                 ],
@@ -272,34 +273,34 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                           );
                         }).toList(),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: MemoryHubSpacing.lg),
                       InkWell(
                         onTap: _selectDate,
                         child: InputDecorator(
                           decoration: InputDecoration(
                             labelText: 'Date *',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: MemoryHubBorderRadius.mdRadius,
                             ),
                             prefixIcon: const Icon(Icons.calendar_today),
                             filled: true,
-                            fillColor: Colors.grey[50],
+                            fillColor: MemoryHubColors.gray50,
                           ),
                           child: Text(DateFormat('MMM d, yyyy').format(_milestoneDate)),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
+                      SizedBox(height: MemoryHubSpacing.lg),
+                      Text(
                         'Importance Level',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: TextStyle(fontSize: MemoryHubTypography.h5, fontWeight: MemoryHubTypography.semiBold),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: MemoryHubSpacing.sm),
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(MemoryHubSpacing.lg),
                         decoration: BoxDecoration(
-                          color: Colors.amber[50],
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.amber[200]!),
+                          color: MemoryHubColors.amber500.withOpacity(0.05),
+                          borderRadius: MemoryHubBorderRadius.mdRadius,
+                          border: Border.all(color: MemoryHubColors.amber400),
                         ),
                         child: Column(
                           children: [
@@ -310,7 +311,7 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                                   icon: Icon(
                                     index < _importance ? Icons.star : Icons.star_border,
                                     size: 32,
-                                    color: index < _importance ? Colors.amber[700] : Colors.grey[400],
+                                    color: index < _importance ? MemoryHubColors.amber700 : MemoryHubColors.gray400,
                                   ),
                                   onPressed: () {
                                     setState(() {
@@ -323,15 +324,15 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                             Text(
                               _getImportanceLabel(_importance),
                               style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.amber[900],
+                                fontSize: MemoryHubTypography.bodyMedium,
+                                fontWeight: MemoryHubTypography.semiBold,
+                                color: MemoryHubColors.amber900,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: MemoryHubSpacing.lg),
                       Row(
                         children: [
                           Expanded(
@@ -340,23 +341,23 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                               decoration: InputDecoration(
                                 labelText: 'Photo URL (optional)',
                                 border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: MemoryHubBorderRadius.mdRadius,
                                 ),
                                 prefixIcon: const Icon(Icons.photo),
                                 hintText: 'https://example.com/photo.jpg',
                                 filled: true,
-                                fillColor: Colors.grey[50],
+                                fillColor: MemoryHubColors.gray50,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: MemoryHubSpacing.sm),
                           ElevatedButton(
                             onPressed: _addPhotoUrl,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFF59E0B),
-                              padding: const EdgeInsets.all(16),
+                              backgroundColor: MemoryHubColors.amber500,
+                              padding: EdgeInsets.all(MemoryHubSpacing.lg),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: MemoryHubBorderRadius.mdRadius,
                               ),
                             ),
                             child: const Icon(Icons.add, color: Colors.white),
@@ -364,32 +365,32 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                         ],
                       ),
                       if (_photoUrls.isNotEmpty) ...[
-                        const SizedBox(height: 12),
+                        SizedBox(height: MemoryHubSpacing.md),
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: EdgeInsets.all(MemoryHubSpacing.md),
                           decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.blue[200]!),
+                            color: MemoryHubColors.blue500.withOpacity(0.05),
+                            borderRadius: MemoryHubBorderRadius.mdRadius,
+                            border: Border.all(color: MemoryHubColors.blue200),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Photos to be attached:',
                                 style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: MemoryHubTypography.bodyMedium,
+                                  fontWeight: MemoryHubTypography.semiBold,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: MemoryHubSpacing.sm),
                               ...List.generate(_photoUrls.length, (index) {
                                 return Padding(
-                                  padding: const EdgeInsets.only(bottom: 8),
+                                  padding: EdgeInsets.only(bottom: MemoryHubSpacing.sm),
                                   child: Row(
                                     children: [
                                       ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
+                                        borderRadius: MemoryHubBorderRadius.smRadius,
                                         child: Image.network(
                                           _photoUrls[index],
                                           width: 60,
@@ -399,17 +400,17 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                                             return Container(
                                               width: 60,
                                               height: 60,
-                                              color: Colors.grey[300],
+                                              color: MemoryHubColors.gray300,
                                               child: const Icon(Icons.broken_image, size: 30),
                                             );
                                           },
                                         ),
                                       ),
-                                      const SizedBox(width: 8),
+                                      SizedBox(width: MemoryHubSpacing.sm),
                                       Expanded(
                                         child: Text(
                                           _photoUrls[index],
-                                          style: const TextStyle(fontSize: 12),
+                                          style: TextStyle(fontSize: MemoryHubTypography.bodySmall),
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                         ),
@@ -426,18 +427,18 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                           ),
                         ),
                       ],
-                      const SizedBox(height: 16),
+                      SizedBox(height: MemoryHubSpacing.lg),
                       TextFormField(
                         controller: _celebrationNotesController,
                         decoration: InputDecoration(
                           labelText: 'Celebration Notes (optional)',
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: MemoryHubBorderRadius.mdRadius,
                           ),
                           prefixIcon: const Icon(Icons.party_mode),
                           hintText: 'Add special celebration details...',
                           filled: true,
-                          fillColor: Colors.purple[50],
+                          fillColor: MemoryHubColors.purple500.withOpacity(0.05),
                         ),
                         maxLines: 2,
                       ),
@@ -446,7 +447,7 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: MemoryHubSpacing.xl),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -454,14 +455,14 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
                   onPressed: _isLoading ? null : () => Navigator.pop(context),
                   child: const Text('Cancel'),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: MemoryHubSpacing.md),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF59E0B),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    backgroundColor: MemoryHubColors.amber500,
+                    padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: MemoryHubBorderRadius.mdRadius,
                     ),
                   ),
                   child: _isLoading

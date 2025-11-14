@@ -3,6 +3,7 @@ import '../../services/family/family_service.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import '../../design_system/design_tokens.dart';
 
 class AddPersonWizard extends StatefulWidget {
   const AddPersonWizard({Key? key}) : super(key: key);
@@ -140,7 +141,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   void _nextStep() {
     if (_currentStep < 4) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
+        duration: MemoryHubAnimations.fast,
         curve: Curves.easeInOut,
       );
       setState(() {
@@ -152,7 +153,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   void _previousStep() {
     if (_currentStep > 0) {
       _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
+        duration: MemoryHubAnimations.fast,
         curve: Curves.easeInOut,
       );
       setState(() {
@@ -247,12 +248,12 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(16),
+      insetPadding: const EdgeInsets.all(MemoryHubSpacing.lg),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: MemoryHubBorderRadius.xxlRadius,
         ),
         child: Column(
           children: [
@@ -293,7 +294,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
       icon: const Icon(Icons.link),
       label: const Text('Generate Invite Link'),
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF06B6D4),
+        backgroundColor: MemoryHubColors.cyan600,
         foregroundColor: Colors.white,
       ),
     );
@@ -301,10 +302,10 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFFF59E0B), Color(0xFFFBBF24)],
+          colors: [MemoryHubColors.yellow500, MemoryHubColors.yellow400],
         ),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(24),
@@ -314,14 +315,14 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
       child: Row(
         children: [
           const Icon(Icons.person_add, color: Colors.white, size: 28),
-          const SizedBox(width: 12),
+          const SizedBox(width: MemoryHubSpacing.md),
           const Expanded(
             child: Text(
               'Add Person to Family Tree',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontSize: MemoryHubTypography.h3,
+                fontWeight: MemoryHubTypography.bold,
               ),
             ),
           ),
@@ -356,7 +357,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: isCompleted || isCurrent
-                              ? const Color(0xFFF59E0B)
+                              ? MemoryHubColors.yellow500
                               : Colors.grey[300],
                         ),
                         child: Center(
@@ -366,17 +367,17 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                                   '${index + 1}',
                                   style: TextStyle(
                                     color: isCurrent ? Colors.white : Colors.grey[600],
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: MemoryHubTypography.bold,
                                   ),
                                 ),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: MemoryHubSpacing.xs),
                       Text(
                         steps[index],
                         style: TextStyle(
                           fontSize: 10,
-                          color: isCurrent ? const Color(0xFFF59E0B) : Colors.grey[600],
+                          color: isCurrent ? MemoryHubColors.yellow500 : Colors.grey[600],
                           fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
@@ -387,7 +388,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                   Container(
                     height: 2,
                     width: 20,
-                    color: isCompleted ? const Color(0xFFF59E0B) : Colors.grey[300],
+                    color: isCompleted ? MemoryHubColors.yellow500 : Colors.grey[300],
                   ),
               ],
             ),
@@ -403,18 +404,18 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
     required Widget content,
   }) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: MemoryHubTypography.h4, fontWeight: MemoryHubTypography.bold),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MemoryHubSpacing.sm),
           Text(
             subtitle,
-            style: const TextStyle(color: Colors.grey, fontSize: 14),
+            style: const TextStyle(color: Colors.grey, fontSize: MemoryHubTypography.body2),
           ),
           const SizedBox(height: 20),
           content,
@@ -446,20 +447,20 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                       ),
                     )
                   : null,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
             ),
             onChanged: (value) {
               _searchQuery = value;
               _searchUsers(value);
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MemoryHubSpacing.lg),
           if (_searchResults.isNotEmpty) ...[
             const Text(
               'Platform Users Found:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: MemoryHubTypography.bold),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: MemoryHubSpacing.sm),
             ...(_searchResults.take(5).map((user) => _buildUserCard(user))),
           ] else if (_searchQuery.length >= 2 && !_isSearching) ...[
             const Center(
@@ -475,14 +476,14 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
           const Divider(height: 32),
           const Text(
             'Or create a new profile:',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: MemoryHubTypography.bold),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MemoryHubSpacing.md),
           TextField(
             controller: _firstNameController,
             decoration: InputDecoration(
               labelText: 'First Name *',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
             ),
             onChanged: (value) {
               setState(() {
@@ -490,12 +491,12 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
               });
             },
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MemoryHubSpacing.md),
           TextField(
             controller: _lastNameController,
             decoration: InputDecoration(
               labelText: 'Last Name',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
             ),
             onChanged: (value) {
               setState(() {
@@ -514,7 +515,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
     
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
-      color: isSelected ? const Color(0xFFFEF3C7) : null,
+      color: isSelected ? MemoryHubColors.yellow50 : null,
       child: ListTile(
         leading: CircleAvatar(
           backgroundImage: user['profile_photo'] != null
@@ -533,7 +534,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                 labelStyle: TextStyle(color: Colors.white),
               )
             : isSelected
-                ? const Icon(Icons.check_circle, color: Color(0xFFF59E0B))
+                ? const Icon(Icons.check_circle, color: MemoryHubColors.yellow500)
                 : null,
         onTap: alreadyLinked
             ? null
@@ -553,33 +554,33 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
             controller: _firstNameController,
             decoration: InputDecoration(
               labelText: 'First Name *',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
             ),
             onChanged: (value) => setState(() => _firstName = value),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MemoryHubSpacing.md),
           TextField(
             controller: _lastNameController,
             decoration: InputDecoration(
               labelText: 'Last Name *',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
             ),
             onChanged: (value) => setState(() => _lastName = value),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MemoryHubSpacing.md),
           TextField(
             decoration: InputDecoration(
               labelText: 'Maiden Name',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
             ),
             onChanged: (value) => setState(() => _maidenName = value),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MemoryHubSpacing.lg),
           DropdownButtonFormField<String>(
             value: _gender,
             decoration: InputDecoration(
               labelText: 'Gender',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
             ),
             items: const [
               DropdownMenuItem(value: 'male', child: Text('Male')),
@@ -589,20 +590,20 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
             ],
             onChanged: (value) => setState(() => _gender = value ?? 'unknown'),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MemoryHubSpacing.lg),
           SwitchListTile(
             title: const Text('Status'),
             subtitle: Text(_isAlive ? 'Alive' : 'Deceased'),
             value: _isAlive,
-            activeColor: const Color(0xFFF59E0B),
+            activeColor: MemoryHubColors.yellow500,
             onChanged: (value) => setState(() => _isAlive = value),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MemoryHubSpacing.md),
           TextField(
             decoration: InputDecoration(
               labelText: 'Birth Date (YYYY-MM-DD)',
               hintText: '1990-01-15',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
               suffixIcon: IconButton(
                 icon: const Icon(Icons.calendar_today),
                 onPressed: () async {
@@ -621,21 +622,21 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
             controller: TextEditingController(text: _birthDate),
             onChanged: (value) => setState(() => _birthDate = value),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MemoryHubSpacing.md),
           TextField(
             decoration: InputDecoration(
               labelText: 'Birth Place',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
             ),
             onChanged: (value) => setState(() => _birthPlace = value),
           ),
           if (!_isAlive) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: MemoryHubSpacing.md),
             TextField(
               decoration: InputDecoration(
                 labelText: 'Death Date (YYYY-MM-DD)',
                 hintText: '2020-05-20',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.calendar_today),
                   onPressed: () async {
@@ -654,39 +655,39 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
               controller: TextEditingController(text: _deathDate),
               onChanged: (value) => setState(() => _deathDate = value),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: MemoryHubSpacing.md),
             TextField(
               decoration: InputDecoration(
                 labelText: 'Death Place',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
               ),
               onChanged: (value) => setState(() => _deathPlace = value),
             ),
           ],
-          const SizedBox(height: 12),
+          const SizedBox(height: MemoryHubSpacing.md),
           TextField(
             decoration: InputDecoration(
               labelText: 'Occupation',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
             ),
             onChanged: (value) => setState(() => _occupation = value),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MemoryHubSpacing.md),
           TextField(
             maxLines: 3,
             decoration: InputDecoration(
               labelText: 'Biography',
               hintText: 'Brief life story...',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
             ),
             onChanged: (value) => setState(() => _biography = value),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MemoryHubSpacing.md),
           TextField(
             maxLines: 2,
             decoration: InputDecoration(
               labelText: 'Notes',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
             ),
             onChanged: (value) => setState(() => _notes = value),
           ),
@@ -712,13 +713,13 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                     SizedBox(height: 16),
                     Text(
                       'No family members yet',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: TextStyle(fontSize: MemoryHubTypography.body1, color: Colors.grey),
                     ),
                     SizedBox(height: 8),
                     Text(
                       'Skip this step for now. You can add relationships later.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                      style: TextStyle(fontSize: MemoryHubTypography.body2, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -726,28 +727,28 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
             ),
           ] else ...[
             ..._selectedRelationships.map((rel) => _buildRelationshipChip(rel)),
-            const SizedBox(height: 12),
+            const SizedBox(height: MemoryHubSpacing.md),
             ElevatedButton.icon(
               onPressed: _showAddRelationshipDialog,
               icon: const Icon(Icons.add),
               label: const Text('Add Relationship'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF59E0B),
+                backgroundColor: MemoryHubColors.yellow500,
                 foregroundColor: Colors.white,
               ),
             ),
           ],
         if (_selectedExistingUser == null && _isAlive) ...[
-          const SizedBox(height: 24),
+          const SizedBox(height: MemoryHubSpacing.xl),
           const Divider(),
-          const SizedBox(height: 24),
+          const SizedBox(height: MemoryHubSpacing.xl),
           const Center(
             child: Text(
               'Or, generate an invite link to share:',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+              style: TextStyle(fontSize: MemoryHubTypography.body2, color: Colors.grey),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MemoryHubSpacing.lg),
           Center(child: _buildGenerateInviteLinkButton()),
         ],
         ],
@@ -765,7 +766,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: const Color(0xFFF59E0B),
+          backgroundColor: MemoryHubColors.yellow500,
           child: const Icon(Icons.link, color: Colors.white, size: 20),
         ),
         title: Text('${person['first_name'] ?? ''} ${person['last_name'] ?? ''}'),
@@ -819,7 +820,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                 }).toList(),
                 onChanged: (value) => setDialogState(() => selectedPersonId = value),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: MemoryHubSpacing.lg),
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(labelText: 'Relationship Type'),
                 items: const [
@@ -856,7 +857,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                     }
                   : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF59E0B),
+                backgroundColor: MemoryHubColors.yellow500,
                 foregroundColor: Colors.white,
               ),
               child: const Text('Add'),
@@ -884,36 +885,36 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                 subtitle: Text(
                     'Invite ${_selectedExistingUser!['full_name'] ?? _selectedExistingUser!['username']} to your family hub'),
                 value: _sendInvitation,
-                activeColor: const Color(0xFFF59E0B),
+                activeColor: MemoryHubColors.yellow500,
                 onChanged: (value) => setState(() => _sendInvitation = value),
               ),
               if (_sendInvitation) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: MemoryHubSpacing.lg),
                 TextField(
                   maxLines: 3,
                   decoration: InputDecoration(
                     labelText: 'Personal Message (Optional)',
                     hintText: 'Add a personal message to the invitation...',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
                   ),
                   onChanged: (value) => setState(() => _invitationMessage = value),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: MemoryHubSpacing.lg),
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(MemoryHubSpacing.lg),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFEF3C7),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFF59E0B)),
+                    color: MemoryHubColors.yellow50,
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
+                    border: Border.all(color: MemoryHubColors.yellow500),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.info_outline, color: Color(0xFFF59E0B)),
-                      const SizedBox(width: 12),
+                      const Icon(Icons.info_outline, color: MemoryHubColors.yellow500),
+                      const SizedBox(width: MemoryHubSpacing.md),
                       Expanded(
                         child: Text(
                           'They will receive a notification and can accept to join your family network.',
-                          style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+                          style: TextStyle(fontSize: MemoryHubTypography.caption, color: Colors.grey[800]),
                         ),
                       ),
                     ],
@@ -924,10 +925,10 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
               const Center(
                 child: Text(
                   'Generate an invite link to share:',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                  style: TextStyle(fontSize: MemoryHubTypography.body2, color: Colors.grey),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: MemoryHubSpacing.lg),
               Center(child: _buildGenerateInviteLinkButton()),
             ],
           ] else ...[
@@ -935,7 +936,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
               child: Column(
                 children: [
                   const Icon(Icons.info_outline, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: MemoryHubSpacing.lg),
                   Text(
                     _selectedExistingUser == null
                         ? 'No invitation needed for manually added profiles'
@@ -963,9 +964,9 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   Widget _buildSummaryCard() {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.lgRadius),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -973,26 +974,26 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
               children: [
                 CircleAvatar(
                   radius: 32,
-                  backgroundColor: const Color(0xFFF59E0B),
+                  backgroundColor: MemoryHubColors.yellow500,
                   child: Text(
                     _firstName.isNotEmpty ? _firstName[0].toUpperCase() : '?',
-                    style: const TextStyle(fontSize: 28, color: Colors.white, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 28, color: Colors.white, fontWeight: MemoryHubTypography.bold),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: MemoryHubSpacing.lg),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         '$_firstName $_lastName',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: MemoryHubTypography.h3, fontWeight: MemoryHubTypography.bold),
                       ),
                       if (_maidenName.isNotEmpty)
                         Text('(née $_maidenName)', style: const TextStyle(color: Colors.grey)),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: MemoryHubSpacing.xs),
                       Chip(
-                        label: Text(_isAlive ? 'Alive' : 'Deceased', style: const TextStyle(fontSize: 12)),
+                        label: Text(_isAlive ? 'Alive' : 'Deceased', style: const TextStyle(fontSize: MemoryHubTypography.caption)),
                         backgroundColor: _isAlive ? Colors.green[100] : Colors.grey[300],
                         labelStyle: TextStyle(color: _isAlive ? Colors.green[900] : Colors.grey[900]),
                       ),
@@ -1024,9 +1025,9 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: const Color(0xFFF59E0B)),
-          const SizedBox(width: 12),
-          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold)),
+          Icon(icon, size: 20, color: MemoryHubColors.yellow500),
+          const SizedBox(width: MemoryHubSpacing.md),
+          Text('$label: ', style: const TextStyle(fontWeight: MemoryHubTypography.bold)),
           Expanded(child: Text(value, style: const TextStyle(color: Colors.grey))),
         ],
       ),
@@ -1035,7 +1036,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   
   Widget _buildNavigationButtons() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: const BorderRadius.only(
@@ -1058,7 +1059,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
             ElevatedButton(
               onPressed: _canProceedFromCurrentStep() ? _nextStep : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF59E0B),
+                backgroundColor: MemoryHubColors.yellow500,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),
@@ -1076,7 +1077,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                   : const Icon(Icons.check),
               label: Text(_isLoading ? 'Adding...' : 'Add to Tree'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFF59E0B),
+                backgroundColor: MemoryHubColors.yellow500,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
               ),

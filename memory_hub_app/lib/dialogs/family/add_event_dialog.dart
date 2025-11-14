@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:memory_hub_app/design_system/design_tokens.dart';
 
 class AddEventDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
@@ -201,34 +202,34 @@ class _AddEventDialogState extends State<AddEventDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: MemoryHubBorderRadius.xlRadius,
       ),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 500, maxHeight: 700),
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF06B6D4), Color(0xFF22D3EE)],
+              padding: EdgeInsets.all(MemoryHubSpacing.xl),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [MemoryHubColors.cyan500, MemoryHubColors.cyan400],
                 ),
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+                  topLeft: Radius.circular(MemoryHubBorderRadius.xl),
+                  topRight: Radius.circular(MemoryHubBorderRadius.xl),
                 ),
               ),
               child: Row(
                 children: [
                   const Icon(Icons.event, color: Colors.white, size: 28),
-                  const SizedBox(width: 12),
+                  SizedBox(width: MemoryHubSpacing.md),
                   Expanded(
                     child: Text(
                       _isEditMode ? 'Edit Event' : 'Add Event',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontSize: MemoryHubTypography.h3,
+                        fontWeight: MemoryHubTypography.bold,
                       ),
                     ),
                   ),
@@ -243,7 +244,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
               child: Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(MemoryHubSpacing.xl),
                   children: [
                     TextFormField(
                       controller: _titleController,
@@ -259,7 +260,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: MemoryHubSpacing.lg),
                     TextFormField(
                       controller: _descriptionController,
                       decoration: const InputDecoration(
@@ -299,7 +300,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                         });
                       },
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: MemoryHubSpacing.sm),
                     Row(
                       children: [
                         Expanded(
@@ -318,7 +319,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                           ),
                         ),
                         if (!_isAllDay) ...[
-                          const SizedBox(width: 12),
+                          SizedBox(width: MemoryHubSpacing.md),
                           Expanded(
                             child: InkWell(
                               onTap: _selectStartTime,
@@ -367,7 +368,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                                 style: TextStyle(
                                   color: _endDate != null
                                       ? Colors.black
-                                      : Colors.grey.shade600,
+                                      : MemoryHubColors.gray600,
                                 ),
                               ),
                             ),
@@ -393,7 +394,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                         ],
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: MemoryHubSpacing.lg),
                     TextFormField(
                       controller: _locationController,
                       decoration: const InputDecoration(
@@ -447,12 +448,12 @@ class _AddEventDialogState extends State<AddEventDialog> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(MemoryHubSpacing.xl),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
+                color: MemoryHubColors.gray100,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(MemoryHubBorderRadius.xl),
+                  bottomRight: Radius.circular(MemoryHubBorderRadius.xl),
                 ),
               ),
               child: Row(
@@ -462,15 +463,15 @@ class _AddEventDialogState extends State<AddEventDialog> {
                     onPressed: () => Navigator.of(context).pop(),
                     child: const Text('Cancel'),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: MemoryHubSpacing.md),
                   ElevatedButton(
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF06B6D4),
+                      backgroundColor: MemoryHubColors.cyan500,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 12,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MemoryHubSpacing.xxl,
+                        vertical: MemoryHubSpacing.md,
                       ),
                     ),
                     child: Text(_isEditMode ? 'Save Changes' : 'Add Event'),

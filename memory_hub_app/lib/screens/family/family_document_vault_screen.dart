@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/enhanced_empty_state.dart';
+import '../../design_system/design_tokens.dart';
 
 class FamilyDocumentVaultScreen extends StatefulWidget {
   const FamilyDocumentVaultScreen({Key? key}) : super(key: key);
@@ -16,49 +17,49 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
       'name': 'Birth Certificates',
       'icon': Icons.badge,
       'count': 3,
-      'color': const Color(0xFF7C3AED),
+      'color': MemoryHubColors.purple600,
     },
     {
       'name': 'Medical Records',
       'icon': Icons.local_hospital,
       'count': 12,
-      'color': const Color(0xFFEF4444),
+      'color': MemoryHubColors.red500,
     },
     {
       'name': 'Legal Documents',
       'icon': Icons.gavel,
       'count': 5,
-      'color': const Color(0xFF6366F1),
+      'color': MemoryHubColors.indigo500,
     },
     {
       'name': 'Insurance',
       'icon': Icons.shield,
       'count': 8,
-      'color': const Color(0xFF10B981),
+      'color': MemoryHubColors.green500,
     },
     {
       'name': 'Property Deeds',
       'icon': Icons.home,
       'count': 2,
-      'color': const Color(0xFFF59E0B),
+      'color': MemoryHubColors.amber500,
     },
     {
       'name': 'Education',
       'icon': Icons.school,
       'count': 15,
-      'color': const Color(0xFF06B6D4),
+      'color': MemoryHubColors.cyan500,
     },
     {
       'name': 'Financial',
       'icon': Icons.account_balance,
       'count': 10,
-      'color': const Color(0xFFEC4899),
+      'color': MemoryHubColors.pink500,
     },
     {
       'name': 'Other Documents',
       'icon': Icons.folder,
       'count': 7,
-      'color': const Color(0xFF8B5CF6),
+      'color': MemoryHubColors.purple500,
     },
   ];
 
@@ -82,9 +83,9 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF14B8A6),
-                      Color(0xFF2DD4BF),
-                      Color(0xFF5EEAD4),
+                      MemoryHubColors.teal500,
+                      MemoryHubColors.teal400,
+                      MemoryHubColors.teal300,
                     ],
                   ),
                 ),
@@ -133,12 +134,12 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
             ],
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(MemoryHubSpacing.lg),
             sliver: SliverToBoxAdapter(
               child: Card(
                 elevation: 4,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: MemoryHubBorderRadius.xlRadius,
                 ),
                 child: Container(
                   decoration: BoxDecoration(
@@ -146,25 +147,25 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        const Color(0xFF14B8A6).withOpacity(0.1),
+                        MemoryHubColors.teal500.withOpacity(0.1),
                         Colors.white,
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: MemoryHubBorderRadius.xlRadius,
                   ),
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(MemoryHubSpacing.xl),
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(MemoryHubSpacing.lg),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF14B8A6), Color(0xFF2DD4BF)],
+                            colors: [MemoryHubColors.teal500, MemoryHubColors.teal400],
                           ),
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: MemoryHubBorderRadius.lgRadius,
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF14B8A6).withOpacity(0.3),
+                              color: MemoryHubColors.teal500.withOpacity(0.3),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -176,7 +177,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                           size: 32,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: MemoryHubSpacing.lg),
                       const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,16 +185,16 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                             Text(
                               'Secure Storage',
                               style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                fontSize: MemoryHubTypography.h4,
+                                fontWeight: MemoryHubTypography.bold,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            SizedBox(height: MemoryHubSpacing.xs),
                             Text(
                               'All documents are encrypted and securely stored',
                               style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey,
+                                fontSize: MemoryHubTypography.bodySmall,
+                                color: MemoryHubColors.gray600,
                               ),
                             ),
                           ],
@@ -206,7 +207,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
             sliver: SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,17 +215,17 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                   const Text(
                     'Document Categories',
                     style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontSize: MemoryHubTypography.h3,
+                      fontWeight: MemoryHubTypography.bold,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: MemoryHubSpacing.lg),
                 ],
               ),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -249,7 +250,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
         onPressed: () {},
         icon: const Icon(Icons.add),
         label: const Text('Upload Document'),
-        backgroundColor: const Color(0xFF14B8A6),
+        backgroundColor: MemoryHubColors.teal500,
       ),
     );
   }
@@ -258,7 +259,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: MemoryHubBorderRadius.xlRadius,
       ),
       child: InkWell(
         onTap: () {
@@ -273,10 +274,10 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
             ),
           );
         },
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: MemoryHubBorderRadius.xlRadius,
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: MemoryHubBorderRadius.xlRadius,
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -286,12 +287,12 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
               ],
             ),
           ),
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(MemoryHubSpacing.lg),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(MemoryHubSpacing.lg),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -299,7 +300,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                       (folder['color'] as Color).withOpacity(0.7),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: MemoryHubBorderRadius.lgRadius,
                   boxShadow: [
                     BoxShadow(
                       color: (folder['color'] as Color).withOpacity(0.3),
@@ -314,32 +315,32 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                   size: 32,
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: MemoryHubSpacing.md),
               Text(
                 folder['name'] as String,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontSize: MemoryHubTypography.bodyMedium,
+                  fontWeight: MemoryHubTypography.bold,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: MemoryHubSpacing.xs),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
+                padding: EdgeInsets.symmetric(
+                  horizontal: MemoryHubSpacing.md,
+                  vertical: MemoryHubSpacing.xs,
                 ),
                 decoration: BoxDecoration(
                   color: (folder['color'] as Color).withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: MemoryHubBorderRadius.mdRadius,
                 ),
                 child: Text(
                   '${folder['count']} files',
                   style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
+                    fontSize: MemoryHubTypography.bodySmall,
+                    fontWeight: MemoryHubTypography.bold,
                     color: folder['color'] as Color,
                   ),
                 ),

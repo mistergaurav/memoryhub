@@ -9,6 +9,7 @@ import '../../dialogs/family/add_milestone_dialog.dart';
 import 'milestone_detail_screen.dart';
 import 'family_timeline_screen.dart';
 import 'package:intl/intl.dart';
+import '../../design_system/design_tokens.dart';
 
 class FamilyMilestonesScreen extends StatefulWidget {
   const FamilyMilestonesScreen({Key? key}) : super(key: key);
@@ -32,15 +33,15 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
   String _sortOrder = 'newest';
 
   final List<Map<String, dynamic>> _filterTypes = [
-    {'value': null, 'label': 'All', 'icon': Icons.apps, 'color': Color(0xFF6366F1)},
-    {'value': 'birth', 'label': 'Birth', 'icon': Icons.child_care, 'color': Color(0xFFEC4899)},
-    {'value': 'graduation', 'label': 'Graduation', 'icon': Icons.school, 'color': Color(0xFF8B5CF6)},
-    {'value': 'wedding', 'label': 'Wedding', 'icon': Icons.favorite, 'color': Color(0xFFEF4444)},
-    {'value': 'anniversary', 'label': 'Anniversary', 'icon': Icons.cake, 'color': Color(0xFFF59E0B)},
-    {'value': 'achievement', 'label': 'Achievement', 'icon': Icons.emoji_events, 'color': Color(0xFFEAB308)},
-    {'value': 'first_words', 'label': 'First Words', 'icon': Icons.chat_bubble, 'color': Color(0xFF06B6D4)},
-    {'value': 'first_steps', 'label': 'First Steps', 'icon': Icons.directions_walk, 'color': Color(0xFF10B981)},
-    {'value': 'other', 'label': 'Other', 'icon': Icons.star, 'color': Color(0xFF64748B)},
+    {'value': null, 'label': 'All', 'icon': Icons.apps, 'color': MemoryHubColors.indigo500},
+    {'value': 'birth', 'label': 'Birth', 'icon': Icons.child_care, 'color': MemoryHubColors.pink500},
+    {'value': 'graduation', 'label': 'Graduation', 'icon': Icons.school, 'color': MemoryHubColors.purple500},
+    {'value': 'wedding', 'label': 'Wedding', 'icon': Icons.favorite, 'color': MemoryHubColors.red500},
+    {'value': 'anniversary', 'label': 'Anniversary', 'icon': Icons.cake, 'color': MemoryHubColors.amber500},
+    {'value': 'achievement', 'label': 'Achievement', 'icon': Icons.emoji_events, 'color': MemoryHubColors.yellow500},
+    {'value': 'first_words', 'label': 'First Words', 'icon': Icons.chat_bubble, 'color': MemoryHubColors.cyan500},
+    {'value': 'first_steps', 'label': 'First Steps', 'icon': Icons.directions_walk, 'color': MemoryHubColors.green500},
+    {'value': 'other', 'label': 'Other', 'icon': Icons.star, 'color': MemoryHubColors.gray600},
   ];
 
   @override

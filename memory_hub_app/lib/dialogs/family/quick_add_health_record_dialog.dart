@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../services/family/family_service.dart';
 import '../../services/auth_service.dart';
+import '../../design_system/design_tokens.dart';
 
 class QuickAddHealthRecordDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
@@ -45,51 +46,51 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
       'value': 'medical',
       'label': 'Medical',
       'icon': Icons.medical_services,
-      'color': Color(0xFF3B82F6),
+      'color': MemoryHubColors.blue500,
       'defaultTitle': 'Medical Checkup',
     },
     {
       'value': 'allergy',
       'label': 'Allergy',
       'icon': Icons.coronavirus,
-      'color': Color(0xFFEF4444),
+      'color': MemoryHubColors.red500,
       'defaultTitle': 'Allergy Record',
     },
     {
       'value': 'condition',
       'label': 'Condition',
       'icon': Icons.sick,
-      'color': Color(0xFFF59E0B),
+      'color': MemoryHubColors.yellow500,
       'defaultTitle': 'Medical Condition',
     },
     {
       'value': 'surgery',
       'label': 'Surgery',
       'icon': Icons.local_hospital,
-      'color': Color(0xFF8B5CF6),
+      'color': MemoryHubColors.purple600,
       'defaultTitle': 'Surgical Procedure',
     },
     {
       'value': 'emergency',
       'label': 'Emergency',
       'icon': Icons.emergency,
-      'color': Color(0xFFDC2626),
+      'color': MemoryHubColors.red600,
       'defaultTitle': 'Emergency Visit',
     },
     {
       'value': 'vaccination',
       'label': 'Vaccination',
       'icon': Icons.vaccines,
-      'color': Color(0xFF10B981),
+      'color': MemoryHubColors.green500,
       'defaultTitle': 'Vaccination',
     },
   ];
   
   final List<Map<String, dynamic>> _severityLevels = [
-    {'value': 'low', 'label': 'Low', 'color': Color(0xFF10B981)},
-    {'value': 'moderate', 'label': 'Moderate', 'color': Color(0xFFF59E0B)},
-    {'value': 'high', 'label': 'High', 'color': Color(0xFFEF4444)},
-    {'value': 'critical', 'label': 'Critical', 'color': Color(0xFFDC2626)},
+    {'value': 'low', 'label': 'Low', 'color': MemoryHubColors.green500},
+    {'value': 'moderate', 'label': 'Moderate', 'color': MemoryHubColors.yellow500},
+    {'value': 'high', 'label': 'High', 'color': MemoryHubColors.red500},
+    {'value': 'critical', 'label': 'Critical', 'color': MemoryHubColors.red600},
   ];
 
   @override
@@ -227,7 +228,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.xxlRadius),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
         child: Column(
@@ -253,10 +254,10 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFFEF4444), Color(0xFFF87171)],
+          colors: [MemoryHubColors.red500, MemoryHubColors.red400],
         ),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(24),
@@ -266,21 +267,21 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(MemoryHubSpacing.sm),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: MemoryHubBorderRadius.mdRadius,
             ),
             child: const Icon(Icons.add_circle_outline, color: Colors.white, size: 24),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MemoryHubSpacing.md),
           const Expanded(
             child: Text(
               'Quick Add Health Record',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontSize: MemoryHubTypography.h3,
+                fontWeight: MemoryHubTypography.bold,
               ),
             ),
           ),
@@ -295,7 +296,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
 
   Widget _buildProgressIndicator() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: MemoryHubSpacing.lg),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -304,7 +305,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
             width: 40,
             height: 2,
             margin: const EdgeInsets.symmetric(horizontal: 8),
-            color: _currentStep >= 1 ? const Color(0xFFEF4444) : Colors.grey.shade300,
+            color: _currentStep >= 1 ? const MemoryHubColors.red500 : MemoryHubColors.gray300,
           ),
           _buildStepIndicator(1, 'Details'),
         ],
@@ -322,7 +323,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: isActive || isCompleted ? const Color(0xFFEF4444) : Colors.grey.shade300,
+            color: isActive || isCompleted ? const MemoryHubColors.red500 : MemoryHubColors.gray300,
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -331,18 +332,18 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
                 : Text(
                     '${step + 1}',
                     style: TextStyle(
-                      color: isActive ? Colors.white : Colors.grey.shade600,
-                      fontWeight: FontWeight.bold,
+                      color: isActive ? Colors.white : MemoryHubColors.gray600,
+                      fontWeight: MemoryHubTypography.bold,
                     ),
                   ),
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: MemoryHubSpacing.xs),
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
-            color: isActive ? const Color(0xFFEF4444) : Colors.grey.shade600,
+            fontSize: MemoryHubTypography.caption,
+            color: isActive ? const MemoryHubColors.red500 : MemoryHubColors.gray600,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -352,23 +353,23 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
 
   Widget _buildStep1() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Select Family Member',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: MemoryHubTypography.body1, fontWeight: MemoryHubTypography.bold),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MemoryHubSpacing.md),
           if (_isLoadingMembers)
             const Center(child: CircularProgressIndicator())
           else if (_familyMembers.isEmpty)
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(MemoryHubSpacing.lg),
               decoration: BoxDecoration(
                 color: Colors.orange.shade50,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: MemoryHubBorderRadius.mdRadius,
                 border: Border.all(color: Colors.orange.shade200),
               ),
               child: const Row(
@@ -387,8 +388,8 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
           else
             Container(
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: MemoryHubColors.gray300),
+                borderRadius: MemoryHubBorderRadius.mdRadius,
               ),
               child: DropdownButtonFormField<String>(
                 value: _selectedPersonId,
@@ -419,9 +420,9 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
           const SizedBox(height: 24),
           const Text(
             'Select Record Type',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: MemoryHubTypography.body1, fontWeight: MemoryHubTypography.bold),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: MemoryHubSpacing.md),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -438,17 +439,17 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
               
               return InkWell(
                 onTap: () => _onRecordTypeChanged(type['value'] as String),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: MemoryHubBorderRadius.lgRadius,
                 child: Container(
                   decoration: BoxDecoration(
                     color: isSelected
                         ? (type['color'] as Color).withOpacity(0.1)
-                        : Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(16),
+                        : MemoryHubColors.gray50,
+                    borderRadius: MemoryHubBorderRadius.lgRadius,
                     border: Border.all(
                       color: isSelected
                           ? type['color'] as Color
-                          : Colors.grey.shade300,
+                          : MemoryHubColors.gray300,
                       width: isSelected ? 2 : 1,
                     ),
                   ),
@@ -460,17 +461,17 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
                         size: 32,
                         color: isSelected
                             ? type['color'] as Color
-                            : Colors.grey.shade600,
+                            : MemoryHubColors.gray600,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: MemoryHubSpacing.sm),
                       Text(
                         type['label'] as String,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: MemoryHubTypography.body2,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                           color: isSelected
                               ? type['color'] as Color
-                              : Colors.grey.shade700,
+                              : MemoryHubColors.gray700,
                         ),
                       ),
                     ],
@@ -486,7 +487,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
 
   Widget _buildStep2() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -494,42 +495,42 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
             controller: _titleController,
             decoration: InputDecoration(
               labelText: 'Title *',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
               prefixIcon: const Icon(Icons.title),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MemoryHubSpacing.lg),
           InkWell(
             onTap: _selectDate,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: MemoryHubBorderRadius.mdRadius,
             child: InputDecorator(
               decoration: InputDecoration(
                 labelText: 'Date',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
                 prefixIcon: const Icon(Icons.calendar_today),
               ),
               child: Text(
                 DateFormat('MMMM d, yyyy').format(_selectedDate),
-                style: const TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: MemoryHubTypography.body1),
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MemoryHubSpacing.lg),
           TextField(
             controller: _descriptionController,
             decoration: InputDecoration(
               labelText: 'Description/Notes',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
               prefixIcon: const Icon(Icons.description),
             ),
             maxLines: 3,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MemoryHubSpacing.lg),
           const Text(
             'Severity (Optional)',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: MemoryHubTypography.body2, fontWeight: MemoryHubTypography.semiBold),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: MemoryHubSpacing.sm),
           Wrap(
             spacing: 8,
             children: _severityLevels.map((level) {
@@ -544,81 +545,81 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
                 },
                 selectedColor: (level['color'] as Color).withOpacity(0.2),
                 labelStyle: TextStyle(
-                  color: isSelected ? level['color'] as Color : Colors.grey.shade700,
+                  color: isSelected ? level['color'] as Color : MemoryHubColors.gray700,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
                 side: BorderSide(
-                  color: isSelected ? level['color'] as Color : Colors.grey.shade300,
+                  color: isSelected ? level['color'] as Color : MemoryHubColors.gray300,
                 ),
               );
             }).toList(),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MemoryHubSpacing.lg),
           TextField(
             controller: _providerController,
             decoration: InputDecoration(
               labelText: 'Healthcare Provider (Optional)',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
               prefixIcon: const Icon(Icons.local_hospital),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MemoryHubSpacing.lg),
           InkWell(
             onTap: () {
               setState(() => _showAdvancedDetails = !_showAdvancedDetails);
             },
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(MemoryHubSpacing.md),
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: MemoryHubBorderRadius.mdRadius,
               ),
               child: Row(
                 children: [
                   Icon(
                     _showAdvancedDetails ? Icons.expand_less : Icons.expand_more,
-                    color: Colors.grey.shade700,
+                    color: MemoryHubColors.gray700,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     'More Details',
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade700,
+                      fontSize: MemoryHubTypography.body2,
+                      fontWeight: MemoryHubTypography.semiBold,
+                      color: MemoryHubColors.gray700,
                     ),
                   ),
                   const Spacer(),
                   Icon(
                     Icons.settings,
                     size: 18,
-                    color: Colors.grey.shade600,
+                    color: MemoryHubColors.gray600,
                   ),
                 ],
               ),
             ),
           ),
           if (_showAdvancedDetails) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: MemoryHubSpacing.lg),
             TextField(
               controller: _locationController,
               decoration: InputDecoration(
                 labelText: 'Location/Facility',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
                 prefixIcon: const Icon(Icons.location_on),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MemoryHubSpacing.lg),
             TextField(
               controller: _medicationsController,
               decoration: InputDecoration(
                 labelText: 'Medications (comma-separated)',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
                 prefixIcon: const Icon(Icons.medication),
                 hintText: 'e.g., Aspirin, Ibuprofen',
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MemoryHubSpacing.lg),
             SwitchListTile(
               value: _isConfidential,
               onChanged: (value) {
@@ -627,8 +628,8 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
               title: const Text('Mark as Confidential'),
               subtitle: const Text('Only you can view this record'),
               secondary: const Icon(Icons.lock_outline),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              tileColor: Colors.grey.shade50,
+              shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
+              tileColor: MemoryHubColors.gray50,
             ),
           ],
         ],
@@ -638,9 +639,9 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
 
   Widget _buildFooter() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: MemoryHubColors.gray50,
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(24),
           bottomRight: Radius.circular(24),
@@ -655,7 +656,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
               icon: const Icon(Icons.arrow_back),
               label: const Text('Back'),
               style: TextButton.styleFrom(
-                foregroundColor: Colors.grey.shade700,
+                foregroundColor: MemoryHubColors.gray700,
               ),
             )
           else
@@ -667,11 +668,11 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
               icon: const Icon(Icons.arrow_forward),
               label: const Text('Continue'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFEF4444),
+                backgroundColor: const MemoryHubColors.red500,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: MemoryHubBorderRadius.mdRadius,
                 ),
               ),
             )
@@ -681,11 +682,11 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
               icon: const Icon(Icons.check),
               label: const Text('Save Record'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF10B981),
+                backgroundColor: const MemoryHubColors.green500,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: MemoryHubBorderRadius.mdRadius,
                 ),
               ),
             ),

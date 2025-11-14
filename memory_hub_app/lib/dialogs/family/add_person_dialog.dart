@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:memory_hub_app/design_system/design_tokens.dart';
 
 class AddPersonDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
@@ -132,11 +133,11 @@ class _AddPersonDialogState extends State<AddPersonDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: MemoryHubBorderRadius.xlRadius,
       ),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,12 +145,12 @@ class _AddPersonDialogState extends State<AddPersonDialog> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(MemoryHubSpacing.md),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFF59E0B), Color(0xFFFBBF24)],
+                      colors: [MemoryHubColors.amber500, MemoryHubColors.amber400],
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                   ),
                   child: const Icon(
                     Icons.person_add,
@@ -157,13 +158,13 @@ class _AddPersonDialogState extends State<AddPersonDialog> {
                     size: 24,
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: MemoryHubSpacing.lg),
                 Expanded(
                   child: Text(
                     widget.initialData == null ? 'Add Person' : 'Edit Person',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                    style: TextStyle(
+                      fontSize: MemoryHubTypography.h2,
+                      fontWeight: MemoryHubTypography.bold,
                     ),
                   ),
                 ),
@@ -173,7 +174,7 @@ class _AddPersonDialogState extends State<AddPersonDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: MemoryHubSpacing.xl),
             Expanded(
               child: Form(
                 key: _formKey,
@@ -197,7 +198,7 @@ class _AddPersonDialogState extends State<AddPersonDialog> {
                             },
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: MemoryHubSpacing.lg),
                         Expanded(
                           child: TextFormField(
                             controller: _lastNameController,
@@ -216,7 +217,7 @@ class _AddPersonDialogState extends State<AddPersonDialog> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: MemoryHubSpacing.lg),
                     TextFormField(
                       controller: _maidenNameController,
                       decoration: const InputDecoration(
@@ -324,7 +325,7 @@ class _AddPersonDialogState extends State<AddPersonDialog> {
                 ),
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: MemoryHubSpacing.xl),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -332,14 +333,14 @@ class _AddPersonDialogState extends State<AddPersonDialog> {
                   onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
                   child: const Text('Cancel'),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: MemoryHubSpacing.md),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF59E0B),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    backgroundColor: MemoryHubColors.amber500,
+                    padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: MemoryHubBorderRadius.mdRadius,
                     ),
                   ),
                   child: _isLoading

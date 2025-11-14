@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../services/auth_service.dart';
+import '../../design_system/design_tokens.dart';
 
 class AddVaccinationDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
@@ -95,17 +96,17 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: MemoryHubBorderRadius.xlRadius,
       ),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(MemoryHubSpacing.xl),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFFEF4444), Color(0xFFF87171)],
+                  colors: [MemoryHubColors.red500, MemoryHubColors.red400],
                 ),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20),
@@ -115,14 +116,14 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
               child: Row(
                 children: [
                   const Icon(Icons.vaccines, color: Colors.white, size: 28),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: MemoryHubSpacing.md),
                   const Expanded(
                     child: Text(
                       'Add Vaccination',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                        fontSize: MemoryHubTypography.h3,
+                        fontWeight: MemoryHubTypography.bold,
                       ),
                     ),
                   ),
@@ -137,7 +138,7 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
               child: Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(MemoryHubSpacing.xl),
                   children: [
                     TextFormField(
                       controller: _vaccineNameController,
@@ -153,7 +154,7 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
                     InkWell(
                       onTap: _selectDateAdministered,
                       child: InputDecorator(
@@ -167,7 +168,7 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
                     TextFormField(
                       controller: _providerController,
                       decoration: const InputDecoration(
@@ -176,7 +177,7 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
                         prefixIcon: Icon(Icons.local_hospital),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
                     TextFormField(
                       controller: _lotNumberController,
                       decoration: const InputDecoration(
@@ -185,7 +186,7 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
                         prefixIcon: Icon(Icons.qr_code),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
                     InkWell(
                       onTap: _selectNextDoseDate,
                       child: InputDecorator(
@@ -211,12 +212,12 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
                           style: TextStyle(
                             color: _nextDoseDate != null
                                 ? Colors.black
-                                : Colors.grey.shade600,
+                                : MemoryHubColors.gray600,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
                     TextFormField(
                       controller: _notesController,
                       decoration: const InputDecoration(
@@ -231,9 +232,9 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(MemoryHubSpacing.xl),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
+                color: MemoryHubColors.gray100,
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(20),
                   bottomRight: Radius.circular(20),
@@ -246,11 +247,11 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
                     onPressed: () => Navigator.of(context).pop(),
                     child: const Text('Cancel'),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: MemoryHubSpacing.md),
                   ElevatedButton(
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEF4444),
+                      backgroundColor: const MemoryHubColors.red500,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 32,

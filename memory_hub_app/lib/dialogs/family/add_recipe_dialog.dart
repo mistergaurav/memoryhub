@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../design_system/design_tokens.dart';
 
 class IngredientItem {
   final TextEditingController nameController;
@@ -208,29 +209,29 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.xlRadius),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 700, maxHeight: 800),
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(MemoryHubSpacing.md),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFEF4444), Color(0xFFF87171)],
+                      colors: [MemoryHubColors.red500, MemoryHubColors.red400],
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                   ),
                   child: const Icon(Icons.restaurant_menu, color: Colors.white),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: MemoryHubSpacing.lg),
                 const Expanded(
                   child: Text(
                     'Add Family Recipe',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: MemoryHubTypography.h2, fontWeight: MemoryHubTypography.bold),
                   ),
                 ),
                 IconButton(
@@ -239,7 +240,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: MemoryHubSpacing.xl),
             Expanded(
               child: Form(
                 key: _formKey,
@@ -247,7 +248,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                   children: [
                     // Basic Info Section
                     _buildSectionHeader('Basic Information', Icons.info_outline),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: MemoryHubSpacing.md),
                     TextFormField(
                       controller: _titleController,
                       decoration: _buildInputDecoration(
@@ -258,7 +259,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                       validator: (v) =>
                           v?.trim().isEmpty ?? true ? 'Title is required' : null,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: MemoryHubSpacing.md),
                     TextFormField(
                       controller: _descriptionController,
                       decoration: _buildInputDecoration(
@@ -268,7 +269,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                       ),
                       maxLines: 2,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
 
                     // Category & Difficulty
                     Row(
@@ -302,7 +303,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                             onChanged: (v) => setState(() => _category = v!),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: MemoryHubSpacing.md),
                         Expanded(
                           child: DropdownButtonFormField<String>(
                             value: _difficulty,
@@ -321,7 +322,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
 
                     // Time & Servings
                     Row(
@@ -336,7 +337,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                             keyboardType: TextInputType.number,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: MemoryHubSpacing.md),
                         Expanded(
                           child: TextFormField(
                             controller: _cookTimeController,
@@ -347,7 +348,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                             keyboardType: TextInputType.number,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: MemoryHubSpacing.md),
                         Expanded(
                           child: TextFormField(
                             controller: _servingsController,
@@ -360,39 +361,39 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: MemoryHubSpacing.xl),
 
                     // Ingredients Section
                     _buildSectionHeader('Ingredients', Icons.kitchen),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: MemoryHubSpacing.md),
                     ..._buildIngredientsList(),
                     TextButton.icon(
                       onPressed: _addIngredient,
                       icon: const Icon(Icons.add_circle_outline),
                       label: const Text('Add Ingredient'),
                       style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFFEF4444),
+                        foregroundColor: const MemoryHubColors.red500,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: MemoryHubSpacing.xl),
 
                     // Instructions Section
                     _buildSectionHeader('Instructions', Icons.list_alt),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: MemoryHubSpacing.md),
                     ..._buildStepsList(),
                     TextButton.icon(
                       onPressed: _addStep,
                       icon: const Icon(Icons.add_circle_outline),
                       label: const Text('Add Step'),
                       style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFFEF4444),
+                        foregroundColor: const MemoryHubColors.red500,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: MemoryHubSpacing.xl),
 
                     // Optional Notes
                     _buildSectionHeader('Optional Details', Icons.notes),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: MemoryHubSpacing.md),
                     TextFormField(
                       controller: _familyNotesController,
                       decoration: _buildInputDecoration(
@@ -402,7 +403,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                       ),
                       maxLines: 2,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: MemoryHubSpacing.md),
                     TextFormField(
                       controller: _originStoryController,
                       decoration: _buildInputDecoration(
@@ -416,7 +417,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: MemoryHubSpacing.xl),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -424,17 +425,17 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                   onPressed: _isLoading ? null : () => Navigator.pop(context),
                   child: const Text('Cancel'),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: MemoryHubSpacing.md),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFEF4444),
+                    backgroundColor: const MemoryHubColors.red500,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 32,
                       vertical: 16,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: MemoryHubBorderRadius.mdRadius,
                     ),
                   ),
                   child: _isLoading
@@ -450,8 +451,8 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                           'Add Recipe',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontSize: MemoryHubTypography.body1,
+                            fontWeight: MemoryHubTypography.bold,
                           ),
                         ),
                 ),
@@ -466,14 +467,14 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
   Widget _buildSectionHeader(String title, IconData icon) {
     return Row(
       children: [
-        Icon(icon, color: const Color(0xFFEF4444), size: 20),
-        const SizedBox(width: 8),
+        Icon(icon, color: const MemoryHubColors.red500, size: 20),
+        const SizedBox(width: MemoryHubSpacing.sm),
         Text(
           title,
           style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFFEF4444),
+            fontSize: MemoryHubTypography.h4,
+            fontWeight: MemoryHubTypography.bold,
+            color: MemoryHubColors.red500,
           ),
         ),
       ],
@@ -490,15 +491,15 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
       hintText: hint,
       prefixIcon: Icon(icon),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey.shade300),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
+        borderSide: BorderSide(color: MemoryHubColors.gray300),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
+        borderSide: const BorderSide(color: MemoryHubColors.red500, width: 2),
       ),
     );
   }
@@ -516,12 +517,12 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                 decoration: InputDecoration(
                   hintText: 'e.g., Flour',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: MemoryHubSpacing.sm),
             Expanded(
               flex: 2,
               child: TextFormField(
@@ -529,12 +530,12 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                 decoration: InputDecoration(
                   hintText: 'Amount',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: MemoryHubSpacing.sm),
             Expanded(
               flex: 1,
               child: TextFormField(
@@ -542,7 +543,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                 decoration: InputDecoration(
                   hintText: 'Unit',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                   ),
                 ),
               ),
@@ -573,27 +574,27 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
               height: 32,
               margin: const EdgeInsets.only(top: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFFEF4444),
-                borderRadius: BorderRadius.circular(8),
+                color: const MemoryHubColors.red500,
+                borderRadius: MemoryHubBorderRadius.smRadius,
               ),
               child: Center(
                 child: Text(
                   '${index + 1}',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: MemoryHubTypography.bold,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: MemoryHubSpacing.md),
             Expanded(
               child: TextFormField(
                 controller: _steps[index].instructionController,
                 decoration: InputDecoration(
                   hintText: 'Describe this step...',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                   ),
                 ),
                 maxLines: 2,

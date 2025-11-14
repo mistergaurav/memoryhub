@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/auth_service.dart';
 import '../../services/family/family_service.dart';
+import '../../design_system/design_tokens.dart';
 
 class AddDocumentDialog extends StatefulWidget {
   const AddDocumentDialog({Key? key}) : super(key: key);
@@ -34,14 +35,6 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
   late AnimationController _animationController;
   late Animation<double> _advancedAnimation;
 
-  static const Color _primaryTeal = Color(0xFF0E7C86);
-  static const Color _accentAqua = Color(0xFF1FB7C9);
-  static const Color _supportLight = Color(0xFFF2FBFC);
-  static const Color _typographyDark = Color(0xFF0B1F32);
-  static const Color _background = Color(0xFFF8FAFB);
-  static const Color _errorRed = Color(0xFFE63946);
-  static const Color _successGreen = Color(0xFF10B981);
-
   final List<Map<String, dynamic>> _documentTypes = [
     {'value': 'birth_certificate', 'label': 'Birth Certificate', 'icon': Icons.badge},
     {'value': 'passport', 'label': 'Passport', 'icon': Icons.flight},
@@ -62,7 +55,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: MemoryHubAnimations.fast,
       vsync: this,
     );
     _advancedAnimation = CurvedAnimation(
@@ -95,10 +88,10 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: _primaryTeal,
+              primary: MemoryHubColors.teal600,
               onPrimary: Colors.white,
               surface: Colors.white,
-              onSurface: _typographyDark,
+              onSurface: MemoryHubColors.gray900,
             ),
           ),
           child: child!,
@@ -181,14 +174,14 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
               content: Row(
                 children: const [
                   Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: 12),
+                  SizedBox(width: MemoryHubSpacing.md),
                   Text('Document created successfully'),
                 ],
               ),
-              backgroundColor: _primaryTeal,
+              backgroundColor: MemoryHubColors.teal600,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
+              margin: const EdgeInsets.all(MemoryHubSpacing.lg),
             ),
           );
         }
@@ -210,48 +203,48 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
       labelText: label,
       helperText: helperText,
       prefixIcon: Container(
-        margin: const EdgeInsets.all(12),
+        margin: const EdgeInsets.all(MemoryHubSpacing.md),
         width: 18,
         height: 18,
         decoration: BoxDecoration(
-          color: _primaryTeal.withOpacity(0.1),
+          color: MemoryHubColors.teal600.withOpacity(0.1),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, size: 18, color: _primaryTeal),
+        child: Icon(icon, size: 18, color: MemoryHubColors.teal600),
       ),
       filled: true,
-      fillColor: _supportLight,
+      fillColor: MemoryHubColors.gray50,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _accentAqua, width: 2),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
+        borderSide: const BorderSide(color: MemoryHubColors.cyan500, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _errorRed, width: 1),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
+        borderSide: const BorderSide(color: MemoryHubColors.red500, width: 1),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _errorRed, width: 2),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
+        borderSide: const BorderSide(color: MemoryHubColors.red500, width: 2),
       ),
       labelStyle: GoogleFonts.inter(
-        fontSize: 14,
-        color: _typographyDark,
+        fontSize: MemoryHubTypography.body2,
+        color: MemoryHubColors.gray900,
       ),
       helperStyle: GoogleFonts.inter(
-        fontSize: 12,
-        color: const Color(0xFF6B7280),
+        fontSize: MemoryHubTypography.caption,
+        color: MemoryHubColors.gray500,
       ),
       errorStyle: GoogleFonts.inter(
-        fontSize: 12,
-        color: _errorRed,
+        fontSize: MemoryHubTypography.caption,
+        color: MemoryHubColors.red500,
       ),
     );
   }
@@ -265,16 +258,16 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: MemoryHubBorderRadius.xlRadius,
         boxShadow: const [
           BoxShadow(
-            color: Color(0x140E7C86),
+            color: MemoryHubColors.cyan600.withOpacity(0.08),
             blurRadius: 18,
             offset: Offset(0, 6),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -283,15 +276,15 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
               Container(
                 width: 36,
                 height: 36,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [_primaryTeal, _accentAqua],
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MemoryHubColors.teal600, MemoryHubColors.cyan500],
                   ),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: Colors.white, size: 20),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: MemoryHubSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,18 +292,18 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                     Text(
                       title,
                       style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: _typographyDark,
+                        fontSize: MemoryHubTypography.body1,
+                        fontWeight: MemoryHubTypography.semiBold,
+                        color: MemoryHubColors.gray900,
                       ),
                     ),
                     if (helperText != null) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: MemoryHubSpacing.xs),
                       Text(
                         helperText,
                         style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: const Color(0xFF6B7280),
+                          fontSize: MemoryHubTypography.caption,
+                          color: MemoryHubColors.gray500,
                         ),
                       ),
                     ],
@@ -319,7 +312,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: MemoryHubSpacing.lg),
           ...children,
         ],
       ),
@@ -335,18 +328,18 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
         });
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: MemoryHubAnimations.normal,
         height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
         decoration: BoxDecoration(
           gradient: isSelected
               ? const LinearGradient(
-                  colors: [_primaryTeal, _accentAqua],
+                  colors: [MemoryHubColors.teal600, MemoryHubColors.cyan500],
                 )
               : null,
           color: isSelected ? null : Colors.white,
-          border: isSelected ? null : Border.all(color: const Color(0xFFD1E8EC)),
-          borderRadius: BorderRadius.circular(22),
+          border: isSelected ? null : Border.all(color: MemoryHubColors.gray200),
+          borderRadius: MemoryHubBorderRadius.fullRadius,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -354,19 +347,19 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
             Icon(
               type['icon'],
               size: 18,
-              color: isSelected ? Colors.white : _primaryTeal,
+              color: isSelected ? Colors.white : MemoryHubColors.teal600,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: MemoryHubSpacing.sm),
             Text(
               type['label'],
               style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: isSelected ? Colors.white : _primaryTeal,
+                fontSize: MemoryHubTypography.body2,
+                fontWeight: MemoryHubTypography.medium,
+                color: isSelected ? Colors.white : MemoryHubColors.teal600,
               ),
             ),
             if (isSelected) ...[
-              const SizedBox(width: 4),
+              const SizedBox(width: MemoryHubSpacing.xs),
               const Icon(Icons.check, size: 16, color: Colors.white),
             ],
           ],
@@ -381,18 +374,18 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
     
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(16),
+      insetPadding: const EdgeInsets.all(MemoryHubSpacing.lg),
       child: Container(
         constraints: BoxConstraints(
           maxWidth: 640,
           maxHeight: screenHeight * 0.85,
         ),
         decoration: BoxDecoration(
-          color: _background,
-          borderRadius: BorderRadius.circular(24),
+          color: MemoryHubColors.gray50,
+          borderRadius: MemoryHubBorderRadius.xxlRadius,
           boxShadow: const [
             BoxShadow(
-              color: Color(0x1F0C5A6E),
+              color: MemoryHubColors.cyan700.withOpacity(0.12),
               blurRadius: 24,
               offset: Offset(0, 12),
             ),
@@ -404,18 +397,18 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
               height: 64,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [_primaryTeal, _accentAqua],
+                  colors: [MemoryHubColors.teal600, MemoryHubColors.cyan500],
                 ),
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
+                  topLeft: Radius.circular(MemoryHubBorderRadius.xxl),
+                  topRight: Radius.circular(MemoryHubBorderRadius.xxl),
                 ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xl),
               child: Row(
                 children: [
                   const Icon(Icons.folder_special, color: Colors.white, size: 28),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: MemoryHubSpacing.md),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -425,15 +418,15 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                           'Add Document',
                           style: GoogleFonts.inter(
                             color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
+                            fontSize: MemoryHubTypography.h3,
+                            fontWeight: MemoryHubTypography.semiBold,
                           ),
                         ),
                         Text(
                           'Securely store important documents',
                           style: GoogleFonts.inter(
                             color: Colors.white70,
-                            fontSize: 14,
+                            fontSize: MemoryHubTypography.body2,
                           ),
                         ),
                       ],
@@ -448,27 +441,27 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
             ),
             if (_errorMessage != null)
               AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+                duration: MemoryHubAnimations.normal,
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                color: const Color(0xFFFDEBEC),
+                padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                color: MemoryHubColors.red50,
                 child: Row(
                   children: [
-                    const Icon(Icons.error_outline, color: _errorRed, size: 20),
-                    const SizedBox(width: 8),
+                    const Icon(Icons.error_outline, color: MemoryHubColors.red500, size: 20),
+                    const SizedBox(width: MemoryHubSpacing.sm),
                     Expanded(
                       child: Text(
                         _errorMessage!,
                         style: GoogleFonts.inter(
-                          color: _errorRed,
-                          fontSize: 14,
+                          color: MemoryHubColors.red500,
+                          fontSize: MemoryHubTypography.body2,
                         ),
                       ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.close, size: 18),
                       onPressed: () => setState(() => _errorMessage = null),
-                      color: _errorRed,
+                      color: MemoryHubColors.red500,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                     ),
@@ -479,7 +472,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
               child: Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(MemoryHubSpacing.xl),
                   children: [
                     _buildSectionCard(
                       title: 'Document Type',
@@ -487,13 +480,13 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                       helperText: 'Select the type of document you are adding',
                       children: [
                         Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+                          spacing: MemoryHubSpacing.sm,
+                          runSpacing: MemoryHubSpacing.sm,
                           children: _documentTypes.map((type) => _buildDocumentTypeChip(type)).toList(),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
                     _buildSectionCard(
                       title: 'Document Information',
                       icon: Icons.info,
@@ -513,7 +506,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: MemoryHubSpacing.lg),
                         TextFormField(
                           controller: _descriptionController,
                           decoration: _buildInputDecoration(
@@ -524,7 +517,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
                     _buildSectionCard(
                       title: 'File Details',
                       icon: Icons.upload_file,
@@ -544,7 +537,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: MemoryHubSpacing.lg),
                         TextFormField(
                           controller: _fileSizeController,
                           decoration: _buildInputDecoration(
@@ -556,7 +549,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
                     _buildSectionCard(
                       title: 'Tags',
                       icon: Icons.label,
@@ -574,13 +567,13 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                                 onFieldSubmitted: (_) => _addTag(),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: MemoryHubSpacing.sm),
                             Container(
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
-                                  colors: [_primaryTeal, _accentAqua],
+                                  colors: [MemoryHubColors.teal600, MemoryHubColors.cyan500],
                                 ),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: MemoryHubBorderRadius.mdRadius,
                               ),
                               child: IconButton(
                                 icon: const Icon(Icons.add, color: Colors.white),
@@ -590,19 +583,19 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                           ],
                         ),
                         if (_tags.isNotEmpty) ...[
-                          const SizedBox(height: 12),
+                          const SizedBox(height: MemoryHubSpacing.md),
                           Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
+                            spacing: MemoryHubSpacing.sm,
+                            runSpacing: MemoryHubSpacing.sm,
                             children: _tags.map((tag) {
                               return Chip(
                                 label: Text(tag),
                                 deleteIcon: const Icon(Icons.close, size: 18),
                                 onDeleted: () => _removeTag(tag),
-                                backgroundColor: _supportLight,
+                                backgroundColor: MemoryHubColors.gray50,
                                 labelStyle: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  color: _primaryTeal,
+                                  fontSize: MemoryHubTypography.caption,
+                                  color: MemoryHubColors.teal600,
                                 ),
                               );
                             }).toList(),
@@ -610,7 +603,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                         ],
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
                     GestureDetector(
                       onTap: () {
                         setState(() {
@@ -623,39 +616,39 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                         });
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(MemoryHubSpacing.lg),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: _accentAqua.withOpacity(0.3)),
+                          borderRadius: MemoryHubBorderRadius.mdRadius,
+                          border: Border.all(color: MemoryHubColors.cyan500.withOpacity(0.3)),
                         ),
                         child: Row(
                           children: [
                             Container(
                               width: 32,
                               height: 32,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [_primaryTeal, _accentAqua],
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [MemoryHubColors.teal600, MemoryHubColors.cyan500],
                                 ),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(Icons.settings, color: Colors.white, size: 18),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: MemoryHubSpacing.md),
                             Expanded(
                               child: Text(
                                 'Advanced Options',
                                 style: GoogleFonts.inter(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: _typographyDark,
+                                  fontSize: MemoryHubTypography.body1,
+                                  fontWeight: MemoryHubTypography.semiBold,
+                                  color: MemoryHubColors.gray900,
                                 ),
                               ),
                             ),
                             Icon(
                               _showAdvancedOptions ? Icons.expand_less : Icons.expand_more,
-                              color: _primaryTeal,
+                              color: MemoryHubColors.teal600,
                             ),
                           ],
                         ),
@@ -664,7 +657,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                     SizeTransition(
                       sizeFactor: _advancedAnimation,
                       child: Padding(
-                        padding: const EdgeInsets.only(top: 16),
+                        padding: const EdgeInsets.only(top: MemoryHubSpacing.lg),
                         child: _buildSectionCard(
                           title: 'Optional Details',
                           icon: Icons.edit_note,
@@ -685,7 +678,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: MemoryHubSpacing.lg),
                             TextFormField(
                               controller: _documentNumberController,
                               decoration: _buildInputDecoration(
@@ -693,7 +686,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                                 icon: Icons.confirmation_number,
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: MemoryHubSpacing.lg),
                             TextFormField(
                               controller: _issuingAuthorityController,
                               decoration: _buildInputDecoration(
@@ -701,7 +694,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                                 icon: Icons.account_balance,
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: MemoryHubSpacing.lg),
                             TextFormField(
                               controller: _notesController,
                               decoration: _buildInputDecoration(
@@ -714,17 +707,17 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: MemoryHubSpacing.xl),
                     Container(
                       height: 56,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [_primaryTeal, _accentAqua],
+                          colors: [MemoryHubColors.teal600, MemoryHubColors.cyan500],
                         ),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: MemoryHubBorderRadius.lgRadius,
                         boxShadow: [
                           BoxShadow(
-                            color: _primaryTeal.withOpacity(0.4),
+                            color: MemoryHubColors.teal600.withOpacity(0.4),
                             blurRadius: 12,
                             offset: const Offset(0, 6),
                           ),
@@ -736,7 +729,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: MemoryHubBorderRadius.lgRadius,
                           ),
                         ),
                         child: _isLoading
@@ -752,12 +745,12 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   const Icon(Icons.save, color: Colors.white),
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: MemoryHubSpacing.md),
                                   Text(
                                     'Save Document',
                                     style: GoogleFonts.inter(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: MemoryHubTypography.body1,
+                                      fontWeight: MemoryHubTypography.semiBold,
                                       color: Colors.white,
                                     ),
                                   ),

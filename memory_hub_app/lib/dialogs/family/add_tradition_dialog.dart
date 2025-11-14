@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../design_system/design_tokens.dart';
 
 class AddTraditionDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
@@ -50,26 +51,26 @@ class _AddTraditionDialogState extends State<AddTraditionDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.xlRadius),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFF10B981), Color(0xFF34D399)]), borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                  decoration: BoxDecoration(gradient: const LinearGradient(colors: [MemoryHubColors.green500, MemoryHubColors.green400]), borderRadius: MemoryHubBorderRadius.mdRadius),
                   child: const Icon(Icons.local_florist, color: Colors.white),
                 ),
-                const SizedBox(width: 16),
-                const Expanded(child: Text('Add Tradition', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+                const SizedBox(width: MemoryHubSpacing.lg),
+                const Expanded(child: Text('Add Tradition', style: TextStyle(fontSize: MemoryHubTypography.h2, fontWeight: MemoryHubTypography.bold))),
                 IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: MemoryHubSpacing.xl),
             Form(
               key: _formKey,
               child: Column(
@@ -79,13 +80,13 @@ class _AddTraditionDialogState extends State<AddTraditionDialog> {
                     decoration: const InputDecoration(labelText: 'Title *', border: OutlineInputBorder(), prefixIcon: Icon(Icons.title)),
                     validator: (v) => v?.trim().isEmpty ?? true ? 'Required' : null,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: MemoryHubSpacing.lg),
                   TextFormField(
                     controller: _descriptionController,
                     decoration: const InputDecoration(labelText: 'Description', border: OutlineInputBorder(), prefixIcon: Icon(Icons.description)),
                     maxLines: 3,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: MemoryHubSpacing.lg),
                   DropdownButtonFormField<String>(
                     value: _category,
                     decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder()),
@@ -97,7 +98,7 @@ class _AddTraditionDialogState extends State<AddTraditionDialog> {
                     ],
                     onChanged: (v) => setState(() => _category = v!),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: MemoryHubSpacing.lg),
                   DropdownButtonFormField<String>(
                     value: _frequency,
                     decoration: const InputDecoration(labelText: 'Frequency', border: OutlineInputBorder()),
@@ -109,7 +110,7 @@ class _AddTraditionDialogState extends State<AddTraditionDialog> {
                     ],
                     onChanged: (v) => setState(() => _frequency = v!),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: MemoryHubSpacing.lg),
                   TextFormField(
                     controller: _originController,
                     decoration: const InputDecoration(labelText: 'Origin/History', border: OutlineInputBorder(), prefixIcon: Icon(Icons.history)),
@@ -117,15 +118,15 @@ class _AddTraditionDialogState extends State<AddTraditionDialog> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: MemoryHubSpacing.xl),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(onPressed: _isLoading ? null : () => Navigator.pop(context), child: const Text('Cancel')),
-                const SizedBox(width: 12),
+                const SizedBox(width: MemoryHubSpacing.md),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981), padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16)),
+                  style: ElevatedButton.styleFrom(backgroundColor: const MemoryHubColors.green500, padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg)),
                   child: _isLoading
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
                       : const Text('Add Tradition', style: TextStyle(color: Colors.white)),

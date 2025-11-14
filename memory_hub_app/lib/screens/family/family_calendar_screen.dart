@@ -266,9 +266,9 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF06B6D4),
-                Color(0xFF22D3EE),
-                Color(0xFF67E8F9),
+                MemoryHubColors.cyan500,
+                MemoryHubColors.cyan400,
+                MemoryHubColors.cyan300,
               ],
             ),
           ),
@@ -314,12 +314,12 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
         margin: Spacing.edgeInsetsFromLTRB(Spacing.lg, Spacing.lg, Spacing.lg, Spacing.sm),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFEC4899), Color(0xFFF472B6)],
+            colors: [MemoryHubColors.pink500, MemoryHubColors.pink400],
           ),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: MemoryHubBorderRadius.lgRadius,
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFEC4899).withOpacity(0.3),
+              color: MemoryHubColors.pink500.withOpacity(0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -328,7 +328,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: MemoryHubBorderRadius.lgRadius,
             onTap: () {
               showDialog(
                 context: context,
@@ -349,8 +349,8 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                           'Upcoming Birthdays',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            fontSize: MemoryHubTypography.h4,
+                            fontWeight: MemoryHubTypography.bold,
                           ),
                         ),
                         const VGap.xs(),
@@ -358,7 +358,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                           '${_upcomingBirthdays.length} ${_upcomingBirthdays.length == 1 ? 'birthday' : 'birthdays'} in the next 30 days',
                           style: TextStyle(
                             color: Colors.white.withOpacity(0.9),
-                            fontSize: 13,
+                            fontSize: MemoryHubTypography.bodySmall,
                           ),
                         ),
                         if (_upcomingBirthdays.isNotEmpty) ...[
@@ -386,7 +386,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
       padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: MemoryHubBorderRadius.smRadius,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -400,8 +400,8 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                   : '${nextBirthday.title} in $daysUntil ${daysUntil == 1 ? 'day' : 'days'}',
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+                fontSize: MemoryHubTypography.bodySmall,
+                fontWeight: MemoryHubTypography.semiBold,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -415,7 +415,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
     return AlertDialog(
       title: const Row(
         children: [
-          Icon(Icons.cake, color: Color(0xFFEC4899)),
+          Icon(Icons.cake, color: MemoryHubColors.pink500),
           HGap.sm(),
           Text('Upcoming Birthdays'),
         ],
@@ -436,9 +436,9 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                   padding: Spacing.edgeInsetsAll(Spacing.sm),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFEC4899), Color(0xFFF472B6)],
+                      colors: [MemoryHubColors.pink500, MemoryHubColors.pink400],
                     ),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: MemoryHubBorderRadius.smRadius,
                   ),
                   child: const Icon(Icons.cake, color: Colors.white, size: 20),
                 ),
@@ -475,19 +475,19 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
       child: Container(
         margin: Spacing.edgeInsetsSymmetric(horizontal: Spacing.lg, vertical: Spacing.sm),
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(12),
+          color: MemoryHubColors.gray200,
+          borderRadius: MemoryHubBorderRadius.mdRadius,
         ),
         child: TabBar(
           controller: _tabController,
           indicator: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [Color(0xFF06B6D4), Color(0xFF22D3EE)],
+              colors: [MemoryHubColors.cyan500, MemoryHubColors.cyan400],
             ),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: MemoryHubBorderRadius.mdRadius,
           ),
           labelColor: Colors.white,
-          unselectedLabelColor: Colors.grey.shade700,
+          unselectedLabelColor: MemoryHubColors.gray700,
           indicatorSize: TabBarIndicatorSize.tab,
           dividerColor: Colors.transparent,
           tabs: const [
@@ -508,10 +508,10 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
   Widget _buildCalendarWidget() {
     return SliverToBoxAdapter(
       child: Card(
-        margin: const EdgeInsets.all(16),
+        margin: EdgeInsets.all(MemoryHubSpacing.lg),
         elevation: 4,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: MemoryHubBorderRadius.xlRadius,
         ),
         child: TableCalendar(
           firstDay: DateTime.utc(2020, 1, 1),
@@ -540,16 +540,16 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
           calendarStyle: CalendarStyle(
             selectedDecoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF06B6D4), Color(0xFF22D3EE)],
+                colors: [MemoryHubColors.cyan500, MemoryHubColors.cyan400],
               ),
               shape: BoxShape.circle,
             ),
             todayDecoration: BoxDecoration(
-              color: const Color(0xFF06B6D4).withOpacity(0.3),
+              color: MemoryHubColors.cyan500.withOpacity(0.3),
               shape: BoxShape.circle,
             ),
             markerDecoration: const BoxDecoration(
-              color: Color(0xFFEC4899),
+              color: MemoryHubColors.pink500,
               shape: BoxShape.circle,
             ),
             markersMaxCount: 3,
@@ -561,7 +561,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
             titleCentered: true,
             formatButtonDecoration: BoxDecoration(
               border: Border.all(color: DesignTokens.primaryColor),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: MemoryHubBorderRadius.smRadius,
             ),
             formatButtonTextStyle: const TextStyle(
               color: DesignTokens.primaryColor,
@@ -585,8 +585,8 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
               child: Text(
                 DateFormat('EEEE, MMMM d, yyyy').format(_selectedDay),
                 style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontSize: MemoryHubTypography.h3,
+                  fontWeight: MemoryHubTypography.bold,
                 ),
               ),
             ),
@@ -595,14 +595,14 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                 padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.md, vertical: Spacing.xs),
                 decoration: BoxDecoration(
                   color: DesignTokens.primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: MemoryHubBorderRadius.mdRadius,
                 ),
                 child: Text(
                   '${dayEvents.length} ${dayEvents.length == 1 ? 'event' : 'events'}',
                   style: const TextStyle(
                     color: DesignTokens.primaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                    fontWeight: MemoryHubTypography.bold,
+                    fontSize: MemoryHubTypography.bodySmall,
                   ),
                 ),
               ),
@@ -631,11 +631,11 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+              Icon(Icons.error_outline, size: 64, color: MemoryHubColors.red300),
               const VGap.lg(),
               Text(
                 _error!.replaceAll('Exception: ', ''),
-                style: TextStyle(color: Colors.grey.shade600),
+                style: TextStyle(color: MemoryHubColors.gray600),
                 textAlign: TextAlign.center,
               ),
               const VGap.xl(),
@@ -661,14 +661,14 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
               Icon(
                 Icons.event_busy,
                 size: 64,
-                color: Colors.grey.shade300,
+                color: MemoryHubColors.gray300,
               ),
               const VGap.lg(),
               Text(
                 'No events for this day',
                 style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey.shade600,
+                  fontSize: MemoryHubTypography.h5,
+                  color: MemoryHubColors.gray600,
                 ),
               ),
             ],
@@ -710,11 +710,11 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+              Icon(Icons.error_outline, size: 64, color: MemoryHubColors.red300),
               const VGap.lg(),
               Text(
                 _error!.replaceAll('Exception: ', ''),
-                style: TextStyle(color: Colors.grey.shade600),
+                style: TextStyle(color: MemoryHubColors.gray600),
                 textAlign: TextAlign.center,
               ),
               const VGap.xl(),
@@ -770,9 +770,9 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                         padding: Spacing.edgeInsetsAll(Spacing.md),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF06B6D4), Color(0xFF22D3EE)],
+                            colors: [MemoryHubColors.cyan500, MemoryHubColors.cyan400],
                           ),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: MemoryHubBorderRadius.mdRadius,
                         ),
                         child: Column(
                           children: [
@@ -780,8 +780,8 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                               DateFormat('d').format(date),
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                                fontSize: MemoryHubTypography.h3,
+                                fontWeight: MemoryHubTypography.bold,
                               ),
                             ),
                             Text(
@@ -789,7 +789,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 10,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: MemoryHubTypography.semiBold,
                               ),
                             ),
                           ],
@@ -803,15 +803,15 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                             Text(
                               DateFormat('EEEE').format(date),
                               style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                fontSize: MemoryHubTypography.h4,
+                                fontWeight: MemoryHubTypography.bold,
                               ),
                             ),
                             Text(
                               DateFormat('MMMM d, yyyy').format(date),
                               style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
+                                fontSize: MemoryHubTypography.bodySmall,
+                                color: MemoryHubColors.gray600,
                               ),
                             ),
                           ],
@@ -821,13 +821,13 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                         padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
                         decoration: BoxDecoration(
                           color: DesignTokens.primaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: MemoryHubBorderRadius.smRadius,
                         ),
                         child: Text(
                           '${events.length}',
                           style: const TextStyle(
                             color: DesignTokens.primaryColor,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: MemoryHubTypography.bold,
                           ),
                         ),
                       ),
@@ -853,7 +853,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
     final isBirthday = event.eventType == 'birthday';
     
     return TweenAnimationBuilder<double>(
-      duration: Duration(milliseconds: 300 + (index * 50)),
+      duration: Duration(milliseconds: MemoryHubAnimations.normal.inMilliseconds + (index * 50)),
       tween: Tween(begin: 0.0, end: 1.0),
       builder: (context, value, child) {
         return Opacity(
@@ -868,17 +868,17 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
         margin: Spacing.edgeInsetsOnly(bottom: Spacing.md),
         elevation: isBirthday ? 6 : 2,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: MemoryHubBorderRadius.lgRadius,
           side: isBirthday
-              ? const BorderSide(color: Color(0xFFEC4899), width: 2)
+              ? const BorderSide(color: MemoryHubColors.pink500, width: 2)
               : BorderSide.none,
         ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: MemoryHubBorderRadius.lgRadius,
           onTap: () => _navigateToEventDetail(event),
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: MemoryHubBorderRadius.lgRadius,
               gradient: isBirthday
                   ? LinearGradient(
                       colors: [
@@ -899,7 +899,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                         padding: Spacing.edgeInsetsAll(Spacing.sm),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: gradient),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: MemoryHubBorderRadius.mdRadius,
                           boxShadow: [
                             BoxShadow(
                               color: gradient[0].withOpacity(0.3),
@@ -921,8 +921,8 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                                   child: Text(
                                     event.title,
                                     style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: MemoryHubTypography.h5,
+                                      fontWeight: MemoryHubTypography.bold,
                                     ),
                                   ),
                                 ),
@@ -932,21 +932,21 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                                     child: Container(
                                       padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
                                       decoration: BoxDecoration(
-                                        color: Colors.blue.shade50,
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: Colors.blue.shade200),
+                                        color: MemoryHubColors.blue50,
+                                        borderRadius: MemoryHubBorderRadius.smRadius,
+                                        border: Border.all(color: MemoryHubColors.blue200),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(Icons.repeat, size: 12, color: Colors.blue.shade700),
+                                          Icon(Icons.repeat, size: 12, color: MemoryHubColors.blue700),
                                           const HGap.xs(),
                                           Text(
                                             _getRecurrenceShortForm(event.recurrenceRule!),
                                             style: TextStyle(
                                               fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.blue.shade700,
+                                              fontWeight: MemoryHubTypography.bold,
+                                              color: MemoryHubColors.blue700,
                                             ),
                                           ),
                                         ],
@@ -961,7 +961,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                                 Icon(
                                   event.isAllDay ? Icons.calendar_today : Icons.access_time,
                                   size: 14,
-                                  color: Colors.grey.shade600,
+                                  color: MemoryHubColors.gray600,
                                 ),
                                 const HGap.xs(),
                                 Text(
@@ -969,16 +969,16 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                                       ? 'All Day'
                                       : DateFormat('h:mm a').format(event.startDate.toLocal()),
                                   style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey.shade600,
+                                    fontSize: MemoryHubTypography.bodySmall,
+                                    color: MemoryHubColors.gray600,
                                   ),
                                 ),
                                 if (event.endDate != null && !event.isAllDay) ...[
                                   Text(
                                     ' - ${DateFormat('h:mm a').format(event.endDate!.toLocal())}',
                                     style: TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.grey.shade600,
+                                      fontSize: MemoryHubTypography.bodySmall,
+                                      color: MemoryHubColors.gray600,
                                     ),
                                   ),
                                 ],
@@ -996,8 +996,8 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey.shade700,
+                        fontSize: MemoryHubTypography.bodySmall,
+                        color: MemoryHubColors.gray700,
                         height: 1.4,
                       ),
                     ),
@@ -1006,14 +1006,14 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                     const VGap.sm(),
                     Row(
                       children: [
-                        Icon(Icons.location_on, size: 14, color: Colors.grey.shade600),
+                        Icon(Icons.location_on, size: 14, color: MemoryHubColors.gray600),
                         const HGap.xs(),
                         Expanded(
                           child: Text(
                             event.location!,
                             style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
+                              fontSize: MemoryHubTypography.bodySmall,
+                              color: MemoryHubColors.gray600,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -1028,14 +1028,14 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                         padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: gradient),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: MemoryHubBorderRadius.smRadius,
                         ),
                         child: Text(
                           _formatEventType(event.eventType),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: MemoryHubTypography.bold,
                           ),
                         ),
                       ),
@@ -1043,13 +1043,13 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                       if (event.attendeeIds.isNotEmpty)
                         Row(
                           children: [
-                            Icon(Icons.people, size: 14, color: Colors.grey.shade600),
+                            Icon(Icons.people, size: 14, color: MemoryHubColors.gray600),
                             const HGap.xs(),
                             Text(
                               '${event.attendeeIds.length}',
                               style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade600,
+                                fontSize: MemoryHubTypography.bodySmall,
+                                color: MemoryHubColors.gray600,
                               ),
                             ),
                           ],
@@ -1061,7 +1061,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                           child: Icon(
                             Icons.auto_awesome,
                             size: 16,
-                            color: Colors.blue.shade400,
+                            color: MemoryHubColors.blue400,
                           ),
                         ),
                       ],
@@ -1079,21 +1079,21 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
   List<Color> _getEventGradient(String eventType) {
     switch (eventType) {
       case 'birthday':
-        return [const Color(0xFFEC4899), const Color(0xFFF472B6)];
+        return [MemoryHubColors.pink500, MemoryHubColors.pink400];
       case 'death_anniversary':
-        return [const Color(0xFF6B7280), const Color(0xFF9CA3AF)];
+        return [MemoryHubColors.gray600, MemoryHubColors.gray400];
       case 'anniversary':
-        return [const Color(0xFFDB2777), const Color(0xFFEC4899)];
+        return [MemoryHubColors.pink600, MemoryHubColors.pink500];
       case 'gathering':
-        return [const Color(0xFF7C3AED), const Color(0xFF9333EA)];
+        return [MemoryHubColors.purple600, MemoryHubColors.purple500];
       case 'holiday':
-        return [const Color(0xFFF59E0B), const Color(0xFFFBBF24)];
+        return [MemoryHubColors.amber500, MemoryHubColors.amber400];
       case 'historical_event':
-        return [const Color(0xFF92400E), const Color(0xFFA16207)];
+        return [MemoryHubColors.amber800, MemoryHubColors.amber700];
       case 'reminder':
-        return [const Color(0xFF10B981), const Color(0xFF34D399)];
+        return [MemoryHubColors.green500, MemoryHubColors.green400];
       default:
-        return [const Color(0xFF06B6D4), const Color(0xFF22D3EE)];
+        return [MemoryHubColors.cyan500, MemoryHubColors.cyan400];
     }
   }
 

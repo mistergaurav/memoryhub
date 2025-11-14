@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 import '../services/family/family_service.dart';
 import '../models/user_search_result.dart';
+import 'package:memory_hub_app/design_system/design_tokens.dart';
 
 class UserSearchAutocomplete extends StatefulWidget {
   final Function(UserSearchResult) onUserSelected;
@@ -32,13 +33,6 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
-  static const Color _primaryTeal = Color(0xFF0E7C86);
-  static const Color _accentAqua = Color(0xFF1FB7C9);
-  static const Color _supportLight = Color(0xFFF2FBFC);
-  static const Color _typographyDark = Color(0xFF0B1F32);
-  static const Color _errorRed = Color(0xFFE63946);
-  static const Color _successGreen = Color(0xFF10B981);
-
   @override
   void initState() {
     super.initState();
@@ -47,7 +41,7 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
     }
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: MemoryHubAnimations.normal,
     );
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,
@@ -149,21 +143,21 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
       itemCount: 3,
       separatorBuilder: (context, index) => Divider(
         height: 1,
-        color: _primaryTeal.withOpacity(0.1),
+        color: MemoryHubColors.teal600.withOpacity(0.1),
       ),
       itemBuilder: (context, index) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.md),
         child: Row(
           children: [
             Container(
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: Colors.grey.shade200,
+                color: MemoryHubColors.gray200,
                 shape: BoxShape.circle,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: MemoryHubSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,17 +166,17 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                     width: double.infinity,
                     height: 14,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(4),
+                      color: MemoryHubColors.gray200,
+                      borderRadius: MemoryHubBorderRadius.xsRadius,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: MemoryHubSpacing.sm),
                   Container(
                     width: 120,
                     height: 12,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(4),
+                      color: MemoryHubColors.gray200,
+                      borderRadius: MemoryHubBorderRadius.xsRadius,
                     ),
                   ),
                 ],
@@ -204,21 +198,21 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: MemoryHubBorderRadius.lgRadius,
             border: Border.all(
               color: _error != null 
-                ? _errorRed 
+                ? MemoryHubColors.red500 
                 : _focusNode.hasFocus 
-                  ? _accentAqua 
-                  : _primaryTeal.withOpacity(0.2),
+                  ? MemoryHubColors.cyan500 
+                  : MemoryHubColors.teal600.withOpacity(0.2),
               width: _focusNode.hasFocus ? 2 : 1,
             ),
             boxShadow: _focusNode.hasFocus
                 ? [
                     BoxShadow(
-                      color: _accentAqua.withOpacity(0.1),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      color: MemoryHubColors.cyan500.withOpacity(0.1),
+                      blurRadius: MemoryHubSpacing.md,
+                      offset: Offset(0, MemoryHubSpacing.xs),
                     ),
                   ]
                 : [],
@@ -231,17 +225,17 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
               labelText: 'Search for user',
               hintText: 'Type name, email, or username...',
               hintStyle: GoogleFonts.inter(
-                fontSize: 14,
-                color: _typographyDark.withOpacity(0.4),
+                fontSize: MemoryHubTypography.bodyMedium,
+                color: MemoryHubColors.gray900.withOpacity(0.4),
               ),
               prefixIcon: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: EdgeInsets.all(MemoryHubSpacing.lg),
                 child: Container(
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [_primaryTeal, _accentAqua],
+                      colors: [MemoryHubColors.teal600, MemoryHubColors.cyan500],
                     ),
                     shape: BoxShape.circle,
                   ),
@@ -253,19 +247,19 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (_isLoading)
-                          const Padding(
-                            padding: EdgeInsets.only(right: 8),
+                          Padding(
+                            padding: EdgeInsets.only(right: MemoryHubSpacing.sm),
                             child: SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(_accentAqua),
+                                valueColor: AlwaysStoppedAnimation<Color>(MemoryHubColors.cyan500),
                               ),
                             ),
                           ),
                         IconButton(
-                          icon: Icon(Icons.clear, color: _typographyDark.withOpacity(0.5)),
+                          icon: Icon(Icons.clear, color: MemoryHubColors.gray900.withOpacity(0.5)),
                           onPressed: _clearSearch,
                           tooltip: 'Clear search',
                           iconSize: 20,
@@ -274,34 +268,34 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                     )
                   : null,
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+              contentPadding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.lg),
               labelStyle: GoogleFonts.inter(
-                fontSize: 14,
-                color: _primaryTeal,
-                fontWeight: FontWeight.w500,
+                fontSize: MemoryHubTypography.bodyMedium,
+                color: MemoryHubColors.teal600,
+                fontWeight: MemoryHubTypography.medium,
               ),
             ),
             style: GoogleFonts.inter(
-              fontSize: 15,
-              color: _typographyDark,
-              fontWeight: FontWeight.w500,
+              fontSize: MemoryHubTypography.h5,
+              color: MemoryHubColors.gray900,
+              fontWeight: MemoryHubTypography.medium,
             ),
           ),
         ),
 
         // Helper Text
         if (widget.helpText != null && _controller.text.isEmpty) ...[
-          const SizedBox(height: 8),
+          SizedBox(height: MemoryHubSpacing.sm),
           Row(
             children: [
-              Icon(Icons.info_outline, size: 14, color: _primaryTeal.withOpacity(0.6)),
-              const SizedBox(width: 6),
+              Icon(Icons.info_outline, size: 14, color: MemoryHubColors.teal600.withOpacity(0.6)),
+              SizedBox(width: MemoryHubSpacing.xs),
               Expanded(
                 child: Text(
                   widget.helpText!,
                   style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: _typographyDark.withOpacity(0.6),
+                    fontSize: MemoryHubTypography.bodySmall,
+                    color: MemoryHubColors.gray900.withOpacity(0.6),
                     height: 1.4,
                   ),
                 ),
@@ -312,16 +306,16 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
 
         // Minimum character hint
         if (_controller.text.isNotEmpty && _controller.text.length < 2) ...[
-          const SizedBox(height: 8),
+          SizedBox(height: MemoryHubSpacing.sm),
           Row(
             children: [
-              Icon(Icons.keyboard, size: 14, color: _primaryTeal.withOpacity(0.6)),
-              const SizedBox(width: 6),
+              Icon(Icons.keyboard, size: 14, color: MemoryHubColors.teal600.withOpacity(0.6)),
+              SizedBox(width: MemoryHubSpacing.xs),
               Text(
                 'Type at least 2 characters to search',
                 style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: _primaryTeal.withOpacity(0.7),
+                  fontSize: MemoryHubTypography.bodySmall,
+                  color: MemoryHubColors.teal600.withOpacity(0.7),
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -331,25 +325,25 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
 
         // Error Message
         if (_error != null) ...[
-          const SizedBox(height: 10),
+          SizedBox(height: MemoryHubSpacing.sm),
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(MemoryHubSpacing.md),
             decoration: BoxDecoration(
-              color: _errorRed.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _errorRed.withOpacity(0.2)),
+              color: MemoryHubColors.red500.withOpacity(0.08),
+              borderRadius: MemoryHubBorderRadius.mdRadius,
+              border: Border.all(color: MemoryHubColors.red500.withOpacity(0.2)),
             ),
             child: Row(
               children: [
-                Icon(Icons.error_outline, size: 18, color: _errorRed),
-                const SizedBox(width: 10),
+                Icon(Icons.error_outline, size: 18, color: MemoryHubColors.red500),
+                SizedBox(width: MemoryHubSpacing.sm),
                 Expanded(
                   child: Text(
                     _error!,
                     style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: _errorRed,
-                      fontWeight: FontWeight.w500,
+                      fontSize: MemoryHubTypography.bodyMedium,
+                      color: MemoryHubColors.red500,
+                      fontWeight: MemoryHubTypography.medium,
                     ),
                   ),
                 ),
@@ -358,9 +352,9 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                   child: Text(
                     'Retry',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: _errorRed,
-                      fontWeight: FontWeight.w600,
+                      fontSize: MemoryHubTypography.bodySmall,
+                      color: MemoryHubColors.red500,
+                      fontWeight: MemoryHubTypography.semiBold,
                     ),
                   ),
                 ),
@@ -371,19 +365,19 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
 
         // Search Results
         if (_showResults && _controller.text.length >= 2) ...[
-          const SizedBox(height: 12),
+          SizedBox(height: MemoryHubSpacing.md),
           FadeTransition(
             opacity: _fadeAnimation,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: _primaryTeal.withOpacity(0.15)),
+                borderRadius: MemoryHubBorderRadius.lgRadius,
+                border: Border.all(color: MemoryHubColors.teal600.withOpacity(0.15)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.08),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
+                    blurRadius: MemoryHubSpacing.lg,
+                    offset: Offset(0, MemoryHubSpacing.xs),
                   ),
                 ],
               ),
@@ -395,23 +389,23 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.all(16),
+                              padding: EdgeInsets.all(MemoryHubSpacing.lg),
                               child: Row(
                                 children: [
-                                  Icon(Icons.people_alt_rounded, size: 18, color: _primaryTeal),
-                                  const SizedBox(width: 8),
+                                  Icon(Icons.people_alt_rounded, size: 18, color: MemoryHubColors.teal600),
+                                  SizedBox(width: MemoryHubSpacing.sm),
                                   Text(
                                     '${_searchResults.length} ${_searchResults.length == 1 ? 'user' : 'users'} found',
                                     style: GoogleFonts.inter(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: _typographyDark.withOpacity(0.7),
+                                      fontSize: MemoryHubTypography.bodyMedium,
+                                      fontWeight: MemoryHubTypography.semiBold,
+                                      color: MemoryHubColors.gray900.withOpacity(0.7),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            Divider(height: 1, color: _primaryTeal.withOpacity(0.1)),
+                            Divider(height: 1, color: MemoryHubColors.teal600.withOpacity(0.1)),
                             Expanded(
                               child: ListView.separated(
                                 shrinkWrap: true,
@@ -420,7 +414,7 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                                 separatorBuilder: (context, index) => Divider(
                                   height: 1,
                                   indent: 68,
-                                  color: _primaryTeal.withOpacity(0.1),
+                                  color: MemoryHubColors.teal600.withOpacity(0.1),
                                 ),
                                 itemBuilder: (context, index) {
                                   final user = _searchResults[index];
@@ -438,7 +432,7 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                                         _animationController.reverse();
                                       },
                                       child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.md),
                                         child: Row(
                                           children: [
                                             // Avatar
@@ -447,11 +441,11 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                                               height: 48,
                                               decoration: BoxDecoration(
                                                 gradient: LinearGradient(
-                                                  colors: [_primaryTeal.withOpacity(0.2), _accentAqua.withOpacity(0.2)],
+                                                  colors: [MemoryHubColors.teal600.withOpacity(0.2), MemoryHubColors.cyan500.withOpacity(0.2)],
                                                 ),
                                                 shape: BoxShape.circle,
                                                 border: Border.all(
-                                                  color: _primaryTeal.withOpacity(0.3),
+                                                  color: MemoryHubColors.teal600.withOpacity(0.3),
                                                   width: 2,
                                                 ),
                                               ),
@@ -463,12 +457,12 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                                                         height: 48,
                                                         fit: BoxFit.cover,
                                                         errorBuilder: (context, error, stack) =>
-                                                            Icon(Icons.person_rounded, color: _accentAqua, size: 24),
+                                                            Icon(Icons.person_rounded, color: MemoryHubColors.cyan500, size: 24),
                                                       ),
                                                     )
-                                                  : Icon(Icons.person_rounded, color: _accentAqua, size: 24),
+                                                  : Icon(Icons.person_rounded, color: MemoryHubColors.cyan500, size: 24),
                                             ),
-                                            const SizedBox(width: 14),
+                                            SizedBox(width: MemoryHubSpacing.lg),
                                             // User Info
                                             Expanded(
                                               child: Column(
@@ -477,26 +471,26 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                                                   Text(
                                                     user.fullName,
                                                     style: GoogleFonts.inter(
-                                                      fontSize: 15,
-                                                      fontWeight: FontWeight.w600,
-                                                      color: _typographyDark,
+                                                      fontSize: MemoryHubTypography.h5,
+                                                      fontWeight: MemoryHubTypography.semiBold,
+                                                      color: MemoryHubColors.gray900,
                                                       height: 1.2,
                                                     ),
                                                     maxLines: 1,
                                                     overflow: TextOverflow.ellipsis,
                                                   ),
                                                   if (user.email != null) ...[
-                                                    const SizedBox(height: 4),
+                                                    SizedBox(height: MemoryHubSpacing.xs),
                                                     Row(
                                                       children: [
-                                                        Icon(Icons.email_outlined, size: 12, color: _typographyDark.withOpacity(0.4)),
-                                                        const SizedBox(width: 4),
+                                                        Icon(Icons.email_outlined, size: 12, color: MemoryHubColors.gray900.withOpacity(0.4)),
+                                                        SizedBox(width: MemoryHubSpacing.xs),
                                                         Expanded(
                                                           child: Text(
                                                             user.email!,
                                                             style: GoogleFonts.inter(
-                                                              fontSize: 12,
-                                                              color: _typographyDark.withOpacity(0.6),
+                                                              fontSize: MemoryHubTypography.bodySmall,
+                                                              color: MemoryHubColors.gray900.withOpacity(0.6),
                                                               height: 1.3,
                                                             ),
                                                             maxLines: 1,
@@ -509,25 +503,25 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                                                 ],
                                               ),
                                             ),
-                                            const SizedBox(width: 8),
+                                            SizedBox(width: MemoryHubSpacing.sm),
                                             // Badges
                                             Column(
                                               mainAxisSize: MainAxisSize.min,
                                               crossAxisAlignment: CrossAxisAlignment.end,
                                               children: [
                                                 Container(
-                                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                                  padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.sm, vertical: MemoryHubSpacing.xs),
                                                   decoration: BoxDecoration(
                                                     gradient: LinearGradient(
                                                       colors: user.relationType == 'circle'
-                                                          ? [_primaryTeal.withOpacity(0.15), _primaryTeal.withOpacity(0.08)]
-                                                          : [_accentAqua.withOpacity(0.15), _accentAqua.withOpacity(0.08)],
+                                                          ? [MemoryHubColors.teal600.withOpacity(0.15), MemoryHubColors.teal600.withOpacity(0.08)]
+                                                          : [MemoryHubColors.cyan500.withOpacity(0.15), MemoryHubColors.cyan500.withOpacity(0.08)],
                                                     ),
-                                                    borderRadius: BorderRadius.circular(10),
+                                                    borderRadius: MemoryHubBorderRadius.mdRadius,
                                                     border: Border.all(
                                                       color: user.relationType == 'circle'
-                                                          ? _primaryTeal.withOpacity(0.3)
-                                                          : _accentAqua.withOpacity(0.3),
+                                                          ? MemoryHubColors.teal600.withOpacity(0.3)
+                                                          : MemoryHubColors.cyan500.withOpacity(0.3),
                                                     ),
                                                   ),
                                                   child: Row(
@@ -536,15 +530,15 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                                                       Icon(
                                                         user.relationType == 'circle' ? Icons.group : Icons.person_outline,
                                                         size: 12,
-                                                        color: user.relationType == 'circle' ? _primaryTeal : _accentAqua,
+                                                        color: user.relationType == 'circle' ? MemoryHubColors.teal600 : MemoryHubColors.cyan500,
                                                       ),
-                                                      const SizedBox(width: 4),
+                                                      SizedBox(width: MemoryHubSpacing.xs),
                                                       Text(
                                                         user.relationType == 'circle' ? 'Circle' : 'Other',
                                                         style: GoogleFonts.inter(
-                                                          fontSize: 11,
-                                                          fontWeight: FontWeight.w700,
-                                                          color: user.relationType == 'circle' ? _primaryTeal : _accentAqua,
+                                                          fontSize: MemoryHubTypography.bodySmall,
+                                                          fontWeight: MemoryHubTypography.bold,
+                                                          color: user.relationType == 'circle' ? MemoryHubColors.teal600 : MemoryHubColors.cyan500,
                                                           letterSpacing: 0.2,
                                                         ),
                                                       ),
@@ -552,27 +546,27 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                                                   ),
                                                 ),
                                                 if (user.requiresApproval) ...[
-                                                  const SizedBox(height: 6),
+                                                  SizedBox(height: MemoryHubSpacing.xs),
                                                   Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                                    padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.sm, vertical: MemoryHubSpacing.xs),
                                                     decoration: BoxDecoration(
-                                                      color: const Color(0xFFFEF3C7),
-                                                      borderRadius: BorderRadius.circular(8),
+                                                      color: MemoryHubColors.amber400.withOpacity(0.2),
+                                                      borderRadius: MemoryHubBorderRadius.smRadius,
                                                       border: Border.all(
-                                                        color: const Color(0xFFF59E0B).withOpacity(0.3),
+                                                        color: MemoryHubColors.amber500.withOpacity(0.3),
                                                       ),
                                                     ),
                                                     child: Row(
                                                       mainAxisSize: MainAxisSize.min,
                                                       children: [
-                                                        const Icon(Icons.pending_actions, size: 10, color: Color(0xFFF59E0B)),
-                                                        const SizedBox(width: 3),
+                                                        Icon(Icons.pending_actions, size: 10, color: MemoryHubColors.amber500),
+                                                        SizedBox(width: MemoryHubSpacing.xs),
                                                         Text(
                                                           'Needs Approval',
                                                           style: GoogleFonts.inter(
-                                                            fontSize: 9,
-                                                            fontWeight: FontWeight.w700,
-                                                            color: const Color(0xFFF59E0B),
+                                                            fontSize: MemoryHubTypography.bodySmall,
+                                                            fontWeight: MemoryHubTypography.bold,
+                                                            color: MemoryHubColors.amber500,
                                                             letterSpacing: 0.1,
                                                           ),
                                                         ),
@@ -593,7 +587,7 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                           ],
                         )
                       : Padding(
-                          padding: const EdgeInsets.all(24),
+                          padding: EdgeInsets.all(MemoryHubSpacing.xl),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -602,43 +596,43 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                                 height: 64,
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: [_supportLight, _primaryTeal.withOpacity(0.1)],
+                                    colors: [MemoryHubColors.gray50, MemoryHubColors.teal600.withOpacity(0.1)],
                                   ),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
                                   Icons.person_search_outlined,
                                   size: 32,
-                                  color: _primaryTeal.withOpacity(0.5),
+                                  color: MemoryHubColors.teal600.withOpacity(0.5),
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: MemoryHubSpacing.lg),
                               Text(
                                 'No users found',
                                 style: GoogleFonts.inter(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: _typographyDark,
+                                  fontSize: MemoryHubTypography.h5,
+                                  fontWeight: MemoryHubTypography.semiBold,
+                                  color: MemoryHubColors.gray900,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: MemoryHubSpacing.sm),
                               Text(
                                 'Only users in your family circles can be found',
                                 textAlign: TextAlign.center,
                                 style: GoogleFonts.inter(
-                                  fontSize: 13,
-                                  color: _typographyDark.withOpacity(0.6),
+                                  fontSize: MemoryHubTypography.bodyMedium,
+                                  color: MemoryHubColors.gray900.withOpacity(0.6),
                                   height: 1.4,
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: MemoryHubSpacing.lg),
                               Container(
-                                padding: const EdgeInsets.all(14),
+                                padding: EdgeInsets.all(MemoryHubSpacing.lg),
                                 decoration: BoxDecoration(
-                                  color: _primaryTeal.withOpacity(0.05),
-                                  borderRadius: BorderRadius.circular(12),
+                                  color: MemoryHubColors.teal600.withOpacity(0.05),
+                                  borderRadius: MemoryHubBorderRadius.mdRadius,
                                   border: Border.all(
-                                    color: _primaryTeal.withOpacity(0.2),
+                                    color: MemoryHubColors.teal600.withOpacity(0.2),
                                   ),
                                 ),
                                 child: Column(
@@ -646,26 +640,26 @@ class _UserSearchAutocompleteState extends State<UserSearchAutocomplete> with Si
                                   children: [
                                     Row(
                                       children: [
-                                        Icon(Icons.lightbulb_outline, size: 16, color: _primaryTeal),
-                                        const SizedBox(width: 8),
+                                        Icon(Icons.lightbulb_outline, size: 16, color: MemoryHubColors.teal600),
+                                        SizedBox(width: MemoryHubSpacing.sm),
                                         Text(
                                           'How to add users:',
                                           style: GoogleFonts.inter(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: _primaryTeal,
+                                            fontSize: MemoryHubTypography.bodySmall,
+                                            fontWeight: MemoryHubTypography.semiBold,
+                                            color: MemoryHubColors.teal600,
                                           ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 8),
+                                    SizedBox(height: MemoryHubSpacing.sm),
                                     Text(
                                       '1. Create or join a family circle\n'
                                       '2. Invite users to your circle\n'
                                       '3. Once they join, they\'ll appear in search',
                                       style: GoogleFonts.inter(
-                                        fontSize: 12,
-                                        color: _typographyDark.withOpacity(0.7),
+                                        fontSize: MemoryHubTypography.bodySmall,
+                                        color: MemoryHubColors.gray900.withOpacity(0.7),
                                         height: 1.5,
                                       ),
                                     ),

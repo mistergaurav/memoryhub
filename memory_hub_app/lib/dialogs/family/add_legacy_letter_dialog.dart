@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../design_system/design_tokens.dart';
 
 class AddLegacyLetterDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
@@ -46,25 +47,25 @@ class _AddLegacyLetterDialogState extends State<AddLegacyLetterDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.xlRadius),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(gradient: const LinearGradient(colors: [Color(0xFF8B5CF6), Color(0xFFA78BFA)]), borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                  decoration: BoxDecoration(gradient: const LinearGradient(colors: [MemoryHubColors.purple600, MemoryHubColors.purple400]), borderRadius: MemoryHubBorderRadius.mdRadius),
                   child: const Icon(Icons.mail, color: Colors.white),
                 ),
-                const SizedBox(width: 16),
-                const Expanded(child: Text('Write Legacy Letter', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+                const SizedBox(width: MemoryHubSpacing.lg),
+                const Expanded(child: Text('Write Legacy Letter', style: TextStyle(fontSize: MemoryHubTypography.h2, fontWeight: MemoryHubTypography.bold))),
                 IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MemoryHubSpacing.lg),
             Expanded(
               child: Form(
                 key: _formKey,
@@ -75,12 +76,12 @@ class _AddLegacyLetterDialogState extends State<AddLegacyLetterDialog> {
                       decoration: const InputDecoration(labelText: 'Letter Title *', border: OutlineInputBorder(), prefixIcon: Icon(Icons.title)),
                       validator: (v) => v?.trim().isEmpty ?? true ? 'Title is required' : null,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
                     TextFormField(
                       controller: _recipientNameController,
                       decoration: const InputDecoration(labelText: 'Recipient Name', border: OutlineInputBorder(), prefixIcon: Icon(Icons.person)),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
                     TextFormField(
                       controller: _contentController,
                       decoration: const InputDecoration(
@@ -97,15 +98,15 @@ class _AddLegacyLetterDialogState extends State<AddLegacyLetterDialog> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: MemoryHubSpacing.lg),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(onPressed: _isLoading ? null : () => Navigator.pop(context), child: const Text('Cancel')),
-                const SizedBox(width: 12),
+                const SizedBox(width: MemoryHubSpacing.md),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8B5CF6), padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16)),
+                  style: ElevatedButton.styleFrom(backgroundColor: MemoryHubColors.purple600, padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg)),
                   child: _isLoading
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
                       : const Text('Save Letter', style: TextStyle(color: Colors.white)),

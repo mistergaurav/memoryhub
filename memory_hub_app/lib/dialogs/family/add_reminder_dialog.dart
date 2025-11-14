@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../services/auth_service.dart';
+import '../../design_system/design_tokens.dart';
 
 class AddReminderDialog extends StatefulWidget {
   final String recordId;
@@ -38,13 +39,13 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
   bool _isLoading = false;
 
   final List<Map<String, dynamic>> _reminderTypes = [
-    {'value': 'appointment', 'label': 'Appointment', 'icon': Icons.event, 'color': Color(0xFF3B82F6)},
-    {'value': 'medication', 'label': 'Medication', 'icon': Icons.medication, 'color': Color(0xFF10B981)},
-    {'value': 'vaccination', 'label': 'Vaccination', 'icon': Icons.vaccines, 'color': Color(0xFF8B5CF6)},
-    {'value': 'lab_test', 'label': 'Lab Test', 'icon': Icons.biotech, 'color': Color(0xFFF59E0B)},
-    {'value': 'checkup', 'label': 'Checkup', 'icon': Icons.health_and_safety, 'color': Color(0xFF06B6D4)},
-    {'value': 'refill', 'label': 'Refill', 'icon': Icons.refresh, 'color': Color(0xFFEC4899)},
-    {'value': 'custom', 'label': 'Custom', 'icon': Icons.notifications, 'color': Color(0xFF6366F1)},
+    {'value': 'appointment', 'label': 'Appointment', 'icon': Icons.event, 'color': MemoryHubColors.blue500},
+    {'value': 'medication', 'label': 'Medication', 'icon': Icons.medication, 'color': MemoryHubColors.green500},
+    {'value': 'vaccination', 'label': 'Vaccination', 'icon': Icons.vaccines, 'color': MemoryHubColors.purple600},
+    {'value': 'lab_test', 'label': 'Lab Test', 'icon': Icons.biotech, 'color': MemoryHubColors.yellow500},
+    {'value': 'checkup', 'label': 'Checkup', 'icon': Icons.health_and_safety, 'color': MemoryHubColors.cyan600},
+    {'value': 'refill', 'label': 'Refill', 'icon': Icons.refresh, 'color': MemoryHubColors.pink500},
+    {'value': 'custom', 'label': 'Custom', 'icon': Icons.notifications, 'color': MemoryHubColors.indigo600},
   ];
 
   final List<Map<String, dynamic>> _repeatFrequencies = [
@@ -193,7 +194,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.xxlRadius),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
         child: Column(
@@ -203,24 +204,24 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
               child: Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(MemoryHubSpacing.xl),
                   children: [
                     _buildRecordInfo(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: MemoryHubSpacing.xl),
                     _buildReminderTypeSelection(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: MemoryHubSpacing.xl),
                     _buildTitleField(),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: MemoryHubSpacing.lg),
                     _buildDescriptionField(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: MemoryHubSpacing.xl),
                     _buildDateTimeSelection(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: MemoryHubSpacing.xl),
                     _buildRepeatFrequencySelection(),
                     if (_repeatFrequency != 'once') ...[
-                      const SizedBox(height: 16),
+                      const SizedBox(height: MemoryHubSpacing.lg),
                       _buildRepeatCountField(),
                     ],
-                    const SizedBox(height: 24),
+                    const SizedBox(height: MemoryHubSpacing.xl),
                     _buildDeliveryChannels(),
                   ],
                 ),
@@ -235,10 +236,10 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+          colors: [MemoryHubColors.indigo600, MemoryHubColors.purple600],
         ),
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(24),
@@ -248,14 +249,14 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(MemoryHubSpacing.sm),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: MemoryHubBorderRadius.mdRadius,
             ),
             child: const Icon(Icons.alarm_add, color: Colors.white, size: 24),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MemoryHubSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,14 +265,14 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
                   widget.existingReminder != null ? 'Edit Reminder' : 'Add Reminder',
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontSize: MemoryHubTypography.h3,
+                    fontWeight: MemoryHubTypography.bold,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MemoryHubSpacing.xs),
                 const Text(
                   'Set a reminder for this health record',
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                  style: TextStyle(color: Colors.white70, fontSize: MemoryHubTypography.body2),
                 ),
               ],
             ),
@@ -287,27 +288,27 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
 
   Widget _buildRecordInfo() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
       decoration: BoxDecoration(
         color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
       ),
       child: Row(
         children: [
           Icon(Icons.medical_information, color: Colors.grey[700]),
-          const SizedBox(width: 12),
+          const SizedBox(width: MemoryHubSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Health Record',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  style: TextStyle(fontSize: MemoryHubTypography.caption, color: Colors.grey),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: MemoryHubSpacing.xs),
                 Text(
                   widget.recordTitle,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontSize: MemoryHubTypography.body1, fontWeight: MemoryHubTypography.semiBold),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -325,9 +326,9 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
       children: [
         const Text(
           'Reminder Type',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: MemoryHubTypography.body1, fontWeight: MemoryHubTypography.semiBold),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MemoryHubSpacing.md),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -336,10 +337,10 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
             return InkWell(
               onTap: () => setState(() => _selectedReminderType = type['value'] as String),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.sm),
                 decoration: BoxDecoration(
                   color: isSelected ? type['color'] as Color : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: MemoryHubBorderRadius.xlRadius,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -349,7 +350,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
                       size: 18,
                       color: isSelected ? Colors.white : Colors.grey[700],
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: MemoryHubSpacing.sm),
                     Text(
                       type['label'] as String,
                       style: TextStyle(
@@ -374,7 +375,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
         labelText: 'Title *',
         hintText: 'e.g., Doctor Appointment',
         prefixIcon: const Icon(Icons.title),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
         filled: true,
         fillColor: Colors.grey[50],
       ),
@@ -394,7 +395,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
         labelText: 'Description',
         hintText: 'Add details about this reminder',
         prefixIcon: const Icon(Icons.description),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
         filled: true,
         fillColor: Colors.grey[50],
       ),
@@ -408,52 +409,52 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
       children: [
         const Text(
           'Due Date & Time',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: MemoryHubTypography.body1, fontWeight: MemoryHubTypography.semiBold),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MemoryHubSpacing.md),
         Row(
           children: [
             Expanded(
               child: InkWell(
                 onTap: _selectDate,
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(MemoryHubSpacing.lg),
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                     border: Border.all(color: Colors.grey[300]!),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.calendar_today, color: Color(0xFF6366F1)),
-                      const SizedBox(width: 12),
+                      const Icon(Icons.calendar_today, color: MemoryHubColors.indigo600),
+                      const SizedBox(width: MemoryHubSpacing.md),
                       Text(
                         DateFormat('MMM dd, yyyy').format(_dueDate),
-                        style: const TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: MemoryHubTypography.body1),
                       ),
                     ],
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: MemoryHubSpacing.md),
             Expanded(
               child: InkWell(
                 onTap: _selectTime,
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(MemoryHubSpacing.lg),
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                     border: Border.all(color: Colors.grey[300]!),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.access_time, color: Color(0xFF6366F1)),
-                      const SizedBox(width: 12),
+                      const Icon(Icons.access_time, color: MemoryHubColors.indigo600),
+                      const SizedBox(width: MemoryHubSpacing.md),
                       Text(
                         _dueTime.format(context),
-                        style: const TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: MemoryHubTypography.body1),
                       ),
                     ],
                   ),
@@ -472,9 +473,9 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
       children: [
         const Text(
           'Repeat Frequency',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: MemoryHubTypography.body1, fontWeight: MemoryHubTypography.semiBold),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MemoryHubSpacing.md),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -483,10 +484,10 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
             return InkWell(
               onTap: () => setState(() => _repeatFrequency = freq['value'] as String),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.sm),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF6366F1) : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(20),
+                  color: isSelected ? const MemoryHubColors.indigo600 : Colors.grey[100],
+                  borderRadius: MemoryHubBorderRadius.xlRadius,
                 ),
                 child: Text(
                   freq['label'] as String,
@@ -510,7 +511,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
         labelText: 'Number of Repeats',
         hintText: 'How many times to repeat?',
         prefixIcon: const Icon(Icons.repeat),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
         filled: true,
         fillColor: Colors.grey[50],
       ),
@@ -529,9 +530,9 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
       children: [
         const Text(
           'Delivery Channels',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          style: TextStyle(fontSize: MemoryHubTypography.body1, fontWeight: MemoryHubTypography.semiBold),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: MemoryHubSpacing.md),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -540,10 +541,10 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
             return InkWell(
               onTap: () => _toggleDeliveryChannel(channel['value'] as String),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.sm),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFF10B981) : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(20),
+                  color: isSelected ? const MemoryHubColors.green500 : Colors.grey[100],
+                  borderRadius: MemoryHubBorderRadius.xlRadius,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -553,7 +554,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
                       size: 18,
                       color: isSelected ? Colors.white : Colors.grey[700],
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: MemoryHubSpacing.sm),
                     Text(
                       channel['label'] as String,
                       style: TextStyle(
@@ -573,7 +574,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
 
   Widget _buildFooter() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: BoxDecoration(
         color: Colors.grey[50],
         borderRadius: const BorderRadius.only(
@@ -588,14 +589,14 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
             onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
             child: const Text('Cancel'),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: MemoryHubSpacing.md),
           ElevatedButton(
             onPressed: _isLoading ? null : _submit,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6366F1),
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              backgroundColor: const MemoryHubColors.indigo600,
+              padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: MemoryHubBorderRadius.mdRadius,
               ),
             ),
             child: _isLoading
@@ -609,7 +610,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
                   )
                 : Text(
                     widget.existingReminder != null ? 'Update' : 'Add Reminder',
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    style: const TextStyle(color: Colors.white, fontSize: MemoryHubTypography.body1),
                   ),
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:memory_hub_app/design_system/design_tokens.dart';
 import '../../services/family/family_service.dart';
 import '../../widgets/user_search_autocomplete.dart';
 import '../../models/user_search_result.dart';
@@ -57,14 +58,6 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
   late AnimationController _animationController;
   late Animation<double> _dropdownAnimation;
 
-  static const Color _primaryTeal = Color(0xFF0E7C86);
-  static const Color _accentAqua = Color(0xFF1FB7C9);
-  static const Color _supportLight = Color(0xFFF2FBFC);
-  static const Color _typographyDark = Color(0xFF0B1F32);
-  static const Color _background = Color(0xFFF8FAFB);
-  static const Color _errorRed = Color(0xFFE63946);
-  static const Color _successGreen = Color(0xFF10B981);
-
   final List<Map<String, String>> _recordTypes = [
     {'value': 'medical', 'label': 'Medical'},
     {'value': 'vaccination', 'label': 'Vaccination'},
@@ -105,7 +98,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: MemoryHubAnimations.normal,
       vsync: this,
     );
     _dropdownAnimation = CurvedAnimation(
@@ -169,10 +162,10 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: _primaryTeal,
+              primary: MemoryHubColors.teal600,
               onPrimary: Colors.white,
               surface: Colors.white,
-              onSurface: _typographyDark,
+              onSurface: MemoryHubColors.gray900,
             ),
           ),
           child: child!,
@@ -196,10 +189,10 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: _primaryTeal,
+              primary: MemoryHubColors.teal600,
               onPrimary: Colors.white,
               surface: Colors.white,
-              onSurface: _typographyDark,
+              onSurface: MemoryHubColors.gray900,
             ),
           ),
           child: child!,
@@ -231,14 +224,14 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
           content: Row(
             children: [
               const Icon(Icons.error_outline, color: Colors.white),
-              const SizedBox(width: 12),
+              SizedBox(width: MemoryHubSpacing.md),
               Expanded(child: Text(subjectValidation)),
             ],
           ),
-          backgroundColor: _errorRed,
+          backgroundColor: MemoryHubColors.red500,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
+          margin: EdgeInsets.all(MemoryHubSpacing.lg),
         ),
       );
       return;
@@ -255,14 +248,14 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
           content: Row(
             children: [
               const Icon(Icons.error_outline, color: Colors.white),
-              const SizedBox(width: 12),
+              SizedBox(width: MemoryHubSpacing.md),
               Expanded(child: Text(reminderValidation)),
             ],
           ),
-          backgroundColor: _errorRed,
+          backgroundColor: MemoryHubColors.red500,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
+          margin: EdgeInsets.all(MemoryHubSpacing.lg),
         ),
       );
       return;
@@ -302,20 +295,20 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
           content: Row(
             children: const [
               Icon(Icons.check_circle, color: Colors.white),
-              SizedBox(width: 12),
+              SizedBox(width: MemoryHubSpacing.md),
               Expanded(
                 child: Text('Health record created successfully'),
               ),
             ],
           ),
-          backgroundColor: _successGreen,
+          backgroundColor: MemoryHubColors.green500,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
+          margin: EdgeInsets.all(MemoryHubSpacing.lg),
         ),
       );
       
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(MemoryHubAnimations.slow);
       if (mounted) {
         Navigator.of(context).pop(true);
       }
@@ -357,20 +350,20 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
           content: Row(
             children: const [
               Icon(Icons.check_circle, color: Colors.white),
-              SizedBox(width: 12),
+              SizedBox(width: MemoryHubSpacing.md),
               Expanded(
                 child: Text('Health record created successfully'),
               ),
             ],
           ),
-          backgroundColor: _successGreen,
+          backgroundColor: MemoryHubColors.green500,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
+          margin: EdgeInsets.all(MemoryHubSpacing.lg),
         ),
       );
       
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(MemoryHubAnimations.slow);
       if (mounted) {
         Navigator.of(context).pop(true);
       }
@@ -386,48 +379,48 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
       labelText: label,
       helperText: helperText,
       prefixIcon: Container(
-        margin: const EdgeInsets.all(12),
+        margin: EdgeInsets.all(MemoryHubSpacing.md),
         width: 18,
         height: 18,
         decoration: BoxDecoration(
-          color: _primaryTeal.withOpacity(0.1),
+          color: MemoryHubColors.teal600.withOpacity(0.1),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, size: 18, color: _primaryTeal),
+        child: Icon(icon, size: 18, color: MemoryHubColors.teal600),
       ),
       filled: true,
-      fillColor: _supportLight,
+      fillColor: MemoryHubColors.gray50,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _accentAqua, width: 2),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
+        borderSide: const BorderSide(color: MemoryHubColors.cyan500, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _errorRed, width: 1),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
+        borderSide: const BorderSide(color: MemoryHubColors.red500, width: 1),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _errorRed, width: 2),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
+        borderSide: const BorderSide(color: MemoryHubColors.red500, width: 2),
       ),
       labelStyle: GoogleFonts.inter(
-        fontSize: 14,
-        color: _typographyDark,
+        fontSize: MemoryHubTypography.bodyMedium,
+        color: MemoryHubColors.gray900,
       ),
       helperStyle: GoogleFonts.inter(
-        fontSize: 12,
-        color: const Color(0xFF6B7280),
+        fontSize: MemoryHubTypography.bodySmall,
+        color: MemoryHubColors.gray500,
       ),
       errorStyle: GoogleFonts.inter(
-        fontSize: 12,
-        color: _errorRed,
+        fontSize: MemoryHubTypography.bodySmall,
+        color: MemoryHubColors.red500,
       ),
     );
   }
@@ -441,16 +434,16 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
+        borderRadius: MemoryHubBorderRadius.xlRadius,
+        boxShadow: [
           BoxShadow(
-            color: Color(0x140E7C86),
+            color: MemoryHubColors.teal600.withOpacity(0.08),
             blurRadius: 18,
-            offset: Offset(0, 6),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -459,15 +452,15 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
               Container(
                 width: 36,
                 height: 36,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [_primaryTeal, _accentAqua],
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MemoryHubColors.teal600, MemoryHubColors.cyan500],
                   ),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: Colors.white, size: 20),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: MemoryHubSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -475,18 +468,18 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                     Text(
                       title,
                       style: GoogleFonts.inter(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: _typographyDark,
+                        fontSize: MemoryHubTypography.h5,
+                        fontWeight: MemoryHubTypography.semiBold,
+                        color: MemoryHubColors.gray900,
                       ),
                     ),
                     if (helperText != null) ...[
-                      const SizedBox(height: 4),
+                      SizedBox(height: MemoryHubSpacing.xs),
                       Text(
                         helperText,
                         style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: const Color(0xFF6B7280),
+                          fontSize: MemoryHubTypography.bodySmall,
+                          color: MemoryHubColors.gray500,
                         ),
                       ),
                     ],
@@ -495,7 +488,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: MemoryHubSpacing.lg),
           ...children,
         ],
       ),
@@ -511,18 +504,18 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: MemoryHubAnimations.fast,
         height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
         decoration: BoxDecoration(
           gradient: selected
               ? const LinearGradient(
-                  colors: [_primaryTeal, _accentAqua],
+                  colors: [MemoryHubColors.teal600, MemoryHubColors.cyan500],
                 )
               : null,
           color: selected ? null : Colors.white,
-          border: selected ? null : Border.all(color: const Color(0xFFD1E8EC)),
-          borderRadius: BorderRadius.circular(22),
+          border: selected ? null : Border.all(color: MemoryHubColors.gray200),
+          borderRadius: MemoryHubBorderRadius.fullRadius,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -530,19 +523,19 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
             Icon(
               icon,
               size: 18,
-              color: selected ? Colors.white : _primaryTeal,
+              color: selected ? Colors.white : MemoryHubColors.teal600,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: MemoryHubSpacing.sm),
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: selected ? Colors.white : _primaryTeal,
+                fontSize: MemoryHubTypography.bodyMedium,
+                fontWeight: MemoryHubTypography.medium,
+                color: selected ? Colors.white : MemoryHubColors.teal600,
               ),
             ),
             if (selected) ...[
-              const SizedBox(width: 4),
+              SizedBox(width: MemoryHubSpacing.xs),
               const Icon(Icons.check, size: 16, color: Colors.white),
             ],
           ],
@@ -557,20 +550,20 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
     
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(16),
+      insetPadding: EdgeInsets.all(MemoryHubSpacing.lg),
       child: Container(
         constraints: BoxConstraints(
           maxWidth: 640,
           maxHeight: screenHeight * 0.85,
         ),
         decoration: BoxDecoration(
-          color: _background,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: const [
+          color: MemoryHubColors.gray50,
+          borderRadius: MemoryHubBorderRadius.xxlRadius,
+          boxShadow: [
             BoxShadow(
-              color: Color(0x1F0C5A6E),
+              color: MemoryHubColors.teal600.withOpacity(0.12),
               blurRadius: 24,
-              offset: Offset(0, 12),
+              offset: const Offset(0, 12),
             ),
           ],
         ),
@@ -580,18 +573,18 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
               height: 64,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [_primaryTeal, _accentAqua],
+                  colors: [MemoryHubColors.teal600, MemoryHubColors.cyan500],
                 ),
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
+                  topLeft: Radius.circular(MemoryHubBorderRadius.xxl),
+                  topRight: Radius.circular(MemoryHubBorderRadius.xxl),
                 ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xl),
               child: Row(
                 children: [
                   const Icon(Icons.health_and_safety, color: Colors.white, size: 28),
-                  const SizedBox(width: 12),
+                  SizedBox(width: MemoryHubSpacing.md),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -601,15 +594,15 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                           'Add Health Record',
                           style: GoogleFonts.inter(
                             color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
+                            fontSize: MemoryHubTypography.h3,
+                            fontWeight: MemoryHubTypography.semiBold,
                           ),
                         ),
                         Text(
                           'Track health details with clarity',
                           style: GoogleFonts.inter(
                             color: Colors.white70,
-                            fontSize: 14,
+                            fontSize: MemoryHubTypography.bodyMedium,
                           ),
                         ),
                       ],
@@ -627,14 +620,14 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
               builder: (context, _) {
                 if (_controller.errorMessage != null) {
                   return AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
+                    duration: MemoryHubAnimations.fast,
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(MemoryHubSpacing.lg),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFDEBEC),
+                      color: MemoryHubColors.red500.withOpacity(0.05),
                       border: Border(
                         bottom: BorderSide(
-                          color: _errorRed.withOpacity(0.3),
+                          color: MemoryHubColors.red500.withOpacity(0.3),
                           width: 1,
                         ),
                       ),
@@ -643,14 +636,14 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(6),
+                          padding: EdgeInsets.all(MemoryHubSpacing.xs * 1.5),
                           decoration: BoxDecoration(
-                            color: _errorRed.withOpacity(0.1),
+                            color: MemoryHubColors.red500.withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.error_outline, color: _errorRed, size: 20),
+                          child: Icon(Icons.error_outline, color: MemoryHubColors.red500, size: 20),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: MemoryHubSpacing.md),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -658,12 +651,12 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                               Text(
                                 'Submission Failed',
                                 style: GoogleFonts.inter(
-                                  color: _errorRed,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                  color: MemoryHubColors.red500,
+                                  fontSize: MemoryHubTypography.bodyMedium,
+                                  fontWeight: MemoryHubTypography.semiBold,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: MemoryHubSpacing.xs),
                               Text(
                                 _controller.errorMessage!,
                                 style: GoogleFonts.inter(
@@ -1160,7 +1153,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                 style: GoogleFonts.inter(
                                   color: _dailyReminderTime != null
                                       ? _typographyDark
-                                      : const Color(0xFF6B7280),
+                                      : MemoryHubColors.gray500,
                                 ),
                               ),
                             ),
@@ -1242,7 +1235,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                 style: GoogleFonts.inter(
                                   color: _vaccinationReminderDate != null
                                       ? _typographyDark
-                                      : const Color(0xFF6B7280),
+                                      : MemoryHubColors.gray500,
                                 ),
                               ),
                             ),
@@ -1330,7 +1323,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                 style: GoogleFonts.inter(
                                   color: _labResultReminderDate != null
                                       ? _typographyDark
-                                      : const Color(0xFF6B7280),
+                                      : MemoryHubColors.gray500,
                                 ),
                               ),
                             ),
@@ -1566,7 +1559,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                           ? DateFormat('MMMM d, yyyy').format(_reminderDueDate!)
                                           : 'Select reminder date',
                                       style: GoogleFonts.inter(
-                                        color: _reminderDueDate != null ? _typographyDark : const Color(0xFF6B7280),
+                                        color: _reminderDueDate != null ? MemoryHubColors.gray900 : MemoryHubColors.gray500,
                                       ),
                                     ),
                                   ),

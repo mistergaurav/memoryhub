@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../design_system/design_tokens.dart';
 
 class AddRelationshipDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
@@ -86,11 +87,11 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: MemoryHubBorderRadius.xlRadius,
       ),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,12 +99,12 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(MemoryHubSpacing.md),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF06B6D4), Color(0xFF22D3EE)],
+                      colors: [MemoryHubColors.cyan600, MemoryHubColors.cyan400],
                     ),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                   ),
                   child: const Icon(
                     Icons.link,
@@ -111,13 +112,13 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
                     size: 24,
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: MemoryHubSpacing.lg),
                 const Expanded(
                   child: Text(
                     'Add Relationship',
                     style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontSize: MemoryHubTypography.h2,
+                      fontWeight: MemoryHubTypography.bold,
                     ),
                   ),
                 ),
@@ -127,7 +128,7 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: MemoryHubSpacing.xl),
             Form(
               key: _formKey,
               child: Column(
@@ -155,7 +156,7 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: MemoryHubSpacing.lg),
                   DropdownButtonFormField<String>(
                     value: _relationshipType,
                     decoration: const InputDecoration(
@@ -175,7 +176,7 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
                       }
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: MemoryHubSpacing.lg),
                   DropdownButtonFormField<String>(
                     value: _person2Id,
                     decoration: const InputDecoration(
@@ -202,7 +203,7 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: MemoryHubSpacing.xl),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -210,14 +211,14 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
                   onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
                   child: const Text('Cancel'),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: MemoryHubSpacing.md),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF06B6D4),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    backgroundColor: const MemoryHubColors.cyan600,
+                    padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: MemoryHubBorderRadius.mdRadius,
                     ),
                   ),
                   child: _isLoading

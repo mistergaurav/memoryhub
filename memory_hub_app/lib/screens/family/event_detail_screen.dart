@@ -69,7 +69,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: MemoryHubColors.red500),
             child: const Text('Delete'),
           ),
         ],
@@ -173,11 +173,11 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+              Icon(Icons.error_outline, size: 64, color: MemoryHubColors.red300),
               const VGap.lg(),
               Text(
                 _error ?? 'Event not found',
-                style: TextStyle(color: Colors.grey.shade600),
+                style: TextStyle(color: MemoryHubColors.gray600),
               ),
               const VGap.xl(),
               PrimaryButton(
@@ -257,9 +257,9 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete, size: 20, color: Colors.red),
+                          Icon(Icons.delete, size: 20, color: MemoryHubColors.red500),
                           HGap.sm(),
-                          Text('Delete', style: TextStyle(color: Colors.red)),
+                          Text('Delete', style: TextStyle(color: MemoryHubColors.red500)),
                         ],
                       ),
                     ),
@@ -287,24 +287,24 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         vertical: Spacing.xs,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.blue.shade200),
+                        color: MemoryHubColors.blue50,
+                        borderRadius: MemoryHubBorderRadius.smRadius,
+                        border: Border.all(color: MemoryHubColors.blue200),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.auto_awesome, 
                             size: 16, 
-                            color: Colors.blue.shade700,
+                            color: MemoryHubColors.blue700,
                           ),
                           const HGap.xs(),
                           Text(
                             'Auto-generated from Family Tree',
                             style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue.shade700,
+                              fontSize: MemoryHubTypography.bodySmall,
+                              fontWeight: MemoryHubTypography.bold,
+                              color: MemoryHubColors.blue700,
                             ),
                           ),
                         ],
@@ -378,7 +378,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: gradient),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: MemoryHubBorderRadius.xlRadius,
                         ),
                         child: Text(
                           _formatEventType(event.eventType),
@@ -472,7 +472,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
   }) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.lgRadius),
       child: Padded.all(
         Spacing.lg,
         child: Column(
@@ -484,7 +484,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                   padding: Spacing.edgeInsetsAll(Spacing.sm),
                   decoration: BoxDecoration(
                     color: DesignTokens.primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: MemoryHubBorderRadius.smRadius,
                   ),
                   child: Icon(icon, color: DesignTokens.primaryColor, size: 20),
                 ),
@@ -492,8 +492,8 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontSize: MemoryHubTypography.h5,
+                    fontWeight: MemoryHubTypography.bold,
                   ),
                 ),
               ],
@@ -515,9 +515,9 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
+              fontSize: MemoryHubTypography.bodyMedium,
+              color: MemoryHubColors.gray600,
+              fontWeight: MemoryHubTypography.medium,
             ),
           ),
         ),
@@ -534,22 +534,22 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
   List<Color> _getEventGradient(String eventType) {
     switch (eventType) {
       case 'birthday':
-        return [const Color(0xFFEC4899), const Color(0xFFF472B6)];
+        return [MemoryHubColors.pink500, MemoryHubColors.pink400];
       case 'death_anniversary':
-        return [const Color(0xFF6B7280), const Color(0xFF9CA3AF)];
+        return [MemoryHubColors.gray600, MemoryHubColors.gray400];
       case 'anniversary':
-        return [const Color(0xFFDB2777), const Color(0xFFEC4899)];
+        return [MemoryHubColors.pink600, MemoryHubColors.pink500];
       case 'meeting':
       case 'gathering':
-        return [const Color(0xFF7C3AED), const Color(0xFF9333EA)];
+        return [MemoryHubColors.purple600, MemoryHubColors.purple500];
       case 'holiday':
-        return [const Color(0xFFF59E0B), const Color(0xFFFBF24)];
+        return [MemoryHubColors.amber500, MemoryHubColors.amber400];
       case 'historical_event':
-        return [const Color(0xFF92400E), const Color(0xFFA16207)];
+        return [MemoryHubColors.amber800, MemoryHubColors.amber700];
       case 'reminder':
-        return [const Color(0xFF10B981), const Color(0xFF34D399)];
+        return [MemoryHubColors.green500, MemoryHubColors.green400];
       default:
-        return [const Color(0xFF06B6D4), const Color(0xFF22D3EE)];
+        return [MemoryHubColors.cyan500, MemoryHubColors.cyan400];
     }
   }
 

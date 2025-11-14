@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:memory_hub_app/design_system/design_tokens.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -42,13 +43,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         title: Text(
           title,
           style: GoogleFonts.inter(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+            fontSize: MemoryHubTypography.h2,
+            fontWeight: MemoryHubTypography.bold,
             color: gradientColors != null
                 ? Colors.white
                 : Theme.of(context).brightness == Brightness.dark
                     ? Colors.white
-                    : const Color(0xFF1F2937),
+                    : MemoryHubColors.gray800,
           ),
         ),
         leading: leading ??
@@ -60,7 +61,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                           ? Colors.white
                           : Theme.of(context).brightness == Brightness.dark
                               ? Colors.white
-                              : const Color(0xFF1F2937),
+                              : MemoryHubColors.gray800,
                     ),
                     onPressed: onBackPressed ?? () => Navigator.pop(context),
                   )
@@ -74,7 +75,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ? Colors.white
               : Theme.of(context).brightness == Brightness.dark
                   ? Colors.white
-                  : const Color(0xFF1F2937),
+                  : MemoryHubColors.gray800,
         ),
       ),
     );
