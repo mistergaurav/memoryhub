@@ -10,7 +10,8 @@ from app.models.family.health_records import (
 )
 from app.models.user import UserInDB
 from app.core.security import get_current_user
-from app.repositories.family_repository import HealthRecordsRepository, FamilyMembersRepository
+from app.features.health_records.repositories.health_records_repository import HealthRecordsRepository
+from app.repositories.family_repository import FamilyMembersRepository
 from app.repositories.base_repository import BaseRepository
 from app.models.responses import create_success_response, create_paginated_response
 from app.utils.audit_logger import log_audit_event
@@ -161,9 +162,13 @@ async def create_health_record(
             notification_type=NotificationType.HEALTH_RECORD_ASSIGNED,
             title="New Health Record Created for You",
             message=f"{current_user.full_name or 'Someone'} created a health record '{record.title}' for you. Please review and approve.",
-            actor_id=current_user.id,
+            actor_id=str(current_user.id),
             target_type="health_record",
-            target_id=str(record_doc["_id"])
+            target_id=str(record_doc["_id"]),
+            health_record_id=str(record_doc["_id"]),
+            assigner_id=str(current_user.id),
+            assigner_name=current_user.full_name or current_user.email,
+            has_reminder=False
         )
     
     member_name = None
@@ -429,175 +434,8 @@ async def delete_health_record(
     return create_success_response(message="Health record deleted successfully")
 
 
-@router.post("/{record_id}/approve", status_code=status.HTTP_200_OK)
-async def approve_health_record(
-    record_id: str,
-    current_user: UserInDB = Depends(get_current_user)
-):
-    """Approve a health record that was created for you"""
-    # Find the record
-    record_doc = await health_records_repo.find_by_id(
-        record_id,
-        raise_404=True,
-        error_message="Health record not found"
-    )
-    
-    if not record_doc:
-        raise HTTPException(status_code=404, detail="Health record not found")
-    
-    # Verify current_user is the subject_user_id (only assigned user can approve)
-    subject_user_id = record_doc.get("subject_user_id")
-    if not subject_user_id or str(subject_user_id) != current_user.id:
-        raise HTTPException(
-            status_code=403, 
-            detail="Only the assigned user can approve this health record"
-        )
-    
-    # Check if already approved or rejected
-    current_status = record_doc.get("approval_status", "approved")
-    if current_status == "approved":
-        raise HTTPException(
-            status_code=400, 
-            detail="Health record is already approved"
-        )
-    if current_status == "rejected":
-        raise HTTPException(
-            status_code=400, 
-            detail="Health record has been rejected. Cannot approve a rejected record."
-        )
-    
-    # Update approval_status to "approved"
-    update_data = {
-        "approval_status": "approved",
-        "approved_at": datetime.utcnow(),
-        "approved_by": str(current_user.id)
-    }
-    
-    updated_record = await health_records_repo.update_by_id(record_id, update_data)
-    
-    if not updated_record:
-        raise HTTPException(status_code=404, detail="Failed to approve health record")
-    
-    creator_id = str(record_doc["created_by"])
-    if creator_id != current_user.id:
-        await create_notification(
-            user_id=creator_id,
-            notification_type=NotificationType.HEALTH_RECORD_APPROVED,
-            title="Health Record Approved",
-            message=f"{current_user.full_name or 'Someone'} approved the health record '{record_doc['title']}' you created for them.",
-            actor_id=current_user.id,
-            target_type="health_record",
-            target_id=record_id
-        )
-    
-    # Log audit event
-    await log_audit_event(
-        user_id=str(current_user.id),
-        event_type="APPROVE_HEALTH_RECORD",
-        event_details={
-            "resource_type": "health_record",
-            "resource_id": record_id,
-            "record_type": record_doc.get("record_type"),
-            "created_by": str(record_doc.get("created_by"))
-        }
-    )
-    
-    member_id = updated_record.get("family_member_id")
-    member_name = await get_member_name(member_id) if member_id else None
-    
-    # Return success response with updated record
-    return create_success_response(
-        message="Health record approved successfully",
-        data=health_record_to_response(updated_record, member_name)
-    )
-
-
-@router.post("/{record_id}/reject", status_code=status.HTTP_200_OK)
-async def reject_health_record(
-    record_id: str,
-    rejection_reason: Optional[str] = Query(None, max_length=500),
-    current_user: UserInDB = Depends(get_current_user)
-):
-    """Reject a health record that was created for you"""
-    # Find the record
-    record_doc = await health_records_repo.find_by_id(
-        record_id,
-        raise_404=True,
-        error_message="Health record not found"
-    )
-    
-    if not record_doc:
-        raise HTTPException(status_code=404, detail="Health record not found")
-    
-    # Verify current_user is the subject_user_id
-    subject_user_id = record_doc.get("subject_user_id")
-    if not subject_user_id or str(subject_user_id) != current_user.id:
-        raise HTTPException(
-            status_code=403, 
-            detail="Only the assigned user can reject this health record"
-        )
-    
-    # Check if already approved or rejected
-    current_status = record_doc.get("approval_status", "approved")
-    if current_status == "approved":
-        raise HTTPException(
-            status_code=400, 
-            detail="Health record is already approved. Cannot reject an approved record."
-        )
-    if current_status == "rejected":
-        raise HTTPException(
-            status_code=400, 
-            detail="Health record is already rejected"
-        )
-    
-    # Update approval_status to "rejected"
-    update_data = {
-        "approval_status": "rejected"
-    }
-    
-    # Set rejection_reason if provided
-    if rejection_reason:
-        update_data["rejection_reason"] = rejection_reason
-    
-    updated_record = await health_records_repo.update_by_id(record_id, update_data)
-    
-    if not updated_record:
-        raise HTTPException(status_code=404, detail="Failed to reject health record")
-    
-    creator_id = str(record_doc["created_by"])
-    if creator_id != current_user.id:
-        reason_text = f" Reason: {rejection_reason}" if rejection_reason else ""
-        await create_notification(
-            user_id=creator_id,
-            notification_type=NotificationType.HEALTH_RECORD_REJECTED,
-            title="Health Record Rejected",
-            message=f"{current_user.full_name or 'Someone'} rejected the health record '{record_doc['title']}' you created for them.{reason_text}",
-            actor_id=current_user.id,
-            target_type="health_record",
-            target_id=record_id
-        )
-    
-    # Log audit event
-    await log_audit_event(
-        user_id=str(current_user.id),
-        event_type="REJECT_HEALTH_RECORD",
-        event_details={
-            "resource_type": "health_record",
-            "resource_id": record_id,
-            "record_type": record_doc.get("record_type"),
-            "created_by": str(record_doc.get("created_by")),
-            "rejection_reason": rejection_reason
-        }
-    )
-    
-    member_id = updated_record.get("family_member_id")
-    member_name = await get_member_name(member_id) if member_id else None
-    
-    # Return success response
-    return create_success_response(
-        message="Health record rejected successfully",
-        data=health_record_to_response(updated_record, member_name)
-    )
+# NOTE: Approve and reject endpoints have been moved to app/features/health_records/api/records.py
+# They correctly delegate to the service layer which handles WebSocket broadcasting and notifications
 
 
 @router.post("/vaccinations", status_code=status.HTTP_201_CREATED)

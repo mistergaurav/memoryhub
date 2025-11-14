@@ -17,6 +17,7 @@ from app.repositories.family_repository import FamilyRepository, FamilyMembersRe
 from app.services.notification_service import NotificationService
 from app.schemas.audit_log import AuditAction
 from app.db.mongodb import get_collection
+from app.core.websocket import connection_manager, create_ws_message, WSMessageType
 
 
 class HealthRecordService:
@@ -119,7 +120,11 @@ class HealthRecordService:
                 message=f"{current_user_name or 'Someone'} created a health record '{record.title}' for you. Please review and approve.",
                 actor_id=str(current_user_id),
                 target_type="health_record",
-                target_id=str(record_doc["_id"])
+                target_id=str(record_doc["_id"]),
+                health_record_id=str(record_doc["_id"]),
+                assigner_id=str(current_user_id),
+                assigner_name=current_user_name or "Unknown",
+                has_reminder=False
             )
         
         await log_audit_event(
@@ -358,6 +363,37 @@ class HealthRecordService:
                     target_type="health_record",
                     target_id=record_id
                 )
+                
+                # Broadcast WebSocket notification to creator
+                try:
+                    ws_message = create_ws_message(
+                        WSMessageType.NOTIFICATION_UPDATED,
+                        {
+                            "health_record_id": record_id,
+                            "new_status": "approved",
+                            "approved_by": current_user_id,
+                            "visibility_scope": visibility_scope.value if isinstance(visibility_scope, VisibilityScope) else str(visibility_scope)
+                        }
+                    )
+                    await connection_manager.send_personal_message(ws_message, str(created_by))
+                except Exception as e:
+                    logger = __import__('logging').getLogger(__name__)
+                    logger.error(f"Failed to send WebSocket notification to creator: {str(e)}")
+        
+        # Send WebSocket confirmation to approver
+        try:
+            ws_message = create_ws_message(
+                WSMessageType.HEALTH_RECORD_APPROVED,
+                {
+                    "health_record_id": record_id,
+                    "status": "approved",
+                    "visibility_scope": visibility_scope.value if isinstance(visibility_scope, VisibilityScope) else str(visibility_scope)
+                }
+            )
+            await connection_manager.send_personal_message(ws_message, current_user_id)
+        except Exception as e:
+            logger = __import__('logging').getLogger(__name__)
+            logger.error(f"Failed to send WebSocket confirmation to approver: {str(e)}")
         
         await log_audit_event(
             user_id=str(current_user_id),
@@ -489,6 +525,37 @@ class HealthRecordService:
                     target_type="health_record",
                     target_id=record_id
                 )
+                
+                # Broadcast WebSocket notification to creator
+                try:
+                    ws_message = create_ws_message(
+                        WSMessageType.NOTIFICATION_UPDATED,
+                        {
+                            "health_record_id": record_id,
+                            "new_status": "rejected",
+                            "rejected_by": current_user_id,
+                            "rejection_reason": rejection_reason
+                        }
+                    )
+                    await connection_manager.send_personal_message(ws_message, str(created_by))
+                except Exception as e:
+                    logger = __import__('logging').getLogger(__name__)
+                    logger.error(f"Failed to send WebSocket notification to creator: {str(e)}")
+        
+        # Send WebSocket confirmation to rejector
+        try:
+            ws_message = create_ws_message(
+                WSMessageType.HEALTH_RECORD_REJECTED,
+                {
+                    "health_record_id": record_id,
+                    "status": "rejected",
+                    "rejection_reason": rejection_reason
+                }
+            )
+            await connection_manager.send_personal_message(ws_message, current_user_id)
+        except Exception as e:
+            logger = __import__('logging').getLogger(__name__)
+            logger.error(f"Failed to send WebSocket confirmation to rejector: {str(e)}")
         
         await log_audit_event(
             user_id=str(current_user_id),

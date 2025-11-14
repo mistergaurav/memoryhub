@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from bson import ObjectId
+import logging
 
 from app.schemas.notification import (
     NotificationResponse,
@@ -11,6 +12,9 @@ from app.schemas.notification import (
 from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.db.mongodb import get_collection
+from app.core.websocket import connection_manager
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -39,9 +43,21 @@ async def create_notification(
     message: str,
     actor_id: str,
     target_type: Optional[str] = None,
-    target_id: Optional[str] = None
+    target_id: Optional[str] = None,
+    health_record_id: Optional[str] = None,
+    assigner_id: Optional[str] = None,
+    assigner_name: Optional[str] = None,
+    has_reminder: bool = False
 ):
-    """Helper function to create a notification"""
+    """
+    Helper function to create a notification and broadcast via WebSocket.
+    
+    For health record assignments, include:
+    - health_record_id: The ID of the health record
+    - assigner_id: The ID of the user who assigned/created the record
+    - assigner_name: The name of the assigner
+    - has_reminder: Whether a reminder is associated
+    """
     notification_data: Dict[str, Any] = {
         "user_id": ObjectId(user_id),
         "type": notification_type,
@@ -57,7 +73,44 @@ async def create_notification(
     if target_id:
         notification_data["target_id"] = ObjectId(target_id)
     
-    await get_collection("notifications").insert_one(notification_data)
+    if health_record_id:
+        notification_data["health_record_id"] = ObjectId(health_record_id)
+    if assigner_id:
+        notification_data["assigner_id"] = ObjectId(assigner_id)
+    if assigner_name:
+        notification_data["assigner_name"] = assigner_name
+    if has_reminder:
+        notification_data["has_reminder"] = has_reminder
+    
+    notification_data["assigned_at"] = datetime.utcnow()
+    notification_data["approval_status"] = "pending"
+    
+    result = await get_collection("notifications").insert_one(notification_data)
+    notification_id = str(result.inserted_id)
+    
+    try:
+        from app.core.websocket import create_ws_message, WSMessageType
+        ws_message = create_ws_message(
+            WSMessageType.NOTIFICATION_CREATED,
+            {
+                "notification_id": notification_id,
+                "type": notification_type,
+                "title": title,
+                "message": message,
+                "actor_id": actor_id,
+                "target_type": target_type,
+                "target_id": target_id,
+                "health_record_id": health_record_id,
+                "is_read": False,
+                "created_at": notification_data["created_at"].isoformat()
+            }
+        )
+        await connection_manager.send_personal_message(ws_message, user_id)
+        logger.info(f"WebSocket notification broadcast to user {user_id}")
+    except Exception as e:
+        logger.error(f"Failed to broadcast notification via WebSocket: {str(e)}", exc_info=True)
+    
+    return notification_id
 
 @router.get("/")
 async def list_notifications(

@@ -10,6 +10,7 @@ from app.api.v1.endpoints.social import hub, activity, notifications
 from app.api.v1.endpoints.features import search, analytics, sharing, reminders, scheduled_posts, places
 from app.api.v1.endpoints.admin import admin, export, gdpr
 from app.api.v1.endpoints.media import media
+from app.features.health_records.api import router as health_records_feature_router
 
 api_router = APIRouter()
 
@@ -76,3 +77,5 @@ api_router.include_router(export.router, prefix="/export", tags=["export"])
 api_router.include_router(gdpr.router, prefix="/gdpr", tags=["gdpr"])
 
 api_router.include_router(media.router, prefix="/media", tags=["media"])
+
+api_router.include_router(health_records_feature_router, tags=["health-records"])
