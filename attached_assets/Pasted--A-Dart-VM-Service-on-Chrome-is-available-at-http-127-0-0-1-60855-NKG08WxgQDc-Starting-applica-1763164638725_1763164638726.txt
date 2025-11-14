@@ -1,0 +1,121 @@
+
+A Dart VM Service on Chrome is available at: http://127.0.0.1:60855/NKG08WxgQDc=
+Starting application from main method in: org-dartlang-app:/web_entrypoint.dart.
+=== Memory Hub Startup Debug ===
+API Config: {platform: web, baseUrl: http://localhost:5000/api/v1, wsBaseUrl: ws://localhost:5000/api/v1/ws,
+environment: Local Web (localhost:5000), envBackendUrl: , envWsUrl: , defaultBackend: }
+Base URL: http://localhost:5000/api/v1
+Environment: Local Web (localhost:5000)
+The Flutter DevTools debugger and profiler on Chrome is available at:
+http://127.0.0.1:9100?uri=http://127.0.0.1:60855/NKG08WxgQDc=
+Checking authentication status...
+Is logged in: false
+Navigating to LoginScreen
+══╡ EXCEPTION CAUGHT BY SCHEDULER LIBRARY ╞═════════════════════════════════════════════════════════
+The following DomException object was thrown during a scheduler callback:
+  InvalidStateError: Failed to execute 'setSelectionRange' on 'HTMLInputElement': The input
+element's type ('email') does not support selection.
+
+When the exception was thrown, this was the stack:
+lib/_engine/engine/dom.dart 1907:8                                                DomHTMLInputElement.setSelectionRange
+lib/_engine/engine/text_editing/text_editing.dart 960:15                          applyToDomElement
+lib/_engine/engine/text_editing/text_editing.dart 1467:5                          setEditingState
+lib/_engine/engine/text_editing/text_editing.dart 1633:7                          enable
+lib/_engine/engine/semantics/text_field.dart 81:11                                activate
+lib/_engine/engine/semantics/text_field.dart 319:47                               update
+lib/_engine/engine/semantics/semantics.dart 2090:28                               [_updateRole]
+lib/_engine/engine/semantics/semantics.dart 1758:5                                updateSelf
+lib/_engine/engine/semantics/semantics.dart 2970:13                               updateSemantics
+lib/_engine/engine/window.dart 109:5                                              updateSemantics
+package:flutter/src/rendering/view.dart 386:5                                     updateSemantics
+package:flutter/src/rendering/binding.dart 268:48                                 <fn>
+package:flutter/src/semantics/semantics.dart 4358:22                              sendSemanticsUpdate
+package:flutter/src/rendering/object.dart 1499:7                                  flushSemantics
+package:flutter/src/rendering/object.dart 1501:14                                 flushSemantics
+package:flutter/src/rendering/binding.dart 636:7                                  drawFrame
+package:flutter/src/widgets/binding.dart 1261:13                                  drawFrame
+package:flutter/src/rendering/binding.dart 495:5                                  [_handlePersistentFrameCallback]
+dart-sdk/lib/_internal/js_dev_runtime/private/ddc_runtime/operations.dart 118:77  tear
+package:flutter/src/scheduler/binding.dart 1434:7                                 [_invokeFrameCallback]
+package:flutter/src/scheduler/binding.dart 1347:9                                 handleDrawFrame
+package:flutter/src/scheduler/binding.dart 1200:5                                 [_handleDrawFrame]
+dart-sdk/lib/_internal/js_dev_runtime/private/ddc_runtime/operations.dart 118:77  tear
+lib/_engine/engine/platform_dispatcher.dart 1522:5                                invoke
+lib/_engine/engine/platform_dispatcher.dart 265:5                                 invokeOnDrawFrame
+lib/_engine/engine/frame_service.dart 192:32                                      [_renderFrame]
+lib/_engine/engine/frame_service.dart 99:9                                        <fn>
+dart-sdk/lib/async/zone.dart 1849:54                                              runUnary
+dart-sdk/lib/async/zone.dart 1804:26                                              <fn>
+dart-sdk/lib/_internal/js_dev_runtime/patch/js_allow_interop_patch.dart 224:27    _callDartFunctionFast1
+════════════════════════════════════════════════════════════════════════════════════════════════════
+Navigation completed successfully
+=== Memory Hub Startup Debug ===
+API Config: {platform: web, baseUrl: http://localhost:5000/api/v1, wsBaseUrl: ws://localhost:5000/api/v1/ws,
+environment: Local Web (localhost:5000), envBackendUrl: , envWsUrl: , defaultBackend: }
+Base URL: http://localhost:5000/api/v1
+Environment: Local Web (localhost:5000)
+Checking authentication status...
+Is logged in: true
+Navigating to MainScreen
+Another exception was thrown: A RenderFlex overflowed by 26 pixels on the bottom.
+Another exception was thrown: A RenderFlex overflowed by 26 pixels on the bottom.
+[HealthRecordsRepository] Fetching records from API (page: 1, limit: 50, recordType: null)
+[HealthRecordsApi] Fetching records from /family/health-records with params: {page: 1, limit: 50}
+[HealthRecordsApi] Fetching dashboard from /family/health-records/dashboard
+[HealthRecordsApi] Records response keys: [success, message, items, total, page, page_size, total_pages, has_next,
+has_prev, timestamp]
+[HealthRecordsRepository] API response keys: [success, message, items, total, page, page_size, total_pages, has_next,
+has_prev, timestamp]
+[HealthRecordsRepository] Found 1 items in response
+[HealthRecordsRepository] Parsed record: not doing well. (status: pending_approval)
+[HealthRecordsRepository] Total records parsed: 1
+[HealthRecordsApi] Dashboard response keys: [success, message, data, timestamp]
+[HealthRecordsApi] Dashboard data keys: [statistics, pending_approvals, upcoming_reminders]
+[HealthRecordsRepository] Fetching records from API (page: 1, limit: 50, recordType: null)
+[HealthRecordsApi] Fetching records from /family/health-records with params: {page: 1, limit: 50}
+[HealthRecordsApi] Fetching dashboard from /family/health-records/dashboard
+[HealthRecordsApi] Records response keys: [success, message, items, total, page, page_size, total_pages, has_next,
+has_prev, timestamp]
+[HealthRecordsRepository] API response keys: [success, message, items, total, page, page_size, total_pages, has_next,
+has_prev, timestamp]
+[HealthRecordsRepository] Found 1 items in response
+[HealthRecordsRepository] Parsed record: not doing well. (status: pending_approval)
+[HealthRecordsRepository] Total records parsed: 1
+[HealthRecordsApi] Dashboard response keys: [success, message, data, timestamp]
+[HealthRecordsApi] Dashboard data keys: [statistics, pending_approvals, upcoming_reminders]
+Navigation completed successfully
+Another exception was thrown: InvalidStateError: Failed to execute 'setSelectionRange' on 'HTMLInputElement': The input
+element's type ('email') does not support selection.
+=== Memory Hub Startup Debug ===
+API Config: {platform: web, baseUrl: http://localhost:5000/api/v1, wsBaseUrl: ws://localhost:5000/api/v1/ws,
+environment: Local Web (localhost:5000), envBackendUrl: , envWsUrl: , defaultBackend: }
+Base URL: http://localhost:5000/api/v1
+Environment: Local Web (localhost:5000)
+Checking authentication status...
+Is logged in: true
+Navigating to MainScreen
+Another exception was thrown: A RenderFlex overflowed by 26 pixels on the bottom.
+Another exception was thrown: A RenderFlex overflowed by 26 pixels on the bottom.
+Another exception was thrown: Error: Could not find the correct Provider<NotificationsProvider> above this
+NotificationsScreen Widget
+InvalidAccessError: Failed to execute 'close' on 'WebSocket': The close code must be either 1000, or between 3000 and
+4999. 1001 is neither.
+package:web_socket_channel/html.dart 132:9                                        <fn>
+dart-sdk/lib/async/zone.dart 1766:9                                               runGuarded
+dart-sdk/lib/async/stream_impl.dart 434:7                                         sendDone
+dart-sdk/lib/async/stream_impl.dart 444:7                                         [_sendDone]
+dart-sdk/lib/async/stream_impl.dart 333:7                                         [_close]
+dart-sdk/lib/async/stream_controller.dart 806:5                                   [_sendDone]
+dart-sdk/lib/async/stream_controller.dart 832:7                                   [_sendDone]
+dart-sdk/lib/async/stream_controller.dart 652:7                                   [_closeUnchecked]
+dart-sdk/lib/async/stream_controller.dart 645:5                                   close
+package:stream_channel/src/guarantee_channel.dart 55:13                           <fn>
+dart-sdk/lib/async/zone.dart 1766:9                                               runGuarded
+dart-sdk/lib/async/stream_impl.dart 434:7                                         sendDone
+dart-sdk/lib/async/stream_impl.dart 444:7                                         [_sendDone]
+dart-sdk/lib/async/stream_impl.dart 333:7                                         [_close]
+dart-sdk/lib/async/stream_controller.dart 806:5                                   [_sendDone]
+dart-sdk/lib/async/stream_controller.dart 832:7                                   [_sendDone]
+dart-sdk/lib/async/stream_controller.dart 652:7                                   [_closeUnchecked]
+dart-sdk/lib/async/stream_controller.dart 645:5                                   close
+dart-sdk/lib/async/str
