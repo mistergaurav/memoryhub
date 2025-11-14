@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../models/memory.dart';
+import '../../config/api_config.dart';
 import 'package:intl/intl.dart';
 
 class MemoriesListScreen extends StatefulWidget {
@@ -185,7 +186,7 @@ class _MemoriesListScreenState extends State<MemoriesListScreen> {
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
                 child: Image.network(
-                  'http://localhost:8000${memory.mediaUrls.first}',
+                  ApiConfig.getAssetUrl(memory.mediaUrls.first),
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,

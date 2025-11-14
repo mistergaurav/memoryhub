@@ -143,7 +143,7 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
                   itemCount: _memory!.mediaUrls.length,
                   itemBuilder: (context, index) {
                     return Image.network(
-                      'http://localhost:8000${_memory!.mediaUrls[index]}',
+                      ApiConfig.getAssetUrl(_memory!.mediaUrls[index]),
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
