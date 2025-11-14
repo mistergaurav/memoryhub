@@ -86,6 +86,7 @@ async def get_member_name(member_id: Optional[ObjectId]) -> Optional[str]:
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("", status_code=status.HTTP_201_CREATED)
 async def create_health_record(
     record: HealthRecordCreate,
     current_user: UserInDB = Depends(get_current_user)

@@ -114,7 +114,7 @@ class HealthRecordService:
         if record.subject_user_id and record.subject_user_id != current_user_id:
             await create_notification(
                 user_id=record.subject_user_id,
-                notification_type=NotificationType.HEALTH_RECORD_ASSIGNMENT,
+                notification_type=NotificationType.HEALTH_RECORD_ASSIGNED,
                 title="New Health Record Created for You",
                 message=f"{current_user_name or 'Someone'} created a health record '{record.title}' for you. Please review and approve.",
                 actor_id=str(current_user_id),

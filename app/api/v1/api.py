@@ -52,6 +52,16 @@ activity_no_slash_router.add_api_route(
 )
 api_router.include_router(activity_no_slash_router, prefix="/activity", tags=["activity"])
 api_router.include_router(activity.router, prefix="/activity", tags=["activity"])
+
+# Include notifications router with special handling for trailing slash compatibility
+notifications_no_slash_router = Router()
+notifications_no_slash_router.add_api_route(
+    "",
+    notifications.list_notifications,
+    methods=["GET"],
+    tags=["notifications"]
+)
+api_router.include_router(notifications_no_slash_router, prefix="/notifications", tags=["notifications"])
 api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 
 api_router.include_router(search.router, prefix="/search", tags=["search"])

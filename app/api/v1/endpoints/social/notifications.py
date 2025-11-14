@@ -59,7 +59,7 @@ async def create_notification(
     
     await get_collection("notifications").insert_one(notification_data)
 
-@router.get("/", response_model=NotificationListResponse)
+@router.get("/")
 async def list_notifications(
     is_read: Optional[bool] = None,
     notification_type: Optional[NotificationType] = None,
@@ -90,12 +90,17 @@ async def list_notifications(
     async for notif_doc in cursor:
         notifications.append(await _prepare_notification_response(notif_doc))
     
-    return NotificationListResponse(
-        notifications=notifications,
-        total=total,
-        unread_count=unread_count,
-        page=page,
-        pages=pages
+    from app.models.responses import create_success_response
+    
+    return create_success_response(
+        message="Notifications retrieved successfully",
+        data={
+            "notifications": notifications,
+            "total": total,
+            "unread_count": unread_count,
+            "page": page,
+            "pages": pages
+        }
     )
 
 @router.put("/{notification_id}/read", status_code=status.HTTP_200_OK)

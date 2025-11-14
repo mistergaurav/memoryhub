@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import List, Optional, Dict, Any
 from bson import ObjectId
+from pymongo.errors import OperationFailure
 
 from app.models.user import UserInDB
 from app.core.security import get_current_user
@@ -61,11 +62,19 @@ async def search_family_circle_members(
     - circle_members: List of matching circle members (users)
     """
     try:
-        family_members = await family_members_repo.search_by_name(
-            family_id=current_user.id,
-            query=query,
-            limit=limit
-        )
+        family_members = []
+        
+        user_families = await family_repo.find_by_member(str(current_user.id), limit=100)
+        
+        for family in user_families:
+            if family and "_id" in family:
+                family_id = str(family["_id"])
+                members = await family_members_repo.search_by_name(
+                    family_id=family_id,
+                    query=query,
+                    limit=limit
+                )
+                family_members.extend(members)
         
         circle_members = await family_repo.search_circle_members(
             user_id=str(current_user.id),
@@ -137,18 +146,19 @@ async def search_users_unified(
     - message: "User not found" if no results, otherwise count of results
     """
     try:
-        # Use text search index for efficient searching across full_name, username, and email
-        # Exclude current user from results
-        search_filter = {
-            "$text": {"$search": query},
-            "_id": {"$ne": ObjectId(current_user.id)}
-        }
+        users = []
         
-        # Fallback to regex search if text search doesn't find results
-        users_cursor = users_repo.collection.find(search_filter).limit(limit)
-        users = await users_cursor.to_list(length=limit)
+        try:
+            search_filter = {
+                "$text": {"$search": query},
+                "_id": {"$ne": ObjectId(current_user.id)}
+            }
+            users_cursor = users_repo.collection.find(search_filter).limit(limit)
+            users = await users_cursor.to_list(length=limit)
+            
+        except OperationFailure:
+            pass
         
-        # If text search returns no results, try case-insensitive regex search
         if len(users) == 0:
             regex_search_filter = {
                 "$or": [
