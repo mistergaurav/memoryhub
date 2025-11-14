@@ -1,0 +1,149 @@
+✅ What Was Fixed
+1. Notification System Enhancement
+• Added complete metadata to notifications (health record ID, assigner info, timestamps, approval status)
+• Integrated real-time notification broadcasting
+• All notifications now include full context for the recipient
+2. Approval & Rejection Workflows
+• Added real-time broadcasting to approval workflow
+• Added real-time broadcasting to rejection workflow
+• Both creator and approver/rejector receive instant updates
+• All error handling properly implemented
+3. Health Dashboard
+• Fixed the missing endpoint registration
+• Dashboard now accessible and returning accurate data
+• Shows total records, pending approvals, and recent activity
+getting following errors on browser:
+
+js_primitives.dart:28 API Config: {platform: web, baseUrl: http://localhost:5000/api/v1, wsBaseUrl: ws://localhost:5000/api/v1/ws, environment: Local Web (localhost:5000), envBackendUrl: , envWsUrl: , defaultBackend: }
+ Base URL: http://localhost:5000/api/v1 Stack table collapsed
+js_primitives.dart:28 Base URL: http://localhost:5000/api/v1
+ Environment: Local Web (localhost:5000) Stack table collapsed
+js_primitives.dart:28 Environment: Local Web (localhost:5000)
+ Checking authentication status... Stack table collapsed
+js_primitives.dart:28 Checking authentication status...
+js_primitives.dart:28 Is logged in: true
+js_primitives.dart:28 Navigating to MainScreen
+ Navigation completed successfully Stack table collapsed
+js_primitives.dart:28 Navigation completed successfully
+ ══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════ Stack table collapsed
+js_primitives.dart:28 ══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+ The following assertion was thrown during layout: Stack table collapsed
+js_primitives.dart:28 The following assertion was thrown during layout:
+ A RenderFlex overflowed by 26 pixels on the bottom. Stack table collapsed
+js_primitives.dart:28 A RenderFlex overflowed by 26 pixels on the bottom.
+ Stack table collapsed
+js_primitives.dart:28 
+ The relevant error-causing widget was: Stack table collapsed
+js_primitives.dart:28 The relevant error-causing widget was:
+ Column Column:file:///G:/memoryhub/memory_hub_app/lib/screens/home/dashboard_screen.dart:451:22 Stack table collapsed
+js_primitives.dart:28   Column Column:file:///G:/memoryhub/memory_hub_app/lib/screens/home/dashboard_screen.dart:451:22
+ Stack table collapsed
+js_primitives.dart:28 
+ To inspect this widget in Flutter DevTools, visit: Stack table collapsed
+js_primitives.dart:28 To inspect this widget in Flutter DevTools, visit:
+ http://127.0.0.1:9100/#/inspector?uri=http%3A%2F%2F127.0.0.1%3A56609%2F8iNxIkUXEqU%3D&inspectorRef=inspector-0 Stack table collapsed
+js_primitives.dart:28 http://127.0.0.1:9100/#/inspector?uri=http%3A%2F%2F127.0.0.1%3A56609%2F8iNxIkUXEqU%3D&inspectorRef=inspector-0
+ Stack table collapsed
+js_primitives.dart:28 
+ The overflowing RenderFlex has an orientation of Axis.vertical. Stack table collapsed
+js_primitives.dart:28 The overflowing RenderFlex has an orientation of Axis.vertical.
+ The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and Stack table collapsed
+js_primitives.dart:28 The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+ black striped pattern. This is usually caused by the contents being too big for the RenderFlex. Stack table collapsed
+js_primitives.dart:28 black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+ Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the Stack table collapsed
+js_primitives.dart:28 Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+ RenderFlex to fit within the available space instead of being sized to their natural size. Stack table collapsed
+js_primitives.dart:28 RenderFlex to fit within the available space instead of being sized to their natural size.
+ This is considered an error condition because it indicates that there is content that cannot be Stack table collapsed
+js_primitives.dart:28 This is considered an error condition because it indicates that there is content that cannot be
+ seen. If the content is legitimately bigger than the available space, consider clipping it with a Stack table collapsed
+js_primitives.dart:28 seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex, Stack table collapsed
+js_primitives.dart:28 ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+ like a ListView. Stack table collapsed
+js_primitives.dart:28 like a ListView.
+ The specific RenderFlex in question is: RenderFlex#c4598 relayoutBoundary=up14 OVERFLOWING: Stack table collapsed
+js_primitives.dart:28 The specific RenderFlex in question is: RenderFlex#c4598 relayoutBoundary=up14 OVERFLOWING:
+ creator: Column ← Padding ← Stack ← Padding ← DecoratedBox ← ConstrainedBox ← Container ← Listener ← Stack table collapsed
+js_primitives.dart:28   creator: Column ← Padding ← Stack ← Padding ← DecoratedBox ← ConstrainedBox ← Container ← Listener ←
+ _GestureSemantics ← RawGestureDetector ← GestureDetector ← Column ← ⋯ Stack table collapsed
+js_primitives.dart:28     _GestureSemantics ← RawGestureDetector ← GestureDetector ← Column ← ⋯
+ parentData: offset=Offset(24.0, 24.0) (can use size) Stack table collapsed
+js_primitives.dart:28   parentData: offset=Offset(24.0, 24.0) (can use size)
+ constraints: BoxConstraints(0.0<=w<=946.0, 0.0<=h<=152.0) Stack table collapsed
+js_primitives.dart:28   constraints: BoxConstraints(0.0<=w<=946.0, 0.0<=h<=152.0)
+ size: Size(946.0, 152.0) Stack table collapsed
+js_primitives.dart:28   size: Size(946.0, 152.0)
+ direction: vertical Stack table collapsed
+js_primitives.dart:28   direction: vertical
+ mainAxisAlignment: start Stack table collapsed
+js_primitives.dart:28   mainAxisAlignment: start
+ mainAxisSize: max Stack table collapsed
+js_primitives.dart:28   mainAxisSize: max
+ crossAxisAlignment: start Stack table collapsed
+js_primitives.dart:28   crossAxisAlignment: start
+ textDirection: ltr Stack table collapsed
+js_primitives.dart:28   textDirection: ltr
+ verticalDirection: down Stack table collapsed
+js_primitives.dart:28   verticalDirection: down
+ spacing: 0.0 Stack table collapsed
+js_primitives.dart:28   spacing: 0.0
+ ◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤ Stack table collapsed
+js_primitives.dart:28 ◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+ ════════════════════════════════════════════════════════════════════════════════════════════════════ Stack table collapsed
+js_primitives.dart:28 ════════════════════════════════════════════════════════════════════════════════════════════════════
+ Another exception was thrown: A RenderFlex overflowed by 26 pixels on the bottom. Stack table collapsed
+js_primitives.dart:28 Another exception was thrown: A RenderFlex overflowed by 26 pixels on the bottom.
+ Navigation completed successfully Stack table collapsed
+js_primitives.dart:28 Navigation completed successfully
+ Another exception was thrown: InvalidStateError: Failed to execute 'setSelectionRange' on 'HTMLInputElement': The input element's type ('email') does not support selection. Stack table collapsed
+js_primitives.dart:28 Another exception was thrown: InvalidStateError: Failed to execute 'setSelectionRange' on 'HTMLInputElement': The input element's type ('email') does not support selection.
+ === Memory Hub Startup Debug === Stack table collapsed
+js_primitives.dart:28 === Memory Hub Startup Debug ===
+ API Config: {platform: web, baseUrl: http://localhost:5000/api/v1, wsBaseUrl: ws://localhost:5000/api/v1/ws, environment: Local Web (localhost:5000), envBackendUrl: , envWsUrl: , defaultBackend: } Stack table collapsed
+js_primitives.dart:28 API Config: {platform: web, baseUrl: http://localhost:5000/api/v1, wsBaseUrl: ws://localhost:5000/api/v1/ws, environment: Local Web (localhost:5000), envBackendUrl: , envWsUrl: , defaultBackend: }
+ Base URL: http://localhost:5000/api/v1 Stack table collapsed
+js_primitives.dart:28 Base URL: http://localhost:5000/api/v1
+ Environment: Local Web (localhost:5000) Stack table collapsed
+js_primitives.dart:28 Environment: Local Web (localhost:5000)
+ Checking authentication status... Stack table collapsed
+js_primitives.dart:28 Checking authentication status...
+js_primitives.dart:28 Is logged in: true
+js_primitives.dart:28 Navigating to MainScreen
+2
+ Another exception was thrown: A RenderFlex overflowed by 26 pixels on the bottom. Stack table collapsed
+js_primitives.dart:28 Another exception was thrown: A RenderFlex overflowed by 26 pixels on the bottom.
+Error
+(index):1 Access to fetch at 'http://localhost:5000/api/v1/activity/feed?page=1&limit=20' from origin 'http://localhost:56259' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. Stack table collapsed
+(index):1 Access to fetch at 'http://localhost:5000/api/v1/activity/feed?page=1&limit=20' from origin 'http://localhost:56259' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+Error
+:5000/api/v1/activit…d?page=1&limit=20:1 Failed to load resource: net::ERR_FAILED Stack table collapsed
+:5000/api/v1/activit…d?page=1&limit=20:1 Request unavailable in the network panel, try reloading the inspected page Failed to load resource: net::ERR_FAILED
+Error
+(index):1 Access to fetch at 'http://localhost:5000/api/v1/activity?limit=10' from origin 'http://localhost:56259' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. Stack table collapsed
+(index):1 Access to fetch at 'http://localhost:5000/api/v1/activity?limit=10' from origin 'http://localhost:56259' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+Error
+:5000/api/v1/activity?limit=10:1 Failed to load resource: net::ERR_FAILED Stack table collapsed
+:5000/api/v1/activity?limit=10:1 Request unavailable in the network panel, try reloading the inspected page Failed to load resource: net::ERR_FAILED
+ Navigation completed successfully Stack table collapsed
+js_primitives.dart:28 Navigation completed successfully
+ Another exception was thrown: InvalidStateError: Failed to execute 'setSelectionRange' on 'HTMLInputElement': The input element's type ('email') does not support selection. Stack table collapsed
+js_primitives.dart:28 Another exception was thrown: InvalidStateError: Failed to execute 'setSelectionRange' on 'HTMLInputElement': The input element's type ('email') does not support selection.
+ === Memory Hub Startup Debug === Stack table collapsed
+js_primitives.dart:28 === Memory Hub Startup Debug ===
+ API Config: {platform: web, baseUrl: http://localhost:5000/api/v1, wsBaseUrl: ws://localhost:5000/api/v1/ws, environment: Local Web (localhost:5000), envBackendUrl: , envWsUrl: , defaultBackend: } Stack table collapsed
+js_primitives.dart:28 API Config: {platform: web, baseUrl: http://localhost:5000/api/v1, wsBaseUrl: ws://localhost:5000/api/v1/ws, environment: Local Web (localhost:5000), envBackendUrl: , envWsUrl: , defaultBackend: }
+ Base URL: http://localhost:5000/api/v1 Stack table collapsed
+js_primitives.dart:28 Base URL: http://localhost:5000/api/v1
+ Environment: Local Web (localhost:5000) Stack table collapsed
+js_primitives.dart:28 Environment: Local Web (localhost:5000)
+ Checking authentication status... Stack table collapsed
+js_primitives.dart:28 Checking authentication status...
+js_primitives.dart:28 Is logged in: true
+js_primitives.dart:28 Navigating to MainScreen
+2
+ Another exception was thrown: A RenderFlex overflowed by 26 pixels on the bottom. Stack table collapsed
+js_primitives.dart:28 Another exception was thrown: A RenderFlex overflowed by 26 pixels on the bottom.
+ Another exception was thrown: Error: Could not find the correct Provider<NotificationsProvider> above this NotificationsScreen Widget Stack table collapsed
+js_primitives.dart:28 Another exception was thrown: Error: Could not find the correct Provider<NotificationsProvider> above this NotificationsScreen Widget
