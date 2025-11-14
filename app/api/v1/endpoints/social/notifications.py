@@ -30,7 +30,7 @@ async def _prepare_notification_response(notif_doc: dict) -> NotificationRespons
         target_type=notif_doc.get("target_type"),
         target_id=str(notif_doc["target_id"]) if notif_doc.get("target_id") else None,
         actor_id=str(notif_doc["actor_id"]),
-        actor_name=actor.get("full_name") if actor else "Unknown User",
+        actor_name=actor.get("full_name") or actor.get("email") or "Unknown User" if actor else "Unknown User",
         actor_avatar=actor.get("avatar_url") if actor else None,
         is_read=notif_doc.get("is_read", False),
         created_at=notif_doc["created_at"]

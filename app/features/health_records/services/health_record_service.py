@@ -284,7 +284,12 @@ class HealthRecordService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Health record not found")
         
         subject_user_id = record_doc.get("subject_user_id")
-        if not subject_user_id or str(subject_user_id) != current_user_id:
+        assigned_user_ids = record_doc.get("assigned_user_ids", [])
+        
+        is_subject_user = subject_user_id and str(subject_user_id) == current_user_id
+        is_assigned_user = any(str(uid) == current_user_id for uid in assigned_user_ids)
+        
+        if not (is_subject_user or is_assigned_user):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Only the assigned user can approve this health record"
@@ -445,7 +450,12 @@ class HealthRecordService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Health record not found")
         
         subject_user_id = record_doc.get("subject_user_id")
-        if not subject_user_id or str(subject_user_id) != current_user_id:
+        assigned_user_ids = record_doc.get("assigned_user_ids", [])
+        
+        is_subject_user = subject_user_id and str(subject_user_id) == current_user_id
+        is_assigned_user = any(str(uid) == current_user_id for uid in assigned_user_ids)
+        
+        if not (is_subject_user or is_assigned_user):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Only the assigned user can reject this health record"

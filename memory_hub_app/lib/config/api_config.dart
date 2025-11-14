@@ -56,9 +56,9 @@ class ApiConfig {
       // For native builds, derive WebSocket URL from base URL
       final base = baseUrl.replaceAll('/api/v1', '');
       if (base.startsWith('https://')) {
-        return '${base.replaceFirst('https://', 'wss://')}/ws';
+        return '${base.replaceFirst('https://', 'wss://')}/api/v1/ws';
       } else {
-        return '${base.replaceFirst('http://', 'ws://')}/ws';
+        return '${base.replaceFirst('http://', 'ws://')}/api/v1/ws';
       }
     }
   }
@@ -112,14 +112,14 @@ class ApiConfig {
       
       if (hostname.contains('replit.dev') || hostname.contains('.repl.co')) {
         // Frontend and backend on same server - use same hostname
-        return '$wsProtocol://$hostname/ws';
+        return '$wsProtocol://$hostname/api/v1/ws';
       } else if (hostname == 'localhost' || hostname == '127.0.0.1') {
-        return 'ws://localhost:5000/ws';
+        return 'ws://localhost:5000/api/v1/ws';
       } else {
-        return '$wsProtocol://$hostname/ws';
+        return '$wsProtocol://$hostname/api/v1/ws';
       }
     } catch (e) {
-      return 'ws://localhost:5000/ws';
+      return 'ws://localhost:5000/api/v1/ws';
     }
   }
   

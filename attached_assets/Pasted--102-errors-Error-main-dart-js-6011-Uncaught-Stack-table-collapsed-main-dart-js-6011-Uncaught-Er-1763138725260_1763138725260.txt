@@ -1,0 +1,94 @@
+
+102 errors
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://12ddac47-6feb-4b75-880b-19f3534df347-00-2kckzimqz04wa.kirk.replit.dev…NDI4NTEsInR5cGUiOiJhY2Nlc3MifQ.6gXXZ__3s2T1ufU5MKKSut5oGsdzkGgQJKLtq_Xy1H4' failed: 
+Error
+main.dart.js:6009 Uncaught Error

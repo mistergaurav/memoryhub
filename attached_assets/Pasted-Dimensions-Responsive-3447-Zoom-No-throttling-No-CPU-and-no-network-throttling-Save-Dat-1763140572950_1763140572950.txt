@@ -1,0 +1,149 @@
+Dimensions: Responsive
+3447
+×
+ 
+Zoom
+No throttling: No CPU and no network throttling
+'Save-Data': default
+Rotate
+More options
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Select an element in the page to inspect it - Ctrl + Shift + C
+Toggle device toolbar - Ctrl + Shift + M
+Elements
+Console
+Sources
+Network
+Performance
+Memory
+Application
+Privacy and security
+Lighthouse
+Recorder
+Open Console to view 61 errorsOpen Issues to view 1 issue: 1 breaking change
+ AI assistance
+Settings - F1 - Shift + ?
+Customize and control DevTools
+Close
+Hide console sidebar
+Clear console - Ctrl + L
+JavaScript context: top
+Create live expression
+Filter
+Log level: Default levels
+Some problems no longer generate console messages, but are surfaced in the issues tab. Click to view 1 breaking change
+54 hidden
+Console settings
+61 errors
+ 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…c0NTEzMCwidHlwZSI6ImFjY2VzcyJ9.TqQ6N9f2Rsky4zsVTeVb7rAfzcVFjXh2zQBeOMkNtAo' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+/api/v1/notifications/?page=1&limit=20:1 Failed to load resource: the server responded with a status of 500 (Internal Server Error) Stack table collapsed
+/api/v1/notifications/?page=1&limit=20:1 Request unavailable in the network panel, try reloading the inspected page Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+Error
+/main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+    at Object.f (main.dart.js:3597:20)
+    at main.dart.js:134606:15
+    at bfR.a (main.dart.js:4911:63)
+    at bfR.$2 (main.dart.js:46668:14)
+    at bf_.$1 (main.dart.js:46662:21)
+    at b6M.aWs (main.dart.js:47680:34)
+    at b6M.Mp (main.dart.js:47684:13)
+    at aXr.$0 (main.dart.js:47109:11)
+    at Object.yG (main.dart.js:5040:40)
+    at aU.qF (main.dart.js:47020:3)
+Error
+ WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…NDUyODgsInR5cGUiOiJhY2Nlc3MifQ.ymdXIYLEXicwyf6cxghEkW0_z6xS4BG99iKCluNNYs8' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…NDUyODgsInR5cGUiOiJhY2Nlc3MifQ.ymdXIYLEXicwyf6cxghEkW0_z6xS4BG99iKCluNNYs8' failed: 
+Error
+/main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+main.dart.js:6986 WebSocket connection to 'wss://31a251cc-071f-4d63-a3ab-aff529710369-00-2oxfgp717tahv.spock.replit.de…NDUyODgsInR5cGUiOiJhY2Nlc3MifQ.ymdXIYLEXicwyf6cxghEkW0_z6xS4BG99iKCluNNYs8' failed: 
+Error
+main.dart.js:6009 Uncaught Error
+Press ctrl i to turn on code suggestions. Press ctrl x to disable code suggestions.
+
+DevTools is docked to bottom 
