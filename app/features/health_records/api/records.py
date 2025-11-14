@@ -156,27 +156,37 @@ async def list_health_records(
         except Exception:
             user_circle_ids = []
         
-        # Build query with visibility scope filtering
-        query_conditions: List[Dict[str, Any]] = [
-            # Always visible: user is subject
-            {"subject_user_id": user_oid},
-            # Always visible: user created the record
-            {"created_by": user_oid},
-            # Always visible: user is assigned
-            {"assigned_user_ids": user_oid}
-        ]
+        # Build query to include both approved and pending records
+        # Similar to dashboard endpoint - show pending records for assigned users
+        query: Dict[str, Any] = {
+            "$or": [
+                {
+                    # Approved records the user has access to
+                    "approval_status": "approved",
+                    "$or": [
+                        {"subject_user_id": user_oid},
+                        {"created_by": user_oid},
+                        {"assigned_user_ids": user_oid}
+                    ]
+                },
+                {
+                    # Pending records where user is subject or assigned
+                    "approval_status": "pending_approval",
+                    "$or": [
+                        {"subject_user_id": user_oid},
+                        {"assigned_user_ids": user_oid}
+                    ]
+                }
+            ]
+        }
         
-        # Add family/public visibility from user's circles
+        # Add family/public visibility for approved records from user's circles
         if user_circle_ids:
-            query_conditions.append({
+            query["$or"].append({
+                "approval_status": "approved",
                 "family_id": {"$in": user_circle_ids},
                 "visibility_scope": {"$in": ["family", "public"]}
             })
-        
-        query: Dict[str, Any] = {
-            "approval_status": "approved",
-            "$or": query_conditions
-        }
         
         if family_member_id:
             try:

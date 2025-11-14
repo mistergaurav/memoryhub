@@ -254,11 +254,25 @@ async def get_shared_health_dashboard(
     user_oid = ObjectId(current_user.id)
     
     # Get all records accessible to user
+    # Include both approved records and pending records assigned to this user
     all_records_query = {
         "$or": [
-            {"family_id": user_oid},
-            {"subject_user_id": user_oid},
-            {"assigned_user_ids": user_oid}
+            {
+                "approval_status": "approved",
+                "$or": [
+                    {"family_id": user_oid},
+                    {"subject_user_id": user_oid},
+                    {"assigned_user_ids": user_oid},
+                    {"created_by": user_oid}
+                ]
+            },
+            {
+                "approval_status": "pending_approval",
+                "$or": [
+                    {"subject_user_id": user_oid},
+                    {"assigned_user_ids": user_oid}
+                ]
+            }
         ]
     }
     
@@ -267,10 +281,10 @@ async def get_shared_health_dashboard(
         limit=1000
     )
     
-    # Get pending approvals (records created for this user)
+    # Get pending approvals (records awaiting this user's approval)
     pending_approvals = [
         r for r in all_records 
-        if r.get("subject_user_id") == user_oid 
+        if (r.get("subject_user_id") == user_oid or user_oid in r.get("assigned_user_ids", []))
         and r.get("approval_status") == "pending_approval"
     ]
     

@@ -4,9 +4,14 @@ import '../../../services/family/common/family_exceptions.dart';
 class HealthRecordsApi extends FamilyApiClient {
   Future<Map<String, dynamic>> getDashboard() async {
     try {
+      print('[HealthRecordsApi] Fetching dashboard from /family/health-records/dashboard');
       final data = await get('/family/health-records/dashboard', useCache: true);
-      return data['data'] ?? data;
+      print('[HealthRecordsApi] Dashboard response keys: ${data.keys.toList()}');
+      final result = data['data'] ?? data;
+      print('[HealthRecordsApi] Dashboard data keys: ${result.keys.toList()}');
+      return result;
     } catch (e) {
+      print('[HealthRecordsApi] Error loading dashboard: $e');
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
       }
@@ -33,9 +38,12 @@ class HealthRecordsApi extends FamilyApiClient {
         if (subjectType != null) 'subject_type': subjectType,
       };
       
+      print('[HealthRecordsApi] Fetching records from /family/health-records with params: $params');
       final data = await get('/family/health-records', params: params, useCache: true);
+      print('[HealthRecordsApi] Records response keys: ${data.keys.toList()}');
       return data;
     } catch (e) {
+      print('[HealthRecordsApi] Error loading records: $e');
       if (e is ApiException || e is NetworkException || e is AuthException) {
         rethrow;
       }

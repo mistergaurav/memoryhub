@@ -1,0 +1,129 @@
+Dimensions: Responsive
+3447
+×
+ 
+Zoom
+No throttling: No CPU and no network throttling
+'Save-Data': default
+Rotate
+More options
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Select an element in the page to inspect it - Ctrl + Shift + C
+Toggle device toolbar - Ctrl + Shift + M
+Elements
+Console
+Sources
+Network
+Performance
+Memory
+Application
+Privacy and security
+Lighthouse
+Recorder
+Open Console to view 15 errorsOpen Issues to view 12 issues: 1 breaking change, 11 possible improvements
+ AI assistance
+Settings - F1 - Shift + ?
+Customize and control DevTools
+Close
+Hide console sidebar
+Clear console - Ctrl + L
+JavaScript context: top
+Create live expression
+Filter
+Log level: Default levels
+Some problems no longer generate console messages, but are surfaced in the issues tab. Click to view 1 breaking change, 11 possible improvements
+70 hidden
+Console settings
+15 errors
+Error
+/api/v1/auth/token:1 Failed to load resource: the server responded with a status of 401 (Unauthorized) Stack table collapsed
+/api/v1/auth/token:1 Request unavailable in the network panel, try reloading the inspected page Failed to load resource: the server responded with a status of 401 (Unauthorized)
+Error
+ WebSocket connection to 'wss://89da60b2-551f-43d2-87f5-6aa9602ce892-00-19gr9xxtkoula.janeway.replit.…c2NDgyNCwidHlwZSI6ImFjY2VzcyJ9.zY6iPZV1OCf72mN0sKNNOQ616ABilJE5EE0ECoI_ieg' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://89da60b2-551f-43d2-87f5-6aa9602ce892-00-19gr9xxtkoula.janeway.replit.…c2NDgyNCwidHlwZSI6ImFjY2VzcyJ9.zY6iPZV1OCf72mN0sKNNOQ616ABilJE5EE0ECoI_ieg' failed: 
+Error
+/main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+ WebSocket connection to 'wss://89da60b2-551f-43d2-87f5-6aa9602ce892-00-19gr9xxtkoula.janeway.replit.…c2NDgyNCwidHlwZSI6ImFjY2VzcyJ9.zY6iPZV1OCf72mN0sKNNOQ616ABilJE5EE0ECoI_ieg' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://89da60b2-551f-43d2-87f5-6aa9602ce892-00-19gr9xxtkoula.janeway.replit.…c2NDgyNCwidHlwZSI6ImFjY2VzcyJ9.zY6iPZV1OCf72mN0sKNNOQ616ABilJE5EE0ECoI_ieg' failed: 
+Error
+main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+Error
+/main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+    at app.$0 (main.dart.js:138349:14)
+    at b6M.E8 (main.dart.js:47652:23)
+    at aMc.$0 (main.dart.js:47472:5)
+    at yw.pa (main.dart.js:47436:8)
+    at yw.nd (main.dart.js:47407:11)
+    at F3.pa (main.dart.js:47331:17)
+    at F3.a_j (main.dart.js:47279:19)
+    at F3.b2 (main.dart.js:47276:3)
+    at aok.$0 (main.dart.js:137121:3)
+    at b6M.E8 (main.dart.js:47652:23)
+Error
+ WebSocket connection to 'wss://89da60b2-551f-43d2-87f5-6aa9602ce892-00-19gr9xxtkoula.janeway.replit.…NjUzOTIsInR5cGUiOiJhY2Nlc3MifQ.GKaFc-ECbTIqhJLbME5Uh8-vXCohF2ZxI8HnZOGLu6k' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://89da60b2-551f-43d2-87f5-6aa9602ce892-00-19gr9xxtkoula.janeway.replit.…NjUzOTIsInR5cGUiOiJhY2Nlc3MifQ.GKaFc-ECbTIqhJLbME5Uh8-vXCohF2ZxI8HnZOGLu6k' failed: 
+Error
+/main.dart.js:6009 Uncaught Stack table collapsed
+main.dart.js:6009 Uncaught Error
+Error
+ WebSocket connection to 'wss://89da60b2-551f-43d2-87f5-6aa9602ce892-00-19gr9xxtkoula.janeway.replit.…NjUzOTIsInR5cGUiOiJhY2Nlc3MifQ.GKaFc-ECbTIqhJLbME5Uh8-vXCohF2ZxI8HnZOGLu6k' failed: Stack table collapsed
+main.dart.js:6986 WebSocket connection to 'wss://89da60b2-551f-43d2-87f5-6aa9602ce892-00-19gr9xxtkoula.janeway.replit.…NjUzOTIsInR5cGUiOiJhY2Nlc3MifQ.GKaFc-ECbTIqhJLbME5Uh8-vXCohF2ZxI8HnZOGLu6k' failed: 
+Error
+main.dart.js:6009 Uncaught Error
+Error
+/main.dart.js:6011 Uncaught Stack table collapsed
+main.dart.js:6011 Uncaught Error
+    at app.$0 (main.dart.js:138349:14)
+    at b6M.E8 (main.dart.js:47652:23)
+    at aMc.$0 (main.dart.js:47472:5)
+    at yw.pa (main.dart.js:47436:8)
+    at yw.nd (main.dart.js:47407:11)
+    at F3.pa (main.dart.js:47331:17)
+    at F3.a_j (main.dart.js:47279:19)
+    at F3.b2 (main.dart.js:47276:3)
+    at aok.$0 (main.dart.js:137121:3)
+    at b6M.E8 (main.dart.js:47652:23)
+Error
+/api/v1/family/healt…ee3ab1805186fd685:1 Failed to load resource: the server responded with a status of 404 (Not Found) Stack table collapsed
+/api/v1/family/healt…ee3ab1805186fd685:1 Request unavailable in the network panel, try reloading the inspected page Failed to load resource: the server responded with a status of 404 (Not Found)
+Error
+main.dart.js:6011 Uncaught Error
+    at app.$0 (main.dart.js:138349:14)
+    at b6M.E8 (main.dart.js:47652:23)
+    at aMc.$0 (main.dart.js:47472:5)
+    at yw.pa (main.dart.js:47436:8)
+    at yw.nd (main.dart.js:47407:11)
+    at F3.pa (main.dart.js:47331:17)
+    at F3.a_j (main.dart.js:47279:19)
+    at F3.b2 (main.dart.js:47276:3)
+    at aok.$0 (main.dart.js:137121:3)
+    at b6M.E8 (main.dart.js:47652:23)
+Error
+/api/v1/family/healt…ee3ab1805186fd685:1 Failed to load resource: the server responded with a status of 404 (Not Found) Stack table collapsed
+/api/v1/family/healt…ee3ab1805186fd685:1 Request unavailable in the network panel, try reloading the inspected page Failed to load resource: the server responded with a status of 404 (Not Found)
+Error
+main.dart.js:6011 Uncaught Error
+    at app.$0 (main.dart.js:138349:14)
+    at b6M.E8 (main.dart.js:47652:23)
+    at aMc.$0 (main.dart.js:47472:5)
+    at yw.pa (main.dart.js:47436:8)
+    at yw.nd (main.dart.js:47407:11)
+    at F3.pa (main.dart.js:47331:17)
+    at F3.a_j (main.dart.js:47279:19)
+    at F3.b2 (main.dart.js:47276:3)
+    at aok.$0 (main.dart.js:137121:3)
+    at b6M.E8 (main.dart.js:47652:23)
+Press ctrl i to turn on code suggestions. Press ctrl x to disable code suggestions.
+
+DevTools is docked to bottom 

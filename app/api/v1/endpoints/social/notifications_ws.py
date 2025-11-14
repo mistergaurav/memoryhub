@@ -22,33 +22,42 @@ router = APIRouter()
 async def get_user_from_token(token: str) -> Optional[UserInDB]:
     """Authenticate user from WebSocket token"""
     try:
+        logger.info(f"Attempting to authenticate WebSocket with token: {token[:20]}...")
+        
         # Decode JWT token
         payload = jwt.decode(
             token,
             settings.SECRET_KEY,
             algorithms=[settings.ALGORITHM]
         )
+        
+        logger.info(f"Token decoded successfully. Type: {payload.get('type')}, Sub: {payload.get('sub')}")
+        
         if not payload or payload.get("type") != "access":
+            logger.warning(f"Invalid token type: {payload.get('type') if payload else 'None'}")
             return None
         
         # Get user email from token
         email = payload.get("sub")
         if not email:
+            logger.warning("No email (sub) in token payload")
             return None
         
         # Find user by email
         user_doc = await get_collection("users").find_one({"email": email})
         if not user_doc:
+            logger.warning(f"User not found for email: {email}")
             return None
         
         # Create UserInDB instance
         user_doc["_id"] = PyObjectId(user_doc["_id"])
+        logger.info(f"User authenticated successfully: {email}")
         return UserInDB(**user_doc)
     except JWTError as e:
-        logger.error(f"JWT decode error: {str(e)}")
+        logger.error(f"JWT decode error: {str(e)}, token: {token[:50]}...")
         return None
     except Exception as e:
-        logger.error(f"Error authenticating WebSocket user: {str(e)}")
+        logger.error(f"Error authenticating WebSocket user: {str(e)}", exc_info=True)
         return None
 
 

@@ -6,7 +6,7 @@ from app.api.v1.endpoints.memories import memories, memory_templates, tags, cate
 from app.api.v1.endpoints.content import comments, reactions, stories, voice_notes
 from app.api.v1.endpoints.collections import collections, vault, document_vault
 from app.api.v1.endpoints import family as family_hub
-from app.api.v1.endpoints.social import hub, activity, notifications
+from app.api.v1.endpoints.social import hub, activity, notifications, notifications_ws
 from app.api.v1.endpoints.features import search, analytics, sharing, reminders, scheduled_posts, places
 from app.api.v1.endpoints.admin import admin, export, gdpr
 from app.api.v1.endpoints.media import media
@@ -64,6 +64,9 @@ notifications_no_slash_router.add_api_route(
 )
 api_router.include_router(notifications_no_slash_router, prefix="/notifications", tags=["notifications"])
 api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
+
+# Include WebSocket endpoint for notifications
+api_router.include_router(notifications_ws.router, tags=["websocket", "notifications"])
 
 api_router.include_router(search.router, prefix="/search", tags=["search"])
 api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])

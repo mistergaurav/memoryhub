@@ -712,12 +712,10 @@ class HealthRecordService:
         
         # Build visibility-aware query
         # Records visible to user are:
-        # 1. Records where user is subject (always visible)
-        # 2. Records where user is creator (always visible)
-        # 3. Records where user is assigned (always visible)
-        # 4. Records with family/public visibility in user's family circles
+        # 1. Approved records where user has access (created, subject, assigned, or family/public visibility)
+        # 2. Pending approval records where user is the subject/assignee (need their approval)
         
-        query_conditions: List[Dict[str, Any]] = [
+        approved_query_conditions: List[Dict[str, Any]] = [
             # Always visible: user is subject
             {"subject_user_id": user_oid},
             # Always visible: user created the record
@@ -728,14 +726,28 @@ class HealthRecordService:
         
         # Add family/public visibility from user's circles
         if user_circle_ids:
-            query_conditions.append({
+            approved_query_conditions.append({
                 "family_id": {"$in": user_circle_ids},
                 "visibility_scope": {"$in": ["family", "public"]}
             })
         
+        # Query for ALL records the user should see:
+        # - Approved records they have access to
+        # - Pending records assigned to them (for approval)
         all_records_query = {
-            "approval_status": "approved",
-            "$or": query_conditions
+            "$or": [
+                {
+                    "approval_status": "approved",
+                    "$or": approved_query_conditions
+                },
+                {
+                    "approval_status": "pending_approval",
+                    "$or": [
+                        {"subject_user_id": user_oid},
+                        {"assigned_user_ids": user_oid}
+                    ]
+                }
+            ]
         }
         
         all_records = await self.repository.find_many(
@@ -743,9 +755,10 @@ class HealthRecordService:
             limit=1000
         )
         
+        # Get pending approvals (records awaiting this user's approval)
         pending_approvals = [
             r for r in all_records
-            if r.get("subject_user_id") == user_oid
+            if (r.get("subject_user_id") == user_oid or user_oid in r.get("assigned_user_ids", []))
             and r.get("approval_status") == "pending_approval"
         ]
         

@@ -33,9 +33,11 @@ class HealthRecordsRepository {
     final cacheKey = '${recordType ?? 'all'}_${severity ?? 'all'}_${subjectType ?? 'all'}';
     
     if (!forceRefresh && _isCacheValid && _cache.containsKey(cacheKey)) {
+      print('[HealthRecordsRepository] Returning ${_cache[cacheKey]!.length} records from cache');
       return _cache[cacheKey]!;
     }
 
+    print('[HealthRecordsRepository] Fetching records from API (page: $page, limit: $limit, recordType: $recordType)');
     final response = await _api.getRecords(
       page: page,
       limit: limit,
@@ -44,11 +46,19 @@ class HealthRecordsRepository {
       subjectType: subjectType,
     );
 
+    print('[HealthRecordsRepository] API response keys: ${response.keys.toList()}');
     final items = response['data']?['items'] ?? response['items'] ?? [];
+    print('[HealthRecordsRepository] Found ${items.length} items in response');
+    
     final records = (items as List)
-        .map((item) => HealthRecord.fromJson(item as Map<String, dynamic>))
+        .map((item) {
+          final record = HealthRecord.fromJson(item as Map<String, dynamic>);
+          print('[HealthRecordsRepository] Parsed record: ${record.title} (status: ${record.approvalStatus})');
+          return record;
+        })
         .toList();
 
+    print('[HealthRecordsRepository] Total records parsed: ${records.length}');
     _cache[cacheKey] = records;
     _lastFetch = DateTime.now();
 
