@@ -215,7 +215,7 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const MemoryHubColors.cyan600,
+                    backgroundColor: MemoryHubColors.cyan600,
                     padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg),
                     shape: RoundedRectangleBorder(
                       borderRadius: MemoryHubBorderRadius.mdRadius,

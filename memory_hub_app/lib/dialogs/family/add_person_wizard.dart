@@ -415,7 +415,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
           const SizedBox(height: MemoryHubSpacing.sm),
           Text(
             subtitle,
-            style: const TextStyle(color: Colors.grey, fontSize: MemoryHubTypography.body2),
+            style: const TextStyle(color: Colors.grey, fontSize: MemoryHubTypography.bodyMedium),
           ),
           const SizedBox(height: 20),
           content,
@@ -713,13 +713,13 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                     SizedBox(height: 16),
                     Text(
                       'No family members yet',
-                      style: TextStyle(fontSize: MemoryHubTypography.body1, color: Colors.grey),
+                      style: TextStyle(fontSize: MemoryHubTypography.bodyLarge, color: Colors.grey),
                     ),
                     SizedBox(height: 8),
                     Text(
                       'Skip this step for now. You can add relationships later.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: MemoryHubTypography.body2, color: Colors.grey),
+                      style: TextStyle(fontSize: MemoryHubTypography.bodyMedium, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -745,7 +745,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
           const Center(
             child: Text(
               'Or, generate an invite link to share:',
-              style: TextStyle(fontSize: MemoryHubTypography.body2, color: Colors.grey),
+              style: TextStyle(fontSize: MemoryHubTypography.bodyMedium, color: Colors.grey),
             ),
           ),
           const SizedBox(height: MemoryHubSpacing.lg),
@@ -925,7 +925,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
               const Center(
                 child: Text(
                   'Generate an invite link to share:',
-                  style: TextStyle(fontSize: MemoryHubTypography.body2, color: Colors.grey),
+                  style: TextStyle(fontSize: MemoryHubTypography.bodyMedium, color: Colors.grey),
                 ),
               ),
               const SizedBox(height: MemoryHubSpacing.lg),

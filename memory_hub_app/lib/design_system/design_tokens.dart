@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 class MemoryHubColors {
   static const Color primary = Color(0xFF4F46E5);
   
+  static const Color blue50 = Color(0xFFEFF6FF);
+  static const Color blue200 = Color(0xFFBFDBFE);
+  static const Color blue400 = Color(0xFF60A5FA);
+  static const Color blue500 = Color(0xFF3B82F6);
+  static const Color blue700 = Color(0xFF1D4ED8);
+  
   static const Color indigo500 = Color(0xFF6366F1);
   static const Color indigo400 = Color(0xFF818CF8);
   static const Color indigo600 = Color(0xFF4F46E5);
@@ -17,14 +23,25 @@ class MemoryHubColors {
   static const Color purple600 = Color(0xFF7C3AED);
   static const Color purple700 = Color(0xFF6D28D9);
   
+  static const Color cyan300 = Color(0xFF67E8F9);
   static const Color cyan500 = Color(0xFF06B6D4);
   static const Color cyan400 = Color(0xFF22D3EE);
   static const Color cyan600 = Color(0xFF0891B2);
+  static const Color cyan700 = Color(0xFF0E7490);
+  
+  static const Color yellow50 = Color(0xFFFEFCE8);
+  static const Color yellow400 = Color(0xFFFACC15);
+  static const Color yellow500 = Color(0xFFEAB308);
   
   static const Color amber500 = Color(0xFFF59E0B);
   static const Color amber400 = Color(0xFFFBBF24);
   static const Color amber600 = Color(0xFFD97706);
+  static const Color amber700 = Color(0xFFB45309);
+  static const Color amber800 = Color(0xFF92400E);
+  static const Color amber900 = Color(0xFF78350F);
   
+  static const Color red50 = Color(0xFFFEF2F2);
+  static const Color red300 = Color(0xFFFCA5A5);
   static const Color red500 = Color(0xFFEF4444);
   static const Color red400 = Color(0xFFF87171);
   static const Color red600 = Color(0xFFDC2626);
@@ -33,6 +50,7 @@ class MemoryHubColors {
   static const Color green400 = Color(0xFF34D399);
   static const Color green600 = Color(0xFF059669);
   
+  static const Color teal300 = Color(0xFF5EEAD4);
   static const Color teal500 = Color(0xFF14B8A6);
   static const Color teal400 = Color(0xFF2DD4BF);
   static const Color teal600 = Color(0xFF0D9488);

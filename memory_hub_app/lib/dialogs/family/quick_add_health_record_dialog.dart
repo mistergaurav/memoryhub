@@ -305,7 +305,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
             width: 40,
             height: 2,
             margin: const EdgeInsets.symmetric(horizontal: 8),
-            color: _currentStep >= 1 ? const MemoryHubColors.red500 : MemoryHubColors.gray300,
+            color: _currentStep >= 1 ? MemoryHubColors.red500 : MemoryHubColors.gray300,
           ),
           _buildStepIndicator(1, 'Details'),
         ],
@@ -323,7 +323,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: isActive || isCompleted ? const MemoryHubColors.red500 : MemoryHubColors.gray300,
+            color: isActive || isCompleted ? MemoryHubColors.red500 : MemoryHubColors.gray300,
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -343,7 +343,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
           label,
           style: TextStyle(
             fontSize: MemoryHubTypography.caption,
-            color: isActive ? const MemoryHubColors.red500 : MemoryHubColors.gray600,
+            color: isActive ? MemoryHubColors.red500 : MemoryHubColors.gray600,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -359,7 +359,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
         children: [
           const Text(
             'Select Family Member',
-            style: TextStyle(fontSize: MemoryHubTypography.body1, fontWeight: MemoryHubTypography.bold),
+            style: TextStyle(fontSize: MemoryHubTypography.bodyLarge, fontWeight: MemoryHubTypography.bold),
           ),
           const SizedBox(height: MemoryHubSpacing.md),
           if (_isLoadingMembers)
@@ -420,7 +420,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
           const SizedBox(height: 24),
           const Text(
             'Select Record Type',
-            style: TextStyle(fontSize: MemoryHubTypography.body1, fontWeight: MemoryHubTypography.bold),
+            style: TextStyle(fontSize: MemoryHubTypography.bodyLarge, fontWeight: MemoryHubTypography.bold),
           ),
           const SizedBox(height: MemoryHubSpacing.md),
           GridView.builder(
@@ -467,7 +467,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
                       Text(
                         type['label'] as String,
                         style: TextStyle(
-                          fontSize: MemoryHubTypography.body2,
+                          fontSize: MemoryHubTypography.bodyMedium,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                           color: isSelected
                               ? type['color'] as Color
@@ -511,7 +511,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
               ),
               child: Text(
                 DateFormat('MMMM d, yyyy').format(_selectedDate),
-                style: const TextStyle(fontSize: MemoryHubTypography.body1),
+                style: const TextStyle(fontSize: MemoryHubTypography.bodyLarge),
               ),
             ),
           ),
@@ -528,7 +528,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
           const SizedBox(height: MemoryHubSpacing.lg),
           const Text(
             'Severity (Optional)',
-            style: TextStyle(fontSize: MemoryHubTypography.body2, fontWeight: MemoryHubTypography.semiBold),
+            style: TextStyle(fontSize: MemoryHubTypography.bodyMedium, fontWeight: MemoryHubTypography.semiBold),
           ),
           const SizedBox(height: MemoryHubSpacing.sm),
           Wrap(
@@ -584,7 +584,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
                   Text(
                     'More Details',
                     style: TextStyle(
-                      fontSize: MemoryHubTypography.body2,
+                      fontSize: MemoryHubTypography.bodyMedium,
                       fontWeight: MemoryHubTypography.semiBold,
                       color: MemoryHubColors.gray700,
                     ),
@@ -668,7 +668,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
               icon: const Icon(Icons.arrow_forward),
               label: const Text('Continue'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const MemoryHubColors.red500,
+                backgroundColor: MemoryHubColors.red500,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -682,7 +682,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
               icon: const Icon(Icons.check),
               label: const Text('Save Record'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const MemoryHubColors.green500,
+                backgroundColor: MemoryHubColors.green500,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(

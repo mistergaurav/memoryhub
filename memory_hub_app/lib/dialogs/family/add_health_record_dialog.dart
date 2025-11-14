@@ -660,7 +660,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                               Text(
                                 _controller.errorMessage!,
                                 style: GoogleFonts.inter(
-                                  color: _errorRed.withOpacity(0.9),
+                                  color: MemoryHubColors.red500.withOpacity(0.9),
                                   fontSize: 13,
                                   height: 1.4,
                                 ),
@@ -678,7 +678,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                     ),
                                   ),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: _errorRed,
+                                    backgroundColor: MemoryHubColors.red500,
                                     foregroundColor: Colors.white,
                                     elevation: 0,
                                     padding: const EdgeInsets.symmetric(
@@ -699,7 +699,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                           onPressed: () {
                             _controller.clearError();
                           },
-                          color: _errorRed,
+                          color: MemoryHubColors.red500,
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                         ),
@@ -726,7 +726,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                           style: GoogleFonts.inter(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: _typographyDark,
+                            color: MemoryHubColors.gray900,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -797,10 +797,10 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: _primaryTeal.withOpacity(0.1),
+                              color: MemoryHubColors.teal500.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: _primaryTeal.withOpacity(0.3),
+                                color: MemoryHubColors.teal500.withOpacity(0.3),
                                 width: 1,
                               ),
                             ),
@@ -809,7 +809,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                 Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: const BoxDecoration(
-                                    color: _primaryTeal,
+                                    color: MemoryHubColors.teal500,
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -824,7 +824,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                     'This record will be created for your account',
                                     style: GoogleFonts.inter(
                                       fontSize: 13,
-                                      color: _typographyDark,
+                                      color: MemoryHubColors.gray900,
                                     ),
                                   ),
                                 ),
@@ -848,10 +848,10 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: _successGreen.withOpacity(0.1),
+                                color: MemoryHubColors.green500.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: _successGreen.withOpacity(0.3),
+                                  color: MemoryHubColors.green500.withOpacity(0.3),
                                   width: 1,
                                 ),
                               ),
@@ -860,7 +860,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: const BoxDecoration(
-                                      color: _successGreen,
+                                      color: MemoryHubColors.green500,
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(
@@ -879,7 +879,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                           style: GoogleFonts.inter(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
-                                            color: _typographyDark,
+                                            color: MemoryHubColors.gray900,
                                           ),
                                         ),
                                         if (_selectedUser!.email != null) ...[
@@ -888,7 +888,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                             _selectedUser!.email!,
                                             style: GoogleFonts.inter(
                                               fontSize: 12,
-                                              color: _typographyDark.withOpacity(0.6),
+                                              color: MemoryHubColors.gray900.withOpacity(0.6),
                                             ),
                                           ),
                                         ],
@@ -903,7 +903,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                         if (_subjectCategory == 'family') ...[
                           const SizedBox(height: 16),
                           _loadingMembers
-                              ? const Center(child: CircularProgressIndicator(color: _accentAqua))
+                              ? const Center(child: CircularProgressIndicator(color: MemoryHubColors.cyan300))
                               : DropdownButtonFormField<String>(
                                   value: _selectedFamilyMemberId,
                                   decoration: _buildInputDecoration(
@@ -927,7 +927,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                         if (_subjectCategory == 'friend') ...[
                           const SizedBox(height: 16),
                           _loadingCircles
-                              ? const Center(child: CircularProgressIndicator(color: _accentAqua))
+                              ? const Center(child: CircularProgressIndicator(color: MemoryHubColors.cyan300))
                               : DropdownButtonFormField<String>(
                                   value: _selectedFriendCircleId,
                                   decoration: _buildInputDecoration(
@@ -981,7 +981,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                         icon: Icons.category,
                                         helperText: 'Type of health record',
                                       ),
-                                      style: GoogleFonts.inter(color: _typographyDark),
+                                      style: GoogleFonts.inter(color: MemoryHubColors.gray900),
                                       items: _recordTypes.map((type) {
                                         return DropdownMenuItem(
                                           value: type['value'],
@@ -1007,7 +1007,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                         ),
                                         child: Text(
                                           DateFormat('MMM d, yyyy').format(_selectedDate),
-                                          style: GoogleFonts.inter(color: _typographyDark),
+                                          style: GoogleFonts.inter(color: MemoryHubColors.gray900),
                                         ),
                                       ),
                                     ),
@@ -1024,7 +1024,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                       icon: Icons.category,
                                       helperText: 'Type of health record',
                                     ),
-                                    style: GoogleFonts.inter(color: _typographyDark),
+                                    style: GoogleFonts.inter(color: MemoryHubColors.gray900),
                                     items: _recordTypes.map((type) {
                                       return DropdownMenuItem(
                                         value: type['value'],
@@ -1048,7 +1048,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                       ),
                                       child: Text(
                                         DateFormat('MMM d, yyyy').format(_selectedDate),
-                                        style: GoogleFonts.inter(color: _typographyDark),
+                                        style: GoogleFonts.inter(color: MemoryHubColors.gray900),
                                       ),
                                     ),
                                   ),
@@ -1101,7 +1101,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                               icon: Icons.schedule,
                               helperText: 'How often to take this medication',
                             ),
-                            style: GoogleFonts.inter(color: _typographyDark),
+                            style: GoogleFonts.inter(color: MemoryHubColors.gray900),
                             items: _medicationFrequencies.map((freq) {
                               return DropdownMenuItem(
                                 value: freq['value'],
@@ -1124,10 +1124,10 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                   return Theme(
                                     data: Theme.of(context).copyWith(
                                       colorScheme: const ColorScheme.light(
-                                        primary: _primaryTeal,
+                                        primary: MemoryHubColors.teal500,
                                         onPrimary: Colors.white,
                                         surface: Colors.white,
-                                        onSurface: _typographyDark,
+                                        onSurface: MemoryHubColors.gray900,
                                       ),
                                     ),
                                     child: child!,
@@ -1152,7 +1152,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                     : 'Tap to set reminder time',
                                 style: GoogleFonts.inter(
                                   color: _dailyReminderTime != null
-                                      ? _typographyDark
+                                      ? MemoryHubColors.gray900
                                       : MemoryHubColors.gray500,
                                 ),
                               ),
@@ -1206,10 +1206,10 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                   return Theme(
                                     data: Theme.of(context).copyWith(
                                       colorScheme: const ColorScheme.light(
-                                        primary: _primaryTeal,
+                                        primary: MemoryHubColors.teal500,
                                         onPrimary: Colors.white,
                                         surface: Colors.white,
-                                        onSurface: _typographyDark,
+                                        onSurface: MemoryHubColors.gray900,
                                       ),
                                     ),
                                     child: child!,
@@ -1234,7 +1234,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                     : 'Tap to set reminder date',
                                 style: GoogleFonts.inter(
                                   color: _vaccinationReminderDate != null
-                                      ? _typographyDark
+                                      ? MemoryHubColors.gray900
                                       : MemoryHubColors.gray500,
                                 ),
                               ),
@@ -1294,10 +1294,10 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                   return Theme(
                                     data: Theme.of(context).copyWith(
                                       colorScheme: const ColorScheme.light(
-                                        primary: _primaryTeal,
+                                        primary: MemoryHubColors.teal500,
                                         onPrimary: Colors.white,
                                         surface: Colors.white,
-                                        onSurface: _typographyDark,
+                                        onSurface: MemoryHubColors.gray900,
                                       ),
                                     ),
                                     child: child!,
@@ -1322,7 +1322,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                     : 'Tap to set reminder date',
                                 style: GoogleFonts.inter(
                                   color: _labResultReminderDate != null
-                                      ? _typographyDark
+                                      ? MemoryHubColors.gray900
                                       : MemoryHubColors.gray500,
                                 ),
                               ),
@@ -1348,8 +1348,8 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                         data: Theme.of(context).copyWith(
                           dividerColor: Colors.transparent,
                           expansionTileTheme: ExpansionTileThemeData(
-                            iconColor: _primaryTeal,
-                            textColor: _typographyDark,
+                            iconColor: MemoryHubColors.teal500,
+                            textColor: MemoryHubColors.gray900,
                             collapsedIconColor: const Color(0xFF6B7280),
                           ),
                         ),
@@ -1365,7 +1365,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                             height: 36,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [_primaryTeal, _accentAqua],
+                                colors: [MemoryHubColors.teal500, MemoryHubColors.cyan300],
                               ),
                               shape: BoxShape.circle,
                             ),
@@ -1376,7 +1376,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                             style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: _typographyDark,
+                              color: MemoryHubColors.gray900,
                             ),
                           ),
                           subtitle: Text(
@@ -1421,7 +1421,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                         style: GoogleFonts.inter(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          color: _typographyDark,
+                                          color: MemoryHubColors.gray900,
                                         ),
                                       ),
                                       const SizedBox(height: 8),
@@ -1442,10 +1442,10 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                               decoration: BoxDecoration(
                                                 gradient: isSelected
                                                     ? const LinearGradient(
-                                                        colors: [_primaryTeal, _accentAqua],
+                                                        colors: [MemoryHubColors.teal500, MemoryHubColors.cyan300],
                                                       )
                                                     : null,
-                                                color: isSelected ? null : _supportLight,
+                                                color: isSelected ? null : MemoryHubColors.gray200,
                                                 borderRadius: BorderRadius.circular(20),
                                                 border: isSelected ? null : Border.all(color: const Color(0xFFD1E8EC)),
                                               ),
@@ -1453,7 +1453,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                                 level['label']!,
                                                 style: GoogleFonts.inter(
                                                   fontSize: 14,
-                                                  color: isSelected ? Colors.white : _primaryTeal,
+                                                  color: isSelected ? Colors.white : MemoryHubColors.teal500,
                                                   fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
                                                 ),
                                               ),
@@ -1501,7 +1501,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                             style: GoogleFonts.inter(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: _typographyDark,
+                              color: MemoryHubColors.gray900,
                             ),
                           ),
                           subtitle: Text(
@@ -1511,7 +1511,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                               color: const Color(0xFF6B7280),
                             ),
                           ),
-                          activeColor: _accentAqua,
+                          activeColor: MemoryHubColors.cyan300,
                           contentPadding: EdgeInsets.zero,
                         ),
                         if (_enableReminder)
@@ -1520,7 +1520,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                             margin: const EdgeInsets.only(top: 16),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: _supportLight,
+                              color: MemoryHubColors.gray200,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Column(
@@ -1532,7 +1532,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                                     icon: Icons.notification_important,
                                     helperText: 'What kind of reminder is this',
                                   ),
-                                  style: GoogleFonts.inter(color: _typographyDark),
+                                  style: GoogleFonts.inter(color: MemoryHubColors.gray900),
                                   items: _reminderTypes.map((type) {
                                     return DropdownMenuItem(
                                       value: type['value'],
@@ -1602,7 +1602,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                         child: TextButton(
                           onPressed: _controller.isSubmitting ? null : () => Navigator.of(context).pop(),
                           style: TextButton.styleFrom(
-                            foregroundColor: _primaryTeal,
+                            foregroundColor: MemoryHubColors.teal500,
                             minimumSize: const Size(88, 48),
                           ),
                           child: Text(
@@ -1622,7 +1622,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                         child: ElevatedButton(
                           onPressed: _controller.isSubmitting ? null : _submit,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _primaryTeal,
+                            backgroundColor: MemoryHubColors.teal500,
                             foregroundColor: Colors.white,
                             elevation: 2,
                             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),

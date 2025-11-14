@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import '../tokens/spacing_tokens.dart';
-import '../tokens/radius_tokens.dart';
-import '../tokens/elevation_tokens.dart';
-import '../tokens/border_tokens.dart';
+import '../../theme/color_tokens.dart';
 
 /// Theme extension for custom design tokens
 /// Access via: Theme.of(context).extension<AppTokens>()
@@ -43,15 +40,15 @@ class AppTokens extends ThemeExtension<AppTokens> {
 
   /// Light theme tokens
   static AppTokens light() => const AppTokens(
-        success: Color(0xFF10B981),
-        warning: Color(0xFFF59E0B),
-        info: Color(0xFF06B6D4),
+        success: AppColorTokens.lightSuccess,
+        warning: AppColorTokens.lightWarning,
+        info: AppColorTokens.lightInfo,
       );
 
   /// Dark theme tokens
   static AppTokens dark() => const AppTokens(
-        success: Color(0xFF34D399),
-        warning: Color(0xFFFBBF24),
-        info: Color(0xFF22D3EE),
+        success: AppColorTokens.darkSuccess,
+        warning: AppColorTokens.darkWarning,
+        info: AppColorTokens.darkInfo,
       );
 }

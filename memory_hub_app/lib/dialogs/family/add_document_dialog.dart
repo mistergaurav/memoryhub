@@ -235,7 +235,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
         borderSide: const BorderSide(color: MemoryHubColors.red500, width: 2),
       ),
       labelStyle: GoogleFonts.inter(
-        fontSize: MemoryHubTypography.body2,
+        fontSize: MemoryHubTypography.bodyMedium,
         color: MemoryHubColors.gray900,
       ),
       helperStyle: GoogleFonts.inter(
@@ -259,11 +259,11 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: MemoryHubBorderRadius.xlRadius,
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
             color: MemoryHubColors.cyan600.withOpacity(0.08),
             blurRadius: 18,
-            offset: Offset(0, 6),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -292,7 +292,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                     Text(
                       title,
                       style: GoogleFonts.inter(
-                        fontSize: MemoryHubTypography.body1,
+                        fontSize: MemoryHubTypography.bodyLarge,
                         fontWeight: MemoryHubTypography.semiBold,
                         color: MemoryHubColors.gray900,
                       ),
@@ -353,7 +353,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
             Text(
               type['label'],
               style: GoogleFonts.inter(
-                fontSize: MemoryHubTypography.body2,
+                fontSize: MemoryHubTypography.bodyMedium,
                 fontWeight: MemoryHubTypography.medium,
                 color: isSelected ? Colors.white : MemoryHubColors.teal600,
               ),
@@ -426,7 +426,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                           'Securely store important documents',
                           style: GoogleFonts.inter(
                             color: Colors.white70,
-                            fontSize: MemoryHubTypography.body2,
+                            fontSize: MemoryHubTypography.bodyMedium,
                           ),
                         ),
                       ],
@@ -454,7 +454,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                         _errorMessage!,
                         style: GoogleFonts.inter(
                           color: MemoryHubColors.red500,
-                          fontSize: MemoryHubTypography.body2,
+                          fontSize: MemoryHubTypography.bodyMedium,
                         ),
                       ),
                     ),
@@ -640,7 +640,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                               child: Text(
                                 'Advanced Options',
                                 style: GoogleFonts.inter(
-                                  fontSize: MemoryHubTypography.body1,
+                                  fontSize: MemoryHubTypography.bodyLarge,
                                   fontWeight: MemoryHubTypography.semiBold,
                                   color: MemoryHubColors.gray900,
                                 ),
@@ -749,7 +749,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                                   Text(
                                     'Save Document',
                                     style: GoogleFonts.inter(
-                                      fontSize: MemoryHubTypography.body1,
+                                      fontSize: MemoryHubTypography.bodyLarge,
                                       fontWeight: MemoryHubTypography.semiBold,
                                       color: Colors.white,
                                     ),

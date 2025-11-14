@@ -372,7 +372,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                       icon: const Icon(Icons.add_circle_outline),
                       label: const Text('Add Ingredient'),
                       style: TextButton.styleFrom(
-                        foregroundColor: const MemoryHubColors.red500,
+                        foregroundColor: MemoryHubColors.red500,
                       ),
                     ),
                     const SizedBox(height: MemoryHubSpacing.xl),
@@ -386,7 +386,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                       icon: const Icon(Icons.add_circle_outline),
                       label: const Text('Add Step'),
                       style: TextButton.styleFrom(
-                        foregroundColor: const MemoryHubColors.red500,
+                        foregroundColor: MemoryHubColors.red500,
                       ),
                     ),
                     const SizedBox(height: MemoryHubSpacing.xl),
@@ -429,7 +429,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const MemoryHubColors.red500,
+                    backgroundColor: MemoryHubColors.red500,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 32,
                       vertical: 16,
@@ -451,7 +451,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
                           'Add Recipe',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: MemoryHubTypography.body1,
+                            fontSize: MemoryHubTypography.bodyLarge,
                             fontWeight: MemoryHubTypography.bold,
                           ),
                         ),
@@ -467,7 +467,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
   Widget _buildSectionHeader(String title, IconData icon) {
     return Row(
       children: [
-        Icon(icon, color: const MemoryHubColors.red500, size: 20),
+        Icon(icon, color: MemoryHubColors.red500, size: 20),
         const SizedBox(width: MemoryHubSpacing.sm),
         Text(
           title,
@@ -574,7 +574,7 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
               height: 32,
               margin: const EdgeInsets.only(top: 8),
               decoration: BoxDecoration(
-                color: const MemoryHubColors.red500,
+                color: MemoryHubColors.red500,
                 borderRadius: MemoryHubBorderRadius.smRadius,
               ),
               child: Center(

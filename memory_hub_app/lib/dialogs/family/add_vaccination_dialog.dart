@@ -251,7 +251,7 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
                   ElevatedButton(
                     onPressed: _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const MemoryHubColors.red500,
+                      backgroundColor: MemoryHubColors.red500,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 32,
