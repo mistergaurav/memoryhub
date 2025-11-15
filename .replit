@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "python-3.12", "cpp-clang14", "postgresql-16"]
+modules = ["nodejs-20", "python-3.12", "web", "cpp-clang14"]
 [agent]
 expertMode = true
 
@@ -68,6 +68,10 @@ externalPort = 6000
 [[ports]]
 localPort = 33781
 externalPort = 5173
+
+[[ports]]
+localPort = 34367
+externalPort = 8099
 
 [[ports]]
 localPort = 35431
