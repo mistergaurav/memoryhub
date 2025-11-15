@@ -22,13 +22,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<NotificationsProvider>(context, listen: false);
-      if (provider.notifications.isEmpty) {
-        provider.loadNotifications();
-      }
-    });
   }
 
   @override

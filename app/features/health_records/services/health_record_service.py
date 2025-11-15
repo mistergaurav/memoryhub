@@ -744,7 +744,8 @@ class HealthRecordService:
                     "approval_status": "pending_approval",
                     "$or": [
                         {"subject_user_id": user_oid},
-                        {"assigned_user_ids": user_oid}
+                        {"assigned_user_ids": user_oid},
+                        {"created_by": user_oid}
                     ]
                 }
             ]

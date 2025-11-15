@@ -238,7 +238,7 @@ class WebSocketService {
     _pingTimer = null;
 
     try {
-      _channel?.sink.close(status.goingAway);
+      _channel?.sink.close(status.normalClosure);
     } catch (e) {
     }
 
