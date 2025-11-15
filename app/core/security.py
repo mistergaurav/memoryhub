@@ -40,7 +40,7 @@ def create_refresh_token(data: Dict[str, Any], expires_delta: Optional[timedelta
 async def get_user_by_email(email: str) -> Optional[UserInDB]:
     user_data = await get_collection("users").find_one({"email": email})
     if user_data:
-        user_data["_id"] = str(user_data["_id"])
+        # Leave _id as ObjectId - PyObjectId validator will handle it correctly
         return UserInDB(**user_data)
     return None
 

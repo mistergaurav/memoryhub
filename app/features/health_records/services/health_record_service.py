@@ -1,6 +1,7 @@
 from typing import Dict, Any, Optional, List
 from bson import ObjectId
 from datetime import datetime
+import logging
 
 from ..repositories.health_records_repository import HealthRecordsRepository
 from ..schemas.health_records import (
@@ -18,6 +19,9 @@ from app.services.notification_service import NotificationService
 from app.schemas.audit_log import AuditAction
 from app.db.mongodb import get_collection
 from app.core.websocket import connection_manager, create_ws_message, WSMessageType
+
+
+logger = logging.getLogger(__name__)
 
 
 class HealthRecordService:
@@ -112,7 +116,11 @@ class HealthRecordService:
         
         record_doc = await self.repository.create(record_data)
         
+        logger.info(f"Health record created: record_id={record_doc['_id']}, created_by={record_doc.get('created_by')}, subject_user_id={record_doc.get('subject_user_id')}")
+        
         if record.subject_user_id and record.subject_user_id != current_user_id:
+            logger.info(f"Creating notification for assigned user: user_id={record.subject_user_id}, creator_id={current_user_id}, record_id={record_doc['_id']}, title={record.title}")
+            
             await create_notification(
                 user_id=record.subject_user_id,
                 notification_type=NotificationType.HEALTH_RECORD_ASSIGNED,
@@ -126,6 +134,8 @@ class HealthRecordService:
                 assigner_name=current_user_name or "Unknown",
                 has_reminder=False
             )
+            
+            logger.info(f"Notification created successfully for user {record.subject_user_id}")
         
         await log_audit_event(
             user_id=str(current_user_id),
@@ -604,17 +614,30 @@ class HealthRecordService:
             True if user has access, False otherwise
         """
         user_oid = ObjectId(current_user_id)
+        created_by = record_doc.get("created_by")
         
-        if record_doc.get("created_by") == user_oid:
+        logger.info(f"Checking access for user {current_user_id} (ObjectId: {user_oid})")
+        logger.info(f"Record created_by: {created_by} (type: {type(created_by)})")
+        logger.info(f"Record subject_user_id: {record_doc.get('subject_user_id')}")
+        logger.info(f"Record assigned_user_ids: {record_doc.get('assigned_user_ids', [])}")
+        logger.info(f"Record family_id: {record_doc.get('family_id')}")
+        
+        if created_by == user_oid:
+            logger.info(f"Access granted: user is creator (created_by={created_by} == user_oid={user_oid})")
             return True
+        else:
+            logger.info(f"Creator check failed: {created_by} != {user_oid}")
         
         if record_doc.get("subject_type") == "self" and record_doc.get("subject_user_id") == user_oid:
+            logger.info("Access granted: user is subject")
             return True
         
         if user_oid in record_doc.get("assigned_user_ids", []):
+            logger.info("Access granted: user is assigned")
             return True
         
         if record_doc.get("family_id") == user_oid:
+            logger.info("Access granted: record family_id matches user_id")
             return True
         
         if record_doc.get("subject_type") == "family":
@@ -628,10 +651,12 @@ class HealthRecordService:
                         raise_error=False
                     )
                     if is_member:
+                        logger.info("Access granted: user is family circle member")
                         return True
             except Exception:
                 pass
         
+        logger.warning(f"Access denied for user {current_user_id} to health record {record_doc.get('_id')}")
         return False
     
     async def _determine_family_id(

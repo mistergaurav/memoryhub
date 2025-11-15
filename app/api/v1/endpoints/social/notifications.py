@@ -70,6 +70,8 @@ async def create_notification(
     - assigner_name: The name of the assigner
     - has_reminder: Whether a reminder is associated
     """
+    logger.info(f"Creating notification: user_id={user_id}, type={notification_type}, title={title}")
+    
     notification_data: Dict[str, Any] = {
         "user_id": ObjectId(user_id),
         "type": notification_type,
@@ -79,6 +81,8 @@ async def create_notification(
         "is_read": False,
         "created_at": datetime.utcnow()
     }
+    
+    logger.info(f"Notification user_id as ObjectId: {notification_data['user_id']}")
     
     if target_type:
         notification_data["target_type"] = target_type
@@ -99,6 +103,8 @@ async def create_notification(
     
     result = await get_collection("notifications").insert_one(notification_data)
     notification_id = str(result.inserted_id)
+    
+    logger.info(f"Notification created in MongoDB: id={notification_id}, stored with user_id={notification_data['user_id']}")
     
     try:
         from app.core.websocket import create_ws_message, WSMessageType
@@ -133,18 +139,25 @@ async def list_notifications(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """List notifications for current user"""
-    query: Dict[str, Any] = {"user_id": ObjectId(current_user.id)}
+    user_id_obj = ObjectId(current_user.id)
+    query: Dict[str, Any] = {"user_id": user_id_obj}
+    
+    logger.info(f"Listing notifications for user {current_user.id} (ObjectId: {user_id_obj})")
     
     if is_read is not None:
         query["is_read"] = is_read
     if notification_type:
         query["type"] = notification_type
     
+    logger.info(f"Notification query: {query}")
+    
     total = await get_collection("notifications").count_documents(query)
     unread_count = await get_collection("notifications").count_documents({
-        "user_id": ObjectId(current_user.id),
+        "user_id": user_id_obj,
         "is_read": False
     })
+    
+    logger.info(f"Found {total} total notifications, {unread_count} unread for user {current_user.id}")
     
     skip = (page - 1) * limit
     pages = (total + limit - 1) // limit
@@ -153,7 +166,10 @@ async def list_notifications(
     
     notifications = []
     async for notif_doc in cursor:
+        logger.debug(f"Processing notification: {notif_doc.get('_id')}, type={notif_doc.get('type')}, user_id={notif_doc.get('user_id')}")
         notifications.append(await _prepare_notification_response(notif_doc))
+    
+    logger.info(f"Returning {len(notifications)} notifications to user {current_user.id}")
     
     from app.models.responses import create_success_response
     
