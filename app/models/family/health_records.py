@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, model_validator
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
 
@@ -154,9 +154,11 @@ class HealthRecordResponse(BaseModel):
     subject_type: SubjectType = SubjectType.SELF
     subject_user_id: Optional[str] = None
     subject_name: Optional[str] = None
+    subject_user_name: Optional[str] = None
     subject_family_member_id: Optional[str] = None
     subject_friend_circle_id: Optional[str] = None
     assigned_user_ids: List[str] = []
+    assigned_to: Optional[List[Dict[str, Any]]] = []
     family_member_id: Optional[str] = None
     family_member_name: Optional[str] = None
     genealogy_person_id: Optional[str] = None
@@ -185,6 +187,8 @@ class HealthRecordResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     created_by: str
+    created_by_name: Optional[str] = None
+    created_by_email: Optional[str] = None
 
 
 class VaccinationRecordCreate(BaseModel):

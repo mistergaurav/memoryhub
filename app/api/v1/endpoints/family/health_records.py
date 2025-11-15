@@ -12,6 +12,7 @@ from app.models.user import UserInDB
 from app.core.security import get_current_user
 from app.features.health_records.repositories.health_records_repository import HealthRecordsRepository
 from app.repositories.family_repository import FamilyMembersRepository
+from app.repositories.family.users import UserRepository
 from app.repositories.base_repository import BaseRepository
 from app.models.responses import create_success_response, create_paginated_response
 from app.utils.audit_logger import log_audit_event
@@ -24,15 +25,57 @@ health_records_repo = HealthRecordsRepository()
 vaccination_repo = BaseRepository("vaccination_records")
 family_members_repo = FamilyMembersRepository()
 reminders_repo = BaseRepository("health_record_reminders")
+users_repo = UserRepository()
 
 
-def health_record_to_response(record_doc: dict, member_name: Optional[str] = None) -> HealthRecordResponse:
+def health_record_to_response(
+    record_doc: dict, 
+    member_name: Optional[str] = None,
+    user_lookup: Optional[Dict[str, Any]] = None
+) -> HealthRecordResponse:
     """Convert MongoDB health record document to response model"""
+    created_by_id = str(record_doc["created_by"])
+    subject_user_id = str(record_doc.get("subject_user_id")) if record_doc.get("subject_user_id") else None
+    assigned_user_ids = [str(uid) for uid in record_doc.get("assigned_user_ids", [])]
+    
+    created_by_name = None
+    created_by_email = None
+    subject_user_name = None
+    assigned_to = []
+    
+    if user_lookup:
+        creator_info = user_lookup.get(created_by_id, {})
+        created_by_name = creator_info.get('full_name') or creator_info.get('email')
+        created_by_email = creator_info.get('email')
+        
+        if subject_user_id:
+            subject_info = user_lookup.get(subject_user_id, {})
+            subject_user_name = subject_info.get('full_name') or subject_info.get('email')
+        
+        assigned_to = [
+            {
+                "id": uid,
+                "name": user_lookup.get(uid, {}).get('full_name', 'Unknown'),
+                "email": user_lookup.get(uid, {}).get('email', '')
+            }
+            for uid in assigned_user_ids
+        ]
+    
     return HealthRecordResponse(
         id=str(record_doc["_id"]),
         family_id=str(record_doc["family_id"]),
+        subject_type=record_doc.get("subject_type", "self"),
+        subject_user_id=subject_user_id,
+        subject_name=record_doc.get("subject_name"),
+        subject_user_name=subject_user_name,
+        subject_family_member_id=str(record_doc.get("subject_family_member_id")) if record_doc.get("subject_family_member_id") else None,
+        subject_friend_circle_id=str(record_doc.get("subject_friend_circle_id")) if record_doc.get("subject_friend_circle_id") else None,
+        assigned_user_ids=assigned_user_ids,
+        assigned_to=assigned_to,
         family_member_id=str(record_doc.get("family_member_id", "")),
         family_member_name=member_name,
+        genealogy_person_id=str(record_doc.get("genealogy_person_id")) if record_doc.get("genealogy_person_id") else None,
+        genealogy_person_name=record_doc.get("genealogy_person_name"),
         record_type=record_doc["record_type"],
         title=record_doc["title"],
         description=record_doc.get("description"),
@@ -44,13 +87,21 @@ def health_record_to_response(record_doc: dict, member_name: Optional[str] = Non
         notes=record_doc.get("notes"),
         medications=record_doc.get("medications", []),
         is_confidential=record_doc.get("is_confidential", False),
+        is_hereditary=record_doc.get("is_hereditary", False),
+        inheritance_pattern=record_doc.get("inheritance_pattern"),
+        age_of_onset=record_doc.get("age_of_onset"),
+        affected_relatives=record_doc.get("affected_relatives", []),
+        affected_relatives_names=record_doc.get("affected_relatives_names", []),
+        genetic_test_results=record_doc.get("genetic_test_results"),
         approval_status=record_doc.get("approval_status", ApprovalStatus.APPROVED),
         approved_at=record_doc.get("approved_at"),
         approved_by=record_doc.get("approved_by"),
         rejection_reason=record_doc.get("rejection_reason"),
         created_at=record_doc["created_at"],
         updated_at=record_doc["updated_at"],
-        created_by=str(record_doc["created_by"])
+        created_by=created_by_id,
+        created_by_name=created_by_name,
+        created_by_email=created_by_email
     )
 
 
@@ -231,11 +282,37 @@ async def list_health_records(
     
     total = await health_records_repo.count(query)
     
+    # Batch-fetch all unique user IDs from records
+    unique_user_ids = set()
+    for record in records:
+        if record.get("created_by"):
+            unique_user_ids.add(str(record["created_by"]))
+        if record.get("subject_user_id"):
+            unique_user_ids.add(str(record["subject_user_id"]))
+        for uid in record.get("assigned_user_ids", []):
+            unique_user_ids.add(str(uid))
+    
+    # Fetch user information
+    user_lookup = {}
+    if unique_user_ids:
+        users = await users_repo.find_many(
+            filter_dict={"_id": {"$in": [ObjectId(uid) for uid in unique_user_ids]}},
+            limit=len(unique_user_ids)
+        )
+        user_lookup = {
+            str(user["_id"]): {
+                "full_name": user.get("full_name", ""),
+                "email": user.get("email", ""),
+                "avatar": user.get("avatar_url", "")
+            }
+            for user in users
+        }
+    
     record_responses = []
     for record_doc in records:
         member_id = record_doc.get("family_member_id")
         member_name = await get_member_name(member_id) if member_id else None
-        record_responses.append(health_record_to_response(record_doc, member_name))
+        record_responses.append(health_record_to_response(record_doc, member_name, user_lookup))
     
     return create_paginated_response(
         items=record_responses,
@@ -281,6 +358,35 @@ async def get_shared_health_dashboard(
         limit=1000
     )
     
+    # Batch-fetch all unique user IDs from records
+    unique_user_ids = set()
+    for record in all_records:
+        # Add created_by
+        if record.get("created_by"):
+            unique_user_ids.add(str(record["created_by"]))
+        # Add subject_user_id
+        if record.get("subject_user_id"):
+            unique_user_ids.add(str(record["subject_user_id"]))
+        # Add assigned_user_ids
+        for uid in record.get("assigned_user_ids", []):
+            unique_user_ids.add(str(uid))
+    
+    # Fetch user information
+    user_lookup = {}
+    if unique_user_ids:
+        users = await users_repo.find_many(
+            filter_dict={"_id": {"$in": [ObjectId(uid) for uid in unique_user_ids]}},
+            limit=len(unique_user_ids)
+        )
+        user_lookup = {
+            str(user["_id"]): {
+                "full_name": user.get("full_name", ""),
+                "email": user.get("email", ""),
+                "avatar": user.get("avatar_url", "")
+            }
+            for user in users
+        }
+    
     # Get pending approvals (records awaiting this user's approval)
     pending_approvals = [
         r for r in all_records 
@@ -319,7 +425,7 @@ async def get_shared_health_dashboard(
     # Get 10 most recent records
     sorted_records = sorted(all_records, key=lambda x: x["created_at"], reverse=True)[:10]
     for record_doc in sorted_records:
-        stats["recent_records"].append(health_record_to_response(record_doc))
+        stats["recent_records"].append(health_record_to_response(record_doc, user_lookup=user_lookup))
     
     # Log dashboard access
     await log_audit_event(
@@ -337,7 +443,7 @@ async def get_shared_health_dashboard(
         message="Health dashboard retrieved successfully",
         data={
             "statistics": stats,
-            "pending_approvals": [health_record_to_response(r) for r in pending_approvals],
+            "pending_approvals": [health_record_to_response(r, user_lookup=user_lookup) for r in pending_approvals],
             "upcoming_reminders": [reminder_to_dict(r) for r in user_reminders]
         }
     )
@@ -358,15 +464,46 @@ async def get_health_record(
     if not record_doc:
         raise HTTPException(status_code=404, detail="Health record not found")
     
-    if str(record_doc["family_id"]) != current_user.id:
+    user_oid = ObjectId(current_user.id)
+    
+    # Check if user has access to this record
+    is_creator = str(record_doc["family_id"]) == current_user.id or str(record_doc.get("created_by")) == current_user.id
+    is_subject = record_doc.get("subject_user_id") == user_oid
+    is_assigned = user_oid in record_doc.get("assigned_user_ids", [])
+    
+    if not (is_creator or is_subject or is_assigned):
         raise HTTPException(status_code=403, detail="Not authorized to view this record")
+    
+    # Batch-fetch user information
+    unique_user_ids = set()
+    if record_doc.get("created_by"):
+        unique_user_ids.add(str(record_doc["created_by"]))
+    if record_doc.get("subject_user_id"):
+        unique_user_ids.add(str(record_doc["subject_user_id"]))
+    for uid in record_doc.get("assigned_user_ids", []):
+        unique_user_ids.add(str(uid))
+    
+    user_lookup = {}
+    if unique_user_ids:
+        users = await users_repo.find_many(
+            filter_dict={"_id": {"$in": [ObjectId(uid) for uid in unique_user_ids]}},
+            limit=len(unique_user_ids)
+        )
+        user_lookup = {
+            str(user["_id"]): {
+                "full_name": user.get("full_name", ""),
+                "email": user.get("email", ""),
+                "avatar": user.get("avatar_url", "")
+            }
+            for user in users
+        }
     
     member_id = record_doc.get("family_member_id")
     member_name = await get_member_name(member_id) if member_id else None
     
     return create_success_response(
         message="Health record retrieved successfully",
-        data=health_record_to_response(record_doc, member_name)
+        data=health_record_to_response(record_doc, member_name, user_lookup)
     )
 
 

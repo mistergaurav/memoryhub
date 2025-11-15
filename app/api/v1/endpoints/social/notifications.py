@@ -33,7 +33,19 @@ async def _prepare_notification_response(notif_doc: dict) -> NotificationRespons
         actor_name=actor.get("full_name") or actor.get("email") or "Unknown User" if actor else "Unknown User",
         actor_avatar=actor.get("avatar_url") if actor else None,
         is_read=notif_doc.get("is_read", False),
-        created_at=notif_doc["created_at"]
+        created_at=notif_doc["created_at"],
+        health_record_id=str(notif_doc["health_record_id"]) if notif_doc.get("health_record_id") else None,
+        assigner_id=str(notif_doc["assigner_id"]) if notif_doc.get("assigner_id") else None,
+        assigner_name=notif_doc.get("assigner_name"),
+        assigned_at=notif_doc.get("assigned_at"),
+        has_reminder=notif_doc.get("has_reminder", False),
+        reminder_due_at=notif_doc.get("reminder_due_at"),
+        record_title=notif_doc.get("record_title"),
+        record_type=notif_doc.get("record_type"),
+        record_date=notif_doc.get("record_date"),
+        approval_status=notif_doc.get("approval_status"),
+        resolved_at=notif_doc.get("resolved_at"),
+        metadata=notif_doc.get("metadata", {})
     )
 
 async def create_notification(

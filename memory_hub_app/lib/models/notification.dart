@@ -25,7 +25,7 @@ enum NotificationType {
       case NotificationType.memoryShare:
         return 'memory_share';
       case NotificationType.healthRecordAssignment:
-        return 'health_record_assignment';
+        return 'health_record_assigned';
       case NotificationType.healthReminderAssignment:
         return 'health_reminder_assignment';
       case NotificationType.healthRecordApproved:
@@ -49,7 +49,7 @@ enum NotificationType {
         return NotificationType.mention;
       case 'memory_share':
         return NotificationType.memoryShare;
-      case 'health_record_assignment':
+      case 'health_record_assigned':
         return NotificationType.healthRecordAssignment;
       case 'health_reminder_assignment':
         return NotificationType.healthReminderAssignment;
@@ -58,7 +58,8 @@ enum NotificationType {
       case 'health_record_rejected':
         return NotificationType.healthRecordRejected;
       default:
-        throw ArgumentError('Invalid notification type: $value');
+        print('⚠️ Unknown notification type: $value, defaulting to comment');
+        return NotificationType.comment;
     }
   }
 }
@@ -75,6 +76,12 @@ class Notification {
   final String? actorAvatar;
   final bool isRead;
   final DateTime createdAt;
+  
+  final String? healthRecordId;
+  final String? assignerId;
+  final String? assignerName;
+  final String? approvalStatus;
+  final Map<String, dynamic>? metadata;
 
   Notification({
     required this.id,
@@ -88,6 +95,11 @@ class Notification {
     this.actorAvatar,
     this.isRead = false,
     required this.createdAt,
+    this.healthRecordId,
+    this.assignerId,
+    this.assignerName,
+    this.approvalStatus,
+    this.metadata,
   });
 
   factory Notification.fromJson(Map<String, dynamic> json) {
@@ -103,6 +115,11 @@ class Notification {
       actorAvatar: json['actor_avatar'] as String?,
       isRead: json['is_read'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
+      healthRecordId: json['health_record_id'] as String?,
+      assignerId: json['assigner_id'] as String?,
+      assignerName: json['assigner_name'] as String?,
+      approvalStatus: json['approval_status'] as String?,
+      metadata: json['metadata'] as Map<String, dynamic>?,
     );
   }
 
@@ -119,6 +136,11 @@ class Notification {
       'actor_avatar': actorAvatar,
       'is_read': isRead,
       'created_at': createdAt.toIso8601String(),
+      'health_record_id': healthRecordId,
+      'assigner_id': assignerId,
+      'assigner_name': assignerName,
+      'approval_status': approvalStatus,
+      'metadata': metadata,
     };
   }
 
@@ -134,6 +156,11 @@ class Notification {
     String? actorAvatar,
     bool? isRead,
     DateTime? createdAt,
+    String? healthRecordId,
+    String? assignerId,
+    String? assignerName,
+    String? approvalStatus,
+    Map<String, dynamic>? metadata,
   }) {
     return Notification(
       id: id ?? this.id,
@@ -147,6 +174,11 @@ class Notification {
       actorAvatar: actorAvatar ?? this.actorAvatar,
       isRead: isRead ?? this.isRead,
       createdAt: createdAt ?? this.createdAt,
+      healthRecordId: healthRecordId ?? this.healthRecordId,
+      assignerId: assignerId ?? this.assignerId,
+      assignerName: assignerName ?? this.assignerName,
+      approvalStatus: approvalStatus ?? this.approvalStatus,
+      metadata: metadata ?? this.metadata,
     );
   }
 }

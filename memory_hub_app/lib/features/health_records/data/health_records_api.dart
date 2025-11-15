@@ -115,7 +115,7 @@ class HealthRecordsApi extends FamilyApiClient {
 
   Future<Map<String, dynamic>> createReminder(Map<String, dynamic> reminderData) async {
     try {
-      final data = await post('/family/health-records/reminders', body: reminderData);
+      final data = await post('/family/health-records/reminders/', body: reminderData);
       return data['data'] ?? data;
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -131,7 +131,7 @@ class HealthRecordsApi extends FamilyApiClient {
   Future<List<dynamic>> getReminders({String? recordId}) async {
     try {
       final params = recordId != null ? {'record_id': recordId} : <String, String>{};
-      final data = await get('/family/health-records/reminders', params: params);
+      final data = await get('/family/health-records/reminders/', params: params);
       return (data['data'] ?? data['items'] ?? []) as List;
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {

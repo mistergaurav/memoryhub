@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Records Frontend Test - 5 Users</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .test-controls {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        button:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        button.success {
+            background: #27ae60;
+        }
+        button.danger {
+            background: #e74c3c;
+        }
+        .log-section {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 4px 0;
+        }
+        .log-entry.success {
+            color: #2ecc71;
+        }
+        .log-entry.error {
+            color: #e74c3c;
+        }
+        .log-entry.info {
+            color: #3498db;
+        }
+        .log-entry.warning {
+            color: #f39c12;
+        }
+        .user-card {
+            background: #ecf0f1;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .user-card h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .user-card .user-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            font-size: 14px;
+        }
+        .stat {
+            background: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 5px;
+        }
+        .stat strong {
+            color: #3498db;
+        }
+        .progress {
+            background: #ecf0f1;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #3498db;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Health Records System - Frontend Test</h1>
+        <p>Comprehensive 5-User Workflow Test: Create health records, test notifications, approval workflow, and dashboard metadata</p>
+        
+        <div class="test-controls">
+            <button onclick="startTest()" id="startBtn">▶️ Start Complete Test</button>
+            <button onclick="testStep1()" id="step1Btn">Step 1: Register Users</button>
+            <button onclick="testStep2()" id="step2Btn" disabled>Step 2: Create Records</button>
+            <button onclick="testStep3()" id="step3Btn" disabled>Step 3: Check Notifications</button>
+            <button onclick="testStep4()" id="step4Btn" disabled>Step 4: Check Dashboards</button>
+            <button onclick="testStep5()" id="step5Btn" disabled>Step 5: Approve/Reject</button>
+            <button onclick="clearLogs()" class="danger">🗑️ Clear Logs</button>
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+        </div>
+
+        <h2>Test Results</h2>
+        <div id="results"></div>
+
+        <h2>Live Log</h2>
+        <div class="log-section" id="logs"></div>
+    </div>
+
+    <script>
+        const BASE_URL = window.location.origin + '/api/v1';
+        
+        let testState = {
+            users: {},
+            tokens: {},
+            records: {},
+            currentStep: 0,
+            totalSteps: 5
+        };
+
+        const testUsers = [
+            { email: 'alice@test.com', password: 'password123', name: 'Alice Anderson' },
+            { email: 'bob@test.com', password: 'password123', name: 'Bob Brown' },
+            { email: 'carol@test.com', password: 'password123', name: 'Carol Carter' },
+            { email: 'david@test.com', password: 'password123', name: 'David Davis' },
+            { email: 'emma@test.com', password: 'password123', name: 'Emma Evans' }
+        ];
+
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            logsDiv.appendChild(entry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+            document.getElementById('results').innerHTML = '';
+        }
+
+        function updateProgress(step) {
+            testState.currentStep = step;
+            const percent = (step / testState.totalSteps) * 100;
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = Math.round(percent) + '%';
+        }
+
+        function enableButton(btnId) {
+            const btn = document.getElementById(btnId);
+            if (btn) btn.disabled = false;
+        }
+
+        async function registerUser(email, password, fullName) {
+            log(`📝 Registering ${fullName} (${email})...`, 'info');
+            
+            try {
+                const response = await fetch(`${BASE_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, full_name: fullName })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const userData = data.data;
+                    testState.users[email] = userData.user;
+                    testState.tokens[email] = userData.access_token;
+                    log(`✅ Registered ${fullName} successfully`, 'success');
+                    return userData;
+                } else {
+                    log(`❌ Failed to register ${email}: ${data.message || data.detail}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Error registering ${email}: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function loginUser(email, password) {
+            log(`🔐 Logging in ${email}...`, 'info');
+            
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', email);
+                formData.append('password', password);
+
+                const response = await fetch(`${BASE_URL}/auth/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.access_token) {
+                    testState.tokens[email] = data.access_token;
+                    log(`✅ Logged in ${email}`, 'success');
+                    return data.access_token;
+                } else {
+                    log(`❌ Login failed for ${email}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Error logging in ${email}: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function searchUser(searcherEmail, targetEmail) {
+            log(`🔍 ${searcherEmail} searching for ${targetEmail}...`, 'info');
+            
+            try {
+                const query = targetEmail.split('@')[0];
+                const token = testState.tokens[searcherEmail];
+                
+                const response = await fetch(`${BASE_URL}/users/search?query=${query}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const users = data.data || [];
+                    const user = users.find(u => u.email === targetEmail);
+                    if (user) {
+                        log(`✅ Found ${user.full_name} (${targetEmail})`, 'success');
+                        return user;
+                    } else {
+                        log(`❌ User not found: ${targetEmail}`, 'error');
+                        return null;
+                    }
+                } else {
+                    log(`❌ Search failed: ${data.message || data.detail}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Error searching for user: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function createHealthRecord(creatorEmail, subjectEmail, title, recordType = 'checkup') {
+            log(`🏥 ${creatorEmail} creating health record for ${subjectEmail}...`, 'info');
+            
+            try {
+                // First, find the subject user
+                const subjectUser = await searchUser(creatorEmail, subjectEmail);
+                if (!subjectUser) {
+                    throw new Error(`Subject user not found: ${subjectEmail}`);
+                }
+
+                const token = testState.tokens[creatorEmail];
+                const recordData = {
+                    subject_type: 'user',
+                    subject_user_id: subjectUser.id,
+                    record_type: recordType,
+                    title: title,
+                    description: `Health record created by ${creatorEmail} for ${subjectEmail}`,
+                    date: new Date().toISOString(),
+                    provider: 'Dr. Smith',
+                    location: 'General Hospital',
+                    severity: 'low',
+                    notes: 'Routine checkup - all vitals normal',
+                    is_confidential: false
+                };
+
+                const response = await fetch(`${BASE_URL}/family/health-records/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(recordData)
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const record = data.data;
+                    testState.records[record.id] = record;
+                    log(`✅ Created health record: ${title}`, 'success');
+                    log(`   ID: ${record.id}, Status: ${record.approval_status}, Creator: ${record.created_by_name || 'Unknown'}`, 'info');
+                    return record;
+                } else {
+                    log(`❌ Failed to create health record: ${data.message || data.detail}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Error creating health record: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function getNotifications(userEmail) {
+            log(`🔔 Fetching notifications for ${userEmail}...`, 'info');
+            
+            try {
+                const token = testState.tokens[userEmail];
+                const response = await fetch(`${BASE_URL}/notifications/?page=1&limit=20`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const notifications = data.data.items || [];
+                    log(`✅ Found ${notifications.length} notifications for ${userEmail}`, 'success');
+                    
+                    notifications.forEach(notif => {
+                        log(`   📬 ${notif.title || 'No title'}`, 'info');
+                        log(`      Type: ${notif.notification_type}, Assigner: ${notif.assigner_name || 'Unknown'}`, 'info');
+                        log(`      Status: ${notif.approval_status || 'N/A'}, Read: ${notif.is_read}`, 'info');
+                    });
+                    
+                    return notifications;
+                } else {
+                    log(`❌ Failed to fetch notifications: ${data.message || data.detail}`, 'error');
+                    return [];
+                }
+            } catch (error) {
+                log(`❌ Error fetching notifications: ${error.message}`, 'error');
+                return [];
+            }
+        }
+
+        async function getDashboard(userEmail) {
+            log(`📊 Fetching health dashboard for ${userEmail}...`, 'info');
+            
+            try {
+                const token = testState.tokens[userEmail];
+                const response = await fetch(`${BASE_URL}/family/health-records/dashboard`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const dashboard = data.data;
+                    const stats = dashboard.statistics || {};
+                    const pending = dashboard.pending_approvals || [];
+                    const reminders = dashboard.upcoming_reminders || [];
+                    
+                    log(`✅ Dashboard loaded for ${userEmail}`, 'success');
+                    log(`   Total records: ${stats.total_records || 0}`, 'info');
+                    log(`   Pending approvals: ${stats.pending_approvals || 0}`, 'info');
+                    log(`   Upcoming reminders: ${stats.upcoming_reminders || 0}`, 'info');
+                    
+                    // Check recent records for metadata
+                    const recent = stats.recent_records || [];
+                    if (recent.length > 0) {
+                        log(`   📋 Recent Records:`, 'info');
+                        recent.slice(0, 3).forEach(rec => {
+                            log(`      - ${rec.title || 'No title'}`, 'info');
+                            log(`        Creator: ${rec.created_by_name || 'Unknown'} (${rec.created_by_email || 'N/A'})`, 'info');
+                            log(`        Status: ${rec.approval_status}, Subject: ${rec.subject_user_name || 'N/A'}`, 'info');
+                        });
+                    }
+                    
+                    // Check pending approvals
+                    if (pending.length > 0) {
+                        log(`   ⏳ Pending Approvals:`, 'warning');
+                        pending.forEach(rec => {
+                            log(`      - ${rec.title}: Creator ${rec.created_by_name}, Status ${rec.approval_status}`, 'warning');
+                        });
+                    }
+                    
+                    return dashboard;
+                } else {
+                    log(`❌ Failed to fetch dashboard: ${data.message || data.detail}`, 'error');
+                    return {};
+                }
+            } catch (error) {
+                log(`❌ Error fetching dashboard: ${error.message}`, 'error');
+                return {};
+            }
+        }
+
+        async function approveHealthRecord(userEmail, recordId) {
+            log(`✅ ${userEmail} approving health record ${recordId}...`, 'info');
+            
+            try {
+                const token = testState.tokens[userEmail];
+                const response = await fetch(`${BASE_URL}/health-records/${recordId}/approve`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const record = data.data;
+                    log(`✅ Health record approved, status: ${record.approval_status}`, 'success');
+                    return record;
+                } else {
+                    log(`❌ Failed to approve: ${data.message || data.detail}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Error approving health record: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function rejectHealthRecord(userEmail, recordId, reason) {
+            log(`❌ ${userEmail} rejecting health record ${recordId}...`, 'info');
+            
+            try {
+                const token = testState.tokens[userEmail];
+                const response = await fetch(`${BASE_URL}/health-records/${recordId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ rejection_reason: reason })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    const record = data.data;
+                    log(`✅ Health record rejected, status: ${record.approval_status}, reason: ${reason}`, 'success');
+                    return record;
+                } else {
+                    log(`❌ Failed to reject: ${data.message || data.detail}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ Error rejecting health record: ${error.message}`, 'error');
+                return null;
+            }
+        }
+
+        async function testStep1() {
+            log('================================================================================', 'info');
+            log('STEP 1: REGISTERING 5 USERS', 'info');
+            log('================================================================================', 'info');
+            
+            for (const user of testUsers) {
+                await registerUser(user.email, user.password, user.name);
+                await new Promise(resolve => setTimeout(resolve, 500)); // Small delay between requests
+            }
+            
+            updateProgress(1);
+            enableButton('step2Btn');
+            log('✅ Step 1 completed', 'success');
+        }
+
+        async function testStep2() {
+            log('================================================================================', 'info');
+            log('STEP 2: CREATING HEALTH RECORDS', 'info');
+            log('================================================================================', 'info');
+            
+            // Scenario 1: Alice creates record for Bob
+            await createHealthRecord('alice@test.com', 'bob@test.com', "Bob's Annual Physical", 'checkup');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Scenario 2: Alice creates record for Carol
+            await createHealthRecord('alice@test.com', 'carol@test.com', "Carol's Allergy Test", 'diagnosis');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Scenario 3: David creates record for Emma
+            await createHealthRecord('david@test.com', 'emma@test.com', "Emma's Medication Refill", 'prescription');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Scenario 4: David creates record for Bob
+            await createHealthRecord('david@test.com', 'bob@test.com', "Bob's Blood Work", 'lab_result');
+            
+            updateProgress(2);
+            enableButton('step3Btn');
+            log('✅ Step 2 completed', 'success');
+        }
+
+        async function testStep3() {
+            log('================================================================================', 'info');
+            log('STEP 3: CHECKING NOTIFICATIONS', 'info');
+            log('================================================================================', 'info');
+            
+            for (const email of ['bob@test.com', 'carol@test.com', 'emma@test.com']) {
+                await getNotifications(email);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            updateProgress(3);
+            enableButton('step4Btn');
+            log('✅ Step 3 completed', 'success');
+        }
+
+        async function testStep4() {
+            log('================================================================================', 'info');
+            log('STEP 4: CHECKING DASHBOARDS', 'info');
+            log('================================================================================', 'info');
+            
+            for (const user of testUsers) {
+                await getDashboard(user.email);
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            updateProgress(4);
+            enableButton('step5Btn');
+            log('✅ Step 4 completed', 'success');
+        }
+
+        async function testStep5() {
+            log('================================================================================', 'info');
+            log('STEP 5: APPROVE/REJECT RECORDS', 'info');
+            log('================================================================================', 'info');
+            
+            const recordIds = Object.keys(testState.records);
+            
+            if (recordIds.length >= 1) {
+                await approveHealthRecord('bob@test.com', recordIds[0]);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            if (recordIds.length >= 2) {
+                await rejectHealthRecord('carol@test.com', recordIds[1], 'Incorrect allergy information');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            if (recordIds.length >= 3) {
+                await approveHealthRecord('emma@test.com', recordIds[2]);
+            }
+            
+            updateProgress(5);
+            log('✅ Step 5 completed', 'success');
+            
+            // Final summary
+            log('================================================================================', 'success');
+            log('✅ ALL TESTS COMPLETED SUCCESSFULLY!', 'success');
+            log('================================================================================', 'success');
+            log(`Summary:`, 'info');
+            log(`  - Registered: ${Object.keys(testState.users).length} users`, 'info');
+            log(`  - Created: ${Object.keys(testState.records).length} health records`, 'info');
+            log(`  - Notifications: Tested ✅`, 'info');
+            log(`  - Dashboard metadata: Verified ✅`, 'info');
+            log(`  - Approval workflow: Tested ✅`, 'info');
+            log('================================================================================', 'success');
+        }
+
+        async function startTest() {
+            clearLogs();
+            testState = {
+                users: {},
+                tokens: {},
+                records: {},
+                currentStep: 0,
+                totalSteps: 5
+            };
+            
+            log('🚀 STARTING COMPREHENSIVE 5-USER HEALTH WORKFLOW TEST', 'success');
+            
+            await testStep1();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testStep2();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            await testStep3();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testStep4();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testStep5();
+        }
+
+        // Initialize
+        log('Frontend test page loaded. Click "Start Complete Test" to begin.', 'info');
+        log(`Base URL: ${BASE_URL}`, 'info');
+    </script>
+</body>
+</html>

@@ -24,9 +24,11 @@ class HealthRecord {
   final String subjectType;
   final String? subjectUserId;
   final String? subjectName;
+  final String? subjectUserName;
   final String? subjectFamilyMemberId;
   final String? subjectFriendCircleId;
   final List<String> assignedUserIds;
+  final List<Map<String, dynamic>> assignedTo;
   
   final String? location;
   final String? severity;
@@ -38,6 +40,7 @@ class HealthRecord {
   
   final String createdBy;
   final String? createdByName;
+  final String? createdByEmail;
   final List<String> familyCircleIds;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -71,9 +74,11 @@ class HealthRecord {
     this.subjectType = 'self',
     this.subjectUserId,
     this.subjectName,
+    this.subjectUserName,
     this.subjectFamilyMemberId,
     this.subjectFriendCircleId,
     this.assignedUserIds = const [],
+    this.assignedTo = const [],
     this.location,
     this.severity,
     this.medications = const [],
@@ -82,6 +87,7 @@ class HealthRecord {
     this.reminders = const [],
     required this.createdBy,
     this.createdByName,
+    this.createdByEmail,
     this.familyCircleIds = const [],
     required this.createdAt,
     required this.updatedAt,
@@ -116,9 +122,13 @@ class HealthRecord {
       subjectType: json['subject_type'] ?? 'self',
       subjectUserId: json['subject_user_id'],
       subjectName: json['subject_name'],
+      subjectUserName: json['subject_user_name'],
       subjectFamilyMemberId: json['subject_family_member_id'],
       subjectFriendCircleId: json['subject_friend_circle_id'],
       assignedUserIds: List<String>.from(json['assigned_user_ids'] ?? []),
+      assignedTo: json['assigned_to'] != null 
+          ? List<Map<String, dynamic>>.from((json['assigned_to'] as List).map((item) => Map<String, dynamic>.from(item)))
+          : [],
       location: json['location'],
       severity: json['severity'],
       medications: List<String>.from(json['medications'] ?? []),
@@ -127,6 +137,7 @@ class HealthRecord {
       reminders: json['reminders'] ?? [],
       createdBy: json['created_by'] ?? '',
       createdByName: json['created_by_name'],
+      createdByEmail: json['created_by_email'],
       familyCircleIds: List<String>.from(json['family_circle_ids'] ?? []),
       createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
       updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
@@ -140,13 +151,13 @@ class HealthRecord {
   String getSubjectDisplay() {
     switch (subjectType.toLowerCase()) {
       case 'self':
-        return 'For: Myself';
+        return 'For: ${subjectUserName ?? subjectName ?? 'Myself'}';
       case 'family':
         return 'For: ${subjectName ?? 'Family Member'}';
       case 'friend':
         return 'For: ${subjectName ?? 'Friend'}';
       default:
-        return 'For: ${subjectName ?? 'Unknown'}';
+        return 'For: ${subjectUserName ?? subjectName ?? 'Unknown'}';
     }
   }
 
@@ -181,9 +192,11 @@ class HealthRecord {
       'subject_type': subjectType,
       'subject_user_id': subjectUserId,
       'subject_name': subjectName,
+      'subject_user_name': subjectUserName,
       'subject_family_member_id': subjectFamilyMemberId,
       'subject_friend_circle_id': subjectFriendCircleId,
       'assigned_user_ids': assignedUserIds,
+      'assigned_to': assignedTo,
       'location': location,
       'severity': severity,
       'medications': medications,
@@ -192,6 +205,7 @@ class HealthRecord {
       'reminders': reminders,
       'created_by': createdBy,
       'created_by_name': createdByName,
+      'created_by_email': createdByEmail,
       'family_circle_ids': familyCircleIds,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
