@@ -109,20 +109,20 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               hintText: 'Enter the token from your email',
               prefixIcon: const Icon(Icons.confirmation_number),
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: Spacing.md,
-                vertical: Spacing.md,
+                horizontal: MemoryHubSpacing.lg,
+                vertical: MemoryHubSpacing.lg,
               ),
               border: OutlineInputBorder(
-                borderRadius: Radii.lgRadius,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: Radii.lgRadius,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
                 borderSide: BorderSide(
                   color: context.colors.outline,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: Radii.lgRadius,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
                 borderSide: BorderSide(
                   color: context.colors.primary,
                   width: 2,
@@ -147,20 +147,20 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               hintText: 'At least 8 characters',
               prefixIcon: const Icon(Icons.lock_outline),
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: Spacing.md,
-                vertical: Spacing.md,
+                horizontal: MemoryHubSpacing.lg,
+                vertical: MemoryHubSpacing.lg,
               ),
               border: OutlineInputBorder(
-                borderRadius: Radii.lgRadius,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: Radii.lgRadius,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
                 borderSide: BorderSide(
                   color: context.colors.outline,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: Radii.lgRadius,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
                 borderSide: BorderSide(
                   color: context.colors.primary,
                   width: 2,
@@ -196,20 +196,20 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               hintText: 'Re-enter your password',
               prefixIcon: const Icon(Icons.lock_outline),
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: Spacing.md,
-                vertical: Spacing.md,
+                horizontal: MemoryHubSpacing.lg,
+                vertical: MemoryHubSpacing.lg,
               ),
               border: OutlineInputBorder(
-                borderRadius: Radii.lgRadius,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: Radii.lgRadius,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
                 borderSide: BorderSide(
                   color: context.colors.outline,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: Radii.lgRadius,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
                 borderSide: BorderSide(
                   color: context.colors.primary,
                   width: 2,
@@ -238,10 +238,10 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
           ),
           const VGap.lg(),
           Container(
-            padding: const EdgeInsets.all(Spacing.md),
+            padding: const EdgeInsets.all(MemoryHubSpacing.lg),
             decoration: BoxDecoration(
               color: context.colors.secondaryContainer,
-              borderRadius: Radii.lgRadius,
+              borderRadius: MemoryHubBorderRadius.lgRadius,
               border: Border.all(color: context.colors.secondary.withOpacity(0.3)),
             ),
             child: Column(
@@ -282,7 +282,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
 
   Widget _buildPasswordTip(String text) {
     return Padding(
-      padding: const EdgeInsets.only(left: Spacing.xxs, top: Spacing.xxs),
+      padding: const EdgeInsets.only(left: MemoryHubSpacing.xs, top: MemoryHubSpacing.xs),
       child: Row(
         children: [
           Icon(Icons.check_circle_outline, size: 16, color: context.colors.secondary),
@@ -303,7 +303,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
       children: [
         const VGap.xl(),
         Container(
-          padding: const EdgeInsets.all(Spacing.lg),
+          padding: const EdgeInsets.all(MemoryHubSpacing.xl),
           decoration: BoxDecoration(
             color: context.colors.primaryContainer,
             shape: BoxShape.circle,

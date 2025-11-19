@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../design_system/design_system.dart';
 
 class SharedFilesScreen extends StatelessWidget {
   const SharedFilesScreen({super.key});
@@ -8,30 +8,41 @@ class SharedFilesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Shared with Me', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Shared with Me',
+          style: context.text.titleLarge?.copyWith(fontWeight: MemoryHubTypography.bold),
+        ),
       ),
       body: ListView.builder(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(Spacing.xl),
         itemCount: 10,
-        itemBuilder: (context, index) => Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: ListTile(
+        itemBuilder: (context, index) => Padding(
+          padding: const EdgeInsets.only(bottom: Spacing.md),
+          child: AppCard(
+            child: ListTile(
             leading: Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(Spacing.md),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
+                color: context.colors.primary.withOpacity(0.1),
+                borderRadius: MemoryHubBorderRadius.mdRadius,
               ),
-              child: Icon(Icons.insert_drive_file, color: Theme.of(context).colorScheme.primary),
+              child: Icon(Icons.insert_drive_file, color: context.colors.primary),
             ),
-            title: Text('Shared File $index', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-            subtitle: Text('Shared by User Name', style: GoogleFonts.inter(fontSize: 13)),
+            title: Text(
+              'Shared File $index',
+              style: context.text.bodyLarge?.copyWith(fontWeight: MemoryHubTypography.semiBold),
+            ),
+            subtitle: Text(
+              'Shared by User Name',
+              style: context.text.bodySmall,
+            ),
             trailing: PopupMenuButton(
-              itemBuilder: (context) => [
-                const PopupMenuItem(value: 'download', child: const Text('Download')),
-                const PopupMenuItem(value: 'remove', child: const Text('Remove Access')),
+              itemBuilder: (context) => const [
+                PopupMenuItem(value: 'download', child: Text('Download')),
+                PopupMenuItem(value: 'remove', child: Text('Remove Access')),
               ],
             ),
+          ),
           ),
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
+import 'package:memory_hub_app/design_system/design_tokens.dart';
 import '../../services/api_service.dart';
 
 class TwoFactorSetupScreen extends StatefulWidget {
@@ -157,7 +158,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(Spacing.lg),
+          padding: const EdgeInsets.all(MemoryHubSpacing.xl),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -165,7 +166,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                 context.colors.secondary.withOpacity(0.1),
               ],
             ),
-            borderRadius: Radii.xlRadius,
+            borderRadius: MemoryHubBorderRadius.xlRadius,
           ),
           child: Column(
             children: [
@@ -236,10 +237,10 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
         const VGap.lg(),
         if (_setupData?['qr_code'] != null)
           Container(
-            padding: const EdgeInsets.all(Spacing.md),
+            padding: const EdgeInsets.all(MemoryHubSpacing.lg),
             decoration: BoxDecoration(
               color: context.colors.surface,
-              borderRadius: Radii.xlRadius,
+              borderRadius: MemoryHubBorderRadius.xlRadius,
               boxShadow: [
                 BoxShadow(
                   color: context.colors.shadow.withOpacity(0.1),
@@ -270,10 +271,10 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                 ),
                 const VGap.xxs(),
                 Container(
-                  padding: const EdgeInsets.all(Spacing.sm),
+                  padding: const EdgeInsets.all(MemoryHubSpacing.md),
                   decoration: BoxDecoration(
                     color: context.colors.surfaceVariant,
-                    borderRadius: Radii.mdRadius,
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                   ),
                   child: Text(
                     _setupData?['secret'] ?? '',
@@ -307,20 +308,20 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
             hintText: '000000',
             counterText: '',
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: Spacing.md,
-              vertical: Spacing.md,
+              horizontal: MemoryHubSpacing.lg,
+              vertical: MemoryHubSpacing.lg,
             ),
             border: OutlineInputBorder(
-              borderRadius: Radii.lgRadius,
+              borderRadius: MemoryHubBorderRadius.lgRadius,
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: Radii.lgRadius,
+              borderRadius: MemoryHubBorderRadius.lgRadius,
               borderSide: BorderSide(
                 color: context.colors.outline,
               ),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: Radii.lgRadius,
+              borderRadius: MemoryHubBorderRadius.lgRadius,
               borderSide: BorderSide(
                 color: context.colors.primary,
                 width: 2,
@@ -343,7 +344,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(Spacing.xl),
+          padding: const EdgeInsets.all(MemoryHubSpacing.xxl),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -351,7 +352,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                 context.colors.primaryContainer.withOpacity(0.5),
               ],
             ),
-            borderRadius: Radii.xlRadius,
+            borderRadius: MemoryHubBorderRadius.xlRadius,
           ),
           child: Column(
             children: [
@@ -390,7 +391,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
 
   Widget _buildStep(int number, String title, String description) {
     return Padded.only(
-      bottom: Spacing.md,
+      bottom: MemoryHubSpacing.lg,
       child: Row(
         children: [
           Container(

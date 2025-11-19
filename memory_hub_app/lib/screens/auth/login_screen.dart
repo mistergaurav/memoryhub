@@ -95,20 +95,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         labelText: 'Email',
                         prefixIcon: const Icon(Icons.email),
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: Spacing.md,
-                          vertical: Spacing.md,
+                          horizontal: MemoryHubSpacing.lg,
+                          vertical: MemoryHubSpacing.lg,
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: Radii.lgRadius,
+                          borderRadius: MemoryHubBorderRadius.lgRadius,
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: Radii.lgRadius,
+                          borderRadius: MemoryHubBorderRadius.lgRadius,
                           borderSide: BorderSide(
                             color: context.colors.outline,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: Radii.lgRadius,
+                          borderRadius: MemoryHubBorderRadius.lgRadius,
                           borderSide: BorderSide(
                             color: context.colors.primary,
                             width: 2,
@@ -133,20 +133,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         labelText: 'Password',
                         prefixIcon: const Icon(Icons.lock),
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: Spacing.md,
-                          vertical: Spacing.md,
+                          horizontal: MemoryHubSpacing.lg,
+                          vertical: MemoryHubSpacing.lg,
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: Radii.lgRadius,
+                          borderRadius: MemoryHubBorderRadius.lgRadius,
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: Radii.lgRadius,
+                          borderRadius: MemoryHubBorderRadius.lgRadius,
                           borderSide: BorderSide(
                             color: context.colors.outline,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: Radii.lgRadius,
+                          borderRadius: MemoryHubBorderRadius.lgRadius,
                           borderSide: BorderSide(
                             color: context.colors.primary,
                             width: 2,
@@ -183,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       children: [
                         const Expanded(child: Divider()),
-                        Padded.symmetric(horizontal: Spacing.md, child: Text(
+                        Padded.symmetric(horizontal: MemoryHubSpacing.lg, child: Text(
                           'OR',
                           style: context.text.bodySmall?.copyWith(
                             color: context.colors.onSurfaceVariant,
@@ -204,12 +204,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       label: const Text('Continue with Google'),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: Spacing.md,
-                          vertical: Spacing.md,
+                          horizontal: MemoryHubSpacing.lg,
+                          vertical: MemoryHubSpacing.lg,
                         ),
                         side: BorderSide(color: context.colors.outline),
                         shape: RoundedRectangleBorder(
-                          borderRadius: Radii.lgRadius,
+                          borderRadius: MemoryHubBorderRadius.lgRadius,
                         ),
                       ),
                     ),

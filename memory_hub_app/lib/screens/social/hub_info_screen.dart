@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../services/auth_service.dart';
 import '../../config/api_config.dart';
 import '../../widgets/user_search_autocomplete.dart';
 import 'user_profile_view_screen.dart';
+import '../../design_system/design_system.dart';
 
 class HubInfoScreen extends StatefulWidget {
   final String hubId;
@@ -106,13 +106,13 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
   Color _getRoleColor(String role) {
     switch (role.toLowerCase()) {
       case 'owner':
-        return Colors.purple;
+        return MemoryHubColors.purple500;
       case 'admin':
-        return Colors.blue;
+        return MemoryHubColors.blue500;
       case 'member':
-        return Colors.green;
+        return MemoryHubColors.green500;
       default:
-        return Colors.grey;
+        return MemoryHubColors.gray500;
     }
   }
 
@@ -138,11 +138,11 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.edit, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 12),
+            Icon(Icons.edit, color: context.colors.primary),
+            const HGap.md(),
             Text(
               'Edit Hub',
-              style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+              style: context.text.titleMedium?.copyWith(fontWeight: MemoryHubTypography.bold),
             ),
           ],
         ),
@@ -153,9 +153,11 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
             children: [
               Text(
                 'Update hub information',
-                style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+                style: context.text.bodyMedium?.copyWith(
+                  color: MemoryHubColors.gray600,
+                ),
               ),
-              const SizedBox(height: 16),
+              const VGap.lg(),
               TextField(
                 controller: nameController,
                 decoration: InputDecoration(
@@ -163,11 +165,11 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                   hintText: 'Enter hub name',
                   prefixIcon: const Icon(Icons.workspaces),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const VGap.lg(),
               TextField(
                 controller: descController,
                 decoration: InputDecoration(
@@ -175,7 +177,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                   hintText: 'Enter description',
                   prefixIcon: const Icon(Icons.description),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                   ),
                 ),
                 maxLines: 3,
@@ -218,39 +220,17 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                 Navigator.pop(context);
 
                 if (response.statusCode == 200) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Row(
-                        children: [
-                          Icon(Icons.check_circle, color: Colors.white),
-                          SizedBox(width: 12),
-                          Text('Hub updated successfully!'),
-                        ],
-                      ),
-                      backgroundColor: Colors.green,
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
+                  AppSnackbar.success(context, 'Hub updated successfully!');
                   _loadHubInfo();
                 } else {
                   final error = jsonDecode(response.body);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(error['detail'] ?? 'Failed to update hub'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
+                  AppSnackbar.error(context, error['detail'] ?? 'Failed to update hub');
                 }
               } catch (e) {
                 nameController.dispose();
                 descController.dispose();
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Error: $e'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
+                AppSnackbar.error(context, 'Error: $e');
               }
             },
             icon: const Icon(Icons.save),
@@ -269,11 +249,11 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Icon(Icons.share, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 12),
+            Icon(Icons.share, color: context.colors.primary),
+            const HGap.md(),
             Text(
               'Share Hub',
-              style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+              style: context.text.titleMedium?.copyWith(fontWeight: MemoryHubTypography.bold),
             ),
           ],
         ),
@@ -283,25 +263,29 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
           children: [
             Text(
               'Share this hub with others',
-              style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+              style: context.text.bodyMedium?.copyWith(
+                color: MemoryHubColors.gray600,
+              ),
             ),
-            const SizedBox(height: 16),
+            const VGap.lg(),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(Spacing.md),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[300]!),
+                color: MemoryHubColors.gray100,
+                borderRadius: MemoryHubBorderRadius.smRadius,
+                border: Border.all(color: MemoryHubColors.gray300),
               ),
               child: SelectableText(
                 hubUrl,
-                style: GoogleFonts.sourceCodePro(fontSize: 12),
+                style: context.text.bodySmall?.copyWith(fontFamily: 'monospace'),
               ),
             ),
-            const SizedBox(height: 12),
+            const VGap.md(),
             Text(
               'Copy this link and share it with people you want to invite to this hub',
-              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600]),
+              style: context.text.bodySmall?.copyWith(
+                color: MemoryHubColors.gray600,
+              ),
             ),
           ],
         ),
@@ -315,19 +299,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
               // Copy hub URL to clipboard
               await Clipboard.setData(ClipboardData(text: hubUrl));
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Row(
-                      children: [
-                        Icon(Icons.check_circle, color: Colors.white),
-                        SizedBox(width: 12),
-                        Text('Link copied to clipboard!'),
-                      ],
-                    ),
-                    backgroundColor: Colors.green,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+                AppSnackbar.success(context, 'Link copied to clipboard!');
                 Navigator.pop(context);
               }
             },
@@ -349,12 +321,12 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
         builder: (context, setState) => AlertDialog(
           title: Row(
             children: [
-              Icon(Icons.person_add, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 12),
+              Icon(Icons.person_add, color: context.colors.primary),
+              const HGap.md(),
               Expanded(
                 child: Text(
                   'Add Member to Hub',
-                  style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                  style: context.text.titleMedium?.copyWith(fontWeight: MemoryHubTypography.bold),
                 ),
               ),
             ],
@@ -368,9 +340,9 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                 children: [
                   Text(
                     'Search for a user from your family circles',
-                    style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[600]),
+                    style: context.text.bodyMedium?.copyWith(color: MemoryHubColors.gray600),
                   ),
-                  const SizedBox(height: 16),
+                  const VGap.lg(),
                   UserSearchAutocomplete(
                     onUserSelected: (user) {
                       setState(() {
@@ -380,42 +352,40 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                     helpText: 'Search for users in your family circles',
                   ),
                   if (selectedUser != null) ...[
-                    const SizedBox(height: 16),
+                    const VGap.lg(),
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(Spacing.md),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(12),
+                        color: context.colors.primaryContainer.withOpacity(0.3),
+                        borderRadius: MemoryHubBorderRadius.mdRadius,
                         border: Border.all(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                          color: context.colors.primary.withOpacity(0.3),
                         ),
                       ),
                       child: Row(
                         children: [
                           CircleAvatar(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            backgroundColor: context.colors.primary,
                             child: Text(
                               (selectedUser!['full_name'] ?? 'U')[0].toUpperCase(),
                               style: const TextStyle(color: Colors.white),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const HGap.md(),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   selectedUser!['full_name'] ?? 'Unknown',
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
+                                  style: context.text.bodyMedium?.copyWith(
+                                    fontWeight: MemoryHubTypography.semiBold,
                                   ),
                                 ),
                                 Text(
                                   selectedUser!['email'] ?? '',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
+                                  style: context.text.bodySmall?.copyWith(
+                                    color: MemoryHubColors.gray600,
                                   ),
                                 ),
                               ],
@@ -433,15 +403,14 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                       ),
                     ),
                   ],
-                  const SizedBox(height: 20),
+                  const VGap.xl(),
                   Text(
                     'Select Role',
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                    style: context.text.bodyMedium?.copyWith(
+                      fontWeight: MemoryHubTypography.semiBold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const VGap.sm(),
                   ValueListenableBuilder<String>(
                     valueListenable: selectedRole,
                     builder: (context, role, _) {
@@ -450,13 +419,13 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                           Container(
                             decoration: BoxDecoration(
                               color: role == 'member' 
-                                  ? Colors.green.withOpacity(0.1)
+                                  ? MemoryHubColors.green500.withOpacity(0.1)
                                   : Colors.transparent,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: MemoryHubBorderRadius.smRadius,
                               border: Border.all(
                                 color: role == 'member'
-                                    ? Colors.green
-                                    : Colors.grey.withOpacity(0.3),
+                                    ? MemoryHubColors.green500
+                                    : MemoryHubColors.gray300,
                               ),
                             ),
                             child: RadioListTile<String>(
@@ -465,31 +434,33 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                               onChanged: (value) => selectedRole.value = value!,
                               title: Row(
                                 children: [
-                                  Icon(Icons.person, size: 20, color: Colors.green),
-                                  const SizedBox(width: 8),
+                                  Icon(Icons.person, size: 20, color: MemoryHubColors.green500),
+                                  const HGap.sm(),
                                   Text(
                                     'Member',
-                                    style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                                    style: context.text.bodyMedium?.copyWith(
+                                      fontWeight: MemoryHubTypography.semiBold,
+                                    ),
                                   ),
                                 ],
                               ),
                               subtitle: Text(
                                 'Can view and share memories',
-                                style: GoogleFonts.inter(fontSize: 12),
+                                style: context.text.bodySmall,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          const VGap.sm(),
                           Container(
                             decoration: BoxDecoration(
                               color: role == 'admin' 
-                                  ? Colors.blue.withOpacity(0.1)
+                                  ? MemoryHubColors.blue500.withOpacity(0.1)
                                   : Colors.transparent,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: MemoryHubBorderRadius.smRadius,
                               border: Border.all(
                                 color: role == 'admin'
-                                    ? Colors.blue
-                                    : Colors.grey.withOpacity(0.3),
+                                    ? MemoryHubColors.blue500
+                                    : MemoryHubColors.gray300,
                               ),
                             ),
                             child: RadioListTile<String>(
@@ -498,17 +469,19 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                               onChanged: (value) => selectedRole.value = value!,
                               title: Row(
                                 children: [
-                                  Icon(Icons.admin_panel_settings, size: 20, color: Colors.blue),
-                                  const SizedBox(width: 8),
+                                  Icon(Icons.admin_panel_settings, size: 20, color: MemoryHubColors.blue500),
+                                  const HGap.sm(),
                                   Text(
                                     'Admin',
-                                    style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                                    style: context.text.bodyMedium?.copyWith(
+                                      fontWeight: MemoryHubTypography.semiBold,
+                                    ),
                                   ),
                                 ],
                               ),
                               subtitle: Text(
                                 'Can manage members and settings',
-                                style: GoogleFonts.inter(fontSize: 12),
+                                style: context.text.bodySmall,
                               ),
                             ),
                           ),
@@ -548,33 +521,18 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
 
                         if (response.statusCode == 200 || response.statusCode == 201) {
                           if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Row(
-                                  children: [
-                                    const Icon(Icons.check_circle, color: Colors.white),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        '${selectedUser!['full_name']} added to hub!',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                backgroundColor: Colors.green,
-                                behavior: SnackBarBehavior.floating,
-                              ),
+                            AppSnackbar.success(
+                              context,
+                              '${selectedUser!['full_name']} added to hub!',
                             );
                             _loadMembers();
                           }
                         } else {
                           final error = jsonDecode(response.body);
                           if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(error['detail'] ?? 'Failed to add member'),
-                                backgroundColor: Colors.red,
-                              ),
+                            AppSnackbar.error(
+                              context,
+                              error['detail'] ?? 'Failed to add member',
                             );
                           }
                         }
@@ -582,12 +540,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                         selectedRole.dispose();
                         Navigator.pop(context);
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Error: $e'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
+                          AppSnackbar.error(context, 'Error: $e');
                         }
                       }
                     },
@@ -677,13 +630,12 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(Spacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+          AppCard(
+            child: Padded.lg(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -691,28 +643,28 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                     children: [
                       Icon(
                         Icons.workspaces,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: context.colors.primary,
                         size: 28,
                       ),
-                      const SizedBox(width: 12),
+                      const HGap.md(),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               _hubInfo!['name'] ?? '',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              style: context.text.titleLarge?.copyWith(
+                                fontWeight: MemoryHubTypography.bold,
+                              ),
                             ),
                             if (_hubInfo!['description'] != null)
                               Padding(
-                                padding: const EdgeInsets.only(top: 4),
+                                padding: const EdgeInsets.only(top: Spacing.xxs),
                                 child: Text(
                                   _hubInfo!['description'],
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: Colors.grey[600],
-                                      ),
+                                  style: context.text.bodyMedium?.copyWith(
+                                    color: MemoryHubColors.gray600,
+                                  ),
                                 ),
                               ),
                           ],
@@ -720,46 +672,46 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                       ),
                     ],
                   ),
-                  const Divider(height: 32),
+                  const Divider(height: MemoryHubSpacing.xxxl),
                   _buildInfoRow(
                     Icons.privacy_tip_outlined,
                     'Privacy',
                     _hubInfo!['privacy']?.toString().toUpperCase() ?? 'PRIVATE',
                   ),
-                  const SizedBox(height: 12),
+                  const VGap.md(),
                   _buildInfoRow(
                     Icons.people,
                     'Members',
                     '${_hubInfo!['member_count'] ?? 0} members',
                   ),
-                  const SizedBox(height: 12),
+                  const VGap.md(),
                   _buildInfoRow(
                     Icons.person,
                     'Your Role',
                     _hubInfo!['my_role']?.toString().toUpperCase() ?? 'MEMBER',
                   ),
-                  const SizedBox(height: 12),
+                  const VGap.md(),
                   _buildInfoRow(
                     Icons.calendar_today,
                     'Created',
                     _formatDate(_hubInfo!['created_at']),
                   ),
                   if (_hubInfo!['tags'] != null && (_hubInfo!['tags'] as List).isNotEmpty) ...[
-                    const Divider(height: 32),
+                    const Divider(height: MemoryHubSpacing.xxxl),
                     Text(
                       'Tags',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: context.text.titleMedium?.copyWith(
+                        fontWeight: MemoryHubTypography.bold,
+                      ),
                     ),
-                    const SizedBox(height: 12),
+                    const VGap.md(),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: Spacing.sm,
+                      runSpacing: Spacing.sm,
                       children: (_hubInfo!['tags'] as List)
                           .map((tag) => Chip(
                                 label: Text(tag.toString()),
-                                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                backgroundColor: context.colors.primaryContainer,
                               ))
                           .toList(),
                     ),
@@ -768,21 +720,20 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const VGap.lg(),
           if (_hubInfo!['my_role'] == 'owner' || _hubInfo!['my_role'] == 'admin')
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
+            AppCard(
+              child: Padded.lg(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Hub Actions',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: context.text.titleMedium?.copyWith(
+                        fontWeight: MemoryHubTypography.bold,
+                      ),
                     ),
-                    const SizedBox(height: 12),
+                    const VGap.md(),
                     ListTile(
                       leading: const Icon(Icons.edit),
                       title: const Text('Edit Hub'),
@@ -817,11 +768,11 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.people_outline, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
+            Icon(Icons.people_outline, size: 64, color: MemoryHubColors.gray400),
+            const VGap.lg(),
             Text(
               'No members yet',
-              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+              style: context.text.titleMedium?.copyWith(color: MemoryHubColors.gray600),
             ),
           ],
         ),
@@ -829,12 +780,12 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(Spacing.lg),
       itemCount: _members.length,
       itemBuilder: (context, index) {
         final member = _members[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
+        return AppCard(
+          margin: const EdgeInsets.only(bottom: Spacing.md),
           child: ListTile(
             leading: CircleAvatar(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -853,14 +804,19 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                 Expanded(
                   child: Text(
                     member['user_name'] ?? 'Unknown User',
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: context.text.bodyLarge?.copyWith(
+                      fontWeight: MemoryHubTypography.semiBold,
+                    ),
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Spacing.sm,
+                    vertical: Spacing.xxs,
+                  ),
                   decoration: BoxDecoration(
                     color: _getRoleColor(member['role'] ?? 'member').withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: MemoryHubBorderRadius.mdRadius,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -870,13 +826,12 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                         size: 14,
                         color: _getRoleColor(member['role'] ?? 'member'),
                       ),
-                      const SizedBox(width: 4),
+                      const HGap.xs(),
                       Text(
                         member['role']?.toString().toUpperCase() ?? 'MEMBER',
-                        style: TextStyle(
-                          fontSize: 11,
+                        style: context.text.labelSmall?.copyWith(
                           color: _getRoleColor(member['role'] ?? 'member'),
-                          fontWeight: FontWeight.bold,
+                          fontWeight: MemoryHubTypography.bold,
                         ),
                       ),
                     ],
@@ -886,7 +841,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
             ),
             subtitle: Text(
               'Joined ${_formatDate(member['joined_at'])}',
-              style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              style: context.text.bodySmall?.copyWith(color: MemoryHubColors.gray600),
             ),
             onTap: () {
               Navigator.push(
@@ -907,20 +862,22 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: Colors.grey[600]),
-        const SizedBox(width: 12),
+        Icon(icon, size: 20, color: MemoryHubColors.gray600),
+        const HGap.md(),
         Text(
           '$label:',
-          style: TextStyle(
-            color: Colors.grey[700],
-            fontWeight: FontWeight.w500,
+          style: context.text.bodyMedium?.copyWith(
+            color: MemoryHubColors.gray700,
+            fontWeight: MemoryHubTypography.medium,
           ),
         ),
-        const SizedBox(width: 8),
+        const HGap.sm(),
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: context.text.bodyMedium?.copyWith(
+              fontWeight: MemoryHubTypography.semiBold,
+            ),
             textAlign: TextAlign.end,
           ),
         ),

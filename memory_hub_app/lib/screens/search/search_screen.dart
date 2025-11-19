@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/api_service.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -26,7 +28,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: MemoryHubAnimations.normal,
       vsync: this,
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
@@ -94,8 +96,8 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         title: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.withOpacity(0.2)),
+            borderRadius: MemoryHubBorderRadius.lgRadius,
+            border: Border.all(color: MemoryHubColors.gray200),
           ),
           child: TextField(
             controller: _searchController,
@@ -103,7 +105,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             decoration: InputDecoration(
               hintText: 'Search memories, files, people...',
               hintStyle: GoogleFonts.inter(
-                color: Colors.grey,
+                color: MemoryHubColors.gray500,
                 fontSize: 15,
               ),
               prefixIcon: const Icon(Icons.search, size: 22),
@@ -120,7 +122,10 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                     )
                   : null,
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: MemoryHubSpacing.lg,
+                vertical: MemoryHubSpacing.md,
+              ),
             ),
             onChanged: (value) {
               setState(() {});
@@ -168,7 +173,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
   Widget _buildInitialView() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -180,7 +185,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                   'Recent Searches',
                   style: GoogleFonts.inter(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: MemoryHubTypography.bold,
                   ),
                 ),
                 TextButton(
@@ -191,13 +196,13 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            VGap(MemoryHubSpacing.md),
             ...List.generate(_recentSearches.length, (index) {
               return Container(
-                margin: const EdgeInsets.only(bottom: 8),
+                margin: EdgeInsets.only(bottom: MemoryHubSpacing.sm),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: MemoryHubBorderRadius.mdRadius,
                 ),
                 child: ListTile(
                   leading: const Icon(Icons.history, size: 20),
@@ -221,18 +226,18 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
               );
             }),
           ],
-          const SizedBox(height: 24),
+          VGap(MemoryHubSpacing.xxl),
           Text(
             'Popular Tags',
             style: GoogleFonts.inter(
               fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontWeight: MemoryHubTypography.bold,
             ),
           ),
-          const SizedBox(height: 12),
+          VGap(MemoryHubSpacing.md),
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: MemoryHubSpacing.sm,
+            runSpacing: MemoryHubSpacing.sm,
             children: [
               'Family',
               'Travel',
@@ -256,7 +261,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
   Widget _buildSuggestionsView() {
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: MemoryHubSpacing.sm),
       itemCount: _suggestions.length,
       itemBuilder: (context, index) {
         final suggestion = _suggestions[index];
@@ -284,22 +289,22 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
           Icon(
             Icons.search_off,
             size: 80,
-            color: Colors.grey.withOpacity(0.5),
+            color: MemoryHubColors.gray400,
           ),
-          const SizedBox(height: 16),
+          VGap(MemoryHubSpacing.lg),
           Text(
             'No results found',
             style: GoogleFonts.inter(
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: MemoryHubTypography.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          VGap(MemoryHubSpacing.sm),
           Text(
             'Try searching with different keywords',
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: Colors.grey,
+              color: MemoryHubColors.gray500,
             ),
           ),
         ],
@@ -311,14 +316,17 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: MemoryHubSpacing.xl,
+            vertical: MemoryHubSpacing.md,
+          ),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: ['All', 'Memories', 'Files', 'People', 'Tags'].map((filter) {
                 final isSelected = _selectedFilter == filter;
                 return Container(
-                  margin: const EdgeInsets.only(right: 8),
+                  margin: EdgeInsets.only(right: MemoryHubSpacing.sm),
                   child: ChoiceChip(
                     label: Text(filter),
                     selected: isSelected,
@@ -328,7 +336,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                     selectedColor: Theme.of(context).colorScheme.primary,
                     labelStyle: GoogleFonts.inter(
                       color: isSelected ? Colors.white : null,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: MemoryHubTypography.semiBold,
                     ),
                   ),
                 );
@@ -338,7 +346,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         ),
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xl),
             itemCount: _searchResults.length,
             itemBuilder: (context, index) {
               final result = _searchResults[index];
@@ -358,26 +366,26 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     switch (type) {
       case 'memory':
         icon = Icons.auto_stories;
-        color = Colors.purple;
+        color = MemoryHubColors.purple500;
         break;
       case 'file':
         icon = Icons.insert_drive_file;
-        color = Colors.blue;
+        color = MemoryHubColors.blue500;
         break;
       case 'user':
         icon = Icons.person;
-        color = Colors.green;
+        color = MemoryHubColors.green500;
         break;
       default:
         icon = Icons.info;
-        color = Colors.grey;
+        color = MemoryHubColors.gray500;
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: MemoryHubSpacing.md),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: MemoryHubBorderRadius.lgRadius,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -387,19 +395,19 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
+        contentPadding: EdgeInsets.all(MemoryHubSpacing.lg),
         leading: Container(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(MemoryHubSpacing.md),
           decoration: BoxDecoration(
             color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: MemoryHubBorderRadius.mdRadius,
           ),
           child: Icon(icon, color: color, size: 24),
         ),
         title: Text(
           result['title'] ?? 'Untitled',
           style: GoogleFonts.inter(
-            fontWeight: FontWeight.w600,
+            fontWeight: MemoryHubTypography.semiBold,
             fontSize: 16,
           ),
         ),
@@ -408,7 +416,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                 result['description'],
                 style: GoogleFonts.inter(
                   fontSize: 14,
-                  color: Colors.grey,
+                  color: MemoryHubColors.gray500,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,

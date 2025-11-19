@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/api_service.dart';
 import 'package:intl/intl.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
 
 class CommentsScreen extends StatefulWidget {
   final String targetId;
@@ -76,7 +78,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Comments', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text('Comments', style: GoogleFonts.inter(fontWeight: MemoryHubTypography.bold)),
       ),
       body: Column(
         children: [
@@ -98,21 +100,21 @@ class _CommentsScreenState extends State<CommentsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.chat_bubble_outline, size: 80, color: Colors.grey.withOpacity(0.5)),
-          const SizedBox(height: 16),
+          Icon(Icons.chat_bubble_outline, size: 80, color: MemoryHubColors.gray400),
+          VGap(MemoryHubSpacing.lg),
           Text(
             'No Comments Yet',
             style: GoogleFonts.inter(
               fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontWeight: MemoryHubTypography.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          VGap(MemoryHubSpacing.sm),
           Text(
             'Be the first to comment',
             style: GoogleFonts.inter(
               fontSize: 16,
-              color: Colors.grey,
+              color: MemoryHubColors.gray500,
             ),
           ),
         ],
@@ -122,7 +124,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
   Widget _buildCommentsList() {
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(MemoryHubSpacing.lg),
       itemCount: _comments.length,
       itemBuilder: (context, index) {
         final comment = _comments[index];
@@ -137,13 +139,13 @@ class _CommentsScreenState extends State<CommentsScreen> {
         : DateTime.now();
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: MemoryHubSpacing.lg),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: MemoryHubBorderRadius.lgRadius,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(MemoryHubSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -155,12 +157,12 @@ class _CommentsScreenState extends State<CommentsScreen> {
                   child: Text(
                     comment['user']?['name']?[0]?.toUpperCase() ?? 'U',
                     style: GoogleFonts.inter(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: MemoryHubTypography.bold,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                HGap(MemoryHubSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,7 +170,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                       Text(
                         comment['user']?['name'] ?? 'Unknown',
                         style: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: MemoryHubTypography.bold,
                           fontSize: 15,
                         ),
                       ),
@@ -176,7 +178,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                         _formatTimeAgo(createdAt),
                         style: GoogleFonts.inter(
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: MemoryHubColors.gray500,
                         ),
                       ),
                     ],
@@ -185,7 +187,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 PopupMenuButton(
                   icon: const Icon(Icons.more_vert, size: 20),
                   itemBuilder: (context) => [
-                    const PopupMenuItem(value: 'delete', child: const Text('Delete')),
+                    const PopupMenuItem(value: 'delete', child: Text('Delete')),
                   ],
                   onSelected: (value) {
                     if (value == 'delete') {
@@ -195,12 +197,12 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            VGap(MemoryHubSpacing.md),
             Text(
               comment['content'] ?? '',
               style: GoogleFonts.inter(fontSize: 15),
             ),
-            const SizedBox(height: 12),
+            VGap(MemoryHubSpacing.md),
             Row(
               children: [
                 TextButton.icon(
@@ -213,7 +215,10 @@ class _CommentsScreenState extends State<CommentsScreen> {
                   ),
                   label: Text('${comment['likes'] ?? 0}'),
                   style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MemoryHubSpacing.md,
+                      vertical: MemoryHubSpacing.sm,
+                    ),
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
@@ -228,7 +233,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
   Widget _buildCommentInput() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(MemoryHubSpacing.lg),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         boxShadow: [
@@ -250,7 +255,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
-          const SizedBox(width: 12),
+          HGap(MemoryHubSpacing.md),
           Expanded(
             child: TextField(
               controller: _commentController,
@@ -258,18 +263,21 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 hintText: 'Write a comment...',
                 hintStyle: GoogleFonts.inter(fontSize: 14),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: MemoryHubBorderRadius.fullRadius,
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
                 fillColor: Theme.of(context).scaffoldBackgroundColor,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: MemoryHubSpacing.xl,
+                  vertical: MemoryHubSpacing.sm + 2,
+                ),
               ),
               maxLines: null,
               textCapitalization: TextCapitalization.sentences,
             ),
           ),
-          const SizedBox(width: 8),
+          HGap(MemoryHubSpacing.sm),
           IconButton(
             onPressed: _isPosting ? null : _postComment,
             icon: _isPosting
@@ -282,7 +290,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
             style: IconButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(MemoryHubSpacing.md),
             ),
           ),
         ],

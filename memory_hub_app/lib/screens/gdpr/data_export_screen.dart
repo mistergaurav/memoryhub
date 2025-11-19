@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../services/gdpr_service.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
+import '../../design_system/components/surfaces/app_card.dart';
 
 class DataExportScreen extends StatefulWidget {
   const DataExportScreen({Key? key}) : super(key: key);
@@ -50,7 +53,7 @@ class _DataExportScreenState extends State<DataExportScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('$type export started. You will receive a download link soon.'),
-            backgroundColor: Colors.green,
+            backgroundColor: MemoryHubColors.green500,
           ),
         );
         _loadExportHistory();
@@ -73,71 +76,76 @@ class _DataExportScreenState extends State<DataExportScreen> {
         title: const Text('Export Your Data'),
         elevation: 0,
         flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.indigo.shade400, Colors.purple.shade400],
-            ),
+          decoration: const BoxDecoration(
+            gradient: MemoryHubGradients.primary,
           ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(MemoryHubSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.download, color: Colors.indigo.shade400),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Data Portability',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            AppCard(
+              padding: EdgeInsets.all(MemoryHubSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.download, color: MemoryHubColors.indigo400),
+                      const HGap.xs(),
+                      Text(
+                        'Data Portability',
+                        style: TextStyle(
+                          fontSize: MemoryHubTypography.h4,
+                          fontWeight: MemoryHubTypography.bold,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Under GDPR Article 20, you have the right to receive your personal data '
-                      'in a structured, commonly used, and machine-readable format.',
-                      style: TextStyle(color: Colors.grey.shade600),
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                  const VGap.sm(),
+                  Text(
+                    'Under GDPR Article 20, you have the right to receive your personal data '
+                    'in a structured, commonly used, and machine-readable format.',
+                    style: TextStyle(color: MemoryHubColors.gray600),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
-            const Text(
+            const VGap.lg(),
+            Text(
               'Export Options',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: MemoryHubTypography.h3,
+                fontWeight: MemoryHubTypography.bold,
+              ),
             ),
-            const SizedBox(height: 16),
+            const VGap.md(),
             _buildExportOption(
               title: 'JSON Export',
               description: 'Download all your data in JSON format',
               icon: Icons.code,
-              iconColor: Colors.blue,
+              iconColor: MemoryHubColors.blue500,
               onTap: () => _exportData('JSON'),
             ),
             _buildExportOption(
               title: 'Complete Archive',
               description: 'Download all data including files as ZIP',
               icon: Icons.archive,
-              iconColor: Colors.orange,
+              iconColor: MemoryHubColors.amber500,
               onTap: () => _exportData('Archive'),
             ),
-            const SizedBox(height: 32),
+            const VGap.xl(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Export History',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: MemoryHubTypography.h3,
+                    fontWeight: MemoryHubTypography.bold,
+                  ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.refresh),
@@ -145,24 +153,26 @@ class _DataExportScreenState extends State<DataExportScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const VGap.md(),
             _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _exportHistory.isEmpty
-                    ? Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(32.0),
-                          child: Center(
-                            child: Column(
-                              children: [
-                                Icon(Icons.history, size: 48, color: Colors.grey.shade400),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'No export history',
-                                  style: TextStyle(color: Colors.grey.shade600),
-                                ),
-                              ],
-                            ),
+                    ? AppCard(
+                        padding: EdgeInsets.all(MemoryHubSpacing.xxl),
+                        child: Center(
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.history,
+                                size: MemoryHubSpacing.xxxl,
+                                color: MemoryHubColors.gray400,
+                              ),
+                              const VGap.xs(),
+                              Text(
+                                'No export history',
+                                style: TextStyle(color: MemoryHubColors.gray600),
+                              ),
+                            ],
                           ),
                         ),
                       )
@@ -172,29 +182,33 @@ class _DataExportScreenState extends State<DataExportScreen> {
                         itemCount: _exportHistory.length,
                         itemBuilder: (context, index) {
                           final export = _exportHistory[index];
-                          return Card(
-                            child: ListTile(
-                              leading: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade50,
-                                  borderRadius: BorderRadius.circular(8),
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: MemoryHubSpacing.sm),
+                            child: AppCard(
+                              padding: EdgeInsets.zero,
+                              child: ListTile(
+                                leading: Container(
+                                  padding: EdgeInsets.all(MemoryHubSpacing.sm),
+                                  decoration: BoxDecoration(
+                                    color: MemoryHubColors.gray100,
+                                    borderRadius: MemoryHubBorderRadius.smRadius,
+                                  ),
+                                  child: Icon(
+                                    export['type'] == 'JSON' ? Icons.code : Icons.archive,
+                                    color: MemoryHubColors.green500,
+                                  ),
                                 ),
-                                child: Icon(
-                                  export['type'] == 'JSON' ? Icons.code : Icons.archive,
-                                  color: Colors.green,
+                                title: Text(
+                                  '${export['type']} Export',
+                                  style: TextStyle(fontWeight: MemoryHubTypography.semiBold),
                                 ),
-                              ),
-                              title: Text(
-                                '${export['type']} Export',
-                                style: const TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              subtitle: Text(
-                                '${DateFormat.yMMMd().format(export['date'])} • ${export['size']}',
-                              ),
-                              trailing: Chip(
-                                label: Text(export['status']),
-                                backgroundColor: Colors.green.shade50,
+                                subtitle: Text(
+                                  '${DateFormat.yMMMd().format(export['date'])} • ${export['size']}',
+                                ),
+                                trailing: Chip(
+                                  label: Text(export['status']),
+                                  backgroundColor: MemoryHubColors.gray100,
+                                ),
                               ),
                             ),
                           );
@@ -213,30 +227,33 @@ class _DataExportScreenState extends State<DataExportScreen> {
     required Color iconColor,
     required VoidCallback onTap,
   }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
+    return Padding(
+      padding: EdgeInsets.only(bottom: MemoryHubSpacing.sm),
+      child: AppCard(
+        padding: EdgeInsets.zero,
         onTap: _isExporting ? null : onTap,
-        leading: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
+        child: ListTile(
+          leading: Container(
+            padding: EdgeInsets.all(MemoryHubSpacing.md),
+            decoration: BoxDecoration(
+              color: iconColor.withOpacity(0.1),
+              borderRadius: MemoryHubBorderRadius.smRadius,
+            ),
+            child: Icon(icon, color: iconColor),
           ),
-          child: Icon(icon, color: iconColor),
+          title: Text(
+            title,
+            style: TextStyle(fontWeight: MemoryHubTypography.semiBold),
+          ),
+          subtitle: Text(description),
+          trailing: _isExporting
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.arrow_forward_ios, size: 16),
         ),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(description),
-        trailing: _isExporting
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : const Icon(Icons.arrow_forward_ios, size: 16),
       ),
     );
   }

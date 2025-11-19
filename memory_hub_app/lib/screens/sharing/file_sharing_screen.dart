@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../services/api_service.dart';
+import '../../design_system/design_system.dart';
 
 class FileSharingScreen extends StatefulWidget {
   const FileSharingScreen({super.key});
@@ -37,36 +37,37 @@ class _FileSharingScreenState extends State<FileSharingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Shared Files', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Shared Files',
+          style: context.text.titleLarge?.copyWith(fontWeight: MemoryHubTypography.bold),
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _sharedFiles.isEmpty
-              ? _buildEmptyState()
+              ? _buildEmptyState(context)
               : _buildFilesList(),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.link_off, size: 80, color: Colors.grey.withOpacity(0.5)),
-          const SizedBox(height: 16),
+          Icon(Icons.link_off, size: 80, color: MemoryHubColors.gray500.withOpacity(0.5)),
+          const VGap.lg(),
           Text(
             'No Shared Files',
-            style: GoogleFonts.inter(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+            style: context.text.headlineSmall?.copyWith(
+              fontWeight: MemoryHubTypography.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          const VGap.sm(),
           Text(
             'Share files with others using secure links',
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: Colors.grey,
+            style: context.text.bodyLarge?.copyWith(
+              color: MemoryHubColors.gray500,
             ),
           ),
         ],
@@ -76,7 +77,7 @@ class _FileSharingScreenState extends State<FileSharingScreen> {
 
   Widget _buildFilesList() {
     return ListView.builder(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(Spacing.xl),
       itemCount: _sharedFiles.length,
       itemBuilder: (context, index) {
         final file = _sharedFiles[index];
@@ -86,69 +87,59 @@ class _FileSharingScreenState extends State<FileSharingScreen> {
   }
 
   Widget _buildFileCard(Map<String, dynamic> file) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: Spacing.md),
+      child: AppCard(
+        child: ListTile(
+        contentPadding: const EdgeInsets.all(Spacing.lg),
         leading: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(Spacing.md),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                context.colors.primary.withOpacity(0.2),
+                context.colors.secondary.withOpacity(0.2),
               ],
             ),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: MemoryHubBorderRadius.mdRadius,
           ),
           child: Icon(
             Icons.share,
-            color: Theme.of(context).colorScheme.primary,
+            color: context.colors.primary,
             size: 24,
           ),
         ),
         title: Text(
           file['file_name'] ?? 'Untitled',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
+          style: context.text.bodyLarge?.copyWith(
+            fontWeight: MemoryHubTypography.semiBold,
           ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 4),
+            const VGap.xs(),
             Text(
               'Expires: ${file['expires_at'] ?? 'Never'}',
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: Colors.grey,
+              style: context.text.bodySmall?.copyWith(
+                color: MemoryHubColors.gray500,
               ),
             ),
-            const SizedBox(height: 8),
+            const VGap.sm(),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(
+                horizontal: Spacing.sm,
+                vertical: Spacing.xxs,
+              ),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
+                color: MemoryHubColors.green500.withOpacity(0.1),
+                borderRadius: MemoryHubBorderRadius.smRadius,
               ),
               child: Text(
                 '${file['access_count'] ?? 0} views',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.green,
+                style: context.text.labelSmall?.copyWith(
+                  fontWeight: MemoryHubTypography.semiBold,
+                  color: MemoryHubColors.green500,
                 ),
               ),
             ),
@@ -161,12 +152,11 @@ class _FileSharingScreenState extends State<FileSharingScreen> {
           },
         ),
       ),
+      ),
     );
   }
 
   void _copyShareLink(String link) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Share link copied to clipboard')),
-    );
+    AppSnackbar.success(context, 'Share link copied to clipboard');
   }
 }

@@ -5,6 +5,8 @@ import '../../services/notifications_service.dart';
 import '../../services/family/family_service.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/profile_avatar.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
 
 class NotificationDetailScreen extends StatefulWidget {
   final String notificationId;
@@ -65,7 +67,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
       builder: (context) => AlertDialog(
         title: Text(
           'Approve Health Record',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: MemoryHubTypography.bold),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -75,7 +77,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
               'Select visibility scope for this health record:',
               style: GoogleFonts.inter(),
             ),
-            const SizedBox(height: 16),
+            VGap(MemoryHubSpacing.lg),
             DropdownButtonFormField<String>(
               value: _selectedVisibilityScope,
               decoration: InputDecoration(
@@ -119,7 +121,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            style: ElevatedButton.styleFrom(backgroundColor: MemoryHubColors.green600),
             child: Text(
               'Approve',
               style: GoogleFonts.inter(color: Colors.white),
@@ -142,7 +144,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
                 'Health record approved successfully',
                 style: GoogleFonts.inter(),
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: MemoryHubColors.green600,
             ),
           );
 
@@ -157,7 +159,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
                 'Error approving record: $e',
                 style: GoogleFonts.inter(),
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: MemoryHubColors.red600,
             ),
           );
         }
@@ -177,7 +179,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
       builder: (context) => AlertDialog(
         title: Text(
           'Reject Health Record',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: MemoryHubTypography.bold),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -186,14 +188,14 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
               'Are you sure you want to reject this health record?',
               style: GoogleFonts.inter(),
             ),
-            const SizedBox(height: 16),
+            VGap(MemoryHubSpacing.lg),
             TextField(
               decoration: InputDecoration(
                 labelText: 'Reason (optional)',
                 labelStyle: GoogleFonts.inter(),
                 border: const OutlineInputBorder(),
                 hintText: 'Enter rejection reason...',
-                hintStyle: GoogleFonts.inter(color: Colors.grey),
+                hintStyle: GoogleFonts.inter(color: MemoryHubColors.gray500),
               ),
               style: GoogleFonts.inter(),
               maxLines: 3,
@@ -208,7 +210,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: MemoryHubColors.red600),
             child: Text(
               'Reject',
               style: GoogleFonts.inter(color: Colors.white),
@@ -231,7 +233,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
                 'Health record rejected',
                 style: GoogleFonts.inter(),
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: MemoryHubColors.red600,
             ),
           );
 
@@ -246,7 +248,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
                 'Error rejecting record: $e',
                 style: GoogleFonts.inter(),
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: MemoryHubColors.red600,
             ),
           );
         }
@@ -260,7 +262,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
       appBar: AppBar(
         title: Text(
           'Notification Details',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          style: GoogleFonts.inter(fontWeight: MemoryHubTypography.bold),
         ),
         elevation: 0,
       ),
@@ -278,25 +280,25 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
-            const SizedBox(height: 16),
+            Icon(Icons.error_outline, size: 64, color: MemoryHubColors.red300),
+            VGap(MemoryHubSpacing.lg),
             Text(
               'Error loading notification',
               style: GoogleFonts.inter(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontWeight: MemoryHubTypography.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            VGap(MemoryHubSpacing.sm),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl + 8),
               child: Text(
                 _error!,
-                style: GoogleFonts.inter(color: Colors.grey[600]),
+                style: GoogleFonts.inter(color: MemoryHubColors.gray600),
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 24),
+            VGap(MemoryHubSpacing.xxl),
             ElevatedButton.icon(
               onPressed: _loadNotificationDetails,
               icon: const Icon(Icons.refresh),
@@ -311,7 +313,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
       return Center(
         child: Text(
           'Notification not found',
-          style: GoogleFonts.inter(fontSize: 16, color: Colors.grey[600]),
+          style: GoogleFonts.inter(fontSize: 16, color: MemoryHubColors.gray600),
         ),
       );
     }
@@ -325,12 +327,12 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
           const SizedBox(height: 24),
           _buildHealthRecordInfo(),
           if (_notificationDetails!['has_reminder'] == true) ...[
-            const SizedBox(height: 24),
+            VGap(MemoryHubSpacing.xxl),
             _buildReminderInfo(),
           ],
           if (_notificationDetails!['can_approve'] == true ||
               _notificationDetails!['can_reject'] == true) ...[
-            const SizedBox(height: 32),
+            VGap(MemoryHubSpacing.xxl + 8),
             _buildActionButtons(),
           ],
         ],
@@ -427,22 +429,22 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
             ),
             const Divider(height: 24),
             _buildInfoRow(Icons.title, 'Title', title),
-            const SizedBox(height: 12),
+            VGap(MemoryHubSpacing.md),
             _buildInfoRow(Icons.medical_services, 'Type', _formatType(type)),
             if (description != null && description.isNotEmpty) ...[
-              const SizedBox(height: 12),
+              VGap(MemoryHubSpacing.md),
               _buildInfoRow(Icons.description, 'Description', description),
             ],
             if (date != null && date.isNotEmpty) ...[
-              const SizedBox(height: 12),
+              VGap(MemoryHubSpacing.md),
               _buildInfoRow(Icons.calendar_today, 'Date', _formatDate(date)),
             ],
             if (provider != null && provider.isNotEmpty) ...[
-              const SizedBox(height: 12),
+              VGap(MemoryHubSpacing.md),
               _buildInfoRow(Icons.local_hospital, 'Provider', provider),
             ],
             if (severity != null && severity.isNotEmpty) ...[
-              const SizedBox(height: 12),
+              VGap(MemoryHubSpacing.md),
               _buildInfoRow(Icons.warning, 'Severity', _formatSeverity(severity)),
             ],
           ],
@@ -478,14 +480,14 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
               ],
             ),
             if (reminderTitle != null) ...[
-              const SizedBox(height: 12),
+              VGap(MemoryHubSpacing.md),
               Text(
                 reminderTitle,
                 style: GoogleFonts.inter(fontSize: 14),
               ),
             ],
             if (reminderDueAt != null) ...[
-              const SizedBox(height: 8),
+              VGap(MemoryHubSpacing.sm),
               Row(
                 children: [
                   Icon(Icons.schedule, size: 16, color: Colors.grey[600]),
@@ -527,7 +529,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
                 style: GoogleFonts.inter(fontSize: 16),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
+                backgroundColor: MemoryHubColors.red600,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(

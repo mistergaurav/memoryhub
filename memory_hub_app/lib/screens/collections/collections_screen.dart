@@ -6,6 +6,8 @@ import '../../widgets/animated_list_item.dart';
 import '../../widgets/gradient_container.dart';
 import '../../widgets/shimmer_loading.dart';
 import 'collection_detail_screen.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
 
 class CollectionsScreen extends StatefulWidget {
   const CollectionsScreen({super.key});
@@ -30,12 +32,12 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
   void initState() {
     super.initState();
     _viewToggleController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: MemoryHubAnimations.normal,
       vsync: this,
     );
     _viewToggleAnimation = CurvedAnimation(
       parent: _viewToggleController,
-      curve: Curves.easeInOut,
+      curve: MemoryHubAnimations.easeInOut,
     );
     _loadCollections();
   }
@@ -60,7 +62,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error loading collections: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: MemoryHubColors.red500,
           ),
         );
       }
@@ -134,10 +136,15 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
   Widget _buildAppBar() {
     return SliverToBoxAdapter(
       child: GradientContainer(
-        padding: const EdgeInsets.fromLTRB(20, 60, 20, 24),
+        padding: EdgeInsets.fromLTRB(
+          MemoryHubSpacing.xl,
+          MemoryHubSpacing.xxxxl - 4,
+          MemoryHubSpacing.xl,
+          MemoryHubSpacing.xl,
+        ),
         borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
+          bottomLeft: Radius.circular(MemoryHubBorderRadius.xxl),
+          bottomRight: Radius.circular(MemoryHubBorderRadius.xxl),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,26 +156,26 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                   onPressed: () => Navigator.pop(context),
                   tooltip: 'Back',
                 ),
-                const SizedBox(width: 8),
+                const HGap.xs(),
                 Expanded(
                   child: Text(
                     'Collections',
                     style: GoogleFonts.inter(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
+                      fontSize: MemoryHubTypography.h1,
+                      fontWeight: MemoryHubTypography.bold,
                       color: Colors.white,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const VGap.xs(),
             Padding(
               padding: const EdgeInsets.only(left: 56),
               child: Text(
                 'Organize your memories',
                 style: GoogleFonts.inter(
-                  fontSize: 14,
+                  fontSize: MemoryHubTypography.h6,
                   color: Colors.white.withOpacity(0.9),
                 ),
               ),
@@ -182,7 +189,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
   Widget _buildSearchAndFilters() {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           children: [
             Row(
@@ -206,11 +213,11 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                     onChanged: _filterCollections,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const HGap.md(),
                 Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: MemoryHubBorderRadius.lgRadius,
                   ),
                   child: IconButton(
                     icon: AnimatedIcon(
@@ -232,26 +239,26 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const VGap.lg(),
             Row(
               children: [
                 Text(
                   'Sort by:',
                   style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontSize: MemoryHubTypography.h6,
+                    fontWeight: MemoryHubTypography.medium,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const HGap.md(),
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
                         _buildSortChip('Recent', 'recent'),
-                        const SizedBox(width: 8),
+                        const HGap.xs(),
                         _buildSortChip('Name', 'name'),
-                        const SizedBox(width: 8),
+                        const HGap.xs(),
                         _buildSortChip('Size', 'size'),
                       ],
                     ),
@@ -279,8 +286,8 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
       selectedColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
       checkmarkColor: Theme.of(context).colorScheme.primary,
       labelStyle: GoogleFonts.inter(
-        fontSize: 13,
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+        fontSize: MemoryHubTypography.bodySmall + 1,
+        fontWeight: isSelected ? MemoryHubTypography.semiBold : MemoryHubTypography.regular,
         color: isSelected ? Theme.of(context).colorScheme.primary : null,
       ),
     );
@@ -288,19 +295,19 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
 
   Widget _buildLoadingState() {
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xl),
       sliver: SliverGrid(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: _isGridView ? 2 : 1,
           childAspectRatio: _isGridView ? 0.85 : 3,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
+          crossAxisSpacing: MemoryHubSpacing.lg,
+          mainAxisSpacing: MemoryHubSpacing.lg,
         ),
         delegate: SliverChildBuilderDelegate(
           (context, index) => ShimmerLoading(
             isLoading: true,
             child: ShimmerBox(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: MemoryHubBorderRadius.xlRadius,
             ),
           ),
           childCount: 6,
@@ -328,13 +335,18 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
   Widget _buildCollectionsList() {
     if (_isGridView) {
       return SliverPadding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+        padding: EdgeInsets.fromLTRB(
+          MemoryHubSpacing.xl,
+          0,
+          MemoryHubSpacing.xl,
+          100,
+        ),
         sliver: SliverGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             childAspectRatio: 0.85,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
+            crossAxisSpacing: MemoryHubSpacing.lg,
+            mainAxisSpacing: MemoryHubSpacing.lg,
           ),
           delegate: SliverChildBuilderDelegate(
             (context, index) => _buildGridCollectionCard(index),
@@ -344,7 +356,12 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
       );
     } else {
       return SliverPadding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+        padding: EdgeInsets.fromLTRB(
+          MemoryHubSpacing.xl,
+          0,
+          MemoryHubSpacing.xl,
+          100,
+        ),
         sliver: SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) => _buildListCollectionCard(index),
@@ -366,7 +383,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
         onTap: () => _navigateToDetail(collection),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: MemoryHubBorderRadius.xlRadius,
             boxShadow: [
               BoxShadow(
                 color: colors.first.withOpacity(0.2),
@@ -376,7 +393,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: MemoryHubBorderRadius.xlRadius,
             child: Stack(
               children: [
                 Positioned.fill(
@@ -404,7 +421,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                   left: 0,
                   right: 0,
                   child: Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.all(MemoryHubSpacing.lg),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
@@ -421,14 +438,14 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                         Text(
                           collection['name'] ?? 'Collection',
                           style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontSize: MemoryHubTypography.bodyLarge,
+                            fontWeight: MemoryHubTypography.bold,
                             color: Colors.white,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 4),
+                        const VGap(4),
                         Row(
                           children: [
                             const Icon(
@@ -436,11 +453,11 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                               size: 14,
                               color: Colors.white,
                             ),
-                            const SizedBox(width: 4),
+                            const HGap(4),
                             Text(
                               '${collection['memory_count'] ?? 0} memories',
                               style: GoogleFonts.inter(
-                                fontSize: 12,
+                                fontSize: MemoryHubTypography.bodySmall,
                                 color: Colors.white.withOpacity(0.9),
                               ),
                             ),
@@ -452,13 +469,13 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                 ),
                 if (collection['privacy'] == 'private')
                   Positioned(
-                    top: 12,
-                    right: 12,
+                    top: MemoryHubSpacing.md,
+                    right: MemoryHubSpacing.md,
                     child: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: EdgeInsets.all(MemoryHubSpacing.sm),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: MemoryHubBorderRadius.smRadius,
                       ),
                       child: const Icon(
                         Icons.lock,
@@ -483,17 +500,20 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
       index: index,
       delay: 50,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: EdgeInsets.only(bottom: MemoryHubSpacing.md),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: MemoryHubBorderRadius.lgRadius,
           border: Border.all(
             color: Theme.of(context).dividerColor,
             width: 1,
           ),
         ),
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: MemoryHubSpacing.lg,
+            vertical: MemoryHubSpacing.sm,
+          ),
           leading: Container(
             width: 60,
             height: 60,
@@ -503,7 +523,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                 end: Alignment.bottomRight,
                 colors: colors,
               ),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: MemoryHubBorderRadius.mdRadius,
             ),
             child: const Icon(
               Icons.collections,
@@ -514,7 +534,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
           title: Text(
             collection['name'] ?? 'Collection',
             style: GoogleFonts.inter(
-              fontWeight: FontWeight.w600,
+              fontWeight: MemoryHubTypography.semiBold,
               fontSize: 15,
             ),
             maxLines: 1,
@@ -522,11 +542,11 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
           ),
           subtitle: Text(
             '${collection['memory_count'] ?? 0} memories${collection['privacy'] == 'private' ? ' • Private' : ''}',
-            style: GoogleFonts.inter(fontSize: 13),
+            style: GoogleFonts.inter(fontSize: MemoryHubTypography.bodySmall + 1),
           ),
           trailing: Icon(
             Icons.chevron_right,
-            color: Colors.grey[400],
+            color: MemoryHubColors.gray400,
           ),
           onTap: () => _navigateToDetail(collection),
         ),
@@ -536,12 +556,12 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
 
   List<Color> _getGradientColors(int index) {
     final gradients = [
-      [const Color(0xFF6366F1), const Color(0xFF8B5CF6)],
-      [const Color(0xFFEC4899), const Color(0xFFF472B6)],
-      [const Color(0xFF8B5CF6), const Color(0xFFA78BFA)],
-      [const Color(0xFF10B981), const Color(0xFF34D399)],
-      [const Color(0xFF3B82F6), const Color(0xFF60A5FA)],
-      [const Color(0xFFF59E0B), const Color(0xFFFBBF24)],
+      [MemoryHubColors.indigo500, MemoryHubColors.purple500],
+      [MemoryHubColors.pink500, MemoryHubColors.pink400],
+      [MemoryHubColors.purple500, MemoryHubColors.purple400],
+      [MemoryHubColors.green500, MemoryHubColors.green400],
+      [MemoryHubColors.blue500, MemoryHubColors.blue400],
+      [MemoryHubColors.amber500, MemoryHubColors.amber400],
     ];
     return gradients[index % gradients.length];
   }
@@ -566,15 +586,15 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(MemoryHubBorderRadius.xxl)),
       ),
       builder: (context) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(MemoryHubSpacing.xl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -582,11 +602,11 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
               Text(
                 'New Collection',
                 style: GoogleFonts.inter(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                  fontSize: MemoryHubTypography.h2,
+                  fontWeight: MemoryHubTypography.bold,
                 ),
               ),
-              const SizedBox(height: 24),
+              const VGap.xl(),
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(
@@ -595,7 +615,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                 ),
                 textCapitalization: TextCapitalization.words,
               ),
-              const SizedBox(height: 16),
+              const VGap.lg(),
               TextField(
                 controller: descriptionController,
                 decoration: const InputDecoration(
@@ -604,7 +624,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                 ),
                 maxLines: 3,
               ),
-              const SizedBox(height: 16),
+              const VGap.lg(),
               StatefulBuilder(
                 builder: (context, setState) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -612,11 +632,11 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                     Text(
                       'Privacy',
                       style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontSize: MemoryHubTypography.h6,
+                        fontWeight: MemoryHubTypography.medium,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const VGap.xs(),
                     Row(
                       children: [
                         Expanded(
@@ -646,7 +666,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const VGap.xl(),
               Row(
                 children: [
                   Expanded(
@@ -655,7 +675,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                       child: const Text('Cancel'),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const HGap.lg(),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
@@ -673,20 +693,20 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                           );
                           if (mounted) {
                             Navigator.pop(context);
+                            _loadCollections();
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Collection created successfully!'),
-                                backgroundColor: Colors.green,
+                              SnackBar(
+                                content: const Text('Collection created'),
+                                backgroundColor: MemoryHubColors.green500,
                               ),
                             );
-                            _loadCollections();
                           }
                         } catch (e) {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Error: $e'),
-                                backgroundColor: Colors.red,
+                                backgroundColor: MemoryHubColors.red500,
                               ),
                             );
                           }

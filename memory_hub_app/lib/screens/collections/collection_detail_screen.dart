@@ -5,6 +5,8 @@ import '../../config/api_config.dart';
 import '../memories/memory_detail_screen.dart';
 import 'package:intl/intl.dart';
 import '../../widgets/share_bottom_sheet.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
 
 class CollectionDetailScreen extends StatefulWidget {
   final String collectionId;
@@ -82,7 +84,6 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   }
 
   Future<void> _shareToHub() async {
-    // Show dialog to select a hub to share this collection to
     final availableHubs = await _getAvailableHubs();
     
     if (availableHubs.isEmpty) {
@@ -136,7 +137,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Collection shared to ${selectedHub['name']}'),
-              backgroundColor: Colors.green,
+              backgroundColor: MemoryHubColors.green500,
             ),
           );
         }
@@ -145,7 +146,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Failed to share: $e'),
-              backgroundColor: Colors.red,
+              backgroundColor: MemoryHubColors.red500,
             ),
           );
         }
@@ -187,9 +188,9 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         await _loadCollectionData();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Memory removed from collection'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: const Text('Memory removed from collection'),
+              backgroundColor: MemoryHubColors.green500,
             ),
           );
         }
@@ -241,23 +242,23 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
               ),
               PopupMenuButton(
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit',
                     child: Row(
                       children: [
-                        Icon(Icons.edit),
-                        SizedBox(width: 12),
-                        Text('Edit Collection'),
+                        const Icon(Icons.edit),
+                        const HGap.md(),
+                        const Text('Edit Collection'),
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'delete',
                     child: Row(
                       children: [
-                        Icon(Icons.delete, color: Colors.red),
-                        SizedBox(width: 12),
-                        Text('Delete Collection', style: TextStyle(color: Colors.red)),
+                        Icon(Icons.delete, color: MemoryHubColors.red500),
+                        const HGap.md(),
+                        Text('Delete Collection', style: TextStyle(color: MemoryHubColors.red500)),
                       ],
                     ),
                   ),
@@ -276,7 +277,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                           ),
                           FilledButton(
                             style: FilledButton.styleFrom(
-                              backgroundColor: Colors.red,
+                              backgroundColor: MemoryHubColors.red500,
                             ),
                             onPressed: () => Navigator.pop(context, true),
                             child: const Text('Delete'),
@@ -314,9 +315,9 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
           else ...[
             SliverToBoxAdapter(
               child: Card(
-                margin: const EdgeInsets.all(16),
+                margin: EdgeInsets.all(MemoryHubSpacing.lg),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(MemoryHubSpacing.lg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -326,7 +327,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                             Icons.photo_library,
                             color: Theme.of(context).colorScheme.primary,
                           ),
-                          const SizedBox(width: 12),
+                          const HGap.md(),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,16 +335,16 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                 Text(
                                   _collection?['name'] ?? widget.collectionName,
                                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                        fontWeight: FontWeight.bold,
+                                        fontWeight: MemoryHubTypography.bold,
                                       ),
                                 ),
                                 if (_collection?['description'] != null)
                                   Padding(
-                                    padding: const EdgeInsets.only(top: 4),
+                                    padding: EdgeInsets.only(top: MemoryHubSpacing.xs / 2),
                                     child: Text(
                                       _collection!['description'],
                                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            color: Colors.grey[600],
+                                            color: MemoryHubColors.gray600,
                                           ),
                                     ),
                                   ),
@@ -352,7 +353,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                           ),
                         ],
                       ),
-                      const Divider(height: 24),
+                      Divider(height: MemoryHubSpacing.xl),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
@@ -382,22 +383,22 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                       Icon(
                         Icons.photo_library_outlined,
                         size: 64,
-                        color: Colors.grey[400],
+                        color: MemoryHubColors.gray400,
                       ),
-                      const SizedBox(height: 16),
+                      const VGap.lg(),
                       Text(
                         'No memories in this collection',
                         style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey[600],
+                          fontSize: MemoryHubTypography.h4,
+                          color: MemoryHubColors.gray600,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const VGap.xs(),
                       Text(
                         'Add memories to this collection from the memory detail screen',
                         style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[500],
+                          fontSize: MemoryHubTypography.h6,
+                          color: MemoryHubColors.gray500,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -407,13 +408,18 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                padding: EdgeInsets.fromLTRB(
+                  MemoryHubSpacing.lg,
+                  0,
+                  MemoryHubSpacing.lg,
+                  MemoryHubSpacing.lg,
+                ),
                 sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     childAspectRatio: 0.75,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
+                    crossAxisSpacing: MemoryHubSpacing.md,
+                    mainAxisSpacing: MemoryHubSpacing.md,
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -439,7 +445,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                 child: Container(
                                   width: double.infinity,
                                   decoration: BoxDecoration(
-                                    color: Colors.grey[300],
+                                    color: MemoryHubColors.gray300,
                                   ),
                                   child: memory['image_url'] != null
                                       ? Image.network(
@@ -455,25 +461,25 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.all(8),
+                                padding: EdgeInsets.all(MemoryHubSpacing.sm),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       memory['title'] ?? 'Untitled',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
+                                      style: TextStyle(
+                                        fontWeight: MemoryHubTypography.bold,
+                                        fontSize: MemoryHubTypography.h6,
                                       ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    const SizedBox(height: 4),
+                                    const VGap(4),
                                     Text(
                                       _formatDate(memory['created_at']),
                                       style: TextStyle(
                                         fontSize: 11,
-                                        color: Colors.grey[600],
+                                        color: MemoryHubColors.gray600,
                                       ),
                                     ),
                                   ],
@@ -484,7 +490,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.remove_circle_outline, size: 20),
-                                    color: Colors.red,
+                                    color: MemoryHubColors.red500,
                                     onPressed: () => _removeMemoryFromCollection(memory['id']),
                                     tooltip: 'Remove from collection',
                                   ),
@@ -509,19 +515,19 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     return Column(
       children: [
         Icon(icon, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(height: 8),
+        const VGap.xs(),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+          style: TextStyle(
+            fontSize: MemoryHubTypography.h4,
+            fontWeight: MemoryHubTypography.bold,
           ),
         ),
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
+            fontSize: MemoryHubTypography.bodySmall,
+            color: MemoryHubColors.gray600,
           ),
         ),
       ],

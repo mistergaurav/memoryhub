@@ -7,6 +7,8 @@ import '../../models/notification.dart' as models;
 import '../../widgets/gradient_container.dart';
 import '../../widgets/animated_list_item.dart';
 import '../../services/websocket_service.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -64,10 +66,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 else
                   _buildNotificationsList(provider),
                 if (provider.isLoading && provider.notifications.isNotEmpty)
-                  const SliverToBoxAdapter(
+                  SliverToBoxAdapter(
                     child: Padding(
-                      padding: EdgeInsets.all(16.0),
-                      child: Center(child: CircularProgressIndicator()),
+                      padding: EdgeInsets.all(MemoryHubSpacing.lg),
+                      child: const Center(child: CircularProgressIndicator()),
                     ),
                   ),
               ],
@@ -86,9 +88,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         background: GradientContainer(
           height: 180,
           colors: [
-            Colors.indigo,
-            Colors.purple,
-            Colors.pink,
+            MemoryHubColors.indigo600,
+            MemoryHubColors.purple600,
+            MemoryHubColors.pink500,
           ],
           child: Center(
             child: Column(
@@ -106,9 +108,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         right: 0,
                         top: 0,
                         child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
+                          padding: EdgeInsets.all(MemoryHubSpacing.xs + 2),
+                          decoration: BoxDecoration(
+                            color: MemoryHubColors.red600,
                             shape: BoxShape.circle,
                           ),
                           child: Text(
@@ -116,7 +118,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             style: GoogleFonts.inter(
                               color: Colors.white,
                               fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: MemoryHubTypography.bold,
                             ),
                           ),
                         ),
@@ -124,24 +126,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ],
                 ),
                 if (provider.unreadCount > 0) ...[
-                  const SizedBox(height: 8),
+                  VGap(MemoryHubSpacing.sm),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: MemoryHubSpacing.lg,
+                      vertical: MemoryHubSpacing.xs + 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: MemoryHubBorderRadius.fullRadius,
                     ),
                     child: Text(
                       '${provider.unreadCount} New',
                       style: GoogleFonts.inter(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: MemoryHubTypography.bold,
                         fontSize: 16,
                       ),
                     ),
                   ),
                 ],
-                const SizedBox(height: 8),
+                VGap(MemoryHubSpacing.sm),
                 _buildConnectionStatus(provider),
               ],
             ),
@@ -150,7 +155,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         title: Text(
           'Notifications',
           style: GoogleFonts.inter(
-            fontWeight: FontWeight.bold,
+            fontWeight: MemoryHubTypography.bold,
             color: Colors.white,
           ),
         ),
@@ -169,7 +174,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         'All notifications marked as read',
                         style: GoogleFonts.inter(),
                       ),
-                      backgroundColor: Colors.green,
+                      backgroundColor: MemoryHubColors.green600,
                     ),
                   );
                 }
@@ -178,7 +183,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text('Error: $e', style: GoogleFonts.inter()),
-                      backgroundColor: Colors.red,
+                      backgroundColor: MemoryHubColors.red600,
                     ),
                   );
                 }
@@ -200,10 +205,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final isConnecting = provider.wsConnectionState == WebSocketConnectionState.connecting;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: MemoryHubSpacing.md,
+        vertical: MemoryHubSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: MemoryHubBorderRadius.mdRadius,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -212,17 +220,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             width: 8,
             height: 8,
             decoration: BoxDecoration(
-              color: isConnected ? Colors.green : (isConnecting ? Colors.orange : Colors.red),
+              color: isConnected ? MemoryHubColors.green500 : (isConnecting ? MemoryHubColors.orange500 : MemoryHubColors.red500),
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 6),
+          HGap(MemoryHubSpacing.xs + 2),
           Text(
             isConnected ? 'Live' : (isConnecting ? 'Connecting' : 'Offline'),
             style: GoogleFonts.inter(
               color: Colors.white,
               fontSize: 12,
-              fontWeight: FontWeight.w500,
+              fontWeight: MemoryHubTypography.medium,
             ),
           ),
         ],
@@ -239,22 +247,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             Icon(
               Icons.notifications_none,
               size: 80,
-              color: Colors.grey[300],
+              color: MemoryHubColors.gray300,
             ),
-            const SizedBox(height: 16),
+            VGap(MemoryHubSpacing.lg),
             Text(
               'No notifications yet',
               style: GoogleFonts.inter(
                 fontSize: 18,
-                color: Colors.grey[600],
+                color: MemoryHubColors.gray600,
               ),
             ),
-            const SizedBox(height: 8),
+            VGap(MemoryHubSpacing.sm),
             Text(
               'We\'ll notify you when something happens',
               style: GoogleFonts.inter(
                 fontSize: 14,
-                color: Colors.grey[500],
+                color: MemoryHubColors.gray500,
               ),
             ),
           ],
@@ -265,7 +273,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildNotificationsList(NotificationsProvider provider) {
     return SliverPadding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(MemoryHubSpacing.lg),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
@@ -287,15 +295,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     return Card(
       elevation: isRead ? 0 : 2,
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: MemoryHubSpacing.md),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: MemoryHubBorderRadius.lgRadius,
         side: BorderSide(
-          color: isRead ? Colors.grey[200]! : Colors.blue[100]!,
+          color: isRead ? MemoryHubColors.gray200 : MemoryHubColors.blue100,
           width: isRead ? 1 : 2,
         ),
       ),
-      color: isRead ? Colors.white : Colors.blue[50],
+      color: isRead ? Colors.white : MemoryHubColors.blue50,
       child: InkWell(
         onTap: () async {
           if (!isRead) {
@@ -316,17 +324,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             }
           }
         },
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: MemoryHubBorderRadius.lgRadius,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(MemoryHubSpacing.lg),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(MemoryHubSpacing.md),
                 decoration: BoxDecoration(
                   color: _getColorForType(notification.type).withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: MemoryHubBorderRadius.mdRadius,
                 ),
                 child: Icon(
                   _getIconForType(notification.type),
@@ -334,7 +342,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 16),
+              HGap(MemoryHubSpacing.lg),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,7 +354,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             notification.title,
                             style: GoogleFonts.inter(
                               fontSize: 16,
-                              fontWeight: isRead ? FontWeight.w500 : FontWeight.bold,
+                              fontWeight: isRead ? MemoryHubTypography.medium : MemoryHubTypography.bold,
                             ),
                           ),
                         ),
@@ -354,38 +362,38 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           Container(
                             width: 10,
                             height: 10,
-                            decoration: const BoxDecoration(
-                              color: Colors.blue,
+                            decoration: BoxDecoration(
+                              color: MemoryHubColors.blue600,
                               shape: BoxShape.circle,
                             ),
                           ),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    VGap(MemoryHubSpacing.xs + 2),
                     Text(
                       notification.message,
                       style: GoogleFonts.inter(
                         fontSize: 14,
-                        color: Colors.grey[700],
+                        color: MemoryHubColors.gray700,
                         height: 1.4,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    VGap(MemoryHubSpacing.sm),
                     Row(
                       children: [
-                        Icon(Icons.access_time, size: 14, color: Colors.grey[500]),
-                        const SizedBox(width: 4),
+                        Icon(Icons.access_time, size: 14, color: MemoryHubColors.gray500),
+                        HGap(MemoryHubSpacing.xs),
                         Text(
                           timeAgo,
                           style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: Colors.grey[500],
+                            color: MemoryHubColors.gray500,
                           ),
                         ),
                       ],
                     ),
                     if (notification.type == models.NotificationType.healthRecordAssignment) ...[
-                      const SizedBox(height: 12),
+                      VGap(MemoryHubSpacing.md),
                       Row(
                         children: [
                           Expanded(
@@ -393,8 +401,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               icon: const Icon(Icons.visibility, size: 16),
                               label: Text('View Details', style: GoogleFonts.inter(fontSize: 13)),
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.blue,
-                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                foregroundColor: MemoryHubColors.blue600,
+                                padding: EdgeInsets.symmetric(vertical: MemoryHubSpacing.sm),
                               ),
                               onPressed: () async {
                                 if (!isRead) {
@@ -474,26 +482,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Color _getColorForType(models.NotificationType type) {
     switch (type) {
       case models.NotificationType.like:
-        return Colors.red;
+        return MemoryHubColors.red600;
       case models.NotificationType.comment:
-        return Colors.blue;
+        return MemoryHubColors.blue600;
       case models.NotificationType.healthRecordAssignment:
       case models.NotificationType.healthReminderAssignment:
-        return Colors.teal;
+        return MemoryHubColors.teal600;
       case models.NotificationType.healthRecordApproved:
-        return Colors.green;
+        return MemoryHubColors.green600;
       case models.NotificationType.healthRecordRejected:
-        return Colors.red;
+        return MemoryHubColors.red600;
       case models.NotificationType.follow:
-        return Colors.green;
+        return MemoryHubColors.green600;
       case models.NotificationType.mention:
-        return Colors.purple;
+        return MemoryHubColors.purple600;
       case models.NotificationType.memoryShare:
-        return Colors.orange;
+        return MemoryHubColors.orange500;
       case models.NotificationType.hubInvite:
-        return Colors.indigo;
+        return MemoryHubColors.indigo600;
       default:
-        return Colors.grey;
+        return MemoryHubColors.gray500;
     }
   }
 }

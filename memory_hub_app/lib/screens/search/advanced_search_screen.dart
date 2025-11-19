@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
 
 class AdvancedSearchScreen extends StatefulWidget {
   const AdvancedSearchScreen({super.key});
@@ -17,15 +19,15 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Advanced Search', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text('Advanced Search', style: GoogleFonts.inter(fontWeight: MemoryHubTypography.bold)),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         children: [
-          Text('Content Type', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
+          Text('Content Type', style: GoogleFonts.inter(fontSize: 16, fontWeight: MemoryHubTypography.bold)),
+          VGap(MemoryHubSpacing.md),
           Wrap(
-            spacing: 8,
+            spacing: MemoryHubSpacing.sm,
             children: ['all', 'memories', 'files', 'people'].map((type) {
               return ChoiceChip(
                 label: Text(type),
@@ -34,9 +36,9 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
               );
             }).toList(),
           ),
-          const SizedBox(height: 24),
-          Text('Date Range', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
+          VGap(MemoryHubSpacing.xxl),
+          Text('Date Range', style: GoogleFonts.inter(fontSize: 16, fontWeight: MemoryHubTypography.bold)),
+          VGap(MemoryHubSpacing.md),
           DropdownButtonFormField<String>(
             value: _dateRange,
             items: ['any', 'today', 'week', 'month', 'year'].map((range) {
@@ -44,13 +46,13 @@ class _AdvancedSearchScreenState extends State<AdvancedSearchScreen> {
             }).toList(),
             onChanged: (value) => setState(() => _dateRange = value!),
           ),
-          const SizedBox(height: 24),
+          VGap(MemoryHubSpacing.xxl),
           SwitchListTile(
             title: Text('Has Media', style: GoogleFonts.inter()),
             value: _hasMedia,
             onChanged: (value) => setState(() => _hasMedia = value),
           ),
-          const SizedBox(height: 32),
+          VGap(MemoryHubSpacing.xxxl),
           FilledButton(
             onPressed: () {},
             child: const Text('Search'),

@@ -273,7 +273,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
         builder: (context, scrollController) => Container(
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: MemoryHubBorderRadius.xxlCircular),
           ),
           child: Column(
             children: [
@@ -283,7 +283,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
                 height: 4,
                 decoration: BoxDecoration(
                   color: MemoryHubColors.gray300,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: MemoryHubBorderRadius.xsRadius,
                 ),
               ),
               Padding(
@@ -354,7 +354,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
       builder: (context) => Container(
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: const BorderRadius.vertical(top: MemoryHubBorderRadius.xxlCircular),
         ),
         child: SafeArea(
           child: Column(
@@ -366,7 +366,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
                 height: 4,
                 decoration: BoxDecoration(
                   color: MemoryHubColors.gray300,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: MemoryHubBorderRadius.xsRadius,
                 ),
               ),
               ListTile(
@@ -395,26 +395,12 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
 
   void _showSuccessSnackBar(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: MemoryHubColors.green500,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+    AppSnackbar.success(context, message);
   }
 
   void _showErrorSnackBar(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: MemoryHubColors.red500,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+    AppSnackbar.error(context, message);
   }
 
   @override
@@ -641,9 +627,9 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
                 const SizedBox(height: MemoryHubSpacing.xs),
                 Text(
                   fullName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white70,
+                    color: Colors.white.withOpacity(0.7),
                   ),
                 ),
                 if (bio != null && bio.isNotEmpty) ...[
@@ -668,13 +654,13 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.calendar_today, size: 14, color: Colors.white70),
+                      Icon(Icons.calendar_today, size: 14, color: Colors.white.withOpacity(0.7)),
                       const SizedBox(width: 4),
                       Text(
                         memberSince,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: Colors.white70,
+                          color: Colors.white.withOpacity(0.7),
                         ),
                       ),
                     ],

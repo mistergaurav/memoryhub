@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../services/gdpr_service.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/components/buttons/primary_button.dart';
+import '../../design_system/layout/gap.dart';
+import '../../design_system/components/surfaces/app_card.dart';
 
 class ConsentManagementScreen extends StatefulWidget {
   const ConsentManagementScreen({Key? key}) : super(key: key);
@@ -61,9 +65,9 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Consent settings saved successfully'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Consent settings saved successfully'),
+            backgroundColor: MemoryHubColors.green500,
           ),
         );
       }
@@ -85,55 +89,57 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
         title: const Text('Privacy & Consent'),
         elevation: 0,
         flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.indigo.shade400, Colors.purple.shade400],
-            ),
+          decoration: const BoxDecoration(
+            gradient: MemoryHubGradients.primary,
           ),
         ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(MemoryHubSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.info_outline, color: Colors.blue.shade400),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'About Your Privacy',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                  AppCard(
+                    padding: EdgeInsets.all(MemoryHubSpacing.lg),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: MemoryHubColors.blue400,
+                            ),
+                            const HGap.xs(),
+                            Text(
+                              'About Your Privacy',
+                              style: TextStyle(
+                                fontSize: MemoryHubTypography.h4,
+                                fontWeight: MemoryHubTypography.bold,
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Your privacy matters to us. You have full control over how your data is used. '
-                            'Review and manage your consent preferences below.',
-                            style: TextStyle(color: Colors.grey.shade600),
-                          ),
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                        const VGap.sm(),
+                        Text(
+                          'Your privacy matters to us. You have full control over how your data is used. '
+                          'Review and manage your consent preferences below.',
+                          style: TextStyle(color: MemoryHubColors.gray600),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  const Text(
+                  const VGap.lg(),
+                  Text(
                     'Data Usage Permissions',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: MemoryHubTypography.h3,
+                      fontWeight: MemoryHubTypography.bold,
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const VGap.md(),
                   _buildConsentSwitch(
                     title: 'Analytics',
                     description: 'Allow us to collect anonymous usage data to improve our service',
@@ -162,66 +168,47 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
                     value: _dataSharingConsent,
                     onChanged: (value) => setState(() => _dataSharingConsent = value),
                   ),
-                  const SizedBox(height: 24),
-                  Card(
-                    color: Colors.amber.shade50,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.security, color: Colors.amber.shade700),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Your Rights',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.amber.shade900,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'You can withdraw your consent at any time. '
-                            'You also have the right to access, export, and delete your data.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.amber.shade900,
+                  const VGap.lg(),
+                  AppCard(
+                    color: MemoryHubColors.amber50,
+                    padding: EdgeInsets.all(MemoryHubSpacing.lg),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.security,
+                              color: MemoryHubColors.amber700,
                             ),
+                            const HGap.xs(),
+                            Text(
+                              'Your Rights',
+                              style: TextStyle(
+                                fontWeight: MemoryHubTypography.bold,
+                                color: MemoryHubColors.amber900,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const VGap.xs(),
+                        Text(
+                          'You can withdraw your consent at any time. '
+                          'You also have the right to access, export, and delete your data.',
+                          style: TextStyle(
+                            fontSize: MemoryHubTypography.bodySmall,
+                            color: MemoryHubColors.amber900,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : _saveConsentSettings,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.indigo,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: _isSaving
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : const Text(
-                              'Save Preferences',
-                              style: TextStyle(fontSize: 16, color: Colors.white),
-                            ),
-                    ),
+                  const VGap.lg(),
+                  PrimaryButton(
+                    onPressed: _isSaving ? null : _saveConsentSettings,
+                    label: 'Save Preferences',
+                    isLoading: _isSaving,
+                    fullWidth: true,
                   ),
                 ],
               ),
@@ -236,31 +223,37 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
     required bool value,
     required Function(bool) onChanged,
   }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: SwitchListTile(
-        secondary: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: value ? Colors.indigo.shade50 : Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(8),
+    return Padding(
+      padding: EdgeInsets.only(bottom: MemoryHubSpacing.sm),
+      child: AppCard(
+        padding: EdgeInsets.zero,
+        child: SwitchListTile(
+          secondary: Container(
+            padding: EdgeInsets.all(MemoryHubSpacing.sm),
+            decoration: BoxDecoration(
+              color: value ? MemoryHubColors.blue50 : MemoryHubColors.gray100,
+              borderRadius: MemoryHubBorderRadius.smRadius,
+            ),
+            child: Icon(
+              icon,
+              color: value ? MemoryHubColors.indigo500 : MemoryHubColors.gray600,
+            ),
           ),
-          child: Icon(
-            icon,
-            color: value ? Colors.indigo : Colors.grey.shade600,
+          title: Text(
+            title,
+            style: TextStyle(fontWeight: MemoryHubTypography.semiBold),
           ),
+          subtitle: Text(
+            description,
+            style: TextStyle(
+              fontSize: MemoryHubTypography.bodySmall,
+              color: MemoryHubColors.gray600,
+            ),
+          ),
+          value: value,
+          onChanged: onChanged,
+          activeColor: MemoryHubColors.indigo500,
         ),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          description,
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-        ),
-        value: value,
-        onChanged: onChanged,
-        activeColor: Colors.indigo,
       ),
     );
   }

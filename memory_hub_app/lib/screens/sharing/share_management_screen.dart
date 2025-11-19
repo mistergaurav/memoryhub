@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'qr_code_screen.dart';
+import '../../design_system/design_system.dart';
 
 class ShareManagementScreen extends StatefulWidget {
   const ShareManagementScreen({Key? key}) : super(key: key);
@@ -94,18 +95,11 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
       await Future.delayed(const Duration(milliseconds: 500));
       _loadShares();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Share link revoked successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        AppSnackbar.success(context, 'Share link revoked successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to revoke share: $e')),
-        );
+        AppSnackbar.error(context, 'Failed to revoke share: $e');
       }
     }
   }
@@ -134,7 +128,7 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.indigo.shade400, Colors.purple.shade400],
+              colors: [MemoryHubColors.indigo500, MemoryHubColors.purple500],
             ),
           ),
         ),
@@ -152,25 +146,26 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.share, size: 64, color: Colors.grey.shade400),
-                      const SizedBox(height: 16),
+                      Icon(Icons.share, size: 64, color: MemoryHubColors.gray400),
+                      const VGap.lg(),
                       Text(
                         'No active shares',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey.shade600,
+                        style: context.text.titleMedium?.copyWith(
+                          color: MemoryHubColors.gray600,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const VGap.sm(),
                       Text(
                         'Share memories, collections, or files to see them here',
-                        style: TextStyle(color: Colors.grey.shade500),
+                        style: context.text.bodyMedium?.copyWith(
+                          color: MemoryHubColors.gray500,
+                        ),
                       ),
                     ],
                   ),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(Spacing.lg),
                   itemCount: _shares.length,
                   itemBuilder: (context, index) {
                     final share = _shares[index];
@@ -180,33 +175,31 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
                         share['use_count'] >= share['max_uses'];
                     final isActive = !isExpired && !isMaxedOut;
 
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: Spacing.md),
+                      child: AppCard(
+                        child: Padded.lg(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
                                 _getResourceIcon(share['resource_type']),
-                                const SizedBox(width: 12),
+                                const HGap.md(),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         share['resource_title'],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
+                                        style: context.text.bodyLarge?.copyWith(
+                                          fontWeight: MemoryHubTypography.bold,
                                         ),
                                       ),
                                       Text(
                                         share['resource_type'].toUpperCase(),
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey.shade600,
+                                        style: context.text.bodySmall?.copyWith(
+                                          color: MemoryHubColors.gray600,
                                         ),
                                       ),
                                     ],
@@ -215,63 +208,63 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
                                 Chip(
                                   label: Text(
                                     isActive ? 'Active' : (isExpired ? 'Expired' : 'Maxed Out'),
-                                    style: const TextStyle(fontSize: 11),
+                                    style: context.text.labelSmall,
                                   ),
                                   backgroundColor: isActive
-                                      ? Colors.green.shade50
-                                      : Colors.red.shade50,
+                                      ? MemoryHubColors.green500.withOpacity(0.1)
+                                      : MemoryHubColors.red500.withOpacity(0.1),
                                   labelStyle: TextStyle(
-                                    color: isActive ? Colors.green.shade700 : Colors.red.shade700,
+                                    color: isActive ? MemoryHubColors.green600 : MemoryHubColors.red600,
                                   ),
                                 ),
                               ],
                             ),
-                            const Divider(height: 24),
+                            const Divider(height: MemoryHubSpacing.xxl),
                             Wrap(
-                              spacing: 16,
-                              runSpacing: 8,
+                              spacing: Spacing.lg,
+                              runSpacing: Spacing.sm,
                               children: [
                                 if (share['password_protected'])
-                                  _buildInfoChip(Icons.lock, 'Password Protected'),
+                                  _buildInfoChip(context, Icons.lock, 'Password Protected'),
                                 if (share['expires_at'] != null)
                                   _buildInfoChip(
+                                    context,
                                     Icons.calendar_today,
                                     'Expires ${DateFormat.yMMMd().format(share['expires_at'])}',
                                   ),
                                 if (share['max_uses'] != null)
                                   _buildInfoChip(
+                                    context,
                                     Icons.visibility,
                                     '${share['use_count']}/${share['max_uses']} uses',
                                   ),
                                 if (share['max_uses'] == null)
                                   _buildInfoChip(
+                                    context,
                                     Icons.visibility,
                                     '${share['use_count']} views',
                                   ),
                               ],
                             ),
-                            const SizedBox(height: 16),
+                            const VGap.lg(),
                             Row(
                               children: [
                                 Expanded(
-                                  child: OutlinedButton.icon(
+                                  child: SecondaryButton(
                                     onPressed: () => _viewQRCode(share),
-                                    icon: const Icon(Icons.qr_code, size: 18),
-                                    label: const Text('QR Code'),
-                                    style: OutlinedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(vertical: 12),
-                                    ),
+                                    label: 'QR Code',
+                                    leading: const Icon(Icons.qr_code, size: 18),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                const HGap.sm(),
                                 Expanded(
                                   child: ElevatedButton.icon(
                                     onPressed: () => _revokeShare(share['id']),
                                     icon: const Icon(Icons.delete_outline, size: 18),
                                     label: const Text('Revoke'),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
-                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                      backgroundColor: MemoryHubColors.red500,
+                                      foregroundColor: Colors.white,
                                     ),
                                   ),
                                 ),
@@ -279,6 +272,7 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
                             ),
                           ],
                         ),
+                      ),
                       ),
                     );
                   },
@@ -293,37 +287,37 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
     switch (type) {
       case 'memory':
         icon = Icons.photo_library;
-        color = Colors.blue;
+        color = MemoryHubColors.blue500;
         break;
       case 'collection':
         icon = Icons.collections;
-        color = Colors.purple;
+        color = MemoryHubColors.purple500;
         break;
       case 'file':
         icon = Icons.insert_drive_file;
-        color = Colors.orange;
+        color = MemoryHubColors.amber500;
         break;
       default:
         icon = Icons.share;
-        color = Colors.grey;
+        color = MemoryHubColors.gray500;
     }
 
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(Spacing.sm),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: MemoryHubBorderRadius.smRadius,
       ),
       child: Icon(icon, color: color),
     );
   }
 
-  Widget _buildInfoChip(IconData icon, String label) {
+  Widget _buildInfoChip(BuildContext context, IconData icon, String label) {
     return Chip(
       avatar: Icon(icon, size: 16),
-      label: Text(label, style: const TextStyle(fontSize: 11)),
-      backgroundColor: Colors.grey.shade100,
-      labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+      label: Text(label, style: context.text.labelSmall),
+      backgroundColor: MemoryHubColors.gray100,
+      labelPadding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
       visualDensity: VisualDensity.compact,
     );
   }

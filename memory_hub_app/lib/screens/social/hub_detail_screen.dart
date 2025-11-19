@@ -171,7 +171,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                   child: ListTile(
                                     leading: memory['image_url'] != null
                                         ? ClipRRect(
-                                            borderRadius: BorderRadius.circular(Spacing.sm),
+                                            borderRadius: MemoryHubBorderRadius.smRadius,
                                           child: Image.network(
                                             ApiConfig.getAssetUrl(memory['image_url']),
                                             width: 60,
@@ -192,7 +192,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                           height: 60,
                                           decoration: BoxDecoration(
                                             color: context.colors.primaryContainer,
-                                            borderRadius: BorderRadius.circular(Spacing.sm),
+                                            borderRadius: MemoryHubBorderRadius.smRadius,
                                           ),
                                           child: Icon(
                                             Icons.photo,

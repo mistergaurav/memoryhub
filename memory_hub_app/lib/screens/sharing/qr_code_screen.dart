@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../../design_system/design_system.dart';
 
 class QRCodeScreen extends StatelessWidget {
   final String shareUrl;
@@ -16,13 +17,7 @@ class QRCodeScreen extends StatelessWidget {
 
   void _copyToClipboard(BuildContext context) {
     Clipboard.setData(ClipboardData(text: shareUrl));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Link copied to clipboard'),
-        duration: Duration(seconds: 2),
-        backgroundColor: Colors.green,
-      ),
-    );
+    AppSnackbar.success(context, 'Link copied to clipboard');
   }
 
   @override
@@ -34,59 +29,52 @@ class QRCodeScreen extends StatelessWidget {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.indigo.shade400, Colors.purple.shade400],
+              colors: [MemoryHubColors.indigo500, MemoryHubColors.purple500],
             ),
           ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(Spacing.xxl),
         child: Column(
           children: [
-            const SizedBox(height: 20),
+            const VGap.xl(),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+              style: context.text.headlineSmall?.copyWith(
+                fontWeight: MemoryHubTypography.bold,
               ),
               textAlign: TextAlign.center,
             ),
             if (description != null) ...[
-              const SizedBox(height: 8),
+              const VGap.sm(),
               Text(
                 description!,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade600,
+                style: context.text.bodyMedium?.copyWith(
+                  color: MemoryHubColors.gray600,
                 ),
                 textAlign: TextAlign.center,
               ),
             ],
-            const SizedBox(height: 32),
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
+            const VGap.xxxl(),
+            AppCard(
+              child: Padded.xxl(
                 child: Column(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(Spacing.lg),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: MemoryHubBorderRadius.mdRadius,
+                        border: Border.all(color: MemoryHubColors.gray300),
                       ),
                       child: Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(Spacing.lg),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: MemoryHubBorderRadius.smRadius,
                             ),
                             child: QrImageView(
                               data: shareUrl,
@@ -97,12 +85,11 @@ class QRCodeScreen extends StatelessWidget {
                               embeddedImage: null,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const VGap.lg(),
                           Text(
                             'Scan this QR code to access',
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 12,
+                            style: context.text.bodySmall?.copyWith(
+                              color: MemoryHubColors.gray600,
                             ),
                           ),
                         ],
@@ -112,30 +99,28 @@ class QRCodeScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 32),
-            const Text(
+            const VGap.xxxl(),
+            Text(
               'Share Link',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+              style: context.text.bodyLarge?.copyWith(
+                fontWeight: MemoryHubTypography.bold,
               ),
             ),
-            const SizedBox(height: 12),
+            const VGap.md(),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(Spacing.lg),
               decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
+                color: MemoryHubColors.gray100,
+                borderRadius: MemoryHubBorderRadius.mdRadius,
+                border: Border.all(color: MemoryHubColors.gray300),
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
                       shareUrl,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade700,
+                      style: context.text.bodySmall?.copyWith(
+                        color: MemoryHubColors.gray700,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -148,40 +133,24 @@ class QRCodeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const VGap.xxl(),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton.icon(
+              child: PrimaryButton(
                 onPressed: () => _copyToClipboard(context),
-                icon: const Icon(Icons.copy),
-                label: const Text('Copy Link'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.indigo,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                label: 'Copy Link',
+                leading: const Icon(Icons.copy, size: 20),
               ),
             ),
-            const SizedBox(height: 12),
+            const VGap.md(),
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton.icon(
+              child: SecondaryButton(
                 onPressed: () {
-                  // TODO: Implement share sheet
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Share functionality coming soon')),
-                  );
+                  AppSnackbar.info(context, 'Share functionality coming soon');
                 },
-                icon: const Icon(Icons.share),
-                label: const Text('Share via...'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                label: 'Share via...',
+                leading: const Icon(Icons.share, size: 20),
               ),
             ),
           ],

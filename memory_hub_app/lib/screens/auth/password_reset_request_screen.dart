@@ -92,20 +92,20 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
               hintText: 'your@email.com',
               prefixIcon: const Icon(Icons.email_outlined),
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: Spacing.md,
-                vertical: Spacing.md,
+                horizontal: MemoryHubSpacing.lg,
+                vertical: MemoryHubSpacing.lg,
               ),
               border: OutlineInputBorder(
-                borderRadius: Radii.lgRadius,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: Radii.lgRadius,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
                 borderSide: BorderSide(
                   color: context.colors.outline,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: Radii.lgRadius,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
                 borderSide: BorderSide(
                   color: context.colors.primary,
                   width: 2,
@@ -149,7 +149,7 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
       children: [
         const VGap.xl(),
         Container(
-          padding: const EdgeInsets.all(Spacing.lg),
+          padding: const EdgeInsets.all(MemoryHubSpacing.xl),
           decoration: BoxDecoration(
             color: context.colors.primaryContainer,
             shape: BoxShape.circle,
@@ -185,10 +185,10 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
         ),
         const VGap.xl(),
         Container(
-          padding: const EdgeInsets.all(Spacing.md),
+          padding: const EdgeInsets.all(MemoryHubSpacing.lg),
           decoration: BoxDecoration(
             color: context.colors.tertiaryContainer,
-            borderRadius: Radii.lgRadius,
+            borderRadius: MemoryHubBorderRadius.lgRadius,
             border: Border.all(color: context.colors.tertiary.withOpacity(0.3)),
           ),
           child: Row(

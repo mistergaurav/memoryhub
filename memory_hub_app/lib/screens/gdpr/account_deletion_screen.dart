@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../services/gdpr_service.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/components/buttons/danger_button.dart';
+import '../../design_system/components/buttons/primary_button.dart';
+import '../../design_system/components/inputs/text_field_x.dart';
+import '../../design_system/layout/gap.dart';
+import '../../design_system/components/surfaces/app_card.dart';
 
 class AccountDeletionScreen extends StatefulWidget {
   const AccountDeletionScreen({Key? key}) : super(key: key);
@@ -47,9 +53,9 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
   Future<void> _requestDeletion() async {
     if (_confirmationController.text.toLowerCase() != 'delete my account') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please type the confirmation text exactly as shown'),
-          backgroundColor: Colors.red,
+        SnackBar(
+          content: const Text('Please type the confirmation text exactly as shown'),
+          backgroundColor: MemoryHubColors.red500,
         ),
       );
       return;
@@ -68,9 +74,11 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancel'),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(
+              backgroundColor: MemoryHubColors.red500,
+            ),
             child: const Text('Yes, Delete My Account'),
           ),
         ],
@@ -90,9 +98,9 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Account deletion scheduled. You have 30 days to cancel.'),
-            backgroundColor: Colors.orange,
+          SnackBar(
+            content: const Text('Account deletion scheduled. You have 30 days to cancel.'),
+            backgroundColor: MemoryHubColors.amber500,
           ),
         );
       }
@@ -117,9 +125,9 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Account deletion cancelled successfully'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Text('Account deletion cancelled successfully'),
+            backgroundColor: MemoryHubColors.green500,
           ),
         );
       }
@@ -139,104 +147,109 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
       appBar: AppBar(
         title: const Text('Delete Account'),
         elevation: 0,
-        backgroundColor: Colors.red.shade700,
+        backgroundColor: MemoryHubColors.red600,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(MemoryHubSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (_hasPendingDeletion) ...[
-              Card(
-                color: Colors.orange.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.warning_amber, color: Colors.orange.shade700, size: 32),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Text(
-                              'Deletion Scheduled',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+              AppCard(
+                color: MemoryHubColors.amber50,
+                padding: EdgeInsets.all(MemoryHubSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.warning_amber,
+                          color: MemoryHubColors.amber700,
+                          size: MemoryHubSpacing.xxl,
+                        ),
+                        const HGap.sm(),
+                        Expanded(
+                          child: Text(
+                            'Deletion Scheduled',
+                            style: TextStyle(
+                              fontSize: MemoryHubTypography.h4,
+                              fontWeight: MemoryHubTypography.bold,
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Your account is scheduled for deletion on '
-                        '${_deletionScheduledDate != null ? _deletionScheduledDate.toString().substring(0, 10) : 'N/A'}.',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'You can cancel this request anytime before the deletion date.',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _isProcessing ? null : _cancelDeletion,
-                          icon: const Icon(Icons.cancel),
-                          label: const Text('Cancel Deletion Request'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                    const VGap.sm(),
+                    Text(
+                      'Your account is scheduled for deletion on '
+                      '${_deletionScheduledDate != null ? _deletionScheduledDate.toString().substring(0, 10) : 'N/A'}.',
+                      style: TextStyle(fontSize: MemoryHubTypography.bodyMedium),
+                    ),
+                    const VGap.xs(),
+                    Text(
+                      'You can cancel this request anytime before the deletion date.',
+                      style: TextStyle(fontSize: MemoryHubTypography.bodySmall),
+                    ),
+                    const VGap.md(),
+                    PrimaryButton(
+                      onPressed: _isProcessing ? null : _cancelDeletion,
+                      label: 'Cancel Deletion Request',
+                      leading: const Icon(Icons.cancel),
+                      isLoading: _isProcessing,
+                      fullWidth: true,
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const VGap.lg(),
             ] else ...[
-              Card(
-                color: Colors.red.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.error_outline, color: Colors.red.shade700, size: 32),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Text(
-                              'Warning',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
-                              ),
+              AppCard(
+                color: MemoryHubColors.red50,
+                padding: EdgeInsets.all(MemoryHubSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: MemoryHubColors.red600,
+                          size: MemoryHubSpacing.xxl,
+                        ),
+                        const HGap.sm(),
+                        Expanded(
+                          child: Text(
+                            'Warning',
+                            style: TextStyle(
+                              fontSize: MemoryHubTypography.h4,
+                              fontWeight: MemoryHubTypography.bold,
+                              color: MemoryHubColors.red500,
                             ),
                           ),
-                        ],
+                        ),
+                      ],
+                    ),
+                    const VGap.sm(),
+                    Text(
+                      'Deleting your account is permanent and cannot be undone.',
+                      style: TextStyle(
+                        fontSize: MemoryHubTypography.bodyMedium,
+                        fontWeight: MemoryHubTypography.bold,
                       ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Deleting your account is permanent and cannot be undone.',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 24),
-              const Text(
+              const VGap.lg(),
+              Text(
                 'What happens when you delete your account?',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: MemoryHubTypography.h4,
+                  fontWeight: MemoryHubTypography.bold,
+                ),
               ),
-              const SizedBox(height: 16),
+              const VGap.md(),
               _buildInfoItem(
                 icon: Icons.delete_forever,
                 title: 'All data will be deleted',
@@ -257,52 +270,25 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
                 title: 'No recovery',
                 description: 'After 30 days, recovery will be impossible',
               ),
-              const SizedBox(height: 32),
-              const Text(
+              const VGap.xl(),
+              Text(
                 'Type "DELETE MY ACCOUNT" to confirm:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: MemoryHubTypography.h5,
+                  fontWeight: MemoryHubTypography.semiBold,
+                ),
               ),
-              const SizedBox(height: 12),
-              TextField(
+              const VGap.sm(),
+              TextFieldX(
                 controller: _confirmationController,
-                decoration: InputDecoration(
-                  hintText: 'DELETE MY ACCOUNT',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.red),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.red, width: 2),
-                  ),
-                ),
+                hint: 'DELETE MY ACCOUNT',
               ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isProcessing ? null : _requestDeletion,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: _isProcessing
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
-                      : const Text(
-                          'Request Account Deletion',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                ),
+              const VGap.lg(),
+              DangerButton(
+                onPressed: _isProcessing ? null : _requestDeletion,
+                label: 'Request Account Deletion',
+                isLoading: _isProcessing,
+                fullWidth: true,
               ),
             ],
           ],
@@ -317,36 +303,40 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
     required String description,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: EdgeInsets.only(bottom: MemoryHubSpacing.lg),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(MemoryHubSpacing.sm),
             decoration: BoxDecoration(
-              color: Colors.red.shade50,
-              borderRadius: BorderRadius.circular(8),
+              color: MemoryHubColors.red50,
+              borderRadius: MemoryHubBorderRadius.smRadius,
             ),
-            child: Icon(icon, color: Colors.red.shade700, size: 24),
+            child: Icon(
+              icon,
+              color: MemoryHubColors.red600,
+              size: MemoryHubSpacing.xl,
+            ),
           ),
-          const SizedBox(width: 16),
+          const HGap.md(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontWeight: MemoryHubTypography.semiBold,
+                    fontSize: MemoryHubTypography.bodyMedium,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const VGap.xxs(),
                 Text(
                   description,
                   style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
+                    fontSize: MemoryHubTypography.bodySmall,
+                    color: MemoryHubColors.gray600,
                   ),
                 ),
               ],

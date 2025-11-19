@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/reactions_service.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
 
 class ReactionsScreen extends StatefulWidget {
   final String targetId;
@@ -144,7 +146,7 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.indigo.shade400, Colors.purple.shade400],
+              colors: [MemoryHubColors.indigo500, MemoryHubColors.purple500],
             ),
           ),
         ),
@@ -152,12 +154,12 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
       body: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(MemoryHubSpacing.lg),
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: MemoryHubColors.gray200,
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -166,26 +168,29 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'React to this',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontWeight: MemoryHubTypography.bold),
                 ),
-                const SizedBox(height: 12),
+                VGap(MemoryHubSpacing.md),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: MemoryHubSpacing.sm,
+                  runSpacing: MemoryHubSpacing.sm,
                   children: _availableReactions.map((emoji) {
                     final count = _reactions[emoji]?.length ?? 0;
                     return InkWell(
                       onTap: () => _addReaction(emoji),
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: MemoryHubBorderRadius.fullRadius,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: MemoryHubSpacing.md,
+                          vertical: MemoryHubSpacing.sm,
+                        ),
                         decoration: BoxDecoration(
-                          color: count > 0 ? Colors.indigo.shade50 : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(24),
+                          color: count > 0 ? MemoryHubColors.indigo100 : MemoryHubColors.gray100,
+                          borderRadius: MemoryHubBorderRadius.fullRadius,
                           border: Border.all(
-                            color: count > 0 ? Colors.indigo.shade200 : Colors.grey.shade300,
+                            color: count > 0 ? MemoryHubColors.indigo200 : MemoryHubColors.gray300,
                           ),
                         ),
                         child: Row(
@@ -193,12 +198,12 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
                           children: [
                             Text(emoji, style: const TextStyle(fontSize: 20)),
                             if (count > 0) ...[
-                              const SizedBox(width: 6),
+                              HGap(MemoryHubSpacing.xs + 2),
                               Text(
                                 count.toString(),
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.indigo.shade700,
+                                  fontWeight: MemoryHubTypography.bold,
+                                  color: MemoryHubColors.indigo700,
                                 ),
                               ),
                             ],
@@ -212,7 +217,10 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: EdgeInsets.symmetric(
+              horizontal: MemoryHubSpacing.lg,
+              vertical: MemoryHubSpacing.sm,
+            ),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -233,22 +241,22 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.sentiment_satisfied, size: 64, color: Colors.grey.shade400),
-                            const SizedBox(height: 16),
+                            Icon(Icons.sentiment_satisfied, size: 64, color: MemoryHubColors.gray400),
+                            VGap(MemoryHubSpacing.lg),
                             Text(
                               'No reactions yet',
-                              style: TextStyle(color: Colors.grey.shade600),
+                              style: TextStyle(color: MemoryHubColors.gray600),
                             ),
                           ],
                         ),
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.all(16),
+                        padding: EdgeInsets.all(MemoryHubSpacing.lg),
                         itemCount: _filteredUsers.length,
                         itemBuilder: (context, index) {
                           final user = _filteredUsers[index];
                           return Card(
-                            margin: const EdgeInsets.only(bottom: 8),
+                            margin: EdgeInsets.only(bottom: MemoryHubSpacing.sm),
                             child: ListTile(
                               leading: Stack(
                                 children: [
@@ -264,7 +272,7 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
                                     right: -2,
                                     bottom: -2,
                                     child: Container(
-                                      padding: const EdgeInsets.all(2),
+                                      padding: EdgeInsets.all(MemoryHubSpacing.xs / 2),
                                       decoration: const BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
@@ -279,7 +287,7 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
                               ),
                               title: Text(
                                 user['userName'],
-                                style: const TextStyle(fontWeight: FontWeight.w600),
+                                style: TextStyle(fontWeight: MemoryHubTypography.semiBold),
                               ),
                               trailing: user['userId'] == '1' // TODO: Check if current user
                                   ? IconButton(
@@ -300,26 +308,29 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
   Widget _buildFilterChip(String value, String label, int count) {
     final isSelected = _selectedReaction == value;
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: MemoryHubSpacing.sm),
       child: FilterChip(
         selected: isSelected,
         label: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(label),
-            const SizedBox(width: 4),
+            HGap(MemoryHubSpacing.xs),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: EdgeInsets.symmetric(
+                horizontal: MemoryHubSpacing.xs + 2,
+                vertical: MemoryHubSpacing.xs / 2,
+              ),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(12),
+                color: isSelected ? Colors.white : MemoryHubColors.gray200,
+                borderRadius: MemoryHubBorderRadius.mdRadius,
               ),
               child: Text(
                 count.toString(),
                 style: TextStyle(
                   fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: isSelected ? Colors.indigo : Colors.grey.shade700,
+                  fontWeight: MemoryHubTypography.bold,
+                  color: isSelected ? MemoryHubColors.indigo600 : MemoryHubColors.gray700,
                 ),
               ),
             ),
@@ -328,7 +339,7 @@ class _ReactionsScreenState extends State<ReactionsScreen> {
         onSelected: (selected) {
           setState(() => _selectedReaction = value);
         },
-        selectedColor: Colors.indigo.shade100,
+        selectedColor: MemoryHubColors.indigo100,
       ),
     );
   }

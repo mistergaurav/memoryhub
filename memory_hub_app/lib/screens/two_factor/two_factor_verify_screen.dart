@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
+import 'package:memory_hub_app/design_system/design_tokens.dart';
 
 class TwoFactorVerifyScreen extends StatelessWidget {
   const TwoFactorVerifyScreen({super.key});
@@ -53,20 +54,20 @@ class TwoFactorVerifyScreen extends StatelessWidget {
                 hintText: '000000',
                 counterText: '',
                 contentPadding: const EdgeInsets.symmetric(
-                  horizontal: Spacing.md,
-                  vertical: Spacing.lg,
+                  horizontal: MemoryHubSpacing.lg,
+                  vertical: MemoryHubSpacing.xl,
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: Radii.lgRadius,
+                  borderRadius: MemoryHubBorderRadius.lgRadius,
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: Radii.lgRadius,
+                  borderRadius: MemoryHubBorderRadius.lgRadius,
                   borderSide: BorderSide(
                     color: context.colors.outline,
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: Radii.lgRadius,
+                  borderRadius: MemoryHubBorderRadius.lgRadius,
                   borderSide: BorderSide(
                     color: context.colors.primary,
                     width: 2,

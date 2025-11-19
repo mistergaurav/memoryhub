@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/api_service.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
+import '../../design_system/components/inputs/text_field_x.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -37,7 +40,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Categories', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text('Categories', style: GoogleFonts.inter(fontWeight: MemoryHubTypography.bold)),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -60,21 +63,21 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.category_outlined, size: 80, color: Colors.grey.withOpacity(0.5)),
-          const SizedBox(height: 16),
+          Icon(Icons.category_outlined, size: 80, color: MemoryHubColors.gray400.withOpacity(0.5)),
+          const VGap.lg(),
           Text(
             'No Categories',
             style: GoogleFonts.inter(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+              fontSize: MemoryHubTypography.h2,
+              fontWeight: MemoryHubTypography.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          const VGap.xs(),
           Text(
             'Create your first category',
             style: GoogleFonts.inter(
-              fontSize: 16,
-              color: Colors.grey,
+              fontSize: MemoryHubTypography.bodyLarge,
+              color: MemoryHubColors.gray500,
             ),
           ),
         ],
@@ -84,12 +87,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   Widget _buildCategoriesGrid() {
     return GridView.builder(
-      padding: const EdgeInsets.all(20),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 1.3,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
+        crossAxisSpacing: MemoryHubSpacing.lg,
+        mainAxisSpacing: MemoryHubSpacing.lg,
       ),
       itemCount: _categories.length,
       itemBuilder: (context, index) {
@@ -101,14 +104,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   Widget _buildCategoryCard(Map<String, dynamic> category) {
     final colors = [
-      Colors.purple,
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.pink,
-      Colors.teal,
-      Colors.indigo,
-      Colors.amber,
+      MemoryHubColors.purple500,
+      MemoryHubColors.blue500,
+      MemoryHubColors.green500,
+      MemoryHubColors.amber500,
+      MemoryHubColors.pink500,
+      MemoryHubColors.teal500,
+      MemoryHubColors.indigo500,
+      MemoryHubColors.cyan500,
     ];
     final color = colors[category['name'].hashCode % colors.length];
 
@@ -116,7 +119,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       onTap: () {
         Navigator.pushNamed(context, '/categories/detail', arguments: category['id']);
       },
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: MemoryHubBorderRadius.xlRadius,
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -124,28 +127,28 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: MemoryHubBorderRadius.xlRadius,
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.3),
-              blurRadius: 12,
+              blurRadius: MemoryHubSpacing.md,
               offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(MemoryHubSpacing.xl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(MemoryHubSpacing.sm + 2),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: MemoryHubBorderRadius.mdRadius,
                 ),
-                child: Icon(
-                  _getCategoryIcon(category['name']),
+                child: const Icon(
+                  Icons.category,
                   color: Colors.white,
                   size: 28,
                 ),
@@ -155,16 +158,16 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 category['name'],
                 style: GoogleFonts.inter(
                   color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontSize: MemoryHubTypography.h4,
+                  fontWeight: MemoryHubTypography.bold,
                 ),
               ),
-              const SizedBox(height: 4),
+              const VGap(4),
               Text(
                 '${category['memory_count'] ?? 0} memories',
                 style: GoogleFonts.inter(
                   color: Colors.white.withOpacity(0.9),
-                  fontSize: 13,
+                  fontSize: MemoryHubTypography.bodySmall + 1,
                 ),
               ),
             ],
@@ -174,29 +177,16 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  IconData _getCategoryIcon(String name) {
-    final lowercaseName = name.toLowerCase();
-    if (lowercaseName.contains('family')) return Icons.family_restroom;
-    if (lowercaseName.contains('travel')) return Icons.flight;
-    if (lowercaseName.contains('work')) return Icons.work;
-    if (lowercaseName.contains('food')) return Icons.restaurant;
-    if (lowercaseName.contains('birthday')) return Icons.cake;
-    return Icons.category;
-  }
-
   void _showCreateCategoryDialog() {
     final nameController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('New Category', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
-        content: TextField(
+        title: Text('New Category', style: GoogleFonts.inter(fontWeight: MemoryHubTypography.bold)),
+        content: TextFieldX(
           controller: nameController,
-          decoration: const InputDecoration(
-            hintText: 'Category name',
-            prefixIcon: Icon(Icons.category),
-          ),
-          autofocus: true,
+          hint: 'Category name',
+          prefix: const Icon(Icons.category),
         ),
         actions: [
           TextButton(
