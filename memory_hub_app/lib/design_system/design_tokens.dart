@@ -4,11 +4,15 @@ class MemoryHubColors {
   static const Color primary = Color(0xFF4F46E5);
   
   static const Color blue50 = Color(0xFFEFF6FF);
+  static const Color blue100 = Color(0xFFDBEAFE);
   static const Color blue200 = Color(0xFFBFDBFE);
   static const Color blue400 = Color(0xFF60A5FA);
   static const Color blue500 = Color(0xFF3B82F6);
+  static const Color blue600 = Color(0xFF2563EB);
   static const Color blue700 = Color(0xFF1D4ED8);
   
+  static const Color indigo100 = Color(0xFFE0E7FF);
+  static const Color indigo200 = Color(0xFFC7D2FE);
   static const Color indigo500 = Color(0xFF6366F1);
   static const Color indigo400 = Color(0xFF818CF8);
   static const Color indigo600 = Color(0xFF4F46E5);
@@ -33,6 +37,9 @@ class MemoryHubColors {
   static const Color yellow400 = Color(0xFFFACC15);
   static const Color yellow500 = Color(0xFFEAB308);
   
+  static const Color orange500 = Color(0xFFF97316);
+  
+  static const Color amber50 = Color(0xFFFFFBEB);
   static const Color amber500 = Color(0xFFF59E0B);
   static const Color amber400 = Color(0xFFFBBF24);
   static const Color amber600 = Color(0xFFD97706);
@@ -92,6 +99,7 @@ class MemoryHubBorderRadius {
   static BorderRadius get lgRadius => BorderRadius.circular(lg);
   static BorderRadius get xlRadius => BorderRadius.circular(xl);
   static BorderRadius get xxlRadius => BorderRadius.circular(xxl);
+  static Radius get xxlCircular => Radius.circular(xxl);
   static BorderRadius get fullRadius => BorderRadius.circular(999);
 }
 

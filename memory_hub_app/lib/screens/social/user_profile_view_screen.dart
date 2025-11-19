@@ -12,6 +12,7 @@ import '../../widgets/gradient_container.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../design_system/design_tokens.dart';
+import '../../design_system/components/feedback/app_snackbar.dart';
 
 class UserProfileViewScreen extends StatefulWidget {
   final String userId;
@@ -273,7 +274,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
         builder: (context, scrollController) => Container(
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: const BorderRadius.vertical(top: MemoryHubBorderRadius.xxlCircular),
+            borderRadius: BorderRadius.vertical(top: MemoryHubBorderRadius.xxlCircular),
           ),
           child: Column(
             children: [
@@ -354,7 +355,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
       builder: (context) => Container(
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: MemoryHubBorderRadius.xxlCircular),
+          borderRadius: BorderRadius.vertical(top: MemoryHubBorderRadius.xxlCircular),
         ),
         child: SafeArea(
           child: Column(

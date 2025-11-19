@@ -784,9 +784,10 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
       itemCount: _members.length,
       itemBuilder: (context, index) {
         final member = _members[index];
-        return AppCard(
-          margin: const EdgeInsets.only(bottom: Spacing.md),
-          child: ListTile(
+        return Padding(
+          padding: const EdgeInsets.only(bottom: Spacing.md),
+          child: AppCard(
+            child: ListTile(
             leading: CircleAvatar(
               backgroundColor: Theme.of(context).colorScheme.primary,
               backgroundImage: member['user_avatar'] != null
@@ -854,6 +855,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
               );
             },
           ),
+        ),
         );
       },
     );
