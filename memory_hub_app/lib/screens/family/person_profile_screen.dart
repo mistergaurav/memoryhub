@@ -106,7 +106,7 @@ class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTi
 
   Widget _buildHeader() {
     return Container(
-      padding: const Spacing.md,
+      padding: const EdgeInsets.all(MemoryHubSpacing.md),
       child: Row(
         children: [
           CircleAvatar(
@@ -165,7 +165,7 @@ class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTi
 
   Widget _buildAboutTab() {
     return SingleChildScrollView(
-      padding: const Spacing.md,
+      padding: const EdgeInsets.all(MemoryHubSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -227,7 +227,7 @@ class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTi
     }
 
     return ListView.builder(
-      padding: const Spacing.xs,
+      padding: EdgeInsets.all(MemoryHubSpacing.xs),
       itemCount: _memories.length,
       itemBuilder: (context, index) {
         return MemoryCard(memory: _memories[index]);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../services/api_service.dart';
+import '../../design_system/design_system.dart';
 
 class PlacesScreen extends StatefulWidget {
   const PlacesScreen({super.key});
@@ -45,13 +45,13 @@ class _PlacesScreenState extends State<PlacesScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Places', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text('Places', style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Theme.of(context).colorScheme.primary,
-          labelColor: Theme.of(context).colorScheme.primary,
-          unselectedLabelColor: Colors.grey,
-          labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600),
+          indicatorColor: context.colors.primary,
+          labelColor: context.colors.primary,
+          unselectedLabelColor: context.colors.outline,
+          labelStyle: context.text.labelLarge?.copyWith(fontWeight: FontWeight.w600),
           tabs: const [
             Tab(text: 'Saved Places'),
             Tab(text: 'Nearby'),
@@ -99,24 +99,22 @@ class _PlacesScreenState extends State<PlacesScreen> with SingleTickerProviderSt
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.explore_outlined, size: 80, color: Colors.grey.withOpacity(0.5)),
-          const SizedBox(height: 16),
+          Icon(Icons.explore_outlined, size: 80, color: context.colors.outline.withOpacity(0.5)),
+          const VGap.lg(),
           Text(
             'Find Nearby Places',
-            style: GoogleFonts.inter(
-              fontSize: 24,
+            style: context.text.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          const VGap.xs(),
           Text(
             'Enable location to discover nearby places',
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: Colors.grey,
+            style: context.text.bodyLarge?.copyWith(
+              color: context.colors.outline,
             ),
           ),
-          const SizedBox(height: 24),
+          const VGap.xl(),
           FilledButton.icon(
             onPressed: () {
               // Request location permission
@@ -134,21 +132,19 @@ class _PlacesScreenState extends State<PlacesScreen> with SingleTickerProviderSt
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.place_outlined, size: 80, color: Colors.grey.withOpacity(0.5)),
-          const SizedBox(height: 16),
+          Icon(Icons.place_outlined, size: 80, color: context.colors.outline.withOpacity(0.5)),
+          const VGap.lg(),
           Text(
             'No Places Yet',
-            style: GoogleFonts.inter(
-              fontSize: 24,
+            style: context.text.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 8),
+          const VGap.xs(),
           Text(
             'Add your favorite places',
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              color: Colors.grey,
+            style: context.text.bodyLarge?.copyWith(
+              color: context.colors.outline,
             ),
           ),
         ],
@@ -158,63 +154,60 @@ class _PlacesScreenState extends State<PlacesScreen> with SingleTickerProviderSt
 
   Widget _buildPlaceCard(Map<String, dynamic> place) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: MemoryHubColors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
+        contentPadding: Padded.all16,
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                context.colors.primary.withOpacity(0.2),
+                context.colors.secondary.withOpacity(0.2),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             Icons.place,
-            color: Theme.of(context).colorScheme.primary,
+            color: context.colors.primary,
             size: 24,
           ),
         ),
         title: Text(
           place['name'] ?? 'Untitled',
-          style: GoogleFonts.inter(
+          style: context.text.bodyLarge?.copyWith(
             fontWeight: FontWeight.w600,
-            fontSize: 16,
           ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (place['address'] != null) ...[
-              const SizedBox(height: 4),
+              const VGap.xxs(),
               Text(
                 place['address'],
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: Colors.grey,
+                style: context.text.bodySmall?.copyWith(
+                  color: context.colors.outline,
                 ),
               ),
             ],
-            const SizedBox(height: 8),
+            const VGap.xs(),
             Text(
               '${place['memory_count'] ?? 0} memories',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: Theme.of(context).colorScheme.primary,
+              style: context.text.labelSmall?.copyWith(
+                color: context.colors.primary,
               ),
             ),
           ],

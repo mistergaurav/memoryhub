@@ -95,7 +95,7 @@ class _TimelineEventDetailScreenState extends State<TimelineEventDetailScreen> w
       SnackBar(
         content: Text(_isLiked ? '❤️ You liked this event' : 'Removed like'),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: _isLiked ? context.colors.accent : Colors.grey,
+        backgroundColor: _isLiked ? Theme.of(context).colorScheme.secondary : Colors.grey,
         duration: const Duration(seconds: 1),
       ),
     );
@@ -119,7 +119,7 @@ class _TimelineEventDetailScreenState extends State<TimelineEventDetailScreen> w
       const SnackBar(
         content: Text('💬 Comment added!'),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: context.colors.info,
+        backgroundColor: Colors.blue,
         duration: Duration(seconds: 1),
       ),
     );
@@ -153,21 +153,21 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
         return [context.colors.primary, const Color(0xFFA855F7)];
       case 'event':
       case 'calendar':
-        return [context.colors.info, const Color(0xFF22D3EE)];
+        return [Colors.blue, const Color(0xFF22D3EE)];
       case 'milestone':
       case 'achievement':
-        return [context.colors.warning, const Color(0xFFFBBF24)];
+        return [Colors.orange, const Color(0xFFFBBF24)];
       case 'recipe':
       case 'food':
         return [context.colors.error, const Color(0xFFF87171)];
       case 'tradition':
         return [const Color(0xFF14B8A6), const Color(0xFF2DD4BF)];
       case 'memory':
-        return [context.colors.accent, const Color(0xFFF472B6)];
+        return [Theme.of(context).colorScheme.secondary, const Color(0xFFF472B6)];
       case 'birthday':
-        return [context.colors.accent, const Color(0xFFF472B6)];
+        return [Theme.of(context).colorScheme.secondary, const Color(0xFFF472B6)];
       case 'anniversary':
-        return [context.colors.primary, context.colors.accent];
+        return [context.colors.primary, Theme.of(context).colorScheme.secondary];
       default:
         return [const Color(0xFF6366F1), context.colors.primary];
     }
@@ -309,7 +309,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                         child: _buildInteractionButton(
                           icon: _isLiked ? Icons.favorite : Icons.favorite_border,
                           label: '$_likesCount ${_likesCount == 1 ? 'Like' : 'Likes'}',
-                          color: context.colors.accent,
+                          color: Theme.of(context).colorScheme.secondary,
                           onTap: _toggleLike,
                           animation: _scaleAnimation,
                         ),
@@ -318,7 +318,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                       Expanded(child: _buildInteractionButton(
                           icon: Icons.chat_bubble_outline,
                           label: '$_commentsCount ${_commentsCount == 1 ? 'Comment' : 'Comments'}',
-                          color: context.colors.info,
+                          color: Colors.blue,
                           onTap: () {
                             FocusScope.of(context).requestFocus(FocusNode());
                           },
@@ -491,13 +491,13 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
               const HGap.sm(),
               Container(
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     colors: [Color(0xFF6366F1), context.colors.primary],
                   ),
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.send, color: context.colors.surface),
+                  icon: Icon(Icons.send, color: context.colors.surface),
                   onPressed: _addComment,
                   tooltip: 'Send comment',
                 ),
@@ -575,7 +575,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
             Row(
               children: [
                 Container(
-                  padding: const Spacing.xs,
+                  padding: EdgeInsets.all(MemoryHubSpacing.xs),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: _getGradientColors(),
@@ -611,7 +611,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
         'icon': Icons.celebration,
         'title': 'View Milestones',
         'subtitle': 'See all family milestones',
-        'color': context.colors.warning,
+        'color': Colors.orange,
         'screen': const FamilyMilestonesScreen(),
       });
     }
@@ -638,7 +638,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
         'icon': Icons.event,
         'title': 'View Calendar',
         'subtitle': 'See all upcoming events',
-        'color': context.colors.info,
+        'color': Colors.blue,
         'screen': const FamilyCalendarScreen(),
       });
     }
@@ -669,12 +669,12 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
             Row(
               children: [
                 Container(
-                  padding: const Spacing.xs,
+                  padding: EdgeInsets.all(MemoryHubSpacing.xs),
                   decoration: BoxDecoration(
                     color: context.colors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.link,
                     color: context.colors.primary,
                     size: 20,
@@ -704,7 +704,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                 },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const Spacing.sm,
+                  padding: EdgeInsets.all(MemoryHubSpacing.sm),
                   decoration: BoxDecoration(
                     color: (item['color'] as Color).withOpacity(0.05),
                     borderRadius: BorderRadius.circular(12),
@@ -716,7 +716,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                   child: Row(
                     children: [
                       Container(
-                        padding: const Spacing.xs,
+                        padding: EdgeInsets.all(MemoryHubSpacing.xs),
                         decoration: BoxDecoration(
                           color: (item['color'] as Color).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
@@ -780,14 +780,14 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
             Row(
               children: [
                 Container(
-                  padding: const Spacing.xs,
+                  padding: EdgeInsets.all(MemoryHubSpacing.xs),
                   decoration: BoxDecoration(
-                    color: context.colors.info.withOpacity(0.1),
+                    color: Colors.blue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.chat_bubble_outline,
-                    color: context.colors.info,
+                    color: Colors.blue,
                     size: 20,
                   ),
                 ),

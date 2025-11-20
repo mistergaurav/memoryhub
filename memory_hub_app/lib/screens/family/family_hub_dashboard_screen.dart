@@ -661,9 +661,9 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             ),
             Tooltip(
               message: 'Navigate to $title',
-              child: const Icon(
+              child: Icon(
                 Icons.arrow_forward_ios,
-                color: context.colors.surface70,
+                color: Colors.white.withValues(alpha: 0.7),
                 size: 20,
               ),
             ),
@@ -926,7 +926,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             elevation: MemoryHubElevation.md,
             borderRadius: MemoryHubBorderRadius.smRadius,
             child: Padded.symmetric(
-              horizontal: Spacing.md,
+              horizontal: MemoryHubSpacing.md,
               vertical: Spacing.sm,
               child: Text(
                 label,

@@ -328,7 +328,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                     const Spacer(),
                     Container(
                       padding: Spacing.edgeInsetsSymmetric(
-                        horizontal: Spacing.md,
+                        horizontal: MemoryHubSpacing.md,
                         vertical: Spacing.sm,
                       ),
                       decoration: BoxDecoration(

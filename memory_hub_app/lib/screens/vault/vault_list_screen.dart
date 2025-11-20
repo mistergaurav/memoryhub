@@ -68,8 +68,7 @@ class _VaultListScreenState extends State<VaultListScreen> {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
+          child: Padded.all(8.0,
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -163,7 +162,7 @@ class _VaultListScreenState extends State<VaultListScreen> {
 
   Widget _buildFileCard(VaultFile file) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: _getFileTypeColor(file.fileType),

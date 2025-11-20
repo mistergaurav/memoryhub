@@ -234,7 +234,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 background: Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -295,7 +295,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
             SliverToBoxAdapter(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
+                padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.md),
                 child: Row(children: [
                     _buildFilterChip(
                       label: 'All',
@@ -405,7 +405,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                       : 'Start preserving your family culinary heritage!',
                   actionLabel: _searchQuery.isEmpty ? 'Add Recipe' : null,
                   onAction: _searchQuery.isEmpty ? _showAddDialog : null,
-                  gradientColors: const [
+                  gradientColors: [
                     context.colors.error,
                     Color(0xFFF87171),
                   ],
@@ -502,7 +502,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
           height: 250,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
-            gradient: const LinearGradient(
+            gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [context.colors.error, Color(0xFFFBBF24)],
@@ -520,7 +520,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
-                    children: const [
+                    children: [
                       Icon(Icons.star, size: 16, color: Color(0xFFFBBF24)),
                       HGap.xxs(),
                       Text(
@@ -539,7 +539,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                 left: 0,
                 right: 0,
                 child: Container(
-                  padding: const Spacing.lg,
+                  padding: EdgeInsets.all(MemoryHubSpacing.lg),
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(24),
@@ -754,15 +754,15 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [context.colors.error, Color(0xFFF87171)],
         ),
       ),
-      child: const Center(
-        child: Icon(Icons.restaurant, size: 60, color: context.colors.surface54),
+      child: Center(
+        child: Icon(Icons.restaurant, size: 60, color: context.colors.surface.withValues(alpha: 0.54)),
       ),
     );
   }
@@ -770,9 +770,9 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
   Color _getDifficultyColor(String difficulty) {
     switch (difficulty.toLowerCase()) {
       case 'easy':
-        return context.colors.success;
+        return Colors.green;
       case 'medium':
-        return context.colors.warning;
+        return Colors.orange;
       case 'hard':
         return context.colors.error;
       default:

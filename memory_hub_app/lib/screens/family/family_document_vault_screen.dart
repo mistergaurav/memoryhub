@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/enhanced_empty_state.dart';
-import '../../design_system/design_tokens.dart';
+import '../../design_system/design_system.dart';
 
 class FamilyDocumentVaultScreen extends StatefulWidget {
   const FamilyDocumentVaultScreen({Key? key}) : super(key: key);
@@ -177,7 +177,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                           size: 32,
                         ),
                       ),
-                      SizedBox(width: MemoryHubSpacing.lg),
+                      HGap(MemoryHubSpacing.lg),
                       const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +189,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                                 fontWeight: MemoryHubTypography.bold,
                               ),
                             ),
-                            SizedBox(height: MemoryHubSpacing.xs),
+                            VGap(MemoryHubSpacing.xs),
                             Text(
                               'All documents are encrypted and securely stored',
                               style: TextStyle(
@@ -207,7 +207,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
             ),
           ),
           SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
+            padding: Padded.symmetric(horizontal: MemoryHubSpacing.lg),
             sliver: SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,13 +219,13 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                       fontWeight: MemoryHubTypography.bold,
                     ),
                   ),
-                  SizedBox(height: MemoryHubSpacing.lg),
+                  VGap(MemoryHubSpacing.lg),
                 ],
               ),
             ),
           ),
           SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
+            padding: Padded.symmetric(horizontal: MemoryHubSpacing.lg),
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -242,7 +242,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
               ),
             ),
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+          const SliverToBoxAdapter(child: VGap(80)),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -315,7 +315,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                   size: 32,
                 ),
               ),
-              SizedBox(height: MemoryHubSpacing.md),
+              VGap(MemoryHubSpacing.md),
               Text(
                 folder['name'] as String,
                 textAlign: TextAlign.center,
@@ -326,9 +326,9 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: MemoryHubSpacing.xs),
+              VGap(MemoryHubSpacing.xs),
               Container(
-                padding: EdgeInsets.symmetric(
+                padding: Padded.symmetric(
                   horizontal: MemoryHubSpacing.md,
                   vertical: MemoryHubSpacing.xs,
                 ),

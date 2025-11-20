@@ -248,7 +248,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
             else
               _selectedView == 'grid'
                   ? SliverPadding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(16),
                       sliver: SliverGrid(
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
@@ -518,8 +518,7 @@ class PersonDetailSheet extends StatelessWidget {
       expand: false,
       builder: (context, scrollController) => SingleChildScrollView(
         controller: scrollController,
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
+        child: Padded.all(20.0,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -645,7 +644,7 @@ class PersonDetailSheet extends StatelessWidget {
                       label: const Text('Edit'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFF59E0B),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: Padded.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -659,7 +658,7 @@ class PersonDetailSheet extends StatelessWidget {
                       icon: const Icon(Icons.link),
                       label: const Text('Relationships'),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: Padded.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),

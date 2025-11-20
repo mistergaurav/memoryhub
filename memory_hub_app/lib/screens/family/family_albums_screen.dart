@@ -7,7 +7,7 @@ import '../../models/family/paginated_response.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../widgets/hero_header.dart';
-import '../../design_system/design_tokens.dart';
+import '../../design_system/design_system.dart';
 import '../../dialogs/family/add_album_dialog.dart';
 import 'dart:io';
 
@@ -159,7 +159,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
             ),
             if (_isLoading)
               SliverPadding(
-                padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                padding: const EdgeInsets.all(16),
                 sliver: SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: _getCrossAxisCount(context),
@@ -197,7 +197,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                padding: const EdgeInsets.all(16),
                 sliver: SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: _getCrossAxisCount(context),
@@ -212,14 +212,13 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
                 ),
               ),
             if (_isLoadingMore)
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.all(MemoryHubSpacing.lg),
+              SliverToBoxAdapter(
+                child: Padded(padding: const EdgeInsets.all(16), 
                   child: Center(child: CircularProgressIndicator()),
                 ),
               ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 80),
+            SliverToBoxAdapter(
+              child: const VGap(80),
             ),
           ],
         ),
@@ -351,8 +350,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
                   ),
                   Expanded(
                     flex: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                    child: Padded(padding: const EdgeInsets.all(12), 
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -369,7 +367,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
                                 overflow: TextOverflow.ellipsis,
                               ),
                               if (album.description != null && album.description!.isNotEmpty) ...[
-                                const SizedBox(height: MemoryHubSpacing.xs),
+                                const VGap(8),
                                 Text(
                                   album.description!,
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -391,7 +389,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
                                     size: 14,
                                     color: MemoryHubColors.gray500,
                                   ),
-                                  const SizedBox(width: MemoryHubSpacing.xs),
+                                  const HGap(8),
                                   Expanded(
                                     child: Text(
                                       album.createdByName ?? 'Unknown',
@@ -404,7 +402,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: MemoryHubSpacing.xs),
+                              const VGap(8),
                               Row(
                                 children: [
                                   const Icon(
@@ -412,7 +410,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
                                     size: 14,
                                     color: MemoryHubColors.gray500,
                                   ),
-                                  const SizedBox(width: MemoryHubSpacing.xs),
+                                  const HGap(8),
                                   Text(
                                     DateFormat('MMM d, yyyy').format(album.createdAt),
                                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -463,11 +461,9 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
         label = 'Custom';
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: MemoryHubSpacing.sm,
-        vertical: MemoryHubSpacing.xs,
-      ),
+    return Padded.symmetric(
+        horizontal: 12,
+        vertical: 8,
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.9),
         borderRadius: Radii.mdRadius,
@@ -476,7 +472,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 12, color: Colors.white),
-          const SizedBox(width: MemoryHubSpacing.xs),
+          const HGap(8),
           Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -491,11 +487,9 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
   }
 
   Widget _buildPhotoBadge(int count) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: MemoryHubSpacing.sm,
-        vertical: MemoryHubSpacing.xs,
-      ),
+    return Padded.symmetric(
+        horizontal: 12,
+        vertical: 8,
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.7),
         borderRadius: Radii.mdRadius,
@@ -508,7 +502,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
             size: 14,
             color: Colors.white,
           ),
-          const SizedBox(width: MemoryHubSpacing.xs),
+          const HGap(8),
           Text(
             count.toString(),
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -554,15 +548,14 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
           ),
           Expanded(
             flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(MemoryHubSpacing.md),
+            child: Padded(padding: const EdgeInsets.all(12), 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ShimmerBox(width: 120, height: 16, borderRadius: MemoryHubBorderRadius.xsRadius),
-                  const SizedBox(height: MemoryHubSpacing.sm),
+                  const VGap(12),
                   ShimmerBox(width: double.infinity, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
-                  const SizedBox(height: MemoryHubSpacing.xs),
+                  const VGap(8),
                   ShimmerBox(width: 100, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
                   const Spacer(),
                   ShimmerBox(width: 80, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
@@ -937,15 +930,14 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
           ),
           if (_isUploading)
             SliverToBoxAdapter(
-              child: Container(
-                padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+              child: Padded(padding: const EdgeInsets.all(16), 
                 color: MemoryHubColors.primary.withValues(alpha: 0.1),
                 child: Column(
                   children: [
                     Row(
                       children: [
                         const CircularProgressIndicator(),
-                        const SizedBox(width: MemoryHubSpacing.md),
+                        const HGap(12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -956,7 +948,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                                       fontWeight: MemoryHubTypography.semiBold,
                                     ),
                               ),
-                              const SizedBox(height: MemoryHubSpacing.xs),
+                              const VGap(8),
                               LinearProgressIndicator(
                                 value: _uploadProgress,
                                 backgroundColor: Colors.grey[300],
@@ -973,7 +965,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
             ),
           if (_isLoading)
             SliverPadding(
-              padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+              padding: const EdgeInsets.all(16),
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
@@ -1002,7 +994,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+              padding: const EdgeInsets.all(16),
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
@@ -1016,8 +1008,8 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                 ),
               ),
             ),
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 80),
+          SliverToBoxAdapter(
+            child: const VGap(80),
           ),
         ],
       ),

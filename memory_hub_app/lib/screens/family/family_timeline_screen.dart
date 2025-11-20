@@ -313,7 +313,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                   message: 'Start documenting your family journey by adding timeline events.',
                   actionLabel: 'Add Event',
                   onAction: _showAddEventDialog,
-                  gradientColors: const [
+                  gradientColors: [
                     Color(0xFF6366F1),
                     context.colors.primary,
                   ],
@@ -404,7 +404,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [Color(0xFF6366F1), context.colors.primary],
                     ),
                     borderRadius: BorderRadius.circular(20),
@@ -725,7 +725,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
     
     final type = event.eventType.toLowerCase();
     if (type.contains('milestone') || type.contains('achievement')) {
-      tags.add({'icon': Icons.celebration, 'label': 'Milestone', 'color': context.colors.warning});
+      tags.add({'icon': Icons.celebration, 'label': 'Milestone', 'color': Colors.orange});
     }
     if (type.contains('album') || type.contains('photo')) {
       tags.add({'icon': Icons.photo_library, 'label': 'Album', 'color': context.colors.primary});
@@ -734,7 +734,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
       tags.add({'icon': Icons.restaurant_menu, 'label': 'Recipe', 'color': context.colors.error});
     }
     if (type.contains('event') || type.contains('calendar')) {
-      tags.add({'icon': Icons.event, 'label': 'Event', 'color': context.colors.info});
+      tags.add({'icon': Icons.event, 'label': 'Event', 'color': Colors.blue});
     }
     if (type.contains('tradition')) {
       tags.add({'icon': Icons.local_florist, 'label': 'Tradition', 'color': const Color(0xFF14B8A6)});
@@ -793,7 +793,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
           SnackBar(
             content: Text('❤️ Reacted to "${event.title}"'),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: context.colors.accent,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
             duration: const Duration(seconds: 1),
           ),
         );
@@ -802,10 +802,10 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: context.colors.accent.withValues(alpha: 0.1),
+          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
           borderRadius: Radii.xlRadius,
           border: Border.all(
-            color: context.colors.accent.withValues(alpha: 0.2),
+            color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -815,14 +815,14 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
             const Icon(
               Icons.favorite,
               size: 16,
-              color: context.colors.accent,
+              color: Theme.of(context).colorScheme.secondary,
             ),
             const HGap.xxs(),
             Text(
               event.likesCount > 0 ? '${event.likesCount}' : 'Like',
               style: const TextStyle(
                 fontSize: 13,
-                color: context.colors.accent,
+                color: Theme.of(context).colorScheme.secondary,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -839,10 +839,10 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: context.colors.info.withValues(alpha: 0.1),
+          color: Colors.blue.withValues(alpha: 0.1),
           borderRadius: Radii.xlRadius,
           border: Border.all(
-            color: context.colors.info.withValues(alpha: 0.2),
+            color: Colors.blue.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -852,14 +852,14 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
             const Icon(
               Icons.chat_bubble_outline,
               size: 16,
-              color: context.colors.info,
+              color: Colors.blue,
             ),
             const HGap.xxs(),
             Text(
               event.commentsCount > 0 ? '${event.commentsCount}' : 'Comment',
               style: const TextStyle(
                 fontSize: 13,
-                color: context.colors.info,
+                color: Colors.blue,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -889,24 +889,24 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
         return [context.colors.primary, const Color(0xFFA855F7)];
       case 'event':
       case 'calendar':
-        return [context.colors.info, const Color(0xFF22D3EE)];
+        return [Colors.blue, const Color(0xFF22D3EE)];
       case 'milestone':
       case 'achievement':
-        return [context.colors.warning, const Color(0xFFFBBF24)];
+        return [Colors.orange, const Color(0xFFFBBF24)];
       case 'recipe':
       case 'food':
         return [context.colors.error, const Color(0xFFF87171)];
       case 'tradition':
         return [const Color(0xFF14B8A6), const Color(0xFF2DD4BF)];
       case 'memory':
-        return [context.colors.accent, const Color(0xFFF472B6)];
+        return [Theme.of(context).colorScheme.secondary, const Color(0xFFF472B6)];
       case 'birthday':
-        return [context.colors.accent, const Color(0xFFF472B6)];
+        return [Theme.of(context).colorScheme.secondary, const Color(0xFFF472B6)];
       case 'anniversary':
-        return [context.colors.primary, context.colors.accent];
+        return [context.colors.primary, Theme.of(context).colorScheme.secondary];
       case 'trip':
       case 'travel':
-        return [context.colors.info, const Color(0xFF14B8A6)];
+        return [Colors.blue, const Color(0xFF14B8A6)];
       default:
         return [const Color(0xFF6366F1), context.colors.primary];
     }

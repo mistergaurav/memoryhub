@@ -122,7 +122,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                             backgroundColor: const Color(0xFF4F46E5),
                             backgroundImage: widget.photoUrl != null ? NetworkImage(widget.photoUrl!) : null,
                             child: widget.photoUrl == null
-                                ? const Icon(Icons.person, color: context.colors.surface, size: 32)
+                                ? Icon(Icons.person, color: context.colors.surface, size: 32)
                                 : null,
                           ),
                         ),
@@ -132,7 +132,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
-                              padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.md, vertical: Spacing.xs),
+                              padding: Spacing.edgeInsetsSymmetric(horizontal: MemoryHubSpacing.md, vertical: Spacing.xs),
                               decoration: BoxDecoration(
                                 color: context.colors.surface.withOpacity(0.9),
                                 borderRadius: BorderRadius.circular(20),
@@ -243,7 +243,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                     ),
                   ],
                 ),
-                child: const Icon(Icons.auto_awesome, color: context.colors.surface, size: 20),
+                child: Icon(Icons.auto_awesome, color: context.colors.surface, size: 20),
               ),
               if (index < _memories.length - 1)
                 Container(

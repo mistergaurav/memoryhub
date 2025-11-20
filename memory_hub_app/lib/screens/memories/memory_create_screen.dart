@@ -121,7 +121,7 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(Spacing.lg),
+          padding: const EdgeInsets.all(16),
           children: [
             TextFormField(
               controller: _titleController,
@@ -222,7 +222,7 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                       children: [
                         Container(
                           width: 120,
-                          margin: const EdgeInsets.only(right: Spacing.xs),
+                          margin: EdgeInsets.only(right: Spacing.xs),
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: context.colors.outline,
@@ -251,7 +251,7 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                           child: GestureDetector(
                             onTap: () => _removeFile(index),
                             child: Container(
-                              padding: const EdgeInsets.all(Spacing.xxs),
+                              padding: EdgeInsets.all(Spacing.xxs),
                               decoration: BoxDecoration(
                                 color: MemoryHubColors.red500,
                                 shape: BoxShape.circle,

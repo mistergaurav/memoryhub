@@ -127,7 +127,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
             width: double.maxFinite,
             height: 400,
             child: isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator())
                 : error != null
                     ? Center(
                         child: Column(
@@ -211,7 +211,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                     ),
                                   ),
                                   trailing: IconButton(
-                                    icon: const Icon(Icons.send),
+                                    icon: Icon(Icons.send),
                                     color: context.colors.primary,
                                     onPressed: () async {
                                       try {

@@ -210,7 +210,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             ),
           );
         },
-        icon: const Icon(Icons.add),
+        icon: Icon(Icons.add),
         label: Text(
           'Create Memory',
           style: context.text.labelLarge?.copyWith(

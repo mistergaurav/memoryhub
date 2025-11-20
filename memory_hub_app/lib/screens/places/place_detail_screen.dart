@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../design_system/design_system.dart';
 
 class PlaceDetailScreen extends StatelessWidget {
   final String placeId;
@@ -10,14 +10,14 @@ class PlaceDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Place Details', style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
+        title: Text('Place Details', style: context.text.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(20),
         itemCount: 10,
         itemBuilder: (context, index) => Card(
           child: ListTile(
-            title: Text('Memory at this place $index', style: GoogleFonts.inter()),
+            title: Text('Memory at this place $index', style: context.text.bodyMedium),
           ),
         ),
       ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../services/api_service.dart';
 import '../../widgets/gradient_container.dart';
+import '../../design_system/design_system.dart';
 
 class CreatePlaceScreen extends StatefulWidget {
   const CreatePlaceScreen({super.key});
@@ -165,9 +165,9 @@ class _CreatePlaceScreenState extends State<CreatePlaceScreen> {
               ),
               title: Text(
                 'Add New Place',
-                style: GoogleFonts.inter(
+                style: context.text.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: MemoryHubColors.white,
                 ),
               ),
             ),
@@ -175,16 +175,14 @@ class _CreatePlaceScreenState extends State<CreatePlaceScreen> {
           SliverToBoxAdapter(
             child: Form(
               key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
+              child: Padded.all(20.0,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 8),
                     Text(
                       'Place Details',
-                      style: GoogleFonts.inter(
-                        fontSize: 22,
+                      style: context.text.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -343,13 +341,13 @@ class _CreatePlaceScreenState extends State<CreatePlaceScreen> {
                     const SizedBox(height: 16),
                     OutlinedButton.icon(
                       onPressed: _isLoading ? null : _getCurrentLocation,
-                      icon: const Icon(Icons.gps_fixed),
+                      icon: Icon(Icons.gps_fixed),
                       label: Text(
                         'Use Current Location',
-                        style: GoogleFonts.inter(fontSize: 15),
+                        style: context.text.bodyMedium,
                       ),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: Padded.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -357,9 +355,9 @@ class _CreatePlaceScreenState extends State<CreatePlaceScreen> {
                     ),
                     const SizedBox(height: 24),
                     Container(
-                      padding: const EdgeInsets.all(14),
+                      padding: EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: Colors.blue[50],
+                        color: context.colors.primaryContainer,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.blue[200]!),
                       ),
@@ -391,16 +389,15 @@ class _CreatePlaceScreenState extends State<CreatePlaceScreen> {
                                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : const Icon(Icons.add_location),
+                          : Icon(Icons.add_location),
                       label: Text(
                         _isLoading ? 'Creating...' : 'Create Place',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
+                        style: context.text.bodyLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: Padded.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),

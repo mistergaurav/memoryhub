@@ -5,6 +5,7 @@ import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../dialogs/family/add_tradition_dialog.dart';
 import 'package:intl/intl.dart';
+import '../../design_system/design_system.dart';
 
 class FamilyTraditionsScreen extends StatefulWidget {
   const FamilyTraditionsScreen({Key? key}) : super(key: key);
@@ -99,7 +100,7 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
             ),
             if (_isLoading)
               SliverPadding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) => _buildShimmerCard(),
@@ -125,15 +126,15 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                   message: 'Preserve your family heritage by documenting cherished traditions.',
                   actionLabel: 'Add Tradition',
                   onAction: _showAddDialog,
-                  gradientColors: const [
-                    Color(0xFF10B981),
-                    Color(0xFF34D399),
+                  gradientColors: [
+                    const Color(0xFF10B981),
+                    const Color(0xFF34D399),
                   ],
                 ),
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) => _buildTraditionCard(_traditions[index]),
@@ -156,7 +157,7 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
 
   Widget _buildTraditionCard(FamilyTradition tradition) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: 16),
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
@@ -173,15 +174,13 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
             ],
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
+        child: Padded(padding: const EdgeInsets.all(20), 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(14),
+                  Padded(padding: const EdgeInsets.all(14), 
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -194,7 +193,7 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                         BoxShadow(
                           color: _getCategoryColor(tradition.category).withValues(alpha: 0.4),
                           blurRadius: 12,
-                          offset: const Offset(0, 4),
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
@@ -204,32 +203,28 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                       size: 32,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const HGap(16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           tradition.title,
-                          style: const TextStyle(
-                            fontSize: 20,
+                          style: context.text.headlineSmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
+                        const VGap(4),
+                        Padded.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
                           decoration: BoxDecoration(
-                            color: _getCategoryColor(tradition.category).withValues(alpha: 0.2),
+                            color: _getCategoryColor(tradition.category).withOpacity(0.2),
                             borderRadius: Radii.mdRadius,
                           ),
                           child: Text(
                             tradition.category.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 11,
+                            style: context.text.labelSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: _getCategoryColor(tradition.category),
                             ),
@@ -241,18 +236,17 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                 ],
               ),
               if (tradition.description != null) ...[
-                const SizedBox(height: 16),
+                const VGap(16),
                 Text(
                   tradition.description!,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.grey.shade700,
+                  style: context.text.bodyMedium?.copyWith(
+                    color: context.colors.onSurface.withValues(alpha: 0.6),
                     height: 1.5,
                   ),
                 ),
               ],
               if (tradition.photoUrl != null) ...[
-                const SizedBox(height: 16),
+                const VGap(16),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Image.network(
@@ -282,10 +276,9 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                   ),
                 ),
               ],
-              const SizedBox(height: 16),
+              const VGap(16),
               if (tradition.originAncestorName != null || tradition.countryOfOrigin != null) ...[
-                Container(
-                  padding: const EdgeInsets.all(14),
+                Padded(padding: const EdgeInsets.all(14), 
                   decoration: BoxDecoration(
                     color: Colors.amber.shade50,
                     borderRadius: BorderRadius.circular(12),
@@ -297,29 +290,27 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                       Row(
                         children: [
                           Icon(Icons.account_tree, size: 18, color: Colors.amber.shade800),
-                          const SizedBox(width: 8),
+                          const HGap(8),
                           Text(
                             'Family Lineage',
-                            style: TextStyle(
-                              fontSize: 14,
+                            style: context.text.labelLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.amber.shade800,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const VGap(10),
                       if (tradition.originAncestorName != null) ...[
                         Row(
                           children: [
                             Icon(Icons.person, size: 16, color: Colors.grey.shade700),
-                            const SizedBox(width: 6),
+                            const HGap(6),
                             Expanded(
                               child: Text(
                                 'Started by: ${tradition.originAncestorName}',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey.shade800,
+                                style: context.text.bodySmall?.copyWith(
+                                  color: context.colors.onSurface.withValues(alpha: 0.6),
                                 ),
                               ),
                             ),
@@ -327,32 +318,30 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                         ),
                       ],
                       if (tradition.generationsPassed != null) ...[
-                        const SizedBox(height: 6),
+                        const VGap(6),
                         Row(
                           children: [
                             Icon(Icons.timeline, size: 16, color: Colors.grey.shade700),
-                            const SizedBox(width: 6),
+                            const HGap(6),
                             Text(
                               'Passed down ${tradition.generationsPassed} generation${tradition.generationsPassed! > 1 ? 's' : ''}',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade800,
+                              style: context.text.bodySmall?.copyWith(
+                                color: context.colors.onSurface.withValues(alpha: 0.6),
                               ),
                             ),
                           ],
                         ),
                       ],
                       if (tradition.countryOfOrigin != null) ...[
-                        const SizedBox(height: 6),
+                        const VGap(6),
                         Row(
                           children: [
                             Icon(Icons.public, size: 16, color: Colors.grey.shade700),
-                            const SizedBox(width: 6),
+                            const HGap(6),
                             Text(
                               'Origin: ${tradition.countryOfOrigin}',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade800,
+                              style: context.text.bodySmall?.copyWith(
+                                color: context.colors.onSurface.withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -362,8 +351,7 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                   ),
                 ),
               ] else if (tradition.culturalOrigin != null)
-                Container(
-                  padding: const EdgeInsets.all(12),
+                Padded(padding: const EdgeInsets.all(12), 
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
@@ -375,12 +363,11 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                         size: 18,
                         color: Colors.grey.shade700,
                       ),
-                      const SizedBox(width: 8),
+                      const HGap(8),
                       Text(
                         'Origin: ${tradition.culturalOrigin}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade700,
+                        style: context.text.bodyMedium?.copyWith(
+                          color: context.colors.onSurface.withValues(alpha: 0.6),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -388,9 +375,8 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                   ),
                 ),
               if (tradition.nextOccurrence != null) ...[
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
+                const VGap(12),
+                Padded(padding: const EdgeInsets.all(12), 
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -407,11 +393,10 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                         size: 18,
                         color: _getCategoryColor(tradition.category),
                       ),
-                      const SizedBox(width: 8),
+                      const HGap(8),
                       Text(
                         'Next: ${DateFormat('MMM d, y').format(tradition.nextOccurrence!)}',
-                        style: TextStyle(
-                          fontSize: 14,
+                        style: context.text.bodyMedium?.copyWith(
                           color: _getCategoryColor(tradition.category),
                           fontWeight: FontWeight.w600,
                         ),
@@ -419,8 +404,7 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                       const Spacer(),
                       Text(
                         tradition.frequency.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 11,
+                        style: context.text.labelSmall?.copyWith(
                           color: _getCategoryColor(tradition.category),
                           fontWeight: FontWeight.bold,
                         ),
@@ -439,17 +423,17 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
   Color _getCategoryColor(String category) {
     switch (category.toLowerCase()) {
       case 'holiday':
-        return const Color(0xFFEF4444);
+        return MemoryHubColors.red500;
       case 'cultural':
-        return const Color(0xFF7C3AED);
+        return MemoryHubColors.violet600;
       case 'religious':
-        return const Color(0xFFF59E0B);
+        return MemoryHubColors.amber500;
       case 'seasonal':
         return const Color(0xFF10B981);
       case 'family':
-        return const Color(0xFFEC4899);
+        return MemoryHubColors.pink500;
       default:
-        return const Color(0xFF06B6D4);
+        return MemoryHubColors.cyan500;
     }
   }
 
@@ -472,9 +456,8 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
 
   Widget _buildShimmerCard() {
     return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
+      margin: EdgeInsets.only(bottom: 16),
+      child: Padded(padding: const EdgeInsets.all(20), 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -485,22 +468,22 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                   height: 60,
                   borderRadius: BorderRadius.circular(18),
                 ),
-                const SizedBox(width: 16),
+                const HGap(16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ShimmerBox(width: 180, height: 20, borderRadius: BorderRadius.circular(4)),
-                      const SizedBox(height: 8),
+                      const VGap(8),
                       ShimmerBox(width: 100, height: 16, borderRadius: BorderRadius.circular(4)),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const VGap(16),
             ShimmerBox(width: double.infinity, height: 14, borderRadius: BorderRadius.circular(4)),
-            const SizedBox(height: 4),
+            const VGap(4),
             ShimmerBox(width: 200, height: 14, borderRadius: BorderRadius.circular(4)),
           ],
         ),

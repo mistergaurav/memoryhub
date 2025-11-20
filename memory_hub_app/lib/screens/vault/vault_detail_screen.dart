@@ -175,7 +175,7 @@ class _VaultDetailScreenState extends State<VaultDetailScreen> {
                 label: const Text('Download File'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.all(16),
-                  backgroundColor: Colors.deepPurple,
+                  backgroundColor: context.colors.primary,
                   foregroundColor: Colors.white,
                 ),
               ),
@@ -187,8 +187,8 @@ class _VaultDetailScreenState extends State<VaultDetailScreen> {
   }
 
   Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    return Padded.symmetric(
+      vertical: 8,
       child: Row(
         children: [
           SizedBox(

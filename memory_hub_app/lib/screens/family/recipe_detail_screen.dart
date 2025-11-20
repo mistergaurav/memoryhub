@@ -230,7 +230,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
           // Recipe Info Cards
           SliverToBoxAdapter(
             child: Padding(
-              padding: const Spacing.md,
+              padding: const EdgeInsets.all(MemoryHubSpacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -286,15 +286,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
           itemBuilder: (context, index) {
             if (photos[index] == 'placeholder') {
               return Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [context.colors.error, Color(0xFFF87171)],
                   ),
                 ),
-                child: const Center(
-                  child: Icon(Icons.restaurant, size: 120, color: context.colors.surface54),
+                child: Center(
+                  child: Icon(Icons.restaurant, size: 120, color: context.colors.surface.withValues(alpha: 0.54)),
                 ),
               );
             }
@@ -325,7 +325,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
                     shape: BoxShape.circle,
                     color: _currentPhotoIndex == index
                         ? context.colors.surface
-                        : context.colors.surface54,
+                        : context.colors.surface.withValues(alpha: 0.54),
                   ),
                 ),
               ),
@@ -381,7 +381,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const Spacing.md,
+        padding: const EdgeInsets.all(MemoryHubSpacing.md),
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(16),
@@ -420,7 +420,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
           icon: Icons.timer_outlined,
           label: 'Prep',
           value: '${_recipe!.prepTimeMinutes ?? 0} min',
-          color: context.colors.info,
+          color: Colors.blue,
         ),
         _buildBadge(icon: Icons.timer,
           label: 'Cook',
@@ -435,7 +435,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
         _buildBadge(icon: Icons.category,
           label: 'Category',
           value: _recipe!.categoryDisplay,
-          color: context.colors.warning,
+          color: Colors.orange,
         ),
       ],
     );
@@ -486,7 +486,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
 
   Widget _buildServingsAdjuster() {
     return Container(
-      padding: const Spacing.md,
+      padding: const EdgeInsets.all(MemoryHubSpacing.md),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(16),
@@ -496,7 +496,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
         children: [
           Row(
             children: [
-              const Icon(Icons.people, color: context.colors.error),
+              Icon(Icons.people, color: context.colors.error),
               const HGap.sm(),
               const Text(
                 'Servings',
@@ -510,7 +510,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.remove_circle_outline),
+                icon: Icon(Icons.remove_circle_outline),
                 color: context.colors.error,
                 onPressed: () {
                   if (_servings > 1) {
@@ -537,7 +537,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.add_circle_outline),
+                icon: Icon(Icons.add_circle_outline),
                 color: context.colors.error,
                 onPressed: () {
                   setState(() => _servings++);
@@ -567,7 +567,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
 
   Widget _buildIngredientsTab() {
     return ListView(
-      padding: const Spacing.md,
+      padding: const EdgeInsets.all(MemoryHubSpacing.md),
       children: [
         ...List.generate(_recipe!.ingredients.length, (index) {
           final ingredient = _recipe!.ingredients[index];
@@ -609,7 +609,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
 
   Widget _buildInstructionsTab() {
     return ListView(
-      padding: const Spacing.md,
+      padding: const EdgeInsets.all(MemoryHubSpacing.md),
       children: [
         ...List.generate(_recipe!.steps.length, (index) {
           final step = _recipe!.steps[index];
@@ -622,7 +622,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [context.colors.error, Color(0xFFF87171)],
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -675,7 +675,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
 
   Widget _buildDetailsTab() {
     return ListView(
-      padding: const Spacing.md,
+      padding: const EdgeInsets.all(MemoryHubSpacing.md),
       children: [
         if (_recipe!.description != null) ...[
           _buildDetailSection('Description', _recipe!.description!),
@@ -710,7 +710,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
 
   Widget _buildDetailSection(String title, String content, {IconData? icon}) {
     return Container(
-      padding: const Spacing.md,
+      padding: const EdgeInsets.all(MemoryHubSpacing.md),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(16),
@@ -727,7 +727,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
               ],
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: context.colors.error,
@@ -751,7 +751,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
 
   Widget _buildBottomBar() {
     return Container(
-      padding: const Spacing.md,
+      padding: const EdgeInsets.all(Spacing.md),
       decoration: BoxDecoration(
         color: context.colors.surface,
         boxShadow: [
@@ -767,16 +767,16 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
           onPressed: _markAsMade,
           style: ElevatedButton.styleFrom(
             backgroundColor: context.colors.error,
-            padding: const EdgeInsets.symmetric(vertical: Spacing.md),
+            padding: const EdgeInsets.symmetric(vertical: MemoryHubSpacing.md),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.check_circle, color: context.colors.surface),
-              HGap.xs(),
+              const HGap.xs(),
               Text(
                 'I Made This!',
                 style: TextStyle(
@@ -827,9 +827,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
   Color _getDifficultyColor(String difficulty) {
     switch (difficulty.toLowerCase()) {
       case 'easy':
-        return context.colors.success;
+        return Colors.green;
       case 'medium':
-        return context.colors.warning;
+        return Colors.orange;
       case 'hard':
         return context.colors.error;
       default:

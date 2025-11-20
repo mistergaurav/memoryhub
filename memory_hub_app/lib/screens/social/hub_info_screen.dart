@@ -268,16 +268,18 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
               ),
             ),
             const VGap.lg(),
-            Container(
-              padding: const EdgeInsets.all(Spacing.md),
-              decoration: BoxDecoration(
-                color: MemoryHubColors.gray100,
-                borderRadius: MemoryHubBorderRadius.smRadius,
-                border: Border.all(color: MemoryHubColors.gray300),
-              ),
-              child: SelectableText(
-                hubUrl,
-                style: context.text.bodySmall?.copyWith(fontFamily: 'monospace'),
+            Padded.all(
+              Spacing.md,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: MemoryHubColors.gray100,
+                  borderRadius: MemoryHubBorderRadius.smRadius,
+                  border: Border.all(color: MemoryHubColors.gray300),
+                ),
+                child: SelectableText(
+                  hubUrl,
+                  style: context.text.bodySmall?.copyWith(fontFamily: 'monospace'),
+                ),
               ),
             ),
             const VGap.md(),
@@ -658,8 +660,8 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                               ),
                             ),
                             if (_hubInfo!['description'] != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: Spacing.xxs),
+                              Padded.only(
+                                top: Spacing.xxs,
                                 child: Text(
                                   _hubInfo!['description'],
                                   style: context.text.bodyMedium?.copyWith(
@@ -784,8 +786,8 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
       itemCount: _members.length,
       itemBuilder: (context, index) {
         final member = _members[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: Spacing.md),
+        return Padded.only(
+          bottom: Spacing.md,
           child: AppCard(
             child: ListTile(
             leading: CircleAvatar(

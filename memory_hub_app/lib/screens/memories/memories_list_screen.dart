@@ -183,7 +183,7 @@ class _MemoriesListScreenState extends State<MemoriesListScreen> {
       onRefresh: _loadMemories,
       color: context.colors.primary,
       child: ListView.builder(
-        padding: const EdgeInsets.all(Spacing.lg),
+        padding: const EdgeInsets.all(16),
         itemCount: _memories.length,
         itemBuilder: (context, index) {
           final memory = _memories[index];

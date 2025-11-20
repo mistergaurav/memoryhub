@@ -203,7 +203,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        context.colors.warning,
+                        Colors.orange,
                         Color(0xFFFBBF24),
                         Color(0xFFFCD34D),
                       ],
@@ -364,14 +364,14 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                   actionLabel: 'Add Milestone',
                   onAction: _showAddDialog,
                   gradientColors: const [
-                    context.colors.warning,
+                    Colors.orange,
                     Color(0xFFFBBF24),
                   ],
                 ),
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
+                padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.md),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -379,7 +379,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                         return _buildEnhancedMilestoneCard(_milestones[index], index);
                       } else if (_isLoadingMore) {
                         return Padding(
-                          padding: const Spacing.md,
+                          padding: const EdgeInsets.all(MemoryHubSpacing.md),
                           child: Center(
                             child: Column(
                               children: [
@@ -412,7 +412,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
         onPressed: _showAddDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Milestone'),
-        backgroundColor: context.colors.warning,
+        backgroundColor: Colors.orange,
       ),
     );
   }
@@ -719,13 +719,13 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                 _buildInteractionChip(
                                   Icons.favorite,
                                   milestone.likesCount.toString(),
-                                  context.colors.accent,
+                                  Theme.of(context).colorScheme.secondary,
                                 ),
                                 const HGap.xs(),
                                 _buildInteractionChip(
                                   Icons.comment,
                                   milestone.commentsCount.toString(),
-                                  context.colors.info,
+                                  Colors.blue,
                                 ),
                                 const Spacer(),
                                 if (milestone.createdByName != null)
@@ -801,21 +801,21 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
   Color _getCategoryColor(String category) {
     switch (category.toLowerCase()) {
       case 'birth':
-        return context.colors.accent;
+        return Theme.of(context).colorScheme.secondary;
       case 'graduation':
         return context.colors.primary;
       case 'wedding':
         return context.colors.error;
       case 'anniversary':
-        return context.colors.warning;
+        return Colors.orange;
       case 'achievement':
         return const Color(0xFFEAB308);
       case 'first_words':
       case 'first_word':
-        return context.colors.info;
+        return Colors.blue;
       case 'first_steps':
       case 'first_step':
-        return context.colors.success;
+        return Colors.green;
       case 'other':
         return const Color(0xFF64748B);
       default:

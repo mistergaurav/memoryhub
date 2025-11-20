@@ -100,7 +100,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
           ),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator())
                 : _users.isEmpty
                     ? Center(
                         child: Text(

@@ -5,8 +5,7 @@ import '../../models/family/paginated_response.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../widgets/shimmer_loading.dart';
 import '../../dialogs/family/add_event_dialog.dart';
-import '../../design_system/design_tokens.dart';
-import 'package:memory_hub_app/design_system/design_system.dart';
+import '../../design_system/design_system.dart';
 import 'event_detail_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -592,7 +591,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
             ),
             if (dayEvents.isNotEmpty)
               Container(
-                padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.md, vertical: Spacing.xs),
+                padding: Spacing.edgeInsetsSymmetric(horizontal: MemoryHubSpacing.md, vertical: Spacing.xs),
                 decoration: BoxDecoration(
                   color: DesignTokens.primaryColor.withValues(alpha: 0.1),
                   borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -763,7 +762,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: Spacing.edgeInsetsSymmetric(vertical: Spacing.md),
+                  padding: Spacing.edgeInsetsSymmetric(vertical: MemoryHubSpacing.md),
                   child: Row(
                     children: [
                       Container(

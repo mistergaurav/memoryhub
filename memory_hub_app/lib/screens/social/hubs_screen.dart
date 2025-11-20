@@ -118,7 +118,7 @@ class _HubsScreenState extends State<HubsScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : _hubs.isEmpty
               ? Center(
                   child: Column(
