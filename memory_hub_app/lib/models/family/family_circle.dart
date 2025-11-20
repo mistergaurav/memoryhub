@@ -82,18 +82,21 @@ class CircleMember {
   final String id;
   final String name;
   final String? avatar;
+  final String? relationshipLabel;
 
   CircleMember({
     required this.id,
     required this.name,
     this.avatar,
+    this.relationshipLabel,
   });
 
   factory CircleMember.fromJson(Map<String, dynamic> json) {
     return CircleMember(
-      id: json['id'] ?? '',
-      name: json['name'] ?? 'Unknown',
-      avatar: json['avatar'],
+      id: json['user_id'] ?? json['id'] ?? '',
+      name: json['display_name'] ?? json['name'] ?? 'Unknown',
+      avatar: json['avatar_url'] ?? json['avatar'],
+      relationshipLabel: json['relationship_label'],
     );
   }
 
@@ -102,6 +105,7 @@ class CircleMember {
       'id': id,
       'name': name,
       'avatar': avatar,
+      'relationship_label': relationshipLabel,
     };
   }
 }
