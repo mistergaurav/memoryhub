@@ -34,6 +34,17 @@ class FamilyCircleType(str, Enum):
     EXTENDED_FAMILY = "extended_family"
     CLOSE_FRIENDS = "close_friends"
     WORK_FRIENDS = "work_friends"
+    BOYFRIEND = "boyfriend"
+    GIRLFRIEND = "girlfriend"
+    EX_BOYFRIEND = "ex_boyfriend"
+    EX_GIRLFRIEND = "ex_girlfriend"
+    BEST_FRIEND = "best_friend"
+    ACQUAINTANCE = "acquaintance"
+    COLLEAGUE = "colleague"
+    CLASSMATE = "classmate"
+    NEIGHBOR = "neighbor"
+    PARTNER = "partner"
+    SPOUSE_FRIEND = "spouse_friend"
     CUSTOM = "custom"
 
 
@@ -77,22 +88,36 @@ class FamilyRelationshipResponse(BaseModel):
     updated_at: datetime
 
 
+class CircleMemberProfile(BaseModel):
+    """Profile information for a member within a circle/relationship category"""
+    user_id: str
+    display_name: str
+    relationship_label: Optional[str] = None
+    avatar_url: Optional[str] = None
+    email: Optional[str] = None
+    added_date: datetime = Field(default_factory=datetime.utcnow)
+    notes: Optional[str] = None
+
+
 class FamilyCircleBase(BaseModel):
     name: str
     description: Optional[str] = None
     circle_type: FamilyCircleType = FamilyCircleType.CUSTOM
+    custom_category: Optional[str] = None
     avatar_url: Optional[str] = None
-    color: Optional[str] = None  # Hex color for UI
+    color: Optional[str] = None
 
 
 class FamilyCircleCreate(FamilyCircleBase):
     member_ids: List[str] = Field(default_factory=list)
+    member_profiles: List[CircleMemberProfile] = Field(default_factory=list)
 
 
 class FamilyCircleUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     circle_type: Optional[FamilyCircleType] = None
+    custom_category: Optional[str] = None
     avatar_url: Optional[str] = None
     color: Optional[str] = None
 
@@ -101,6 +126,7 @@ class FamilyCircleInDB(FamilyCircleBase):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     owner_id: PyObjectId
     member_ids: List[PyObjectId] = Field(default_factory=list)
+    member_profiles: List[dict] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
     
@@ -115,11 +141,13 @@ class FamilyCircleResponse(BaseModel):
     name: str
     description: Optional[str] = None
     circle_type: FamilyCircleType
+    custom_category: Optional[str] = None
     avatar_url: Optional[str] = None
     color: Optional[str] = None
     owner_id: str
     member_count: int
-    members: List[dict] = Field(default_factory=list)  # List of user info
+    members: List[dict] = Field(default_factory=list)
+    member_profiles: List[CircleMemberProfile] = Field(default_factory=list)
     created_at: datetime
     updated_at: datetime
 

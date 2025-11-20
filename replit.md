@@ -1,6 +1,29 @@
 # Overview
 
-The Memory Hub is a full-stack digital legacy platform designed to help families preserve and share memories, files, and personal content. It features a FastAPI backend, a Flutter web frontend, and MongoDB for data storage. The platform offers a a comprehensive suite of features for digital remembrance and legacy building, including personal journaling, secure file storage, a customizable dashboard, robust user management, advanced social functionalities, content organization, advanced search, analytics, privacy controls, voice notes, custom categories, emoji reactions, memory templates, two-factor authentication, password reset, geolocation-based features, scheduled posts, and deep genealogy integration. The platform emphasizes GDPR compliance and utilizes a modern Material 3 design system.
+The Memory Hub is a full-stack digital legacy platform designed to help families preserve and share memories, files, and personal content. It features a FastAPI backend, a Flutter web frontend, and MongoDB for data storage. The platform offers a comprehensive suite of features for digital remembrance and legacy building, including personal journaling, secure file storage, a customizable dashboard, robust user management, advanced social functionalities, content organization, advanced search, analytics, privacy controls, voice notes, custom categories, emoji reactions, memory templates, two-factor authentication, password reset, geolocation-based features, scheduled posts, and deep genealogy integration. The platform emphasizes GDPR compliance and utilizes a modern Material 3 design system.
+
+# Recent Changes
+
+## Enhanced Relationship Management System (November 20, 2025)
+
+The family circle feature has been transformed into a flexible relationship management system, enabling users to create and manage diverse relationship categories with rich person profile information.
+
+### Key Enhancements:
+- **11+ Relationship Categories**: Extended from 2 basic family types to 11+ categories including boyfriend, girlfriend, ex, best friend, close friends, family member, work colleague, acquaintance, mentor, mentee, and custom categories
+- **Rich Person Profiles**: Each circle member now supports detailed profiles with display name, custom relationship labels, avatar, email, and personal notes
+- **Enhanced API Endpoints**: 
+  - `POST /api/v1/family/core/circles/{circle_id}/profiles` - Add person to circle
+  - `PUT /api/v1/family/core/circles/{circle_id}/profiles/{user_id}` - Update person profile
+  - `DELETE /api/v1/family/core/circles/{circle_id}/profiles/{user_id}` - Remove person from circle
+  - `GET /api/v1/family/core/circles/by-category/{category}` - Filter circles by relationship type
+- **Backward Compatibility**: Maintains existing `member_ids` field alongside new `member_profiles` for seamless migration
+- **Comprehensive Testing**: 10 end-to-end tests validating all CRUD operations, category filtering, and sharing integration
+
+### Technical Implementation:
+- Enhanced `CircleMemberProfile` model with user_id, display_name, relationship_label, avatar_url, email, and notes fields
+- Updated repository layer with atomic profile management operations
+- All sharing features (albums, memories, health records, etc.) automatically compatible with enhanced circles
+- Backend configured on port 8000 for API services
 
 # User Preferences
 

@@ -130,9 +130,17 @@ for subdir in ["audio", "images", "videos", "documents", "other"]:
 # Serve Flutter web app
 flutter_build_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "memory_hub_app", "build", "web")
 if os.path.exists(flutter_build_path):
-    app.mount("/assets", StaticFiles(directory=os.path.join(flutter_build_path, "assets")), name="assets")
-    app.mount("/icons", StaticFiles(directory=os.path.join(flutter_build_path, "icons")), name="icons")
-    app.mount("/canvaskit", StaticFiles(directory=os.path.join(flutter_build_path, "canvaskit")), name="canvaskit")
+    assets_path = os.path.join(flutter_build_path, "assets")
+    if os.path.exists(assets_path):
+        app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
+    
+    icons_path = os.path.join(flutter_build_path, "icons")
+    if os.path.exists(icons_path):
+        app.mount("/icons", StaticFiles(directory=icons_path), name="icons")
+    
+    canvaskit_path = os.path.join(flutter_build_path, "canvaskit")
+    if os.path.exists(canvaskit_path):
+        app.mount("/canvaskit", StaticFiles(directory=canvaskit_path), name="canvaskit")
     
     @app.get("/{full_path:path}")
     async def serve_flutter_app(full_path: str):
