@@ -252,7 +252,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                         child: Icon(
                           Icons.restaurant_menu,
                           size: 200,
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
                     ],
@@ -549,7 +549,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.8),
+                        Colors.black.withValues(alpha: 0.8),
                       ],
                     ),
                   ),
@@ -601,8 +601,8 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
+        color: color.withValues(alpha: 0.2),
+        borderRadius: Radii.mdRadius,
         border: Border.all(color: color, width: 1),
       ),
       child: Row(

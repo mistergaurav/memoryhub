@@ -229,7 +229,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             GestureDetector(
               onTap: _toggleFab,
               child: Container(
-                color: context.colors.surface.withOpacity(0.5),
+                color: context.colors.surface.withValues(alpha: 0.5),
               ),
             ),
         ],
@@ -628,7 +628,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             Container(
               padding: Spacing.edgeInsetsAll(Spacing.md),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: MemoryHubBorderRadius.mdRadius,
               ),
               child: Icon(
@@ -653,7 +653,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                   Text(
                     subtitle,
                     style: context.text.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                         ),
                   ),
                 ],
@@ -683,7 +683,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
           Text(
             'Loading your family hub...',
             style: context.text.bodyLarge?.copyWith(
-              color: context.colors.onSurface.withOpacity(0.6),
+              color: context.colors.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ],

@@ -216,8 +216,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () => Navigator.pushNamed(context, '/gdpr/consent'),
               ),
               ListTile(
-                leading: const Icon(Icons.delete_forever, color: Colors.red),
-                title: const Text('Delete Account', style: TextStyle(color: Colors.red)),
+                leading: Icon(Icons.delete_forever, color: context.colors.error),
+                title: Text('Delete Account', style: TextStyle(color: context.colors.error)),
                 subtitle: const Text('Permanently delete your account'),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.pushNamed(context, '/gdpr/delete'),
@@ -499,12 +499,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                   
                   if (confirmed == true && mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Cache cleared successfully'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
+                    AppSnackbar.success(context, 'Cache cleared successfully');
                   }
                 },
               ),

@@ -13,9 +13,10 @@ class AccountSecurityScreen extends StatelessWidget {
         title: const Text('Account & Security'),
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(Spacing.lg),
-        children: [
+      body: Padded(
+        padding: Spacing.edgeInsetsAll(Spacing.lg),
+        child: ListView(
+          children: [
           CollapsibleSettingsGroup(
             title: 'Authentication',
             icon: Icons.lock_outline,
@@ -75,6 +76,7 @@ class AccountSecurityScreen extends StatelessWidget {
             ],
           ),
         ],
+        ),
       ),
     );
   }

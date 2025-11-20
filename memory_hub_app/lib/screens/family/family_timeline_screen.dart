@@ -237,7 +237,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                         child: Icon(
                           Icons.auto_stories,
                           size: 140,
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
                       if (_totalCount > 0)
@@ -250,8 +250,8 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: Radii.xlRadius,
                             ),
                             child: Text(
                               '$_totalCount ${_totalCount == 1 ? 'Event' : 'Events'}',
@@ -410,7 +410,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF8B5CF6).withOpacity(0.3),
+                        color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -432,8 +432,8 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF8B5CF6).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    color: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
+                    borderRadius: Radii.mdRadius,
                   ),
                   child: Text(
                     '${sectionEvents.length}',
@@ -506,7 +506,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                 ],
               ),
               selectedColor: const Color(0xFF8B5CF6),
-              backgroundColor: const Color(0xFF8B5CF6).withOpacity(0.1),
+              backgroundColor: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
               labelStyle: TextStyle(
                 color: isSelected ? Colors.white : const Color(0xFF8B5CF6),
                 fontWeight: isSelected ? MemoryHubTypography.semiBold : MemoryHubTypography.regular,
@@ -554,7 +554,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: _getGradientColors(event.eventType)[0].withOpacity(0.4),
+                        color: _getGradientColors(event.eventType)[0].withValues(alpha: 0.4),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -579,7 +579,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                         end: Alignment.bottomCenter,
                         colors: [
                           _getGradientColors(event.eventType)[0],
-                          const Color(0xFF8B5CF6).withOpacity(0.3),
+                          const Color(0xFF8B5CF6).withValues(alpha: 0.3),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(2),
@@ -594,7 +594,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                 shape: RoundedRectangleBorder(
                   borderRadius: MemoryHubBorderRadius.xlRadius,
                   side: BorderSide(
-                    color: _getGradientColors(event.eventType)[0].withOpacity(0.1),
+                    color: _getGradientColors(event.eventType)[0].withValues(alpha: 0.1),
                     width: 1,
                   ),
                 ),
@@ -754,10 +754,10 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
               vertical: 4,
             ),
             decoration: BoxDecoration(
-              color: (tag['color'] as Color).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              color: (tag['color'] as Color).withValues(alpha: 0.1),
+              borderRadius: Radii.mdRadius,
               border: Border.all(
-                color: (tag['color'] as Color).withOpacity(0.3),
+                color: (tag['color'] as Color).withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -802,10 +802,10 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: const Color(0xFFEC4899).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(20),
+          color: const Color(0xFFEC4899).withValues(alpha: 0.1),
+          borderRadius: Radii.xlRadius,
           border: Border.all(
-            color: const Color(0xFFEC4899).withOpacity(0.2),
+            color: const Color(0xFFEC4899).withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -839,10 +839,10 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: const Color(0xFF06B6D4).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(20),
+          color: const Color(0xFF06B6D4).withValues(alpha: 0.1),
+          borderRadius: Radii.xlRadius,
           border: Border.all(
-            color: const Color(0xFF06B6D4).withOpacity(0.2),
+            color: const Color(0xFF06B6D4).withValues(alpha: 0.2),
             width: 1,
           ),
         ),

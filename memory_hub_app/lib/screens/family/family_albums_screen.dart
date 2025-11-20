@@ -331,7 +331,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
                               end: Alignment.bottomCenter,
                               colors: [
                                 Colors.transparent,
-                                Colors.black.withOpacity(0.7),
+                                Colors.black.withValues(alpha: 0.7),
                               ],
                             ),
                           ),
@@ -469,8 +469,8 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
         vertical: MemoryHubSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(MemoryHubBorderRadius.md),
+        color: color.withValues(alpha: 0.9),
+        borderRadius: Radii.mdRadius,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -497,8 +497,8 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
         vertical: MemoryHubSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(MemoryHubBorderRadius.md),
+        color: Colors.black.withValues(alpha: 0.7),
+        borderRadius: Radii.mdRadius,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -920,7 +920,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.7),
+                          Colors.black.withValues(alpha: 0.7),
                         ],
                       ),
                     ),
@@ -939,7 +939,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
             SliverToBoxAdapter(
               child: Container(
                 padding: const EdgeInsets.all(MemoryHubSpacing.lg),
-                color: MemoryHubColors.primary.withOpacity(0.1),
+                color: MemoryHubColors.primary.withValues(alpha: 0.1),
                 child: Column(
                   children: [
                     Row(
@@ -1077,7 +1077,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(MemoryHubSpacing.xs),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
+                    color: Colors.black.withValues(alpha: 0.6),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -1101,7 +1101,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.8),
+                        Colors.black.withValues(alpha: 0.8),
                       ],
                     ),
                     borderRadius: const BorderRadius.only(
@@ -1229,7 +1229,7 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.8),
+                    Colors.black.withValues(alpha: 0.8),
                   ],
                 ),
               ),

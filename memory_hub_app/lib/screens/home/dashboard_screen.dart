@@ -1,17 +1,19 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../memories/memory_create_screen.dart';
-import '../vault/vault_upload_screen.dart';
-import '../collections/collections_screen.dart';
-import '../analytics/analytics_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../activity/activity_feed_screen.dart';
 import '../../services/dashboard_service.dart';
 import '../../services/analytics_service.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
+import '../../design_system/layout/padded.dart';
+import '../../design_system/utils/context_ext.dart';
+import '../../providers/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({Key? key}) : super(key: key);
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -19,7 +21,6 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> with TickerProviderStateMixin {
   bool _isLoading = true;
-  String _error = '';
   Map<String, dynamic> _stats = {};
   List<Map<String, dynamic>> _recentActivity = [];
   late AnimationController _fadeController;
@@ -32,12 +33,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   void initState() {
     super.initState();
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 600),
+      duration: MemoryHubAnimations.slow,
       vsync: this,
     );
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
-      curve: Curves.easeIn,
+      curve: MemoryHubAnimations.easeIn,
     );
     _fadeController.forward();
     _loadDashboardData();
@@ -52,7 +53,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   Future<void> _loadDashboardData() async {
     setState(() {
       _isLoading = true;
-      _error = '';
     });
     
     try {
@@ -76,8 +76,6 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _error = e.toString();
-        // Set default empty stats on error
         _stats = {
           'total_memories': 0,
           'total_files': 0,
@@ -136,51 +134,65 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
     switch (type) {
       case 'memory_created':
       case 'memory':
-        return const Color(0xFF6366F1);
+        return MemoryHubColors.indigo500;
       case 'file_uploaded':
       case 'file':
-        return const Color(0xFF10B981);
+        return MemoryHubColors.green500;
       case 'collection_created':
       case 'collection':
-        return const Color(0xFF8B5CF6);
+        return MemoryHubColors.purple500;
       case 'user_followed':
       case 'follow':
-        return const Color(0xFFEC4899);
+        return MemoryHubColors.pink500;
       case 'comment':
-        return const Color(0xFFF59E0B);
+        return MemoryHubColors.amber500;
       case 'like':
-        return const Color(0xFFEF4444);
+        return MemoryHubColors.red500;
       default:
-        return const Color(0xFF6B7280);
+        return MemoryHubColors.gray500;
+    }
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good morning';
+    } else if (hour < 17) {
+      return 'Good afternoon';
+    } else {
+      return 'Good evening';
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userName = userProvider.currentUser?.fullName ?? userProvider.currentUser?.username ?? 'there';
+    
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _loadDashboardData,
         child: CustomScrollView(
           slivers: [
-            _buildAppBar(),
+            _buildAppBar(userName),
             SliverToBoxAdapter(
               child: FadeTransition(
                 opacity: _fadeAnimation,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                child: Padded.all(
+                  MemoryHubSpacing.xl,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildMyHubsSection(),
-                      const SizedBox(height: 32),
+                      const VGap.xxl(),
                       _buildStatsSection(),
-                      const SizedBox(height: 32),
+                      const VGap.xxl(),
                       _buildQuickActionsSection(),
-                      const SizedBox(height: 32),
+                      const VGap.xxl(),
                       _buildFeaturesSection(),
-                      const SizedBox(height: 32),
+                      const VGap.xxl(),
                       _buildRecentActivitySection(),
-                      const SizedBox(height: 20),
+                      const VGap.xl(),
                     ],
                   ),
                 ),
@@ -201,13 +213,15 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
         icon: const Icon(Icons.add),
         label: Text(
           'Create Memory',
-          style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+          style: context.text.labelLarge?.copyWith(
+            fontWeight: MemoryHubTypography.semiBold,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(String userName) {
     return SliverAppBar(
       expandedHeight: 220,
       floating: false,
@@ -215,19 +229,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           'Dashboard',
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+          style: context.text.titleLarge?.copyWith(
+            fontWeight: MemoryHubTypography.bold,
+            color: context.colors.onPrimary,
+          ),
         ),
         background: Container(
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF6366F1),
-                Color(0xFF8B5CF6),
-                Color(0xFFEC4899),
-              ],
-            ),
+            gradient: MemoryHubGradients.primary,
           ),
           child: Stack(
             children: [
@@ -237,29 +246,27 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 child: Icon(
                   Icons.auto_awesome,
                   size: 140,
-                  color: Colors.white.withOpacity(0.15),
+                  color: context.colors.onPrimary.withValues(alpha: 0.15),
                 ),
               ),
               Positioned(
                 bottom: 30,
-                left: 20,
+                left: MemoryHubSpacing.xl,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Welcome back!',
-                      style: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: Colors.white.withOpacity(0.9),
-                        fontWeight: FontWeight.w500,
+                      '${_getGreeting()}, $userName!',
+                      style: context.text.titleMedium?.copyWith(
+                        color: context.colors.onPrimary.withValues(alpha: 0.95),
+                        fontWeight: MemoryHubTypography.semiBold,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const VGap.xs(),
                     Text(
-                      'Your memory journey awaits',
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: Colors.white.withOpacity(0.8),
+                      'Ready to create amazing memories?',
+                      style: context.text.bodyMedium?.copyWith(
+                        color: context.colors.onPrimary.withValues(alpha: 0.85),
                       ),
                     ),
                   ],
@@ -293,24 +300,26 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'My Hubs',
-              style: GoogleFonts.inter(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+              'My Hub',
+              style: context.text.headlineSmall?.copyWith(
+                fontWeight: MemoryHubTypography.bold,
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(
+                horizontal: MemoryHubSpacing.md,
+                vertical: MemoryHubSpacing.sm,
+              ),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Theme.of(context).colorScheme.primary.withOpacity(0.15),
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.15),
+                    context.colors.primary.withValues(alpha: 0.15),
+                    context.colors.secondary.withValues(alpha: 0.15),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: MemoryHubBorderRadius.mdRadius,
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  color: context.colors.primary.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -319,15 +328,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   Icon(
                     Icons.check_circle,
                     size: 14,
-                    color: Theme.of(context).colorScheme.primary,
+                    color: context.colors.primary,
                   ),
-                  const SizedBox(width: 4),
+                  const HGap.xs(),
                   Text(
-                    '2 Active',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.primary,
+                    'Active',
+                    style: context.text.bodySmall?.copyWith(
+                      fontWeight: MemoryHubTypography.semiBold,
+                      color: context.colors.primary,
                     ),
                   ),
                 ],
@@ -335,47 +343,20 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        Column(
-          children: [
-            _buildLargeHubCard(
-              context,
-              title: 'Collections',
-              subtitle: 'Organize your memories into beautiful albums',
-              icon: Icons.collections_bookmark,
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-              ),
-              count: '${_stats['total_collections'] ?? _stats['collections'] ?? 0}',
-              countLabel: 'Collections',
-              stats: [
-                {'label': 'Total', 'value': '${_stats['total_collections'] ?? _stats['collections'] ?? 0}'},
-                {'label': 'This Month', 'value': '${_stats['collections_this_month'] ?? 0}'},
-              ],
-              onTap: () => Navigator.pushNamed(context, '/collections'),
-            ),
-            const SizedBox(height: 16),
-            _buildLargeHubCard(
-              context,
-              title: 'Family Hub',
-              subtitle: 'Complete family management suite with 12 features',
-              icon: Icons.family_restroom,
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFFEC4899), Color(0xFFF472B6)],
-              ),
-              count: '12',
-              countLabel: 'Features',
-              stats: [
-                {'label': 'Albums', 'value': '5'},
-                {'label': 'Members', 'value': '6'},
-              ],
-              onTap: () => Navigator.pushNamed(context, '/family'),
-            ),
+        const VGap.lg(),
+        _buildLargeHubCard(
+          context,
+          title: 'Collections',
+          subtitle: 'Organize your memories into beautiful albums',
+          icon: Icons.collections_bookmark,
+          gradient: MemoryHubGradients.primary,
+          count: '${_stats['total_collections'] ?? _stats['collections'] ?? 0}',
+          countLabel: 'Collections',
+          stats: [
+            {'label': 'Total', 'value': '${_stats['total_collections'] ?? _stats['collections'] ?? 0}'},
+            {'label': 'This Month', 'value': '${_stats['collections_this_month'] ?? 0}'},
           ],
+          onTap: () => Navigator.pushNamed(context, '/collections'),
         ),
       ],
     );
@@ -397,10 +378,10 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       child: Container(
         height: 200,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: MemoryHubBorderRadius.xxlRadius,
           boxShadow: [
             BoxShadow(
-              color: (gradient as LinearGradient).colors.first.withOpacity(0.4),
+              color: (gradient as LinearGradient).colors.first.withValues(alpha: 0.4),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -411,11 +392,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             Container(
               decoration: BoxDecoration(
                 gradient: gradient,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: MemoryHubBorderRadius.xxlRadius,
               ),
             ),
             ClipRRect(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: MemoryHubBorderRadius.xxlRadius,
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
@@ -424,13 +405,13 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Colors.white.withOpacity(0.2),
-                        Colors.white.withOpacity(0.05),
+                        context.colors.onPrimary.withValues(alpha: 0.2),
+                        context.colors.onPrimary.withValues(alpha: 0.05),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: MemoryHubBorderRadius.xxlRadius,
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
+                      color: context.colors.onPrimary.withValues(alpha: 0.3),
                       width: 1.5,
                     ),
                   ),
@@ -443,11 +424,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               child: Icon(
                 icon,
                 size: 160,
-                color: Colors.white.withOpacity(0.15),
+                color: context.colors.onPrimary.withValues(alpha: 0.15),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(24),
+            Padded.all(
+              MemoryHubSpacing.xl,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -456,22 +437,25 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(16),
+                          color: context.colors.onPrimary.withValues(alpha: 0.3),
+                          borderRadius: MemoryHubBorderRadius.lgRadius,
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.4),
+                            color: context.colors.onPrimary.withValues(alpha: 0.4),
                           ),
                         ),
-                        child: Icon(icon, color: Colors.white, size: 32),
+                        child: Icon(icon, color: context.colors.onPrimary, size: 32),
                       ),
                       const Spacer(),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: MemoryHubSpacing.sm,
+                        ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25),
-                          borderRadius: BorderRadius.circular(12),
+                          color: context.colors.onPrimary.withValues(alpha: 0.25),
+                          borderRadius: MemoryHubBorderRadius.mdRadius,
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.3),
+                            color: context.colors.onPrimary.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -479,18 +463,16 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                           children: [
                             Text(
                               count,
-                              style: GoogleFonts.inter(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                              style: context.text.titleMedium?.copyWith(
+                                fontWeight: MemoryHubTypography.bold,
+                                color: context.colors.onPrimary,
                               ),
                             ),
-                            const SizedBox(width: 6),
+                            const HGap.sm(),
                             Text(
                               countLabel,
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: Colors.white.withOpacity(0.95),
+                              style: context.text.bodySmall?.copyWith(
+                                color: context.colors.onPrimary.withValues(alpha: 0.95),
                               ),
                             ),
                           ],
@@ -501,48 +483,44 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   const Spacer(),
                   Text(
                     title,
-                    style: GoogleFonts.inter(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    style: context.text.headlineSmall?.copyWith(
+                      fontWeight: MemoryHubTypography.bold,
+                      color: context.colors.onPrimary,
                       shadows: [
                         Shadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: context.colors.onSurface.withValues(alpha: 0.2),
                           offset: const Offset(0, 2),
                           blurRadius: 4,
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const VGap.sm(),
                   Text(
                     subtitle,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: Colors.white.withOpacity(0.95),
+                    style: context.text.bodyMedium?.copyWith(
+                      color: context.colors.onPrimary.withValues(alpha: 0.95),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const VGap.lg(),
                   Row(
                     children: stats.map((stat) {
                       return Padding(
-                        padding: const EdgeInsets.only(right: 16),
+                        padding: const EdgeInsets.only(right: MemoryHubSpacing.lg),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               stat['value']!,
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                              style: context.text.titleMedium?.copyWith(
+                                fontWeight: MemoryHubTypography.bold,
+                                color: context.colors.onPrimary,
                               ),
                             ),
                             Text(
                               stat['label']!,
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                color: Colors.white.withOpacity(0.9),
+                              style: context.text.bodySmall?.copyWith(
+                                color: context.colors.onPrimary.withValues(alpha: 0.9),
                               ),
                             ),
                           ],
@@ -565,12 +543,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       children: [
         Text(
           'Your Stats',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+          style: context.text.headlineSmall?.copyWith(
+            fontWeight: MemoryHubTypography.bold,
           ),
         ),
-        const SizedBox(height: 16),
+        const VGap.lg(),
         Row(
           children: [
             Expanded(
@@ -580,11 +557,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     ? (_stats['total_memories'] ?? _stats['memories'] ?? 0)
                     : int.tryParse((_stats['total_memories'] ?? _stats['memories'] ?? 0).toString()) ?? 0,
                 Icons.auto_awesome,
-                const Color(0xFF6366F1),
+                MemoryHubColors.indigo500,
                 _stats['memories_growth'] ?? '+0%',
               ),
             ),
-            const SizedBox(width: 12),
+            const HGap.md(),
             Expanded(
               child: _buildStatCard(
                 'Files',
@@ -592,7 +569,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     ? (_stats['total_files'] ?? _stats['files'] ?? 0)
                     : int.tryParse((_stats['total_files'] ?? _stats['files'] ?? 0).toString()) ?? 0,
                 Icons.folder_outlined,
-                const Color(0xFF10B981),
+                MemoryHubColors.green500,
                 _stats['files_growth'] ?? '+0',
               ),
             ),
@@ -604,12 +581,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
   Widget _buildStatCard(String label, int value, IconData icon, Color color, String trend) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20),
+        color: context.theme.cardColor,
+        borderRadius: MemoryHubBorderRadius.xlRadius,
         border: Border.all(
-          color: Theme.of(context).dividerColor,
+          color: context.theme.dividerColor,
         ),
       ),
       child: Column(
@@ -618,46 +595,46 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(MemoryHubSpacing.sm + 2),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: MemoryHubBorderRadius.mdRadius,
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: MemoryHubSpacing.sm,
+                  vertical: MemoryHubSpacing.xs,
+                ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: MemoryHubColors.green500.withValues(alpha: 0.1),
+                  borderRadius: MemoryHubBorderRadius.smRadius,
                 ),
                 child: Text(
                   trend,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF10B981),
+                  style: context.text.bodySmall?.copyWith(
+                    fontWeight: MemoryHubTypography.semiBold,
+                    color: MemoryHubColors.green500,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const VGap.lg(),
           Text(
             value.toString(),
-            style: GoogleFonts.inter(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
+            style: context.text.headlineLarge?.copyWith(
+              fontWeight: MemoryHubTypography.bold,
               color: color,
             ),
           ),
-          const SizedBox(height: 4),
+          const VGap.xs(),
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: Colors.grey.shade600,
+            style: context.text.bodyMedium?.copyWith(
+              color: MemoryHubColors.gray600,
             ),
           ),
         ],
@@ -666,57 +643,51 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
   }
 
   Widget _buildQuickActionsSection() {
+    final quickActions = [
+      {
+        'title': 'New Memory',
+        'icon': Icons.add_photo_alternate,
+        'gradient': MemoryHubGradients.primary,
+        'route': '/memories/create',
+      },
+      {
+        'title': 'Upload File',
+        'icon': Icons.cloud_upload,
+        'gradient': MemoryHubGradients.success,
+        'route': '/vault/upload',
+      },
+      {
+        'title': 'Create Story',
+        'icon': Icons.auto_stories,
+        'gradient': MemoryHubGradients.secondary,
+        'route': '/stories/create',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Quick Actions',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+          style: context.text.headlineSmall?.copyWith(
+            fontWeight: MemoryHubTypography.bold,
           ),
         ),
-        const SizedBox(height: 16),
+        const VGap.lg(),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: [
-              _buildQuickActionCard(
-                title: 'New Memory',
-                icon: Icons.add_photo_alternate,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+            children: quickActions.map((action) {
+              return Padding(
+                padding: const EdgeInsets.only(right: MemoryHubSpacing.md),
+                child: _buildQuickActionCard(
+                  title: action['title'] as String,
+                  icon: action['icon'] as IconData,
+                  gradient: action['gradient'] as Gradient,
+                  onTap: () => Navigator.pushNamed(context, action['route'] as String),
                 ),
-                onTap: () => Navigator.pushNamed(context, '/memories/create'),
-              ),
-              const SizedBox(width: 12),
-              _buildQuickActionCard(
-                title: 'Upload File',
-                icon: Icons.cloud_upload,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF10B981), Color(0xFF34D399)],
-                ),
-                onTap: () => Navigator.pushNamed(context, '/vault/upload'),
-              ),
-              const SizedBox(width: 12),
-              _buildQuickActionCard(
-                title: 'Create Story',
-                icon: Icons.auto_stories,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFEC4899), Color(0xFFF472B6)],
-                ),
-                onTap: () => Navigator.pushNamed(context, '/stories/create'),
-              ),
-              const SizedBox(width: 12),
-              _buildQuickActionCard(
-                title: 'Analytics',
-                icon: Icons.analytics_outlined,
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFF59E0B), Color(0xFFFBBF24)],
-                ),
-                onTap: () => Navigator.pushNamed(context, '/analytics'),
-              ),
-            ],
+              );
+            }).toList(),
           ),
         ),
       ],
@@ -733,13 +704,13 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       onTap: onTap,
       child: Container(
         width: 140,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
         decoration: BoxDecoration(
           gradient: gradient,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: MemoryHubBorderRadius.xlRadius,
           boxShadow: [
             BoxShadow(
-              color: (gradient as LinearGradient).colors.first.withOpacity(0.3),
+              color: (gradient as LinearGradient).colors.first.withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -749,20 +720,19 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(MemoryHubSpacing.md),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
+                color: context.colors.onPrimary.withValues(alpha: 0.2),
+                borderRadius: MemoryHubBorderRadius.mdRadius,
               ),
-              child: Icon(icon, color: Colors.white, size: 28),
+              child: Icon(icon, color: context.colors.onPrimary, size: 28),
             ),
-            const SizedBox(height: 12),
+            const VGap.md(),
             Text(
               title,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+              style: context.text.bodyMedium?.copyWith(
+                fontWeight: MemoryHubTypography.semiBold,
+                color: context.colors.onPrimary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -774,12 +744,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
   Widget _buildFeaturesSection() {
     final features = [
-      {'title': 'Social Hub', 'icon': Icons.people_outline, 'route': '/social/hubs', 'color': const Color(0xFFEC4899)},
-      {'title': 'Search', 'icon': Icons.search, 'route': '/search', 'color': const Color(0xFF8B5CF6)},
-      {'title': 'Tags', 'icon': Icons.label_outline, 'route': '/tags', 'color': const Color(0xFF10B981)},
-      {'title': 'Categories', 'icon': Icons.category_outlined, 'route': '/categories', 'color': const Color(0xFFF59E0B)},
-      {'title': 'Places', 'icon': Icons.place_outlined, 'route': '/places', 'color': const Color(0xFF3B82F6)},
-      {'title': 'Settings', 'icon': Icons.settings_outlined, 'route': '/profile/settings', 'color': const Color(0xFF6366F1)},
+      {'title': 'Social Hub', 'icon': Icons.people_outline, 'route': '/social/hubs', 'color': MemoryHubColors.pink500},
+      {'title': 'Search', 'icon': Icons.search, 'route': '/search', 'color': MemoryHubColors.purple500},
+      {'title': 'Tags', 'icon': Icons.label_outline, 'route': '/tags', 'color': MemoryHubColors.green500},
+      {'title': 'Categories', 'icon': Icons.category_outlined, 'route': '/categories', 'color': MemoryHubColors.amber500},
+      {'title': 'Places', 'icon': Icons.place_outlined, 'route': '/places', 'color': MemoryHubColors.blue500},
+      {'title': 'Settings', 'icon': Icons.settings_outlined, 'route': '/profile/settings', 'color': MemoryHubColors.indigo500},
     ];
 
     return Column(
@@ -787,20 +757,19 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       children: [
         Text(
           'Explore Features',
-          style: GoogleFonts.inter(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+          style: context.text.headlineSmall?.copyWith(
+            fontWeight: MemoryHubTypography.bold,
           ),
         ),
-        const SizedBox(height: 16),
+        const VGap.lg(),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             childAspectRatio: 1.0,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
+            crossAxisSpacing: MemoryHubSpacing.md,
+            mainAxisSpacing: MemoryHubSpacing.md,
           ),
           itemCount: features.length,
           itemBuilder: (context, index) {
@@ -809,19 +778,19 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               onTap: () => Navigator.pushNamed(context, feature['route'] as String),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(16),
+                  color: context.theme.cardColor,
+                  borderRadius: MemoryHubBorderRadius.lgRadius,
                   border: Border.all(
-                    color: Theme.of(context).dividerColor,
+                    color: context.theme.dividerColor,
                   ),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(MemoryHubSpacing.md),
                       decoration: BoxDecoration(
-                        color: (feature['color'] as Color).withOpacity(0.1),
+                        color: (feature['color'] as Color).withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -830,12 +799,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                         size: 28,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const VGap.sm(),
                     Text(
                       feature['title'] as String,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                      style: context.text.bodySmall?.copyWith(
+                        fontWeight: MemoryHubTypography.semiBold,
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
@@ -860,9 +828,8 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           children: [
             Text(
               'Recent Activity',
-              style: GoogleFonts.inter(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+              style: context.text.headlineSmall?.copyWith(
+                fontWeight: MemoryHubTypography.bold,
               ),
             ),
             TextButton(
@@ -876,34 +843,40 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               },
               child: Text(
                 'View All',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                style: context.text.labelLarge?.copyWith(
+                  fontWeight: MemoryHubTypography.semiBold,
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        const VGap.lg(),
         _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _recentActivity.isEmpty
                 ? Container(
-                    padding: const EdgeInsets.all(40),
+                    padding: const EdgeInsets.all(MemoryHubSpacing.xxxxl),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(20),
+                      color: context.theme.cardColor,
+                      borderRadius: MemoryHubBorderRadius.xlRadius,
                       border: Border.all(
-                        color: Theme.of(context).dividerColor,
+                        color: context.theme.dividerColor,
                       ),
                     ),
                     child: Center(
                       child: Column(
                         children: [
-                          Icon(Icons.history, size: 48, color: Colors.grey.shade400),
-                          const SizedBox(height: 12),
+                          Icon(
+                            Icons.history,
+                            size: 48,
+                            color: MemoryHubColors.gray400,
+                          ),
+                          const VGap.md(),
                           Text(
                             'No recent activity',
-                            style: GoogleFonts.inter(
-                              color: Colors.grey.shade600,
-                              fontWeight: FontWeight.w500,
+                            style: context.text.bodyMedium?.copyWith(
+                              color: MemoryHubColors.gray600,
+                              fontWeight: MemoryHubTypography.medium,
                             ),
                           ),
                         ],
@@ -913,20 +886,23 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 : Column(
                     children: _recentActivity.map((activity) {
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
+                        margin: const EdgeInsets.only(bottom: MemoryHubSpacing.md),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(16),
+                          color: context.theme.cardColor,
+                          borderRadius: MemoryHubBorderRadius.lgRadius,
                           border: Border.all(
-                            color: Theme.of(context).dividerColor,
+                            color: context.theme.dividerColor,
                           ),
                         ),
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: MemoryHubSpacing.lg,
+                            vertical: MemoryHubSpacing.sm,
+                          ),
                           leading: Container(
-                            padding: const EdgeInsets.all(10),
+                            padding: const EdgeInsets.all(MemoryHubSpacing.sm + 2),
                             decoration: BoxDecoration(
-                              color: (activity['color'] as Color).withOpacity(0.1),
+                              color: (activity['color'] as Color).withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -937,20 +913,18 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                           ),
                           title: Text(
                             activity['title'],
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
+                            style: context.text.bodyMedium?.copyWith(
+                              fontWeight: MemoryHubTypography.semiBold,
                             ),
                           ),
                           subtitle: Text(
                             activity['description'],
-                            style: GoogleFonts.inter(fontSize: 12),
+                            style: context.text.bodySmall,
                           ),
                           trailing: Text(
                             activity['time'],
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              color: Colors.grey.shade600,
+                            style: context.text.bodySmall?.copyWith(
+                              color: MemoryHubColors.gray600,
                             ),
                           ),
                         ),

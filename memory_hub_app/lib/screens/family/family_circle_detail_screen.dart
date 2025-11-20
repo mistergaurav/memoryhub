@@ -153,7 +153,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
               end: Alignment.bottomRight,
               colors: [
                 color,
-                color.withOpacity(0.7),
+                color.withValues(alpha: 0.7),
               ],
             ),
           ),
@@ -397,7 +397,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                                 vertical: Spacing.xs,
                               ),
                               decoration: BoxDecoration(
-                                color: MemoryHubColors.amber500.withOpacity(0.2),
+                                color: MemoryHubColors.amber500.withValues(alpha: 0.2),
                                 borderRadius: MemoryHubBorderRadius.fullRadius,
                               ),
                               child: const Text(

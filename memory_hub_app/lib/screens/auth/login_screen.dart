@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:memory_hub_app/design_system/design_system.dart';
+import 'package:memory_hub_app/design_system/design_tokens.dart';
+import 'package:memory_hub_app/design_system/layout/gap.dart';
+import 'package:memory_hub_app/design_system/layout/padded.dart';
+import 'package:memory_hub_app/design_system/components/buttons/primary_button.dart';
+import 'package:memory_hub_app/design_system/components/buttons/secondary_button.dart';
+import 'package:memory_hub_app/design_system/components/feedback/app_snackbar.dart';
+import 'package:memory_hub_app/design_system/utils/context_ext.dart';
 import '../../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -9,18 +15,43 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
   bool _obscurePassword = true;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: MemoryHubAnimations.slow,
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: MemoryHubAnimations.easeInOut,
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: MemoryHubAnimations.easeOut,
+    ));
+    _animationController.forward();
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -52,184 +83,212 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  InputDecoration _buildInputDecoration({
+    required String label,
+    required IconData icon,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon),
+      suffixIcon: suffix,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: MemoryHubSpacing.lg,
+        vertical: MemoryHubSpacing.lg,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: MemoryHubBorderRadius.lgRadius,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: MemoryHubBorderRadius.lgRadius,
+        borderSide: BorderSide(
+          color: context.colors.outline,
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: MemoryHubBorderRadius.lgRadius,
+        borderSide: BorderSide(
+          color: context.colors.primary,
+          width: 2,
+        ),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: MemoryHubBorderRadius.lgRadius,
+        borderSide: BorderSide(
+          color: context.colors.error,
+        ),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: MemoryHubBorderRadius.lgRadius,
+        borderSide: BorderSide(
+          color: context.colors.error,
+          width: 2,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padded.lg(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Icon(
-                      Icons.memory,
-                      size: 80,
-                      color: context.colors.primary,
-                    ),
-                    const VGap.md(),
-                    Text(
-                      'The Memory Hub',
-                      textAlign: TextAlign.center,
-                      style: context.text.displaySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              context.colors.surface,
+              context.colors.primaryContainer.withValues(alpha: 0.1),
+            ],
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Padded.lg(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: MemoryHubGradients.primary,
+                            ),
+                            child: Icon(
+                              Icons.memory,
+                              size: 64,
+                              color: context.colors.onPrimary,
+                            ),
+                          ),
+                          const VGap.lg(),
+                          Text(
+                            'The Memory Hub',
+                            textAlign: TextAlign.center,
+                            style: context.text.displaySmall?.copyWith(
+                              fontWeight: MemoryHubTypography.bold,
+                              color: context.colors.onSurface,
+                            ),
+                          ),
+                          const VGap.xs(),
+                          Text(
+                            'Welcome back! Login to continue',
+                            textAlign: TextAlign.center,
+                            style: context.text.bodyLarge?.copyWith(
+                              color: context.colors.onSurfaceVariant,
+                            ),
+                          ),
+                          const VGap.xxl(),
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: _buildInputDecoration(
+                              label: 'Email',
+                              icon: Icons.email,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              if (!value.contains('@')) {
+                                return 'Please enter a valid email';
+                              }
+                              return null;
+                            },
+                          ),
+                          const VGap.md(),
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            decoration: _buildInputDecoration(
+                              label: 'Password',
+                              icon: Icons.lock,
+                              suffix: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your password';
+                              }
+                              return null;
+                            },
+                          ),
+                          const VGap.lg(),
+                          PrimaryButton(
+                            onPressed: _handleLogin,
+                            label: 'Login',
+                            isLoading: _isLoading,
+                            fullWidth: true,
+                          ),
+                          const VGap.md(),
+                          Row(
+                            children: [
+                              const Expanded(child: Divider()),
+                              const HGap.md(),
+                              Text(
+                                'OR',
+                                style: context.text.bodySmall?.copyWith(
+                                  color: context.colors.onSurfaceVariant,
+                                ),
+                              ),
+                              const HGap.md(),
+                              const Expanded(child: Divider()),
+                            ],
+                          ),
+                          const VGap.md(),
+                          SecondaryButton(
+                            onPressed: _isLoading
+                                ? null
+                                : () {
+                                    AppSnackbar.info(
+                                      context,
+                                      'Google Sign In coming soon! Please add your Google OAuth credentials to enable this feature.',
+                                    );
+                                  },
+                            label: 'Continue with Google',
+                            leading: const Icon(Icons.login),
+                            fullWidth: true,
+                          ),
+                          const VGap.md(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Don't have an account? ",
+                                style: context.text.bodyMedium,
+                              ),
+                              TextButton(
+                                onPressed: _isLoading
+                                    ? null
+                                    : () {
+                                        Navigator.of(context).pushNamed('/signup');
+                                      },
+                                child: const Text('Sign Up'),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    const VGap.xs(),
-                    Text(
-                      'Login to your account',
-                      textAlign: TextAlign.center,
-                      style: context.text.bodyLarge?.copyWith(
-                        color: context.colors.onSurfaceVariant,
-                      ),
-                    ),
-                    const VGap.xxl(),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: const Icon(Icons.email),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: MemoryHubSpacing.lg,
-                          vertical: MemoryHubSpacing.lg,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: MemoryHubBorderRadius.lgRadius,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: MemoryHubBorderRadius.lgRadius,
-                          borderSide: BorderSide(
-                            color: context.colors.outline,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: MemoryHubBorderRadius.lgRadius,
-                          borderSide: BorderSide(
-                            color: context.colors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!value.contains('@')) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-                    const VGap.md(),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: MemoryHubSpacing.lg,
-                          vertical: MemoryHubSpacing.lg,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: MemoryHubBorderRadius.lgRadius,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: MemoryHubBorderRadius.lgRadius,
-                          borderSide: BorderSide(
-                            color: context.colors.outline,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: MemoryHubBorderRadius.lgRadius,
-                          borderSide: BorderSide(
-                            color: context.colors.primary,
-                            width: 2,
-                          ),
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        return null;
-                      },
-                    ),
-                    const VGap.lg(),
-                    PrimaryButton(
-                      onPressed: _handleLogin,
-                      label: 'Login',
-                      isLoading: _isLoading,
-                      fullWidth: true,
-                    ),
-                    const VGap.md(),
-                    Row(
-                      children: [
-                        const Expanded(child: Divider()),
-                        Padded.symmetric(horizontal: MemoryHubSpacing.lg, child: Text(
-                          'OR',
-                          style: context.text.bodySmall?.copyWith(
-                            color: context.colors.onSurfaceVariant,
-                          ),
-                        )),
-                        const Expanded(child: Divider()),
-                      ],
-                    ),
-                    const VGap.md(),
-                    OutlinedButton.icon(
-                      onPressed: _isLoading ? null : () {
-                        AppSnackbar.info(
-                          context,
-                          'Google Sign In coming soon! Please add your Google OAuth credentials to enable this feature.',
-                        );
-                      },
-                      icon: Icon(Icons.login, color: context.colors.primary),
-                      label: const Text('Continue with Google'),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: MemoryHubSpacing.lg,
-                          vertical: MemoryHubSpacing.lg,
-                        ),
-                        side: BorderSide(color: context.colors.outline),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: MemoryHubBorderRadius.lgRadius,
-                        ),
-                      ),
-                    ),
-                    const VGap.md(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Don't have an account? ",
-                          style: context.text.bodyMedium,
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pushNamed('/signup');
-                          },
-                          child: const Text('Sign Up'),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),

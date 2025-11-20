@@ -294,8 +294,8 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  _getCircleColor(circle.color).withOpacity(0.1),
-                  _getCircleColor(circle.color).withOpacity(0.05),
+                  _getCircleColor(circle.color).withValues(alpha: 0.1),
+                  _getCircleColor(circle.color).withValues(alpha: 0.05),
                 ],
               ),
             ),
@@ -332,7 +332,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                         vertical: Spacing.sm,
                       ),
                       decoration: BoxDecoration(
-                        color: _getCircleColor(circle.color).withOpacity(0.2),
+                        color: _getCircleColor(circle.color).withValues(alpha: 0.2),
                         borderRadius: MemoryHubBorderRadius.fullRadius,
                       ),
                       child: Row(
@@ -439,7 +439,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                   ShimmerBox(
                     width: 60,
                     height: 60,
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: MemoryHubBorderRadius.fullRadius,
                   ),
                   const Spacer(),
                   ShimmerBox(

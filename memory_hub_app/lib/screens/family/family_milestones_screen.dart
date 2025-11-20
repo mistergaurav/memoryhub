@@ -216,7 +216,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                         child: Icon(
                           Icons.celebration,
                           size: 180,
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
                       Positioned(
@@ -225,7 +225,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                         child: Icon(
                           Icons.star,
                           size: 40,
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                         ),
                       ),
                       Positioned(
@@ -234,7 +234,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                         child: Icon(
                           Icons.star,
                           size: 25,
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                         ),
                       ),
                     ],
@@ -456,7 +456,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              _getCategoryColor(milestone.category).withOpacity(0.3),
+                              _getCategoryColor(milestone.category).withValues(alpha: 0.3),
                               _getCategoryColor(milestone.category),
                             ],
                           ),
@@ -470,13 +470,13 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                       gradient: LinearGradient(
                         colors: [
                           _getCategoryColor(milestone.category),
-                          _getCategoryColor(milestone.category).withOpacity(0.7),
+                          _getCategoryColor(milestone.category).withValues(alpha: 0.7),
                         ],
                       ),
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: _getCategoryColor(milestone.category).withOpacity(0.4),
+                          color: _getCategoryColor(milestone.category).withValues(alpha: 0.4),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),
@@ -499,8 +499,8 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                             colors: [
                               _getCategoryColor(milestone.category),
                               index + 1 < _milestones.length
-                                  ? _getCategoryColor(_milestones[index + 1].category).withOpacity(0.3)
-                                  : _getCategoryColor(milestone.category).withOpacity(0.3),
+                                  ? _getCategoryColor(_milestones[index + 1].category).withValues(alpha: 0.3)
+                                  : _getCategoryColor(milestone.category).withValues(alpha: 0.3),
                             ],
                           ),
                         ),
@@ -526,7 +526,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            _getCategoryColor(milestone.category).withOpacity(0.05),
+                            _getCategoryColor(milestone.category).withValues(alpha: 0.05),
                             Colors.white,
                           ],
                         ),
@@ -554,8 +554,8 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: _getCategoryColor(milestone.category).withOpacity(0.15),
-                                    borderRadius: BorderRadius.circular(12),
+                                    color: _getCategoryColor(milestone.category).withValues(alpha: 0.15),
+                                    borderRadius: Radii.mdRadius,
                                   ),
                                   child: Text(
                                     _formatType(milestone.category),
@@ -776,8 +776,8 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        color: color.withValues(alpha: 0.1),
+        borderRadius: Radii.mdRadius,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

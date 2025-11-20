@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../models/user.dart';
 import '../services/auth_service.dart';
+import '../config/api_config.dart';
 
 class UserProvider with ChangeNotifier {
   User? _currentUser;
@@ -20,9 +23,26 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final user = await _authService.getCurrentUser();
-      _currentUser = user;
-      _error = null;
+      final token = await _authService.getAccessToken();
+      if (token == null) {
+        throw Exception('Not authenticated');
+      }
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/users/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final userData = jsonDecode(response.body);
+        _currentUser = User.fromJson(userData);
+        _error = null;
+      } else {
+        throw Exception('Failed to load user profile');
+      }
     } catch (e) {
       _error = e.toString();
       _currentUser = null;
@@ -38,8 +58,13 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final user = await _authService.login(email, password);
-      _currentUser = user;
+      final tokens = await _authService.login(email, password);
+      if (tokens == null) {
+        throw Exception('Login failed');
+      }
+      
+      await loadCurrentUser();
+      
       _error = null;
       _isLoading = false;
       notifyListeners();
@@ -87,6 +112,7 @@ class UserProvider with ChangeNotifier {
         isActive: _currentUser!.isActive,
         role: _currentUser!.role,
         createdAt: _currentUser!.createdAt,
+        updatedAt: DateTime.now(),
       );
       _error = null;
     } catch (e) {

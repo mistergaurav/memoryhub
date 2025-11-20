@@ -67,52 +67,55 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(Spacing.lg),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(Spacing.lg),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF10B981), Color(0xFF14B8A6)],
-              ),
-              borderRadius: BorderRadius.circular(Radii.lg),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.notifications_active, color: Colors.white, size: 32),
-                const HGap.md(),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Master Control',
-                        style: context.text.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'Enable or disable all notifications',
-                        style: context.text.bodyMedium?.copyWith(
-                          color: Colors.white.withOpacity(0.9),
-                        ),
-                      ),
-                    ],
+      body: Padded(
+        padding: Spacing.edgeInsetsAll(Spacing.lg),
+        child: ListView(
+          children: [
+            Padded(
+              padding: Spacing.edgeInsetsAll(Spacing.lg),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [MemoryHubColors.success, MemoryHubColors.successLight],
                   ),
+                  borderRadius: MemoryHubBorderRadius.lg,
                 ),
-                Switch(
-                  value: _notificationsEnabled,
-                  onChanged: (value) {
-                    setState(() => _notificationsEnabled = value);
-                  },
-                  activeColor: Colors.white,
-                  activeTrackColor: Colors.white.withOpacity(0.5),
+                child: Row(
+                  children: [
+                    Icon(Icons.notifications_active, color: MemoryHubColors.white, size: 32),
+                    const HGap.md(),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Master Control',
+                            style: context.text.titleMedium?.copyWith(
+                              color: MemoryHubColors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Enable or disable all notifications',
+                            style: context.text.bodyMedium?.copyWith(
+                              color: MemoryHubColors.white.withValues(alpha: 0.9),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _notificationsEnabled,
+                      onChanged: (value) {
+                        setState(() => _notificationsEnabled = value);
+                      },
+                      activeColor: MemoryHubColors.white,
+                      activeTrackColor: MemoryHubColors.white.withValues(alpha: 0.5),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
           const VGap.lg(),
           CollapsibleSettingsGroup(
             title: 'Notification Channels',
@@ -195,6 +198,7 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
             ],
           ),
         ],
+        ),
       ),
     );
   }

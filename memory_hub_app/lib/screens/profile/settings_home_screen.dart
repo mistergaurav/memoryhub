@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:memory_hub_app/design_system/design_system.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
+import '../../design_system/layout/padded.dart';
+import '../../design_system/utils/context_ext.dart';
 import '../../widgets/settings_category_card.dart';
 import '../../widgets/gradient_container.dart';
 
@@ -25,7 +28,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
       'title': 'Account & Security',
       'description': 'Password, 2FA, and security settings',
       'icon': Icons.shield_outlined,
-      'colors': [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+      'colors': [MemoryHubColors.indigo500, MemoryHubColors.purple500],
       'route': '/settings/account-security',
       'items': 5,
     },
@@ -33,7 +36,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
       'title': 'Privacy & Sharing',
       'description': 'Control who sees your content',
       'icon': Icons.privacy_tip_outlined,
-      'colors': [Color(0xFFEC4899), Color(0xFFF97316)],
+      'colors': [MemoryHubColors.pink500, MemoryHubColors.orange500],
       'route': '/settings/privacy',
       'items': 8,
     },
@@ -41,7 +44,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
       'title': 'Notifications',
       'description': 'Manage how you get notified',
       'icon': Icons.notifications_outlined,
-      'colors': [Color(0xFF10B981), Color(0xFF14B8A6)],
+      'colors': [MemoryHubColors.green500, MemoryHubColors.teal500],
       'route': '/settings/notifications',
       'items': 6,
     },
@@ -49,7 +52,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
       'title': 'Personalization',
       'description': 'Customize your experience',
       'icon': Icons.palette_outlined,
-      'colors': [Color(0xFF8B5CF6), Color(0xFFD946EF)],
+      'colors': [MemoryHubColors.purple500, MemoryHubColors.pink500],
       'route': '/settings/personalization',
       'items': 4,
     },
@@ -57,7 +60,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
       'title': 'Family Hub',
       'description': 'Manage family features and members',
       'icon': Icons.family_restroom,
-      'colors': [Color(0xFFF59E0B), Color(0xFFEF4444)],
+      'colors': [MemoryHubColors.amber500, MemoryHubColors.red500],
       'route': '/family',
       'items': 12,
     },
@@ -65,7 +68,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
       'title': 'Support & Legal',
       'description': 'Help, about, and data rights',
       'icon': Icons.help_outline,
-      'colors': [Color(0xFF6B7280), Color(0xFF4B5563)],
+      'colors': [MemoryHubColors.gray600, MemoryHubColors.gray700],
       'route': '/settings/support',
       'items': 7,
     },
@@ -104,24 +107,24 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
                 'Settings',
                 style: context.text.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: context.colors.onPrimary,
                 ),
               ),
               centerTitle: false,
-              titlePadding: Spacing.edgeInsetsOnly(left: 20, bottom: 16),
+              titlePadding: const EdgeInsets.only(left: MemoryHubSpacing.lg, bottom: MemoryHubSpacing.lg),
             ),
           ),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: Spacing.edgeInsetsAll(Spacing.lg),
+            child: Padded.all(
+              MemoryHubSpacing.lg,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: Radii.mdRadius,
-                      border: Border.all(color: Colors.grey[300]!),
+                      color: MemoryHubColors.gray100,
+                      borderRadius: MemoryHubBorderRadius.mdRadius,
+                      border: Border.all(color: MemoryHubColors.gray300),
                     ),
                     child: TextField(
                       controller: _searchController,
@@ -132,7 +135,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
                       },
                       decoration: InputDecoration(
                         hintText: 'Search settings...',
-                        prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+                        prefixIcon: const Icon(Icons.search, color: MemoryHubColors.gray600),
                         suffixIcon: _searchQuery.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.clear),
@@ -145,9 +148,9 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
                               )
                             : null,
                         border: InputBorder.none,
-                        contentPadding: Spacing.edgeInsetsSymmetric(
-                          horizontal: 20,
-                          vertical: 16,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: MemoryHubSpacing.lg,
+                          vertical: MemoryHubSpacing.lg,
                         ),
                       ),
                     ),
@@ -165,13 +168,13 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
             ),
           ),
           SliverPadding(
-            padding: Spacing.edgeInsetsSymmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final category = _filteredCategories[index];
-                  return Padding(
-                    padding: Spacing.edgeInsetsOnly(bottom: 16),
+                  return Padded.only(
+                    bottom: MemoryHubSpacing.lg,
                     child: SettingsCategoryCard(
                       title: category['title'] as String,
                       description: category['description'] as String,
@@ -189,7 +192,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
             ),
           ),
           const SliverToBoxAdapter(
-            child: SizedBox(height: 100),
+            child: VGap(100),
           ),
         ],
       ),

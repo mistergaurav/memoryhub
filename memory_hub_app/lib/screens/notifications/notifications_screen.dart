@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../providers/notifications_provider.dart';
@@ -7,8 +6,7 @@ import '../../models/notification.dart' as models;
 import '../../widgets/gradient_container.dart';
 import '../../widgets/animated_list_item.dart';
 import '../../services/websocket_service.dart';
-import '../../design_system/design_tokens.dart';
-import '../../design_system/layout/gap.dart';
+import '../../design_system/design_system.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -67,8 +65,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   _buildNotificationsList(provider),
                 if (provider.isLoading && provider.notifications.isNotEmpty)
                   SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.all(MemoryHubSpacing.lg),
+                    child: Padded(
+                      padding: Spacing.edgeInsetsAll(Spacing.lg),
                       child: const Center(child: CircularProgressIndicator()),
                     ),
                   ),
@@ -101,24 +99,25 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     Icon(
                       Icons.notifications,
                       size: 70,
-                      color: Colors.white.withOpacity(0.9),
+                      color: MemoryHubColors.white.withValues(alpha: 0.9),
                     ),
                     if (provider.unreadCount > 0)
                       Positioned(
                         right: 0,
                         top: 0,
-                        child: Container(
-                          padding: EdgeInsets.all(MemoryHubSpacing.xs + 2),
-                          decoration: BoxDecoration(
-                            color: MemoryHubColors.red600,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            provider.unreadCount > 99 ? '99+' : '${provider.unreadCount}',
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: MemoryHubTypography.bold,
+                        child: Padded(
+                          padding: Spacing.edgeInsetsAll(Spacing.xs + 2),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: MemoryHubColors.red600,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              provider.unreadCount > 99 ? '99+' : '${provider.unreadCount}',
+                              style: context.text.labelSmall?.copyWith(
+                                color: MemoryHubColors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -126,22 +125,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ],
                 ),
                 if (provider.unreadCount > 0) ...[
-                  VGap(MemoryHubSpacing.sm),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: MemoryHubSpacing.lg,
-                      vertical: MemoryHubSpacing.xs + 2,
+                  const VGap.sm(),
+                  Padded(
+                    padding: Spacing.edgeInsetsSymmetric(
+                      horizontal: Spacing.lg,
+                      vertical: Spacing.xs + 2,
                     ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
-                      borderRadius: MemoryHubBorderRadius.fullRadius,
-                    ),
-                    child: Text(
-                      '${provider.unreadCount} New',
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontWeight: MemoryHubTypography.bold,
-                        fontSize: 16,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: MemoryHubColors.white.withValues(alpha: 0.3),
+                        borderRadius: MemoryHubBorderRadius.fullRadius,
+                      ),
+                      child: Text(
+                        '${provider.unreadCount} New',
+                        style: context.text.titleSmall?.copyWith(
+                          color: MemoryHubColors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),

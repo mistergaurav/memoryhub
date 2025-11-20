@@ -4,6 +4,12 @@ import '../../models/memory.dart';
 import 'package:intl/intl.dart';
 import '../../widgets/share_bottom_sheet.dart';
 import '../../config/api_config.dart';
+import '../../design_system/layout/gap.dart';
+import '../../design_system/layout/padded.dart';
+import '../../design_system/components/buttons/secondary_button.dart';
+import '../../design_system/utils/context_ext.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/tokens/spacing_tokens.dart';
 
 class MemoryDetailScreen extends StatefulWidget {
   final String memoryId;
@@ -48,9 +54,7 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
       _loadMemory();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        context.showSnackbar('Error: $e', isError: true);
       }
     }
   }
@@ -62,9 +66,7 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
       _loadMemory();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        context.showSnackbar('Error: $e', isError: true);
       }
     }
   }
@@ -89,7 +91,11 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
     if (_isLoading) {
       return Scaffold(
         appBar: AppBar(),
-        body: const Center(child: CircularProgressIndicator()),
+        body: Center(
+          child: CircularProgressIndicator(
+            color: context.colors.primary,
+          ),
+        ),
       );
     }
 
@@ -100,12 +106,26 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              Text(_error ?? 'Memory not found'),
-              const SizedBox(height: 16),
-              ElevatedButton(onPressed: _loadMemory,
-                child: const Text('Retry'),
+              Icon(
+                Icons.error,
+                size: 64,
+                color: context.colors.error,
+              ),
+              const VGap.lg(),
+              Padded.symmetric(
+                horizontal: Spacing.xl,
+                child: Text(
+                  _error ?? 'Memory not found',
+                  style: context.text.bodyLarge?.copyWith(
+                    color: context.colors.error,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const VGap.lg(),
+              SecondaryButton(
+                onPressed: _loadMemory,
+                label: 'Retry',
               ),
             ],
           ),
@@ -115,7 +135,7 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Memory Details'),
+        title: Text('Memory Details', style: context.text.titleLarge),
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
@@ -125,7 +145,7 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
           IconButton(
             icon: Icon(
               _memory!.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-              color: _memory!.isBookmarked ? Colors.amber : null,
+              color: _memory!.isBookmarked ? MemoryHubColors.amber500 : null,
             ),
             onPressed: _handleBookmark,
             tooltip: 'Bookmark',
@@ -147,85 +167,121 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.image, size: 64),
+                          color: context.colors.surfaceContainerHighest,
+                          child: Icon(
+                            Icons.image,
+                            size: 64,
+                            color: context.colors.outline,
+                          ),
                         );
                       },
                     );
                   },
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.all(16),
+            Padded.lg(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     _memory!.title,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
+                    style: context.text.headlineMedium?.copyWith(
+                      fontWeight: MemoryHubTypography.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const VGap.xs(),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.calendar_today,
+                        size: 16,
+                        color: context.colors.outline,
+                      ),
+                      const HGap.xxs(),
                       Text(
                         DateFormat('MMMM d, yyyy').format(_memory!.createdAt),
-                        style: const TextStyle(color: Colors.grey),
+                        style: context.text.bodyMedium?.copyWith(
+                          color: context.colors.onSurfaceVariant,
+                        ),
                       ),
                       if (_memory!.mood != null) ...[
-                        const SizedBox(width: 16),
-                        const Icon(Icons.mood, size: 16, color: Colors.grey),
-                        const SizedBox(width: 4),
+                        const HGap.lg(),
+                        Icon(
+                          Icons.mood,
+                          size: 16,
+                          color: context.colors.outline,
+                        ),
+                        const HGap.xxs(),
                         Text(
                           _memory!.mood!,
-                          style: const TextStyle(color: Colors.grey),
+                          style: context.text.bodyMedium?.copyWith(
+                            color: context.colors.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const VGap.xl(),
                   Text(
                     _memory!.content,
-                    style: const TextStyle(fontSize: 16, height: 1.5),
+                    style: context.text.bodyLarge?.copyWith(
+                      height: 1.5,
+                    ),
                   ),
                   if (_memory!.tags.isNotEmpty) ...[
-                    const SizedBox(height: 24),
+                    const VGap.xl(),
                     Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
+                      spacing: Spacing.xs,
+                      runSpacing: Spacing.xs,
                       children: _memory!.tags.map((tag) {
                         return Chip(
-                          label: Text(tag),
-                          backgroundColor: Colors.deepPurple.shade50,
+                          label: Text(
+                            tag,
+                            style: context.text.labelMedium,
+                          ),
+                          backgroundColor: MemoryHubColors.indigo100,
                         );
                       }).toList(),
                     ),
                   ],
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 16),
+                  const VGap.xl(),
+                  Divider(color: context.colors.outlineVariant),
+                  const VGap.lg(),
                   Row(
                     children: [
                       IconButton(
                         icon: Icon(
                           _memory!.isLiked ? Icons.favorite : Icons.favorite_border,
-                          color: _memory!.isLiked ? Colors.red : null,
+                          color: _memory!.isLiked
+                              ? MemoryHubColors.red500
+                              : context.colors.outline,
                         ),
                         onPressed: _handleLike,
                       ),
-                      Text('${_memory!.likeCount}'),
-                      const SizedBox(width: 24),
-                      const Icon(Icons.visibility, color: Colors.grey),
-                      const SizedBox(width: 8),
-                      Text('${_memory!.viewCount}'),
-                      const SizedBox(width: 24),
-                      const Icon(Icons.comment, color: Colors.grey),
-                      const SizedBox(width: 8),
-                      Text('${_memory!.commentCount}'),
+                      Text(
+                        '${_memory!.likeCount}',
+                        style: context.text.bodyMedium,
+                      ),
+                      const HGap.xl(),
+                      Icon(
+                        Icons.visibility,
+                        color: context.colors.outline,
+                      ),
+                      const HGap.xs(),
+                      Text(
+                        '${_memory!.viewCount}',
+                        style: context.text.bodyMedium,
+                      ),
+                      const HGap.xl(),
+                      Icon(
+                        Icons.comment,
+                        color: context.colors.outline,
+                      ),
+                      const HGap.xs(),
+                      Text(
+                        '${_memory!.commentCount}',
+                        style: context.text.bodyMedium,
+                      ),
                     ],
                   ),
                 ],

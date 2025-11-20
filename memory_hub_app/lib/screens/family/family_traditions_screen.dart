@@ -80,7 +80,7 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                         child: Icon(
                           Icons.local_florist,
                           size: 200,
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
                       Positioned(
@@ -89,7 +89,7 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                         child: Icon(
                           Icons.auto_awesome,
                           size: 30,
-                          color: Colors.white.withOpacity(0.4),
+                          color: Colors.white.withValues(alpha: 0.4),
                         ),
                       ),
                     ],
@@ -168,7 +168,7 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              _getCategoryColor(tradition.category).withOpacity(0.05),
+              _getCategoryColor(tradition.category).withValues(alpha: 0.05),
               Colors.white,
             ],
           ),
@@ -186,13 +186,13 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                       gradient: LinearGradient(
                         colors: [
                           _getCategoryColor(tradition.category),
-                          _getCategoryColor(tradition.category).withOpacity(0.7),
+                          _getCategoryColor(tradition.category).withValues(alpha: 0.7),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                          color: _getCategoryColor(tradition.category).withOpacity(0.4),
+                          color: _getCategoryColor(tradition.category).withValues(alpha: 0.4),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -223,8 +223,8 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: _getCategoryColor(tradition.category).withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(12),
+                            color: _getCategoryColor(tradition.category).withValues(alpha: 0.2),
+                            borderRadius: Radii.mdRadius,
                           ),
                           child: Text(
                             tradition.category.toUpperCase(),
@@ -267,7 +267,7 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                           gradient: LinearGradient(
                             colors: [
                               _getCategoryColor(tradition.category),
-                              _getCategoryColor(tradition.category).withOpacity(0.7),
+                              _getCategoryColor(tradition.category).withValues(alpha: 0.7),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
@@ -394,8 +394,8 @@ class _FamilyTraditionsScreenState extends State<FamilyTraditionsScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        _getCategoryColor(tradition.category).withOpacity(0.1),
-                        _getCategoryColor(tradition.category).withOpacity(0.05),
+                        _getCategoryColor(tradition.category).withValues(alpha: 0.1),
+                        _getCategoryColor(tradition.category).withValues(alpha: 0.05),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),

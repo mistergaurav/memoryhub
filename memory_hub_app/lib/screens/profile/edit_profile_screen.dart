@@ -1,7 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:memory_hub_app/design_system/design_system.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
+import '../../design_system/layout/padded.dart';
+import '../../design_system/components/buttons/primary_button.dart';
+import '../../design_system/components/feedback/app_snackbar.dart';
+import '../../design_system/components/surfaces/app_card.dart';
+import '../../design_system/utils/context_ext.dart';
 import '../../services/api_service.dart';
 import '../../models/user.dart';
 import '../../config/api_config.dart';
@@ -140,35 +146,61 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: Spacing.edgeInsetsAll(Spacing.md),
+          padding: const EdgeInsets.all(MemoryHubSpacing.lg),
           children: [
             Center(
               child: Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: context.colors.primary,
-                    backgroundImage: _avatarFile != null
-                        ? FileImage(_avatarFile!)
-                        : (_currentUser?.avatarUrl != null
-                            ? NetworkImage(ApiConfig.getAssetUrl(_currentUser!.avatarUrl!))
-                            : null) as ImageProvider?,
-                    child: _avatarFile == null && _currentUser?.avatarUrl == null
-                        ? Text(
-                            (_currentUser?.email != null && _currentUser!.email.isNotEmpty)
-                                ? _currentUser!.email.substring(0, 1).toUpperCase()
-                                : 'U',
-                            style: const TextStyle(fontSize: 48, color: Colors.white),
-                          )
-                        : null,
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: MemoryHubColors.indigo500,
+                        width: 3,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: MemoryHubColors.indigo500.withValues(alpha: 0.2),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundColor: context.colors.primary,
+                      backgroundImage: _avatarFile != null
+                          ? FileImage(_avatarFile!)
+                          : (_currentUser?.avatarUrl != null
+                              ? NetworkImage(ApiConfig.getAssetUrl(_currentUser!.avatarUrl!))
+                              : null) as ImageProvider?,
+                      child: _avatarFile == null && _currentUser?.avatarUrl == null
+                          ? Text(
+                              (_currentUser?.email != null && _currentUser!.email.isNotEmpty)
+                                  ? _currentUser!.email.substring(0, 1).toUpperCase()
+                                  : 'U',
+                              style: context.text.displaySmall?.copyWith(
+                                color: context.colors.onPrimary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          : null,
+                    ),
                   ),
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: CircleAvatar(
-                      backgroundColor: context.colors.secondary,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: MemoryHubColors.indigo500,
+                        border: Border.all(
+                          color: context.colors.surface,
+                          width: 2,
+                        ),
+                      ),
                       child: IconButton(
-                        icon: const Icon(Icons.camera_alt, color: Colors.white),
+                        icon: Icon(Icons.camera_alt, color: context.colors.onPrimary, size: 20),
                         onPressed: _pickAvatar,
                         tooltip: 'Change Avatar',
                       ),
@@ -178,76 +210,115 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
             ),
             const VGap.xxl(),
-            TextFormField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(),
+            AppCard(
+              padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Account Details',
+                    style: context.text.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const VGap.lg(),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: const Icon(Icons.email),
+                      border: OutlineInputBorder(
+                        borderRadius: MemoryHubBorderRadius.mdRadius,
+                      ),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!value.contains('@')) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  const VGap.md(),
+                  TextFormField(
+                    controller: _usernameController,
+                    decoration: InputDecoration(
+                      labelText: 'Username',
+                      prefixIcon: const Icon(Icons.alternate_email),
+                      border: OutlineInputBorder(
+                        borderRadius: MemoryHubBorderRadius.mdRadius,
+                      ),
+                      hintText: 'Choose a unique username',
+                    ),
+                    validator: (value) {
+                      if (value != null && value.trim().isNotEmpty) {
+                        if (value.trim().length < 3) {
+                          return 'Username must be at least 3 characters';
+                        }
+                        if (value.trim().length > 30) {
+                          return 'Username must be less than 30 characters';
+                        }
+                        if (!RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(value.trim())) {
+                          return 'Username can only contain letters, numbers, _ and -';
+                        }
+                      }
+                      return null;
+                    },
+                  ),
+                ],
               ),
-              keyboardType: TextInputType.emailAddress,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Please enter your email';
-                }
-                if (!value.contains('@')) {
-                  return 'Please enter a valid email';
-                }
-                return null;
-              },
             ),
-            const VGap.md(),
-            TextFormField(
-              controller: _usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-                prefixIcon: Icon(Icons.alternate_email),
-                border: OutlineInputBorder(),
-                hintText: 'Choose a unique username',
+            const VGap.lg(),
+            AppCard(
+              padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Personal Information',
+                    style: context.text.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const VGap.lg(),
+                  TextFormField(
+                    controller: _fullNameController,
+                    decoration: InputDecoration(
+                      labelText: 'Full Name',
+                      prefixIcon: const Icon(Icons.person),
+                      border: OutlineInputBorder(
+                        borderRadius: MemoryHubBorderRadius.mdRadius,
+                      ),
+                    ),
+                  ),
+                  const VGap.md(),
+                  TextFormField(
+                    controller: _bioController,
+                    decoration: InputDecoration(
+                      labelText: 'Bio',
+                      prefixIcon: const Icon(Icons.info_outline),
+                      border: OutlineInputBorder(
+                        borderRadius: MemoryHubBorderRadius.mdRadius,
+                      ),
+                      alignLabelWithHint: true,
+                      hintText: 'Tell us about yourself...',
+                    ),
+                    maxLines: 4,
+                  ),
+                ],
               ),
-              validator: (value) {
-                if (value != null && value.trim().isNotEmpty) {
-                  if (value.trim().length < 3) {
-                    return 'Username must be at least 3 characters';
-                  }
-                  if (value.trim().length > 30) {
-                    return 'Username must be less than 30 characters';
-                  }
-                  if (!RegExp(r'^[a-zA-Z0-9_-]+$').hasMatch(value.trim())) {
-                    return 'Username can only contain letters, numbers, _ and -';
-                  }
-                }
-                return null;
-              },
-            ),
-            const VGap.md(),
-            TextFormField(
-              controller: _fullNameController,
-              decoration: const InputDecoration(
-                labelText: 'Full Name',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const VGap.md(),
-            TextFormField(
-              controller: _bioController,
-              decoration: const InputDecoration(
-                labelText: 'Bio',
-                prefixIcon: Icon(Icons.info_outline),
-                border: OutlineInputBorder(),
-                alignLabelWithHint: true,
-                hintText: 'Tell us about yourself...',
-              ),
-              maxLines: 4,
             ),
             const VGap.xxl(),
             PrimaryButton(
               onPressed: _isSaving ? null : _handleSave,
               isLoading: _isSaving,
               label: 'Save Changes',
+              fullWidth: true,
             ),
-            const VGap.md(),
+            const VGap.lg(),
           ],
         ),
       ),

@@ -53,9 +53,10 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(Spacing.lg),
-        children: [
+      body: Padded(
+        padding: Spacing.edgeInsetsAll(Spacing.lg),
+        child: ListView(
+          children: [
           CollapsibleSettingsGroup(
             title: 'Appearance',
             icon: Icons.palette,
@@ -112,9 +113,9 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                 trailing: DropdownButton<String>(
                   value: _language,
                   items: const [
-                    DropdownMenuItem(value: 'English', child: const Text('English')),
-                    DropdownMenuItem(value: 'Spanish', child: const Text('Spanish')),
-                    DropdownMenuItem(value: 'French', child: const Text('French')),
+                    DropdownMenuItem(value: 'English', child: Text('English')),
+                    DropdownMenuItem(value: 'Spanish', child: Text('Spanish')),
+                    DropdownMenuItem(value: 'French', child: Text('French')),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -126,6 +127,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
             ],
           ),
         ],
+        ),
       ),
     );
   }

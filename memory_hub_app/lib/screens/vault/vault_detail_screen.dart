@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../models/vault_file.dart';
 import 'package:intl/intl.dart';
+import '../../design_system/design_system.dart';
 
 class VaultDetailScreen extends StatefulWidget {
   final String fileId;

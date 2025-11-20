@@ -108,7 +108,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                               ? 'Search for users'
                               : 'No users found',
                           style: context.text.bodyMedium?.copyWith(
-                            color: context.colors.onSurface.withOpacity(0.6),
+                            color: context.colors.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
                       )
@@ -126,7 +126,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                                   ? Text(
                                       (user['full_name'] ?? user['email'])[0]
                                           .toUpperCase(),
-                                      style: const TextStyle(color: Colors.white),
+                                      style: TextStyle(color: MemoryHubColors.white),
                                     )
                                   : null,
                             ),

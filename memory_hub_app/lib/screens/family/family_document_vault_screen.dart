@@ -97,7 +97,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                       child: Icon(
                         Icons.folder_special,
                         size: 200,
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                       ),
                     ),
                     Positioned(
@@ -106,7 +106,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                       child: Icon(
                         Icons.lock,
                         size: 30,
-                        color: Colors.white.withOpacity(0.4),
+                        color: Colors.white.withValues(alpha: 0.4),
                       ),
                     ),
                     Positioned(
@@ -115,7 +115,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                       child: Icon(
                         Icons.verified_user,
                         size: 25,
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                       ),
                     ),
                   ],
@@ -147,7 +147,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        MemoryHubColors.teal500.withOpacity(0.1),
+                        MemoryHubColors.teal500.withValues(alpha: 0.1),
                         Colors.white,
                       ],
                     ),
@@ -165,7 +165,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                           borderRadius: MemoryHubBorderRadius.lgRadius,
                           boxShadow: [
                             BoxShadow(
-                              color: MemoryHubColors.teal500.withOpacity(0.3),
+                              color: MemoryHubColors.teal500.withValues(alpha: 0.3),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -282,7 +282,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                (folder['color'] as Color).withOpacity(0.1),
+                (folder['color'] as Color).withValues(alpha: 0.1),
                 Colors.white,
               ],
             ),
@@ -297,13 +297,13 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                   gradient: LinearGradient(
                     colors: [
                       folder['color'] as Color,
-                      (folder['color'] as Color).withOpacity(0.7),
+                      (folder['color'] as Color).withValues(alpha: 0.7),
                     ],
                   ),
                   borderRadius: MemoryHubBorderRadius.lgRadius,
                   boxShadow: [
                     BoxShadow(
-                      color: (folder['color'] as Color).withOpacity(0.3),
+                      color: (folder['color'] as Color).withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -333,7 +333,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                   vertical: MemoryHubSpacing.xs,
                 ),
                 decoration: BoxDecoration(
-                  color: (folder['color'] as Color).withOpacity(0.2),
+                  color: (folder['color'] as Color).withValues(alpha: 0.2),
                   borderRadius: MemoryHubBorderRadius.mdRadius,
                 ),
                 child: Text(
@@ -385,7 +385,7 @@ class FolderDetailScreen extends StatelessWidget {
         onAction: () {},
         gradientColors: [
           folderColor,
-          folderColor.withOpacity(0.7),
+          folderColor.withValues(alpha: 0.7),
         ],
       ),
       floatingActionButton: FloatingActionButton(

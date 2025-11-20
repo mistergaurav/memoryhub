@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-import 'package:memory_hub_app/design_system/design_system.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/layout/gap.dart';
+import '../../design_system/layout/padded.dart';
+import '../../design_system/components/buttons/primary_button.dart';
+import '../../design_system/components/surfaces/app_card.dart';
+import '../../design_system/components/feedback/app_dialog.dart';
+import '../../design_system/utils/context_ext.dart';
 import '../../services/api_service.dart';
 import '../../services/auth_service.dart';
 import '../../models/user.dart';
 import '../../config/api_config.dart';
-import '../../widgets/glassmorphic_card.dart';
 import '../../widgets/gradient_container.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -109,19 +114,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     if (_isLoading) {
       return Scaffold(
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                MemoryHubColors.indigo500,
-                MemoryHubColors.purple500,
-                MemoryHubColors.pink500,
-              ],
-            ),
+          decoration: const BoxDecoration(
+            gradient: MemoryHubGradients.primary,
           ),
-          child: const Center(
-            child: CircularProgressIndicator(color: Colors.white),
+          child: Center(
+            child: CircularProgressIndicator(color: context.colors.onPrimary),
           ),
         ),
       );
@@ -150,27 +147,27 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: context.colors.surface.withValues(alpha: 0),
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined, color: Colors.white),
+            icon: Icon(Icons.settings_outlined, color: context.colors.onPrimary),
             onPressed: () => Navigator.of(context).pushNamed('/profile/settings'),
             tooltip: 'Settings',
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: MemoryHubSpacing.sm),
+          Padded.only(
+            right: MemoryHubSpacing.sm,
             child: ElevatedButton.icon(
               onPressed: _handleLogout,
               icon: const Icon(Icons.logout, size: 18),
               label: const Text('Logout'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white.withOpacity(0.2),
-                foregroundColor: Colors.white,
+                backgroundColor: context.colors.onPrimary.withValues(alpha: 0.2),
+                foregroundColor: context.colors.onPrimary,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: MemoryHubBorderRadius.mdRadius,
-                  side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                  side: BorderSide(color: context.colors.onPrimary.withValues(alpha: 0.3)),
                 ),
               ),
             ),
@@ -215,7 +212,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               Positioned.fill(
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
-                  child: Container(color: Colors.black.withOpacity(0.1)),
+                  child: Container(color: context.colors.onSurface.withValues(alpha: 0.1)),
                 ),
               ),
               Positioned(
@@ -229,10 +226,10 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       child: Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 4),
+                          border: Border.all(color: context.colors.onPrimary, width: 4),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
+                              color: context.colors.onSurface.withValues(alpha: 0.3),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
                             ),
@@ -240,7 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         ),
                         child: CircleAvatar(
                           radius: 70,
-                          backgroundColor: Colors.white,
+                          backgroundColor: context.colors.surface,
                           backgroundImage: _user!.avatarUrl != null
                               ? NetworkImage(ApiConfig.getAssetUrl(_user!.avatarUrl!))
                               : null,
@@ -257,41 +254,38 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         ),
                       ),
                     ),
-                    const SizedBox(height: MemoryHubSpacing.lg),
+                    const VGap.lg(),
                     Text(
                       _user!.fullName ?? 'User',
-                      style: const TextStyle(
-                        fontSize: 28,
+                      style: context.text.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: context.colors.onPrimary,
                         shadows: [
                           Shadow(
-                            color: Colors.black26,
-                            offset: Offset(0, 2),
+                            color: context.colors.onSurface.withValues(alpha: 0.26),
+                            offset: const Offset(0, 2),
                             blurRadius: 4,
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: MemoryHubSpacing.xs),
+                    const VGap.xs(),
                     Text(
                       '@${_getUsername()}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white.withOpacity(0.9),
+                      style: context.text.bodyLarge?.copyWith(
+                        color: context.colors.onPrimary.withValues(alpha: 0.9),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     if (_user!.bio != null && _user!.bio!.isNotEmpty) ...[
-                      const SizedBox(height: MemoryHubSpacing.md),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl),
+                      const VGap.md(),
+                      Padded.symmetric(
+                        horizontal: MemoryHubSpacing.xxl,
                         child: Text(
                           _user!.bio!,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white.withOpacity(0.95),
+                          style: context.text.bodyMedium?.copyWith(
+                            color: context.colors.onPrimary.withValues(alpha: 0.95),
                             height: 1.4,
                           ),
                           maxLines: 3,
@@ -299,21 +293,23 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         ),
                       ),
                     ],
-                    const SizedBox(height: MemoryHubSpacing.lg),
+                    const VGap.lg(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _buildFollowStat('Following', followingCount),
-                        Container(
-                          width: 1,
-                          height: 30,
-                          color: Colors.white.withOpacity(0.3),
-                          margin: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xl),
+                        Padded.symmetric(
+                          horizontal: MemoryHubSpacing.xl,
+                          child: Container(
+                            width: 1,
+                            height: 30,
+                            color: context.colors.onPrimary.withValues(alpha: 0.3),
+                          ),
                         ),
                         _buildFollowStat('Followers', followersCount),
                       ],
                     ),
-                    const SizedBox(height: MemoryHubSpacing.xl),
+                    const VGap.xl(),
                   ],
                 ),
               ),
@@ -329,17 +325,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       children: [
         Text(
           count.toString(),
-          style: const TextStyle(
-            fontSize: 24,
+          style: context.text.headlineSmall?.copyWith(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: context.colors.onPrimary,
           ),
         ),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.white.withOpacity(0.8),
+          style: context.text.bodySmall?.copyWith(
+            color: context.colors.onPrimary.withValues(alpha: 0.8),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -356,14 +350,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return SliverToBoxAdapter(
       child: FadeTransition(
         opacity: _fadeAnimation,
-        child: Padding(
-          padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+        child: Padded.all(
+          MemoryHubSpacing.lg,
           child: Row(
             children: [
               Expanded(child: _buildStatCard('Posts', memories, Icons.auto_awesome, MemoryHubColors.indigo500)),
-              const SizedBox(width: MemoryHubSpacing.md),
+              const HGap.md(),
               Expanded(child: _buildStatCard('Files', files, Icons.folder_outlined, MemoryHubColors.purple500)),
-              const SizedBox(width: MemoryHubSpacing.md),
+              const HGap.md(),
               Expanded(child: _buildStatCard('Albums', collections, Icons.collections_outlined, MemoryHubColors.pink500)),
             ],
           ),
@@ -373,29 +367,24 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   Widget _buildStatCard(String label, int value, IconData icon, Color color) {
-    return GlassmorphicCard(
-      blur: 20,
-      opacity: 0.15,
-      borderRadius: MemoryHubBorderRadius.lgRadius,
+    return AppCard(
       padding: const EdgeInsets.all(MemoryHubSpacing.lg),
       child: Column(
         children: [
           Icon(icon, color: color, size: 28),
-          const SizedBox(height: MemoryHubSpacing.sm),
+          const VGap.sm(),
           Text(
             value.toString(),
-            style: TextStyle(
-              fontSize: 22,
+            style: context.text.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
-          const SizedBox(height: MemoryHubSpacing.xs),
+          const VGap.xs(),
           Text(
             label,
-            style: TextStyle(
-              fontSize: 12,
-              color: context.text.bodyMedium?.color?.withOpacity(0.7),
+            style: context.text.bodySmall?.copyWith(
+              color: context.text.bodyMedium?.color?.withValues(alpha: 0.7),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -410,69 +399,60 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
       sliver: SliverList(
         delegate: SliverChildListDelegate([
           _buildEditProfileCard(),
-          const SizedBox(height: MemoryHubSpacing.lg),
+          const VGap.lg(),
           _buildQuickActionsSection(),
-          const SizedBox(height: MemoryHubSpacing.lg),
+          const VGap.lg(),
           _buildAccountInfoSection(),
-          const SizedBox(height: 100),
+          const VGap(100),
         ]),
       ),
     );
   }
 
   Widget _buildEditProfileCard() {
-    return GlassmorphicCard(
-      blur: 15,
-      opacity: 0.1,
-      borderRadius: MemoryHubBorderRadius.lgRadius,
+    return AppCard(
       padding: const EdgeInsets.all(MemoryHubSpacing.lg),
-      gradientColors: [
-        MemoryHubColors.indigo500.withOpacity(0.1),
-        MemoryHubColors.purple500.withOpacity(0.1),
-      ],
-      child: InkWell(
-        onTap: () async {
-          final result = await Navigator.of(context).pushNamed('/profile/edit');
-          if (result == true) {
-            _loadProfile();
-          }
-        },
-        borderRadius: MemoryHubBorderRadius.lgRadius,
-        child: Padding(
-          padding: const EdgeInsets.all(MemoryHubSpacing.sm),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(MemoryHubSpacing.md),
-                decoration: BoxDecoration(
-                  color: MemoryHubColors.indigo500.withOpacity(0.2),
-                  borderRadius: MemoryHubBorderRadius.mdRadius,
-                ),
-                child: const Icon(Icons.edit_outlined, color: MemoryHubColors.indigo600, size: 24),
+      onTap: () async {
+        final result = await Navigator.of(context).pushNamed('/profile/edit');
+        if (result == true) {
+          _loadProfile();
+        }
+      },
+      child: Padded.all(
+        MemoryHubSpacing.sm,
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(MemoryHubSpacing.md),
+              decoration: BoxDecoration(
+                color: MemoryHubColors.indigo500.withValues(alpha: 0.2),
+                borderRadius: MemoryHubBorderRadius.mdRadius,
               ),
-              const SizedBox(width: MemoryHubSpacing.lg),
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Edit Profile',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+              child: const Icon(Icons.edit_outlined, color: MemoryHubColors.indigo600, size: 24),
+            ),
+            const HGap.lg(),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Edit Profile',
+                    style: context.text.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Update your profile information',
-                      style: TextStyle(fontSize: 13, color: MemoryHubColors.gray600),
+                  ),
+                  const VGap.xxs(),
+                  Text(
+                    'Update your profile information',
+                    style: context.text.bodySmall?.copyWith(
+                      color: MemoryHubColors.gray600,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const Icon(Icons.arrow_forward_ios, size: 16, color: MemoryHubColors.gray400),
-            ],
-          ),
+            ),
+            const Icon(Icons.arrow_forward_ios, size: 16, color: MemoryHubColors.gray400),
+          ],
         ),
       ),
     );
@@ -489,11 +469,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: MemoryHubSpacing.sm, bottom: MemoryHubSpacing.md),
+        Padded.only(
+          left: MemoryHubSpacing.sm,
+          bottom: MemoryHubSpacing.md,
           child: Text(
             'Quick Access',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: context.text.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         GridView.builder(
@@ -508,42 +491,35 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           itemCount: actions.length,
           itemBuilder: (context, index) {
             final action = actions[index];
-            return GlassmorphicCard(
-              blur: 15,
-              opacity: 0.1,
-              borderRadius: MemoryHubBorderRadius.lgRadius,
+            return AppCard(
               padding: EdgeInsets.zero,
-              child: InkWell(
-                onTap: () => Navigator.pushNamed(context, action['route'] as String),
-                borderRadius: MemoryHubBorderRadius.lgRadius,
-                child: Container(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.lg),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(MemoryHubSpacing.sm),
-                        decoration: BoxDecoration(
-                          color: (action['color'] as Color).withOpacity(0.2),
-                          borderRadius: MemoryHubBorderRadius.smRadius,
-                        ),
-                        child: Icon(
-                          action['icon'] as IconData,
-                          color: action['color'] as Color,
-                          size: 24,
-                        ),
+              onTap: () => Navigator.pushNamed(context, action['route'] as String),
+              child: Padded.all(
+                MemoryHubSpacing.lg,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(MemoryHubSpacing.sm),
+                      decoration: BoxDecoration(
+                        color: (action['color'] as Color).withValues(alpha: 0.2),
+                        borderRadius: MemoryHubBorderRadius.smRadius,
                       ),
-                      const SizedBox(height: MemoryHubSpacing.sm),
-                      Text(
-                        action['title'] as String,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      child: Icon(
+                        action['icon'] as IconData,
+                        color: action['color'] as Color,
+                        size: 24,
                       ),
-                    ],
-                  ),
+                    ),
+                    const VGap.sm(),
+                    Text(
+                      action['title'] as String,
+                      style: context.text.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -554,19 +530,18 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   Widget _buildAccountInfoSection() {
-    return GlassmorphicCard(
-      blur: 15,
-      opacity: 0.1,
-      borderRadius: MemoryHubBorderRadius.lgRadius,
+    return AppCard(
       padding: const EdgeInsets.all(MemoryHubSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Account Information',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: context.text.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          const SizedBox(height: MemoryHubSpacing.lg),
+          const VGap.lg(),
           _buildInfoRow(Icons.email_outlined, 'Email', _user!.email),
           const Divider(height: MemoryHubSpacing.xl),
           _buildInfoRow(Icons.calendar_today_outlined, 'Member Since', 
@@ -584,24 +559,22 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return Row(
       children: [
         Icon(icon, size: 20, color: MemoryHubColors.gray500),
-        const SizedBox(width: MemoryHubSpacing.md),
+        const HGap.md(),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 12,
+                style: context.text.bodySmall?.copyWith(
                   color: MemoryHubColors.gray600,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 4),
+              const VGap.xxs(),
               Text(
                 value,
-                style: TextStyle(
-                  fontSize: 14,
+                style: context.text.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: statusColor,
                 ),

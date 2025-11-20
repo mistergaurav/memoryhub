@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../services/api_service.dart';
+import '../../design_system/design_system.dart';
 
 class VaultUploadScreen extends StatefulWidget {
   const VaultUploadScreen({super.key});
@@ -80,21 +81,11 @@ class _VaultUploadScreenState extends State<VaultUploadScreen> {
 
       if (mounted) {
         Navigator.of(context).pop(true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('File uploaded successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        AppSnackbar.success(context, 'File uploaded successfully!');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: Colors.red,
-          ),
-        );
+        AppSnackbar.error(context, e.toString().replaceAll('Exception: ', ''));
       }
     } finally {
       if (mounted) {
@@ -197,9 +188,9 @@ class _VaultUploadScreenState extends State<VaultUploadScreen> {
                 border: OutlineInputBorder(),
               ),
               items: const [
-                DropdownMenuItem(value: 'private', child: const Text('Private')),
-                DropdownMenuItem(value: 'friends', child: const Text('Friends')),
-                DropdownMenuItem(value: 'public', child: const Text('Public')),
+                DropdownMenuItem(value: 'private', child: Text('Private')),
+                DropdownMenuItem(value: 'friends', child: Text('Friends')),
+                DropdownMenuItem(value: 'public', child: Text('Public')),
               ],
               onChanged: (value) {
                 if (value != null) {

@@ -3,6 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../services/api_service.dart';
 import '../../models/memory.dart';
+import '../../design_system/layout/gap.dart';
+import '../../design_system/layout/padded.dart';
+import '../../design_system/components/buttons/primary_button.dart';
+import '../../design_system/components/buttons/secondary_button.dart';
+import '../../design_system/components/inputs/text_field_x.dart';
+import '../../design_system/utils/context_ext.dart';
+import '../../design_system/design_tokens.dart';
+import '../../design_system/tokens/radius_tokens.dart';
+import '../../design_system/tokens/spacing_tokens.dart';
 
 class MemoryCreateScreen extends StatefulWidget {
   const MemoryCreateScreen({super.key});
@@ -49,9 +58,7 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error picking files: $e')),
-        );
+        context.showSnackbar('Error picking files: $e', isError: true);
       }
     }
   }
@@ -89,20 +96,13 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
 
       if (mounted) {
         Navigator.of(context).pop(true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Memory created successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        context.showSnackbar('Memory created successfully!');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
-            backgroundColor: Colors.red,
-          ),
+        context.showSnackbar(
+          e.toString().replaceAll('Exception: ', ''),
+          isError: true,
         );
       }
     } finally {
@@ -116,19 +116,22 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Memory'),
+        title: Text('Create Memory', style: context.text.titleLarge),
       ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(Spacing.lg),
           children: [
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Title',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: Radii.lgRadius,
+                ),
               ),
+              style: context.text.bodyLarge,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Please enter a title';
@@ -136,14 +139,17 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const VGap.lg(),
             TextFormField(
               controller: _contentController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Content',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: Radii.lgRadius,
+                ),
                 alignLabelWithHint: true,
               ),
+              style: context.text.bodyLarge,
               maxLines: 8,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -152,35 +158,44 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                 return null;
               },
             ),
-            const SizedBox(height: 16),
+            const VGap.lg(),
             TextFormField(
               controller: _tagsController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Tags (comma separated)',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: Radii.lgRadius,
+                ),
                 hintText: 'travel, family, vacation',
               ),
+              style: context.text.bodyLarge,
             ),
-            const SizedBox(height: 16),
+            const VGap.lg(),
             TextFormField(
               controller: _moodController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Mood (optional)',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: Radii.lgRadius,
+                ),
                 hintText: 'Happy, Excited, Nostalgic',
               ),
+              style: context.text.bodyLarge,
             ),
-            const SizedBox(height: 16),
+            const VGap.lg(),
             DropdownButtonFormField<String>(
               value: _privacy,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Privacy',
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: Radii.lgRadius,
+                ),
               ),
+              style: context.text.bodyLarge,
               items: const [
-                DropdownMenuItem(value: 'private', child: const Text('Private')),
-                DropdownMenuItem(value: 'friends', child: const Text('Friends')),
-                DropdownMenuItem(value: 'public', child: const Text('Public')),
+                DropdownMenuItem(value: 'private', child: Text('Private')),
+                DropdownMenuItem(value: 'friends', child: Text('Friends')),
+                DropdownMenuItem(value: 'public', child: Text('Public')),
               ],
               onChanged: (value) {
                 if (value != null) {
@@ -188,12 +203,14 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                 }
               },
             ),
-            const SizedBox(height: 24),
-            const Text(
+            const VGap.xl(),
+            Text(
               'Media Files',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: context.text.titleMedium?.copyWith(
+                fontWeight: MemoryHubTypography.bold,
+              ),
             ),
-            const SizedBox(height: 8),
+            const VGap.xs(),
             if (_selectedFiles.isNotEmpty)
               SizedBox(
                 height: 120,
@@ -205,18 +222,25 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                       children: [
                         Container(
                           width: 120,
-                          margin: const EdgeInsets.only(right: 8),
+                          margin: const EdgeInsets.only(right: Spacing.xs),
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: context.colors.outline,
+                            ),
+                            borderRadius: Radii.smRadius,
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: Radii.smRadius,
                             child: Image.file(
                               _selectedFiles[index],
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
-                                return const Center(child: Icon(Icons.file_present));
+                                return Center(
+                                  child: Icon(
+                                    Icons.file_present,
+                                    color: context.colors.outline,
+                                  ),
+                                );
                               },
                             ),
                           ),
@@ -227,15 +251,15 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                           child: GestureDetector(
                             onTap: () => _removeFile(index),
                             child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
+                              padding: const EdgeInsets.all(Spacing.xxs),
+                              decoration: BoxDecoration(
+                                color: MemoryHubColors.red500,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.close,
                                 size: 16,
-                                color: Colors.white,
+                                color: context.colors.onError,
                               ),
                             ),
                           ),
@@ -245,41 +269,31 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                   },
                 ),
               ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
+            if (_selectedFiles.isNotEmpty) const VGap.xs(),
+            SecondaryButton(
               onPressed: _pickFiles,
-              icon: const Icon(Icons.add_photo_alternate),
-              label: const Text('Add Media Files'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-              ),
+              label: 'Add Media Files',
+              leading: const Icon(Icons.add_photo_alternate),
+              fullWidth: true,
             ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _isLoading ? null : _handleCreate,
-                icon: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.send),
-                label: Text(_isLoading ? 'Posting...' : 'Post Memory'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+            const VGap.xl(),
+            PrimaryButton(
+              onPressed: _isLoading ? null : _handleCreate,
+              label: _isLoading ? 'Posting...' : 'Post Memory',
+              leading: _isLoading
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: context.colors.onPrimary,
+                      ),
+                    )
+                  : const Icon(Icons.send),
+              isLoading: _isLoading,
+              fullWidth: true,
             ),
-            const SizedBox(height: 16),
+            const VGap.lg(),
           ],
         ),
       ),

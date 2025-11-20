@@ -280,7 +280,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                 child: Icon(
                   Icons.calendar_month,
                   size: 140,
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                 ),
               ),
             ],
@@ -319,7 +319,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
           borderRadius: MemoryHubBorderRadius.lgRadius,
           boxShadow: [
             BoxShadow(
-              color: MemoryHubColors.pink500.withOpacity(0.3),
+              color: MemoryHubColors.pink500.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -357,7 +357,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                         Text(
                           '${_upcomingBirthdays.length} ${_upcomingBirthdays.length == 1 ? 'birthday' : 'birthdays'} in the next 30 days',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: MemoryHubTypography.bodySmall,
                           ),
                         ),
@@ -385,7 +385,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
     return Container(
       padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: MemoryHubBorderRadius.smRadius,
       ),
       child: Row(
@@ -545,7 +545,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
               shape: BoxShape.circle,
             ),
             todayDecoration: BoxDecoration(
-              color: MemoryHubColors.cyan500.withOpacity(0.3),
+              color: MemoryHubColors.cyan500.withValues(alpha: 0.3),
               shape: BoxShape.circle,
             ),
             markerDecoration: const BoxDecoration(
@@ -594,7 +594,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
               Container(
                 padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.md, vertical: Spacing.xs),
                 decoration: BoxDecoration(
-                  color: DesignTokens.primaryColor.withOpacity(0.1),
+                  color: DesignTokens.primaryColor.withValues(alpha: 0.1),
                   borderRadius: MemoryHubBorderRadius.mdRadius,
                 ),
                 child: Text(
@@ -820,7 +820,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                       Container(
                         padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
                         decoration: BoxDecoration(
-                          color: DesignTokens.primaryColor.withOpacity(0.1),
+                          color: DesignTokens.primaryColor.withValues(alpha: 0.1),
                           borderRadius: MemoryHubBorderRadius.smRadius,
                         ),
                         child: Text(
@@ -882,8 +882,8 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
               gradient: isBirthday
                   ? LinearGradient(
                       colors: [
-                        gradient[0].withOpacity(0.05),
-                        gradient[1].withOpacity(0.05),
+                        gradient[0].withValues(alpha: 0.05),
+                        gradient[1].withValues(alpha: 0.05),
                       ],
                     )
                   : null,
@@ -902,7 +902,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                           borderRadius: MemoryHubBorderRadius.mdRadius,
                           boxShadow: [
                             BoxShadow(
-                              color: gradient[0].withOpacity(0.3),
+                              color: gradient[0].withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),

@@ -127,13 +127,13 @@ class _HubsScreenState extends State<HubsScreen> {
                       Icon(
                         Icons.workspaces_outline,
                         size: 64,
-                        color: context.colors.onSurface.withOpacity(0.3),
+                        color: context.colors.onSurface.withValues(alpha: 0.3),
                       ),
                       const VGap.md(),
                       Text(
                         'No hubs yet',
                         style: context.text.titleMedium?.copyWith(
-                          color: context.colors.onSurface.withOpacity(0.6),
+                          color: context.colors.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                       const VGap.sm(),
@@ -145,9 +145,10 @@ class _HubsScreenState extends State<HubsScreen> {
                     ],
                   ),
                 )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(Spacing.md),
-                  itemCount: _hubs.length,
+              : Padded(
+                  padding: Spacing.edgeInsetsAll(Spacing.md),
+                  child: ListView.builder(
+                    itemCount: _hubs.length,
                   itemBuilder: (context, index) {
                     final hub = _hubs[index];
                     return Padding(
@@ -190,6 +191,7 @@ class _HubsScreenState extends State<HubsScreen> {
                       ),
                     );
                   },
+                  ),
                 ),
     );
   }

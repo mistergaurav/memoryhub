@@ -383,11 +383,11 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
         decoration: BoxDecoration(
           color: MemoryHubColors.gray50,
           borderRadius: MemoryHubBorderRadius.xxlRadius,
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
               color: MemoryHubColors.cyan700.withOpacity(0.12),
               blurRadius: 24,
-              offset: Offset(0, 12),
+              offset: const Offset(0, 12),
             ),
           ],
         ),
