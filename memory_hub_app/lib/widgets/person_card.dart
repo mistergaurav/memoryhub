@@ -6,11 +6,13 @@ import '../models/family/genealogy_person.dart';
 class PersonCard extends StatelessWidget {
   final GenealogyPerson person;
   final bool isGridView;
+  final VoidCallback? onTap;
 
   const PersonCard({
     Key? key,
     required this.person,
     this.isGridView = true,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -36,9 +38,7 @@ class PersonCard extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () {
-          // _showPersonDetails(person);
-        },
+        onTap: onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -104,6 +104,25 @@ class PersonCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (person.relationshipLabel != null && person.relationshipLabel!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.blue.shade200),
+                        ),
+                        child: Text(
+                          person.relationshipLabel!,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.blue.shade800,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                     if (birthDate != null) ...[
                       const SizedBox(height: 4),
                       Row(
@@ -231,9 +250,7 @@ class PersonCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: InkWell(
-        onTap: () {
-          // _showPersonDetails(person);
-        },
+        onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(12.0),
@@ -285,6 +302,17 @@ class PersonCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    if (person.relationshipLabel != null && person.relationshipLabel!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        person.relationshipLabel!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue.shade700,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 4),
                     if (occupation != null) ...[
                       Text(

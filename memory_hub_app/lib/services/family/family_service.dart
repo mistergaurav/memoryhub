@@ -1841,7 +1841,7 @@ class FamilyService {
       );
       
       final responseBody = jsonDecode(response.body);
-      final List<dynamic> items = responseBody['items'] ?? [];
+      final List<dynamic> items = responseBody['data'] ?? [];
       return items.cast<Map<String, dynamic>>();
     } on ApiException {
       rethrow;

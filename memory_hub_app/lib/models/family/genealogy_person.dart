@@ -26,6 +26,11 @@ class GenealogyPerson {
   
   final DateTime createdAt;
   final DateTime updatedAt;
+  
+  final String? linkedUserId;
+  
+  // Transient field for UI display
+  String? relationshipLabel;
 
   GenealogyPerson({
     required this.id,
@@ -52,6 +57,7 @@ class GenealogyPerson {
     this.hereditaryConditions = const [],
     required this.createdAt,
     required this.updatedAt,
+    this.linkedUserId,
   });
 
   String get fullName {
@@ -117,6 +123,7 @@ class GenealogyPerson {
       hereditaryConditions: _parseStringList(json['hereditary_conditions']),
       createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
       updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
+      linkedUserId: json['linked_user_id'],
     );
   }
 
@@ -146,6 +153,7 @@ class GenealogyPerson {
       'hereditary_conditions': hereditaryConditions,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
+      'linked_user_id': linkedUserId,
     };
   }
 }

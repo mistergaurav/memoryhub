@@ -40,7 +40,7 @@ class ApiConfig {
       // Fallback to localhost for local development
       // WARNING: This will only work if backend is running locally!
       // For production builds, always set BACKEND_URL or DEFAULT_BACKEND
-      return 'http://localhost:5000/api/v1';
+      return 'http://localhost:8000/api/v1';
     }
   }
   
@@ -91,8 +91,8 @@ class ApiConfig {
         // Use relative URL which will hit the same server
         return '/api/v1';
       } else if (hostname == 'localhost' || hostname == '127.0.0.1') {
-        // Local development - backend on port 5000
-        return 'http://localhost:5000/api/v1';
+        // Local development - backend on port 8000
+        return 'http://localhost:8000/api/v1';
       } else {
         // Generic fallback - same host (relative URL)
         return '/api/v1';
@@ -114,12 +114,12 @@ class ApiConfig {
         // Frontend and backend on same server - use same hostname
         return '$wsProtocol://$hostname/api/v1/ws';
       } else if (hostname == 'localhost' || hostname == '127.0.0.1') {
-        return 'ws://localhost:5000/api/v1/ws';
+        return 'ws://localhost:8000/api/v1/ws';
       } else {
         return '$wsProtocol://$hostname/api/v1/ws';
       }
     } catch (e) {
-      return 'ws://localhost:5000/api/v1/ws';
+      return 'ws://localhost:8000/api/v1/ws';
     }
   }
   
@@ -133,7 +133,7 @@ class ApiConfig {
         // Frontend and backend on same server - use same hostname
         return '$protocol//$hostname';
       } else if (hostname == 'localhost' || hostname == '127.0.0.1') {
-        return 'http://localhost:5000';
+        return 'http://localhost:8000';
       } else {
         return '$protocol//$hostname';
       }
@@ -174,12 +174,12 @@ class ApiConfig {
           final backendUrl = _getWebBackendUrl();
           return 'Replit Web ($backendUrl)';
         } else if (hostname == 'localhost') {
-          return 'Local Web (localhost:5000)';
+          return 'Local Web (localhost:8000)';
         } else {
-          return 'Web ($hostname:5000)';
+          return 'Web ($hostname:8000)';
         }
       } catch (e) {
-        return 'Web (localhost:5000)';
+        return 'Web (localhost:8000)';
       }
     }
     

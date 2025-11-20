@@ -522,7 +522,10 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
               ? NetworkImage(user['profile_photo'])
               : null,
           child: user['profile_photo'] == null
-              ? Text(user['username']?[0]?.toUpperCase() ?? 'U')
+              ? Text(() {
+                  final name = user['full_name']?.toString() ?? user['username']?.toString() ?? '';
+                  return (name.isNotEmpty ? name[0] : 'U').toUpperCase();
+                }())
               : null,
         ),
         title: Text(user['full_name'] ?? user['username'] ?? 'Unknown'),

@@ -144,6 +144,7 @@ class ApiService {
     String? query,
     List<String>? tags,
     String? privacy,
+    String? personId,
     int page = 1,
     int limit = 20,
   }) async {
@@ -152,6 +153,7 @@ class ApiService {
       if (query != null) 'query': query,
       if (tags != null) 'tags': tags.join(','),
       if (privacy != null) 'privacy': privacy,
+      if (personId != null) 'person_id': personId,
       'page': page.toString(),
       'limit': limit.toString(),
     };

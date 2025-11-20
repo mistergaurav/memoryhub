@@ -38,6 +38,10 @@ async def process_memory_search_filters(
         date_filter['$lte'] = search_params['end_date']
     if date_filter:
         filters['created_at'] = date_filter
+        
+    # Person filter (tagged family members)
+    if search_params.get('person_id'):
+        filters['tagged_family_members.user_id'] = search_params['person_id']
     
     return filters
 

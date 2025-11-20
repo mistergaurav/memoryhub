@@ -10,6 +10,7 @@ class AuthService {
   
   static const String _accessTokenKey = 'access_token';
   static const String _refreshTokenKey = 'refresh_token';
+  static const String _userIdKey = 'user_id';
 
   Future<AuthTokens?> login(String email, String password) async {
     try {
@@ -23,7 +24,14 @@ class AuthService {
       );
 
       if (response.statusCode == 200) {
-        final tokens = AuthTokens.fromJson(jsonDecode(response.body));
+        final responseData = jsonDecode(response.body);
+        final tokens = AuthTokens.fromJson(responseData);
+        
+        // Save user ID if present
+        if (responseData['user'] != null && responseData['user']['id'] != null) {
+          await _saveUserId(responseData['user']['id']);
+        }
+        
         await _saveTokens(tokens);
         return tokens;
       } else {
@@ -55,6 +63,12 @@ class AuthService {
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         final tokens = AuthTokens.fromJson(responseData);
+        
+        // Save user ID if present
+        if (responseData['user'] != null && responseData['user']['id'] != null) {
+          await _saveUserId(responseData['user']['id']);
+        }
+        
         await _saveTokens(tokens);
         return tokens;
       } else {
@@ -75,6 +89,11 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_accessTokenKey, tokens.accessToken);
     await prefs.setString(_refreshTokenKey, tokens.refreshToken);
+  }
+  
+  Future<void> _saveUserId(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userIdKey, userId);
   }
 
   Future<String?> getAccessToken() async {
@@ -121,6 +140,7 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_accessTokenKey);
     await prefs.remove(_refreshTokenKey);
+    await prefs.remove(_userIdKey);
   }
 
   Future<Map<String, String>> getAuthHeaders() async {
@@ -139,15 +159,8 @@ class AuthService {
   }
 
   Future<String?> getCurrentUserId() async {
-    try {
-      final token = await getAccessToken();
-      if (token == null) return null;
-      
-      final payload = Jwt.parseJwt(token);
-      return payload['sub'] as String?;
-    } catch (e) {
-      return null;
-    }
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userIdKey);
   }
 
   Future<AuthTokens?> signInWithGoogle() async {
@@ -189,6 +202,12 @@ class AuthService {
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         final tokens = AuthTokens.fromJson(responseData);
+        
+        // Save user ID if present
+        if (responseData['user'] != null && responseData['user']['id'] != null) {
+          await _saveUserId(responseData['user']['id']);
+        }
+        
         await _saveTokens(tokens);
         return tokens;
       } else {

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../../services/family/genealogy/tree_service.dart';
 import '../../services/family/genealogy/persons_service.dart';
 import '../../services/family/genealogy/relationships_service.dart';
+import '../../services/auth_service.dart';
 import '../../services/family/common/family_exceptions.dart';
 import '../../models/family/genealogy_person.dart';
+import '../../models/family/genealogy_relationship.dart';
 import '../../models/family/genealogy_tree_node.dart';
 import '../../widgets/states/family_loading_state.dart';
 import '../../widgets/states/family_error_state.dart';
@@ -51,6 +53,9 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
     try {
       final persons = await _personsService.getPersons();
       final treeData = await _treeService.getTreeNodes();
+      final relationships = await _relationshipsService.getRelationships();
+      
+      await _calculateRelationshipLabels(persons, relationships);
       
       setState(() {
         _persons = persons;
@@ -73,6 +78,87 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _calculateRelationshipLabels(
+    List<GenealogyPerson> persons, 
+    List<GenealogyRelationship> relationships
+  ) async {
+    final authService = AuthService();
+    final currentUserId = await authService.getCurrentUserId();
+    
+    if (currentUserId == null) return;
+    
+    // Find the person linked to the current user
+    GenealogyPerson? me;
+    try {
+      me = persons.firstWhere((p) => 
+        p.linkedUserId == currentUserId ||
+        (p.createdBy == currentUserId && p.firstName.toLowerCase() == 'me')
+      );
+    } catch (e) {
+      // If not found, try to find by name matching user's name if available, or just return
+      return;
+    }
+
+    // Set "Me" label
+    me.relationshipLabel = "Me";
+
+    // Map relationships relative to "Me"
+    // We need to traverse the graph. For now, let's do direct relationships.
+    // TODO: Implement BFS for distant relationships if needed.
+    
+    for (final rel in relationships) {
+      if (rel.person1Id == me.id) {
+        // Me -> Other (Type)
+        // e.g. Me -> Parent (Parent) -> Other is my Parent
+        final other = persons.firstWhere((p) => p.id == rel.person2Id, orElse: () => me!);
+        if (other == me) continue;
+        
+        _setLabel(other, rel.relationshipType, isPerson1Me: true);
+      } else if (rel.person2Id == me.id) {
+        // Other -> Me (Type)
+        // e.g. Parent -> Me (Parent) -> Other is my Parent
+        final other = persons.firstWhere((p) => p.id == rel.person1Id, orElse: () => me!);
+        if (other == me) continue;
+        
+        _setLabel(other, rel.relationshipType, isPerson1Me: false);
+      }
+    }
+  }
+  
+  void _setLabel(GenealogyPerson person, String relationshipType, {required bool isPerson1Me}) {
+    // RelationshipType: parent, child, spouse, sibling
+    // If isPerson1Me is true: Me is Person1.
+    // If type is 'parent': Me is Parent of Person2. Person2 is Child.
+    // If type is 'child': Me is Child of Person2. Person2 is Parent.
+    
+    String label = '';
+    final gender = person.gender.toLowerCase();
+    
+    if (relationshipType == 'parent') {
+      if (isPerson1Me) {
+        // Me is Parent of Person -> Person is Child
+        label = gender == 'male' ? 'Son' : (gender == 'female' ? 'Daughter' : 'Child');
+      } else {
+        // Person is Parent of Me -> Person is Parent
+        label = gender == 'male' ? 'Father' : (gender == 'female' ? 'Mother' : 'Parent');
+      }
+    } else if (relationshipType == 'child') {
+      if (isPerson1Me) {
+        // Me is Child of Person -> Person is Parent
+        label = gender == 'male' ? 'Father' : (gender == 'female' ? 'Mother' : 'Parent');
+      } else {
+        // Person is Child of Me -> Person is Child
+        label = gender == 'male' ? 'Son' : (gender == 'female' ? 'Daughter' : 'Child');
+      }
+    } else if (relationshipType == 'spouse') {
+      label = gender == 'male' ? 'Husband' : (gender == 'female' ? 'Wife' : 'Spouse');
+    } else if (relationshipType == 'sibling') {
+      label = gender == 'male' ? 'Brother' : (gender == 'female' ? 'Sister' : 'Sibling');
+    }
+    
+    person.relationshipLabel = label;
   }
 
   @override

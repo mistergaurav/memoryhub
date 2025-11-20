@@ -181,6 +181,7 @@ async def search_memories(
     sort_order: str = "desc",
     page: int = 1,
     limit: int = 20,
+    person_id: Optional[str] = None,
     current_user: UserInDB = Depends(get_current_user)
 ):
     search_params = {
@@ -192,7 +193,8 @@ async def search_memories(
         "sort_by": sort_by,
         "sort_order": sort_order,
         "page": page,
-        "limit": limit
+        "limit": limit,
+        "person_id": person_id
     }
     
     filters = await process_memory_search_filters(search_params, str(current_user.id))
