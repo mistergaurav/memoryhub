@@ -47,6 +47,25 @@ class ApprovalStatus(str, Enum):
     REJECTED = "rejected"
 
 
+class VisibilityType(str, Enum):
+    """Visibility settings for health records"""
+    FAMILY_TREE = "family_tree"  # Everyone in family can see
+    SELECT_USERS = "select_users"  # Specific users selected by name/username
+    FAMILY_CIRCLE = "family_circle"  # Based on relationship categories
+    PRIVATE = "private"  # Only sender and receiver
+
+
+class FamilyCircleType(str, Enum):
+    """Family circle relationship categories"""
+    ALL = "all"  # All people in family circles
+    BOYFRIEND = "boyfriend"
+    GIRLFRIEND = "girlfriend"
+    FRIEND = "friend"
+    CLOSE_FRIEND = "close_friend"
+    BEST_FRIEND = "best_friend"
+
+
+
 class HealthRecordCreate(BaseModel):
     subject_type: SubjectType = SubjectType.SELF
     subject_user_id: Optional[str] = None
@@ -71,6 +90,12 @@ class HealthRecordCreate(BaseModel):
     age_of_onset: Optional[int] = None
     affected_relatives: List[str] = []
     genetic_test_results: Optional[str] = Field(None, max_length=2000)
+    
+    # Visibility settings (set during approval by receiver)
+    visibility_type: Optional[VisibilityType] = None
+    visibility_user_ids: List[str] = []  # For SELECT_USERS visibility
+    visibility_family_circles: List[FamilyCircleType] = []  # For FAMILY_CIRCLE visibility
+
     
     @model_validator(mode='after')
     def validate_subject_consistency(self):
@@ -122,6 +147,11 @@ class HealthRecordUpdate(BaseModel):
     approved_at: Optional[datetime] = None
     approved_by: Optional[str] = None
     rejection_reason: Optional[str] = None
+    
+    # Visibility settings
+    visibility_type: Optional[VisibilityType] = None
+    visibility_user_ids: Optional[List[str]] = None
+    visibility_family_circles: Optional[List[FamilyCircleType]] = None
     
     @model_validator(mode='after')
     def validate_subject_consistency_on_update(self):
@@ -184,6 +214,12 @@ class HealthRecordResponse(BaseModel):
     approved_at: Optional[datetime] = None
     approved_by: Optional[str] = None
     rejection_reason: Optional[str] = None
+    
+    # Visibility settings
+    visibility_type: Optional[VisibilityType] = None
+    visibility_user_ids: List[str] = []
+    visibility_family_circles: List[FamilyCircleType] = []
+    
     created_at: datetime
     updated_at: datetime
     created_by: str
@@ -266,6 +302,7 @@ class RepeatFrequency(str, Enum):
     WEEKLY = "weekly"
     MONTHLY = "monthly"
     YEARLY = "yearly"
+    CUSTOM = "custom"  # Custom interval in days
 
 
 class HealthRecordReminderCreate(BaseModel):
@@ -277,6 +314,7 @@ class HealthRecordReminderCreate(BaseModel):
     due_at: datetime
     repeat_frequency: RepeatFrequency = RepeatFrequency.ONCE
     repeat_count: Optional[int] = Field(None, ge=1, le=365)
+    repeat_interval_days: Optional[int] = Field(None, ge=1, le=365)  # For CUSTOM frequency
     delivery_channels: List[DeliveryChannel] = [DeliveryChannel.IN_APP]
     metadata: dict = {}
 
@@ -288,6 +326,7 @@ class HealthRecordReminderUpdate(BaseModel):
     due_at: Optional[datetime] = None
     repeat_frequency: Optional[RepeatFrequency] = None
     repeat_count: Optional[int] = Field(None, ge=1, le=365)
+    repeat_interval_days: Optional[int] = Field(None, ge=1, le=365)  # For CUSTOM frequency
     delivery_channels: Optional[List[DeliveryChannel]] = None
     status: Optional[ReminderStatus] = None
     metadata: Optional[dict] = None
@@ -305,6 +344,8 @@ class HealthRecordReminderResponse(BaseModel):
     due_at: datetime
     repeat_frequency: RepeatFrequency
     repeat_count: Optional[int] = None
+    repeat_interval_days: Optional[int] = None  # For CUSTOM frequency
+    series_id: Optional[str] = None  # Links repeating reminders in a series
     delivery_channels: List[DeliveryChannel]
     status: ReminderStatus
     metadata: dict

@@ -75,6 +75,11 @@ async def create_family_event(
     - Genealogy integration for auto-generated events
     """
     family_circle_oids = validate_object_ids(event.family_circle_ids, "family_circle_ids") if event.family_circle_ids else []
+    
+    # If no family circles provided, default to current user's ID (personal timeline)
+    if not family_circle_oids:
+        family_circle_oids.append(ObjectId(current_user.id))
+    
     attendee_oids = validate_object_ids(event.attendee_ids, "attendee_ids") if event.attendee_ids else []
     
     genealogy_person_oid = None

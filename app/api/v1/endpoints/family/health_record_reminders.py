@@ -37,6 +37,8 @@ def reminder_to_response(reminder_doc: dict, record_title: Optional[str] = None,
         due_at=reminder_doc["due_at"],
         repeat_frequency=reminder_doc["repeat_frequency"],
         repeat_count=reminder_doc.get("repeat_count"),
+        repeat_interval_days=reminder_doc.get("repeat_interval_days"),
+        series_id=str(reminder_doc["series_id"]) if reminder_doc.get("series_id") else None,
         delivery_channels=reminder_doc["delivery_channels"],
         status=reminder_doc["status"],
         metadata=reminder_doc.get("metadata", {}),
@@ -68,8 +70,19 @@ async def create_reminder(
             detail="Not authorized to create reminder for this record"
         )
     
+    # IMPORTANT: Only allow reminders for medication records
+    if record.get("record_type") != "medication":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Reminders can only be created for medication records"
+        )
+    
     # Validate assigned user
     assigned_user_oid = reminders_repo.validate_object_id(reminder.assigned_user_id, "assigned_user_id")
+    
+    # Generate series_id for repeating reminders
+    import uuid
+    series_id = str(uuid.uuid4()) if reminder.repeat_frequency != "once" else None
     
     # Create reminder
     reminder_data = {
@@ -81,6 +94,8 @@ async def create_reminder(
         "due_at": reminder.due_at,
         "repeat_frequency": reminder.repeat_frequency,
         "repeat_count": reminder.repeat_count,
+        "repeat_interval_days": reminder.repeat_interval_days,
+        "series_id": ObjectId(series_id) if series_id else None,
         "delivery_channels": reminder.delivery_channels,
         "status": ReminderStatus.PENDING,
         "metadata": reminder.metadata,

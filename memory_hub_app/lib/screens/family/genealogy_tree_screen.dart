@@ -17,6 +17,7 @@ import '../../dialogs/family/add_relationship_dialog.dart';
 import '../../widgets/default_avatar.dart';
 import '../../design_system/family_design_system.dart';
 import 'package:intl/intl.dart';
+import 'person_profile_screen.dart';
 import '../../design_system/layout/padded.dart';
 
 class GenealogyTreeScreen extends StatefulWidget {
@@ -258,14 +259,21 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                           childAspectRatio: 0.75,
                         ),
                         delegate: SliverChildBuilderDelegate(
-                          (context, index) => PersonCard(person: _persons[index]),
+                          (context, index) => PersonCard(
+                            person: _persons[index],
+                            onTap: () => _navigateToPersonProfile(_persons[index]),
+                          ),
                           childCount: _persons.length,
                         ),
                       ),
                     )
                   : SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) => PersonCard(person: _persons[index], isGridView: false),
+                        (context, index) => PersonCard(
+                          person: _persons[index],
+                          isGridView: false,
+                          onTap: () => _navigateToPersonProfile(_persons[index]),
+                        ),
                         childCount: _persons.length,
                       ),
                     ),
@@ -484,6 +492,14 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
       }
       rethrow;
     }
+  }
+
+  void _navigateToPersonProfile(GenealogyPerson person) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PersonProfileScreen(person: person),
+      ),
+    ).then((_) => _loadData());
   }
 }
 

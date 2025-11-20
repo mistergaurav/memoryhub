@@ -28,7 +28,13 @@ class DashboardService {
     );
     
     if (response.statusCode == 200) {
-      return List<Map<String, dynamic>>.from(json.decode(response.body));
+      final data = json.decode(response.body);
+      if (data is List) {
+        return List<Map<String, dynamic>>.from(data);
+      } else if (data is Map && data.containsKey('activities')) {
+        return List<Map<String, dynamic>>.from(data['activities']);
+      }
+      return [];
     }
     throw Exception('Failed to load recent activity');
   }

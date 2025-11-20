@@ -23,7 +23,13 @@ class AnalyticsService {
     );
     
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      final data = json.decode(response.body);
+      return {
+        ...data,
+        ...?data['content'],
+        ...?data['social'],
+        ...?data['storage'],
+      };
     }
     throw Exception('Failed to load analytics');
   }

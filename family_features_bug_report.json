@@ -1,40 +1,274 @@
 [
   {
-    "test": "Create Genealogy Person",
-    "details": "Status: 404",
+    "test": "Create Album",
+    "details": "Status: 405",
     "bug": {
       "type": "create_failed",
       "response": {
         "error": true,
-        "status_code": 404,
+        "status_code": 405,
         "expected": 201,
-        "response": "{\"detail\":\"Document not found\"}"
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "List Albums",
+    "details": "Status: 405",
+    "bug": {
+      "type": "list_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 200,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "Create Event",
+    "details": "Status: 405",
+    "bug": {
+      "type": "create_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 201,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "List Events",
+    "details": "Status: 405",
+    "bug": {
+      "type": "list_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 200,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "Get Birthdays",
+    "details": "Status: 405",
+    "bug": {
+      "type": "birthdays_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 200,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "Create Milestone",
+    "details": "Status: 405",
+    "bug": {
+      "type": "create_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 201,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "List Milestones",
+    "details": "Status: 405",
+    "bug": {
+      "type": "list_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 200,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "Create Recipe",
+    "details": "Status: 405",
+    "bug": {
+      "type": "create_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 201,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "List Recipes",
+    "details": "Status: 405",
+    "bug": {
+      "type": "list_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 200,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "Filter Recipes by Category",
+    "details": "Status: 405",
+    "bug": {
+      "type": "filter_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 200,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "Create Tradition",
+    "details": "Status: 405",
+    "bug": {
+      "type": "create_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 201,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "List Traditions",
+    "details": "Status: 405",
+    "bug": {
+      "type": "list_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 200,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "Get Timeline Events",
+    "details": "Status: 405",
+    "bug": {
+      "type": "timeline_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 200,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "Timeline Pagination",
+    "details": "Status: 405",
+    "bug": {
+      "type": "pagination_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 200,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "Timeline Stats",
+    "details": "Status: 405",
+    "bug": {
+      "type": "stats_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 200,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "Create Legacy Letter",
+    "details": "Status: 405",
+    "bug": {
+      "type": "create_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 201,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "List Sent Letters",
+    "details": "Status: 405",
+    "bug": {
+      "type": "list_sent_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 200,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "List Received Letters",
+    "details": "Status: 405",
+    "bug": {
+      "type": "list_received_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 200,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
+      }
+    }
+  },
+  {
+    "test": "Create Genealogy Person",
+    "details": "Status: 405",
+    "bug": {
+      "type": "create_failed",
+      "response": {
+        "error": true,
+        "status_code": 405,
+        "expected": 201,
+        "response": "{\"detail\":\"Method Not Allowed\"}"
       }
     }
   },
   {
     "test": "List Genealogy Persons",
-    "details": "Status: 404",
+    "details": "Status: 405",
     "bug": {
       "type": "list_failed",
       "response": {
         "error": true,
-        "status_code": 404,
+        "status_code": 405,
         "expected": 200,
-        "response": "{\"detail\":\"Document not found\"}"
+        "response": "{\"detail\":\"Method Not Allowed\"}"
       }
     }
   },
   {
     "test": "Get Family Tree",
-    "details": "Status: 404",
+    "details": "Status: 405",
     "bug": {
       "type": "tree_failed",
       "response": {
         "error": true,
-        "status_code": 404,
+        "status_code": 405,
         "expected": 200,
-        "response": "{\"detail\":\"Document not found\"}"
+        "response": "{\"detail\":\"Method Not Allowed\"}"
       }
     }
   }

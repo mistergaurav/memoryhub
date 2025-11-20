@@ -52,10 +52,10 @@ def print_test(name, passed, details="", bug_details=None):
     
     if passed:
         test_results["passed"] += 1
-        status = f"{Colors.GREEN}✓ PASS{Colors.END}"
+        status = f"{Colors.GREEN}[PASS]{Colors.END}"
     else:
         test_results["failed"] += 1
-        status = f"{Colors.RED}✗ FAIL{Colors.END}"
+        status = f"{Colors.RED}[FAIL]{Colors.END}"
         if bug_details:
             test_results["bugs_found"].append({
                 "test": name,
@@ -173,7 +173,7 @@ def test_family_albums(token: str):
         "description": "Testing album creation",
         "privacy": "private"
     }
-    response = make_request("POST", "/family-albums/", headers=headers, 
+    response = make_request("POST", "/family/albums/", headers=headers, 
                            json_data=album_data, expected_status=201)
     
     if response and not response.get("error"):
@@ -188,7 +188,7 @@ def test_family_albums(token: str):
                   {"type": "create_failed", "response": response})
     
     # LIST albums
-    response = make_request("GET", "/family-albums/", headers=headers)
+    response = make_request("GET", "/family/albums/", headers=headers)
     if response and not response.get("error"):
         items = response.get("data", {}).get("items", [])
         print_test("List Albums", True, f"Found {len(items)} album(s)")
@@ -198,7 +198,7 @@ def test_family_albums(token: str):
     
     if album_id:
         # GET album details
-        response = make_request("GET", f"/family-albums/{album_id}", headers=headers)
+        response = make_request("GET", f"/family/albums/{album_id}", headers=headers)
         if response and not response.get("error"):
             print_test("Get Album Details", True, f"Album: {response.get('data', {}).get('title')}")
         else:
@@ -207,7 +207,7 @@ def test_family_albums(token: str):
         
         # UPDATE album
         update_data = {"title": "Updated Album Title", "description": "Updated description"}
-        response = make_request("PUT", f"/family-albums/{album_id}", headers=headers, json_data=update_data)
+        response = make_request("PUT", f"/family/albums/{album_id}", headers=headers, json_data=update_data)
         if response and not response.get("error"):
             print_test("Update Album", True, "Album updated successfully")
         else:
@@ -216,7 +216,7 @@ def test_family_albums(token: str):
         
         # ADD photo to album (endpoint expects single photo with url and caption)
         photo_data = {"url": "https://example.com/photo1.jpg", "caption": "Test photo"}
-        response = make_request("POST", f"/family-albums/{album_id}/photos", headers=headers, 
+        response = make_request("POST", f"/family/albums/{album_id}/photos", headers=headers, 
                                json_data=photo_data, expected_status=201)
         if response and not response.get("error"):
             print_test("Add Photo to Album", True, "Photo added successfully")
@@ -225,7 +225,7 @@ def test_family_albums(token: str):
                       {"type": "add_photo_failed", "response": response})
         
         # DELETE album
-        response = make_request("DELETE", f"/family-albums/{album_id}", headers=headers)
+        response = make_request("DELETE", f"/family/albums/{album_id}", headers=headers)
         if response and not response.get("error"):
             print_test("Delete Album", True, "Album deleted successfully")
         else:
@@ -248,7 +248,7 @@ def test_family_calendar(token: str):
         "event_date": (datetime.now() + timedelta(days=7)).isoformat(),
         "recurrence": "none"
     }
-    response = make_request("POST", "/family-calendar/events", headers=headers, 
+    response = make_request("POST", "/family/calendar/events", headers=headers, 
                            json_data=event_data, expected_status=201)
     
     if response and not response.get("error"):
@@ -265,7 +265,7 @@ def test_family_calendar(token: str):
                   {"type": "create_failed", "response": response})
     
     # LIST events
-    response = make_request("GET", "/family-calendar/events", headers=headers)
+    response = make_request("GET", "/family/calendar/events", headers=headers)
     if response and not response.get("error"):
         items = response.get("data", {}).get("items", [])
         print_test("List Events", True, f"Found {len(items)} event(s)")
@@ -276,7 +276,7 @@ def test_family_calendar(token: str):
     if event_id:
         # UPDATE event
         update_data = {"title": "Updated Event Title"}
-        response = make_request("PUT", f"/family-calendar/events/{event_id}", headers=headers, json_data=update_data)
+        response = make_request("PUT", f"/family/calendar/events/{event_id}", headers=headers, json_data=update_data)
         if response and not response.get("error"):
             print_test("Update Event", True, "Event updated successfully")
         else:
@@ -284,7 +284,7 @@ def test_family_calendar(token: str):
                       {"type": "update_failed", "response": response})
         
         # DELETE event
-        response = make_request("DELETE", f"/family-calendar/events/{event_id}", headers=headers)
+        response = make_request("DELETE", f"/family/calendar/events/{event_id}", headers=headers)
         if response and not response.get("error"):
             print_test("Delete Event", True, "Event deleted successfully")
         else:
@@ -292,7 +292,7 @@ def test_family_calendar(token: str):
                       {"type": "delete_failed", "response": response})
     
     # TEST birthdays endpoint
-    response = make_request("GET", "/family-calendar/birthdays", headers=headers)
+    response = make_request("GET", "/family/calendar/birthdays", headers=headers)
     if response and not response.get("error"):
         print_test("Get Birthdays", True, "Birthdays endpoint working")
     else:
@@ -314,7 +314,7 @@ def test_family_milestones(token: str):
         "milestone_type": "achievement",
         "milestone_date": datetime.now().isoformat()
     }
-    response = make_request("POST", "/family-milestones/", headers=headers, 
+    response = make_request("POST", "/family/milestones/", headers=headers, 
                            json_data=milestone_data, expected_status=201)
     
     if response and not response.get("error"):
@@ -329,7 +329,7 @@ def test_family_milestones(token: str):
                   {"type": "create_failed", "response": response})
     
     # LIST milestones
-    response = make_request("GET", "/family-milestones/", headers=headers)
+    response = make_request("GET", "/family/milestones/", headers=headers)
     if response and not response.get("error"):
         items = response.get("data", {}).get("items", [])
         print_test("List Milestones", True, f"Found {len(items)} milestone(s)")
@@ -339,7 +339,7 @@ def test_family_milestones(token: str):
     
     if milestone_id:
         # LIKE milestone
-        response = make_request("POST", f"/family-milestones/{milestone_id}/like", headers=headers)
+        response = make_request("POST", f"/family/milestones/{milestone_id}/like", headers=headers)
         if response and not response.get("error"):
             print_test("Like Milestone", True, "Milestone liked successfully")
         else:
@@ -347,7 +347,7 @@ def test_family_milestones(token: str):
                       {"type": "like_failed", "response": response})
         
         # UNLIKE milestone
-        response = make_request("DELETE", f"/family-milestones/{milestone_id}/like", headers=headers)
+        response = make_request("DELETE", f"/family/milestones/{milestone_id}/like", headers=headers)
         if response and not response.get("error"):
             print_test("Unlike Milestone", True, "Milestone unliked successfully")
         else:
@@ -356,7 +356,7 @@ def test_family_milestones(token: str):
         
         # UPDATE milestone
         update_data = {"title": "Updated Milestone Title"}
-        response = make_request("PUT", f"/family-milestones/{milestone_id}", headers=headers, json_data=update_data)
+        response = make_request("PUT", f"/family/milestones/{milestone_id}", headers=headers, json_data=update_data)
         if response and not response.get("error"):
             print_test("Update Milestone", True, "Milestone updated successfully")
         else:
@@ -364,7 +364,7 @@ def test_family_milestones(token: str):
                       {"type": "update_failed", "response": response})
         
         # DELETE milestone
-        response = make_request("DELETE", f"/family-milestones/{milestone_id}", headers=headers)
+        response = make_request("DELETE", f"/family/milestones/{milestone_id}", headers=headers)
         if response and not response.get("error"):
             print_test("Delete Milestone", True, "Milestone deleted successfully")
         else:
@@ -394,7 +394,7 @@ def test_family_recipes(token: str):
             {"step_number": 2, "instruction": "Step 2 instructions"}
         ]
     }
-    response = make_request("POST", "/family-recipes/", headers=headers, 
+    response = make_request("POST", "/family/recipes/", headers=headers, 
                            json_data=recipe_data, expected_status=201)
     
     if response and not response.get("error"):
@@ -409,7 +409,7 @@ def test_family_recipes(token: str):
                   {"type": "create_failed", "response": response})
     
     # LIST recipes
-    response = make_request("GET", "/family-recipes/", headers=headers)
+    response = make_request("GET", "/family/recipes/", headers=headers)
     if response and not response.get("error"):
         items = response.get("data", {}).get("items", [])
         print_test("List Recipes", True, f"Found {len(items)} recipe(s)")
@@ -418,7 +418,7 @@ def test_family_recipes(token: str):
                   {"type": "list_failed", "response": response})
     
     # LIST by category
-    response = make_request("GET", "/family-recipes/", headers=headers, params={"category": "main_course"})
+    response = make_request("GET", "/family/recipes/", headers=headers, params={"category": "main_course"})
     if response and not response.get("error"):
         items = response.get("data", {}).get("items", [])
         print_test("Filter Recipes by Category", True, f"Found {len(items)} recipe(s) in category")
@@ -429,7 +429,7 @@ def test_family_recipes(token: str):
     if recipe_id:
         # UPDATE recipe
         update_data = {"title": "Updated Recipe Title"}
-        response = make_request("PUT", f"/family-recipes/{recipe_id}", headers=headers, json_data=update_data)
+        response = make_request("PUT", f"/family/recipes/{recipe_id}", headers=headers, json_data=update_data)
         if response and not response.get("error"):
             print_test("Update Recipe", True, "Recipe updated successfully")
         else:
@@ -437,7 +437,7 @@ def test_family_recipes(token: str):
                       {"type": "update_failed", "response": response})
         
         # DELETE recipe
-        response = make_request("DELETE", f"/family-recipes/{recipe_id}", headers=headers)
+        response = make_request("DELETE", f"/family/recipes/{recipe_id}", headers=headers)
         if response and not response.get("error"):
             print_test("Delete Recipe", True, "Recipe deleted successfully")
         else:
@@ -459,7 +459,7 @@ def test_family_traditions(token: str):
         "category": "holiday",
         "frequency": "yearly"
     }
-    response = make_request("POST", "/family-traditions/", headers=headers, 
+    response = make_request("POST", "/family/traditions/", headers=headers, 
                            json_data=tradition_data, expected_status=201)
     
     if response and not response.get("error"):
@@ -474,7 +474,7 @@ def test_family_traditions(token: str):
                   {"type": "create_failed", "response": response})
     
     # LIST traditions
-    response = make_request("GET", "/family-traditions/", headers=headers)
+    response = make_request("GET", "/family/traditions/", headers=headers)
     if response and not response.get("error"):
         items = response.get("data", {}).get("items", [])
         print_test("List Traditions", True, f"Found {len(items)} tradition(s)")
@@ -484,7 +484,7 @@ def test_family_traditions(token: str):
     
     if tradition_id:
         # FOLLOW tradition
-        response = make_request("POST", f"/family-traditions/{tradition_id}/follow", headers=headers)
+        response = make_request("POST", f"/family/traditions/{tradition_id}/follow", headers=headers)
         if response and not response.get("error"):
             print_test("Follow Tradition", True, "Tradition followed successfully")
         else:
@@ -492,7 +492,7 @@ def test_family_traditions(token: str):
                       {"type": "follow_failed", "response": response})
         
         # UNFOLLOW tradition
-        response = make_request("DELETE", f"/family-traditions/{tradition_id}/follow", headers=headers)
+        response = make_request("DELETE", f"/family/traditions/{tradition_id}/follow", headers=headers)
         if response and not response.get("error"):
             print_test("Unfollow Tradition", True, "Tradition unfollowed successfully")
         else:
@@ -501,7 +501,7 @@ def test_family_traditions(token: str):
         
         # UPDATE tradition
         update_data = {"title": "Updated Tradition Title"}
-        response = make_request("PUT", f"/family-traditions/{tradition_id}", headers=headers, json_data=update_data)
+        response = make_request("PUT", f"/family/traditions/{tradition_id}", headers=headers, json_data=update_data)
         if response and not response.get("error"):
             print_test("Update Tradition", True, "Tradition updated successfully")
         else:
@@ -509,7 +509,7 @@ def test_family_traditions(token: str):
                       {"type": "update_failed", "response": response})
         
         # DELETE tradition
-        response = make_request("DELETE", f"/family-traditions/{tradition_id}", headers=headers)
+        response = make_request("DELETE", f"/family/traditions/{tradition_id}", headers=headers)
         if response and not response.get("error"):
             print_test("Delete Tradition", True, "Tradition deleted successfully")
         else:
@@ -524,7 +524,7 @@ def test_family_timeline(token: str):
     headers = {"Authorization": f"Bearer {token}"}
     
     # GET timeline events
-    response = make_request("GET", "/family-timeline/", headers=headers)
+    response = make_request("GET", "/family/timeline/", headers=headers)
     if response and not response.get("error"):
         items = response.get("data", {}).get("items", [])
         print_test("Get Timeline Events", True, f"Found {len(items)} timeline event(s)")
@@ -533,7 +533,7 @@ def test_family_timeline(token: str):
                   {"type": "timeline_failed", "response": response})
     
     # GET timeline with pagination
-    response = make_request("GET", "/family-timeline/", headers=headers, params={"page": 1, "page_size": 10})
+    response = make_request("GET", "/family/timeline/", headers=headers, params={"page": 1, "page_size": 10})
     if response and not response.get("error"):
         print_test("Timeline Pagination", True, "Pagination working")
     else:
@@ -541,7 +541,7 @@ def test_family_timeline(token: str):
                   {"type": "pagination_failed", "response": response})
     
     # GET timeline stats
-    response = make_request("GET", "/family-timeline/stats", headers=headers)
+    response = make_request("GET", "/family/timeline/stats", headers=headers)
     if response and not response.get("error"):
         print_test("Timeline Stats", True, "Stats endpoint working")
     else:
@@ -564,7 +564,7 @@ def test_legacy_letters(token: str, user_id: str):
         "encrypt": False,
         "recipient_ids": [user_id]  # Added self as recipient for testing
     }
-    response = make_request("POST", "/legacy-letters/", headers=headers, 
+    response = make_request("POST", "/family/legacy-letters/", headers=headers, 
                            json_data=letter_data, expected_status=201)
     
     if response and not response.get("error"):
@@ -579,7 +579,7 @@ def test_legacy_letters(token: str, user_id: str):
                   {"type": "create_failed", "response": response})
     
     # LIST sent letters
-    response = make_request("GET", "/legacy-letters/sent", headers=headers)
+    response = make_request("GET", "/family/legacy-letters/sent", headers=headers)
     if response and not response.get("error"):
         items = response.get("data", {}).get("items", [])
         print_test("List Sent Letters", True, f"Found {len(items)} sent letter(s)")
@@ -588,7 +588,7 @@ def test_legacy_letters(token: str, user_id: str):
                   {"type": "list_sent_failed", "response": response})
     
     # LIST received letters
-    response = make_request("GET", "/legacy-letters/received", headers=headers)
+    response = make_request("GET", "/family/legacy-letters/received", headers=headers)
     if response and not response.get("error"):
         items = response.get("data", {}).get("items", [])
         print_test("List Received Letters", True, f"Found {len(items)} received letter(s)")
@@ -599,7 +599,7 @@ def test_legacy_letters(token: str, user_id: str):
     if letter_id:
         # UPDATE letter
         update_data = {"title": "Updated Letter Title"}
-        response = make_request("PUT", f"/legacy-letters/{letter_id}", headers=headers, json_data=update_data)
+        response = make_request("PUT", f"/family/legacy-letters/{letter_id}", headers=headers, json_data=update_data)
         if response and not response.get("error"):
             print_test("Update Legacy Letter", True, "Letter updated successfully")
         else:
@@ -607,7 +607,7 @@ def test_legacy_letters(token: str, user_id: str):
                       {"type": "update_failed", "response": response})
         
         # DELETE letter
-        response = make_request("DELETE", f"/legacy-letters/{letter_id}", headers=headers)
+        response = make_request("DELETE", f"/family/legacy-letters/{letter_id}", headers=headers)
         if response and not response.get("error"):
             print_test("Delete Legacy Letter", True, "Letter deleted successfully")
         else:
@@ -630,7 +630,7 @@ def test_genealogy(token: str):
         "birth_date": "1990-01-01",  # Changed from ISO to YYYY-MM-DD format
         "is_alive": True
     }
-    response = make_request("POST", "/genealogy/persons", headers=headers, 
+    response = make_request("POST", "/family/genealogy/persons", headers=headers, 
                            json_data=person_data, expected_status=201)
     
     if response and not response.get("error"):
@@ -645,7 +645,7 @@ def test_genealogy(token: str):
                   {"type": "create_failed", "response": response})
     
     # LIST persons
-    response = make_request("GET", "/genealogy/persons", headers=headers)
+    response = make_request("GET", "/family/genealogy/persons", headers=headers)
     if response and not response.get("error"):
         items = response.get("data", {}).get("items", [])
         print_test("List Genealogy Persons", True, f"Found {len(items)} person(s)")
@@ -654,7 +654,7 @@ def test_genealogy(token: str):
                   {"type": "list_failed", "response": response})
     
     # GET family tree
-    response = make_request("GET", "/genealogy/tree", headers=headers)
+    response = make_request("GET", "/family/genealogy/tree", headers=headers)
     if response and not response.get("error"):
         print_test("Get Family Tree", True, "Tree retrieved successfully")
     else:
@@ -664,7 +664,7 @@ def test_genealogy(token: str):
     if person_id:
         # UPDATE person
         update_data = {"biography": "Updated biography"}
-        response = make_request("PUT", f"/genealogy/persons/{person_id}", headers=headers, json_data=update_data)
+        response = make_request("PUT", f"/family/genealogy/persons/{person_id}", headers=headers, json_data=update_data)
         if response and not response.get("error"):
             print_test("Update Genealogy Person", True, "Person updated successfully")
         else:
@@ -672,7 +672,7 @@ def test_genealogy(token: str):
                       {"type": "update_failed", "response": response})
         
         # DELETE person
-        response = make_request("DELETE", f"/genealogy/persons/{person_id}", headers=headers)
+        response = make_request("DELETE", f"/family/genealogy/persons/{person_id}", headers=headers)
         if response and not response.get("error"):
             print_test("Delete Genealogy Person", True, "Person deleted successfully")
         else:
@@ -757,7 +757,7 @@ def print_summary():
     print(f"  {Colors.RED}Failed: {test_results['failed']}{Colors.END}")
     
     if test_results['passed'] == test_results['total']:
-        print(f"\n{Colors.GREEN}{Colors.BOLD}🎉 ALL TESTS PASSED! 🎉{Colors.END}")
+        print(f"\n{Colors.GREEN}{Colors.BOLD}*** ALL TESTS PASSED! ***{Colors.END}")
     else:
         pass_rate = (test_results['passed'] / test_results['total'] * 100) if test_results['total'] > 0 else 0
         print(f"\n  Pass Rate: {pass_rate:.1f}%")
@@ -786,7 +786,7 @@ def main():
     # Step 1: Authenticate and get user ID
     token = test_authentication()
     if not token:
-        print(f"\n{Colors.RED}{Colors.BOLD}❌ Authentication failed. Cannot proceed.{Colors.END}")
+        print(f"\n{Colors.RED}{Colors.BOLD}[X] Authentication failed. Cannot proceed.{Colors.END}")
         sys.exit(1)
     
     # Get user ID for legacy letters test

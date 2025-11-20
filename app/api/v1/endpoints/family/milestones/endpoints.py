@@ -68,7 +68,12 @@ async def create_milestone(
     - Supports photo attachments
     - Tracks genealogy integration
     """
+    # Convert circle_ids to ObjectIds
     family_circle_oids = validate_object_ids(milestone.family_circle_ids, "family_circle_ids") if milestone.family_circle_ids else []
+    
+    # If no family circles provided, default to current user's ID (personal timeline)
+    if not family_circle_oids:
+        family_circle_oids.append(ObjectId(current_user.id))
     
     person_oid = None
     person_name = None

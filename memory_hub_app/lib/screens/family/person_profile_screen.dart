@@ -4,6 +4,9 @@ import 'package:intl/intl.dart';
 import '../../models/family/genealogy_person.dart';
 import '../../models/memory.dart';
 import '../../services/api_service.dart';
+import '../../dialogs/family/add_relationship_dialog.dart';
+import '../../services/family/genealogy/persons_service.dart';
+import '../../services/family/genealogy/relationships_service.dart';
 
 class PersonProfileScreen extends StatefulWidget {
   final GenealogyPerson person;
@@ -17,6 +20,8 @@ class PersonProfileScreen extends StatefulWidget {
 class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ApiService _apiService = ApiService();
+  final GenealogyPersonsService _personsService = GenealogyPersonsService();
+  final GenealogyRelationshipsService _relationshipsService = GenealogyRelationshipsService();
   List<Memory> _memories = [];
   bool _isLoadingMemories = false;
 
@@ -66,12 +71,62 @@ class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTi
     super.dispose();
   }
 
+  Future<void> _showAddRelationshipDialog() async {
+    try {
+      final persons = await _personsService.getPersons();
+      if (!mounted) return;
+
+      showDialog(
+        context: context,
+        builder: (context) => AddRelationshipDialog(
+          persons: persons.map((p) => p.toJson()).toList(),
+          initialPersonId: widget.person.id,
+          onSubmit: (data) async {
+            try {
+              await _relationshipsService.createRelationship(data);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Relationship added successfully'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            } catch (e) {
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to add relationship: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            }
+          },
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load persons: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.person.fullName),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.link),
+            tooltip: 'Add Relationship',
+            onPressed: _showAddRelationshipDialog,
+          ),
+        ],
       ),
       body: Column(
         children: [

@@ -4,11 +4,13 @@ import '../../design_system/design_tokens.dart';
 class AddRelationshipDialog extends StatefulWidget {
   final Function(Map<String, dynamic>) onSubmit;
   final List<Map<String, dynamic>> persons;
+  final String? initialPersonId;
 
   const AddRelationshipDialog({
     Key? key,
     required this.onSubmit,
     required this.persons,
+    this.initialPersonId,
   }) : super(key: key);
 
   @override
@@ -21,6 +23,12 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
   String? _person2Id;
   String _relationshipType = 'parent';
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _person1Id = widget.initialPersonId;
+  }
 
   final List<Map<String, String>> _relationshipTypes = [
     {'value': 'parent', 'label': 'Parent'},

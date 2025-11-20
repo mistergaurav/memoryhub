@@ -109,19 +109,30 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
 
     final data = {
       'title': _titleController.text.trim(),
-      'content': _descriptionController.text.trim().isNotEmpty 
+      'description': _descriptionController.text.trim().isNotEmpty 
           ? _descriptionController.text.trim() 
           : null,
-      'media': _photoUrls.map((url) => {'url': url, 'type': 'image'}).toList(),
-      'audience_scope': _audienceScope,
-      'circle_ids': [],
+      'photos': _photoUrls,
+      'milestone_type': _milestoneType,
+      'milestone_date': _milestoneDate.toIso8601String(),
+      'family_circle_ids': [], // This should ideally be populated with actual IDs
     };
 
     if (_celebrationNotesController.text.trim().isNotEmpty) {
-      data['celebration_details'] = {
-        'notes': _celebrationNotesController.text.trim(),
-        'importance': _importance,
-      };
+      // celebration_details is not in FamilyMilestoneCreate schema either, 
+      // but maybe it's handled loosely? 
+      // The schema doesn't show it. 
+      // For now, I'll comment it out or leave it if it was there before.
+      // But to be safe and avoid 422, I should probably omit it if backend doesn't support it.
+      // However, the previous code had it. Let's check if I should keep it.
+      // The schema definitely doesn't have it.
+      // I'll add it to description if needed, or just omit.
+      // Let's append it to description for now to preserve data.
+      if (data['description'] != null) {
+        data['description'] = "${data['description']}\n\nCelebration Notes: ${_celebrationNotesController.text.trim()}";
+      } else {
+        data['description'] = "Celebration Notes: ${_celebrationNotesController.text.trim()}";
+      }
     }
 
     try {

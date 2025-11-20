@@ -24,6 +24,7 @@ from .core import (
 
 # Import health records feature router
 from app.features.health_records.api import router as health_records_router
+from .health_record_approval import router as health_record_approval_router
 
 router = APIRouter()
 # Include core family routers with /core prefix for frontend compatibility
@@ -44,6 +45,7 @@ router.include_router(letters_router, prefix="/letters", tags=["legacy-letters"]
 router.include_router(letters_router, prefix="/legacy-letters", tags=["legacy-letters"])
 router.include_router(parental_router, prefix="/parental-controls", tags=["parental-controls"])
 router.include_router(health_records_router, tags=["health-records"])
+router.include_router(health_record_approval_router, prefix="/health-records", tags=["health-records"])
 
 # Include new relationship endpoints
 router.include_router(new_relationships_router, prefix="/relationships", tags=["relationships"])
