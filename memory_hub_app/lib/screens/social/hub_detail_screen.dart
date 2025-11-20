@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -289,7 +290,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                   child: Icon(
                     Icons.workspaces,
                     size: 80,
-                    color: Colors.white.withOpacity(0.5),
+                    color: context.colors.surface.withOpacity(0.5),
                   ),
                 ),
               ),
@@ -418,7 +419,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                         backgroundColor: context.colors.primary,
                                         child: Text(
                                           (memory['owner_name'] ?? 'U')[0].toUpperCase(),
-                                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                                          style: const TextStyle(color: context.colors.surface, fontSize: 14),
                                         ),
                                       ),
                                       const HGap.sm(),
@@ -444,14 +445,14 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                       Row(
                                         children: [
                                           Icon(Icons.favorite_border, size: 20, color: context.colors.onSurface.withOpacity(0.6)),
-                                          const SizedBox(width: 4),
+                                          const HGap.xxs(),
                                           Text(
                                             '${memory['like_count'] ?? 0}',
                                             style: TextStyle(color: context.colors.onSurface.withOpacity(0.6)),
                                           ),
                                           const HGap.sm(),
                                           Icon(Icons.comment_outlined, size: 20, color: context.colors.onSurface.withOpacity(0.6)),
-                                          const SizedBox(width: 4),
+                                          const HGap.xxs(),
                                           Text(
                                             '${memory['comment_count'] ?? 0}',
                                             style: TextStyle(color: context.colors.onSurface.withOpacity(0.6)),

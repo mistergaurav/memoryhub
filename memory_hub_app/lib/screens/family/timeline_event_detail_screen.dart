@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../../models/family/family_timeline.dart';
@@ -94,7 +95,7 @@ class _TimelineEventDetailScreenState extends State<TimelineEventDetailScreen> w
       SnackBar(
         content: Text(_isLiked ? '❤️ You liked this event' : 'Removed like'),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: _isLiked ? const Color(0xFFEC4899) : Colors.grey,
+        backgroundColor: _isLiked ? context.colors.accent : Colors.grey,
         duration: const Duration(seconds: 1),
       ),
     );
@@ -118,7 +119,7 @@ class _TimelineEventDetailScreenState extends State<TimelineEventDetailScreen> w
       const SnackBar(
         content: Text('💬 Comment added!'),
         behavior: SnackBarBehavior.floating,
-        backgroundColor: Color(0xFF06B6D4),
+        backgroundColor: context.colors.info,
         duration: Duration(seconds: 1),
       ),
     );
@@ -138,7 +139,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('📋 Event details copied to clipboard'),
-        backgroundColor: Color(0xFF8B5CF6),
+        backgroundColor: context.colors.primary,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -149,26 +150,26 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
     switch (type) {
       case 'album':
       case 'photo':
-        return [const Color(0xFF8B5CF6), const Color(0xFFA855F7)];
+        return [context.colors.primary, const Color(0xFFA855F7)];
       case 'event':
       case 'calendar':
-        return [const Color(0xFF06B6D4), const Color(0xFF22D3EE)];
+        return [context.colors.info, const Color(0xFF22D3EE)];
       case 'milestone':
       case 'achievement':
-        return [const Color(0xFFF59E0B), const Color(0xFFFBBF24)];
+        return [context.colors.warning, const Color(0xFFFBBF24)];
       case 'recipe':
       case 'food':
-        return [const Color(0xFFEF4444), const Color(0xFFF87171)];
+        return [context.colors.error, const Color(0xFFF87171)];
       case 'tradition':
         return [const Color(0xFF14B8A6), const Color(0xFF2DD4BF)];
       case 'memory':
-        return [const Color(0xFFEC4899), const Color(0xFFF472B6)];
+        return [context.colors.accent, const Color(0xFFF472B6)];
       case 'birthday':
-        return [const Color(0xFFEC4899), const Color(0xFFF472B6)];
+        return [context.colors.accent, const Color(0xFFF472B6)];
       case 'anniversary':
-        return [const Color(0xFF8B5CF6), const Color(0xFFEC4899)];
+        return [context.colors.primary, context.colors.accent];
       default:
-        return [const Color(0xFF6366F1), const Color(0xFF8B5CF6)];
+        return [const Color(0xFF6366F1), context.colors.primary];
     }
   }
 
@@ -247,7 +248,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                               child: Icon(
                                 _getEventIcon(),
                                 size: 80,
-                                color: Colors.white.withOpacity(0.3),
+                                color: context.colors.surface.withOpacity(0.3),
                               ),
                             );
                           },
@@ -282,7 +283,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                             child: Icon(
                               _getEventIcon(),
                               size: 140,
-                              color: Colors.white.withOpacity(0.2),
+                              color: context.colors.surface.withOpacity(0.2),
                             ),
                           ),
                         ],
@@ -308,16 +309,16 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                         child: _buildInteractionButton(
                           icon: _isLiked ? Icons.favorite : Icons.favorite_border,
                           label: '$_likesCount ${_likesCount == 1 ? 'Like' : 'Likes'}',
-                          color: const Color(0xFFEC4899),
+                          color: context.colors.accent,
                           onTap: _toggleLike,
                           animation: _scaleAnimation,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const HGap.sm(),
                       Expanded(child: _buildInteractionButton(
                           icon: Icons.chat_bubble_outline,
                           label: '$_commentsCount ${_commentsCount == 1 ? 'Comment' : 'Comments'}',
-                          color: const Color(0xFF06B6D4),
+                          color: context.colors.info,
                           onTap: () {
                             FocusScope.of(context).requestFocus(FocusNode());
                           },
@@ -325,7 +326,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  const VGap.lg(),
                   _buildInfoCard(
                     icon: Icons.calendar_today,
                     title: 'Event Date',
@@ -337,7 +338,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const VGap.xxs(),
                       Text(
                         'Created ${_formatRelativeTime(_event.createdAt)}',
                         style: TextStyle(
@@ -347,7 +348,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const VGap.md(),
                   if (_event.description != null && _event.description!.isNotEmpty) ...[
                     _buildInfoCard(
                       icon: Icons.description,
@@ -362,7 +363,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.md(),
                   ],
                   _buildInfoCard(
                     icon: Icons.category,
@@ -382,14 +383,14 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                           children: [
                             Icon(
                               _getEventIcon(),
-                              color: Colors.white,
+                              color: context.colors.surface,
                               size: 20,
                             ),
-                            const SizedBox(width: 8),
+                            const HGap.xs(),
                             Text(
                               _formatEventType(_event.eventType),
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: context.colors.surface,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
                               ),
@@ -399,9 +400,9 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const VGap.md(),
                   _buildRelatedContent(),
-                  const SizedBox(height: 16),
+                  const VGap.md(),
                   if (_event.createdByName != null) ...[
                     _buildInfoCard(
                       icon: Icons.person,
@@ -416,7 +417,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.md(),
                   ],
                   if (_event.taggedMembers.isNotEmpty) ...[
                     _buildInfoCard(
@@ -429,10 +430,10 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.md(),
                   ],
                   _buildCommentsSection(),
-                  const SizedBox(height: 80),
+                  const VGap(80),
                 ],
               ),
             ),
@@ -447,7 +448,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
           top: 12,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.colors.surface,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
@@ -474,7 +475,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(24),
-                      borderSide: const BorderSide(color: Color(0xFF8B5CF6), width: 2),
+                      borderSide: const BorderSide(color: context.colors.primary, width: 2),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -487,16 +488,16 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                   textCapitalization: TextCapitalization.sentences,
                 ),
               ),
-              const SizedBox(width: 12),
+              const HGap.sm(),
               Container(
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                    colors: [Color(0xFF6366F1), context.colors.primary],
                   ),
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.send, color: Colors.white),
+                  icon: const Icon(Icons.send, color: context.colors.surface),
                   onPressed: _addComment,
                   tooltip: 'Send comment',
                 ),
@@ -541,7 +542,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             iconWidget,
-            const SizedBox(width: 8),
+            const HGap.xs(),
             Text(
               label,
               style: TextStyle(
@@ -574,16 +575,16 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const Spacing.xs,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: _getGradientColors(),
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(icon, color: Colors.white, size: 20),
+                  child: Icon(icon, color: context.colors.surface, size: 20),
                 ),
-                const SizedBox(width: 12),
+                const HGap.sm(),
                 Text(
                   title,
                   style: const TextStyle(
@@ -593,7 +594,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const VGap.sm(),
             ...children,
           ],
         ),
@@ -610,7 +611,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
         'icon': Icons.celebration,
         'title': 'View Milestones',
         'subtitle': 'See all family milestones',
-        'color': const Color(0xFFF59E0B),
+        'color': context.colors.warning,
         'screen': const FamilyMilestonesScreen(),
       });
     }
@@ -619,7 +620,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
         'icon': Icons.photo_library,
         'title': 'View Albums',
         'subtitle': 'Explore family photo albums',
-        'color': const Color(0xFF8B5CF6),
+        'color': context.colors.primary,
         'screen': const FamilyAlbumsScreen(),
       });
     }
@@ -628,7 +629,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
         'icon': Icons.restaurant_menu,
         'title': 'View Recipes',
         'subtitle': 'Browse family recipes',
-        'color': const Color(0xFFEF4444),
+        'color': context.colors.error,
         'screen': const FamilyRecipesScreen(),
       });
     }
@@ -637,7 +638,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
         'icon': Icons.event,
         'title': 'View Calendar',
         'subtitle': 'See all upcoming events',
-        'color': const Color(0xFF06B6D4),
+        'color': context.colors.info,
         'screen': const FamilyCalendarScreen(),
       });
     }
@@ -668,18 +669,18 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const Spacing.xs,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF8B5CF6).withOpacity(0.1),
+                    color: context.colors.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.link,
-                    color: Color(0xFF8B5CF6),
+                    color: context.colors.primary,
                     size: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const HGap.sm(),
                 const Text(
                   'Related Content',
                   style: TextStyle(
@@ -689,7 +690,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const VGap.sm(),
             ...relatedItems.map((item) => Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: InkWell(
@@ -703,7 +704,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                 },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const Spacing.sm,
                   decoration: BoxDecoration(
                     color: (item['color'] as Color).withOpacity(0.05),
                     borderRadius: BorderRadius.circular(12),
@@ -715,7 +716,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const Spacing.xs,
                         decoration: BoxDecoration(
                           color: (item['color'] as Color).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
@@ -726,7 +727,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                           size: 20,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const HGap.sm(),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -779,18 +780,18 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const Spacing.xs,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF06B6D4).withOpacity(0.1),
+                    color: context.colors.info.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.chat_bubble_outline,
-                    color: Color(0xFF06B6D4),
+                    color: context.colors.info,
                     size: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const HGap.sm(),
                 Text(
                   'Comments ($_commentsCount)',
                   style: const TextStyle(
@@ -800,7 +801,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const VGap.md(),
             if (_comments.isEmpty)
               Center(
                 child: Padding(
@@ -812,7 +813,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                         size: 48,
                         color: Colors.grey.shade300,
                       ),
-                      const SizedBox(height: 12),
+                      const VGap.sm(),
                       Text(
                         'No comments yet',
                         style: TextStyle(
@@ -820,7 +821,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                           fontSize: 15,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const VGap.xxs(),
                       Text(
                         'Be the first to comment!',
                         style: TextStyle(
@@ -840,17 +841,17 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                   children: [
                     CircleAvatar(
                       radius: 18,
-                      backgroundColor: const Color(0xFF8B5CF6),
+                      backgroundColor: context.colors.primary,
                       child: Text(
                         comment['avatar'],
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: context.colors.surface,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const HGap.sm(),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -864,7 +865,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                                   fontSize: 14,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const HGap.xs(),
                               Text(
                                 comment['time'],
                                 style: TextStyle(
@@ -874,7 +875,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
+                          const VGap.xxs(),
                           Text(
                             comment['comment'],
                             style: const TextStyle(

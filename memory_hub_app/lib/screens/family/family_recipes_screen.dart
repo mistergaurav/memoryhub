@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import 'dart:async';
 import '../../services/family/family_service.dart';
 import '../../models/family/family_recipe.dart';
@@ -238,7 +239,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0xFFEF4444),
+                        context.colors.error,
                         Color(0xFFF87171),
                         Color(0xFFFBBF24),
                       ],
@@ -252,7 +253,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                         child: Icon(
                           Icons.restaurant_menu,
                           size: 200,
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: context.colors.surface.withValues(alpha: 0.1),
                         ),
                       ),
                     ],
@@ -294,7 +295,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
             SliverToBoxAdapter(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
                 child: Row(children: [
                     _buildFilterChip(
                       label: 'All',
@@ -336,7 +337,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                       'Sort by:',
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(width: 12),
+                    const HGap.sm(),
                     Expanded(
                       child: DropdownButton<String>(
                         value: _sortBy,
@@ -405,7 +406,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                   actionLabel: _searchQuery.isEmpty ? 'Add Recipe' : null,
                   onAction: _searchQuery.isEmpty ? _showAddDialog : null,
                   gradientColors: const [
-                    Color(0xFFEF4444),
+                    context.colors.error,
                     Color(0xFFF87171),
                   ],
                 ),
@@ -450,7 +451,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
         onPressed: _showAddDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Recipe'),
-        backgroundColor: const Color(0xFFEF4444),
+        backgroundColor: context.colors.error,
       ),
     );
   }
@@ -473,10 +474,10 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
         label: Text(label),
         selected: isSelected,
         onSelected: (_) => onTap(),
-        selectedColor: const Color(0xFFEF4444),
-        checkmarkColor: Colors.white,
+        selectedColor: context.colors.error,
+        checkmarkColor: context.colors.surface,
         labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.grey.shade700,
+          color: isSelected ? context.colors.surface : Colors.grey.shade700,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
         ),
       ),
@@ -504,7 +505,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFFEF4444), Color(0xFFFBBF24)],
+              colors: [context.colors.error, Color(0xFFFBBF24)],
             ),
           ),
           child: Stack(
@@ -515,18 +516,18 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.colors.surface,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
                     children: const [
                       Icon(Icons.star, size: 16, color: Color(0xFFFBBF24)),
-                      SizedBox(width: 4),
+                      HGap.xxs(),
                       Text(
                         'Featured',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFFEF4444),
+                          color: context.colors.error,
                         ),
                       ),
                     ],
@@ -538,7 +539,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                 left: 0,
                 right: 0,
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const Spacing.lg,
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(24),
@@ -559,12 +560,12 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                       Text(
                         recipe.title,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: context.colors.surface,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const VGap.xs(),
                       Row(
                         children: [
                           _buildInfoBadge(
@@ -572,13 +573,13 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                             '${recipe.averageRating.toStringAsFixed(1)}',
                             Colors.amber,
                           ),
-                          const SizedBox(width: 12),
+                          const HGap.sm(),
                           _buildInfoBadge(
                             Icons.restaurant,
                             '${recipe.timesMade} made',
                             Colors.green,
                           ),
-                          const SizedBox(width: 12),
+                          const HGap.sm(),
                           _buildInfoBadge(
                             Icons.favorite,
                             '${recipe.favoritesCount}',
@@ -609,7 +610,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
+          const HGap.xxs(),
           Text(
             text,
             style: TextStyle(
@@ -672,7 +673,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                       child: Text(
                         recipe.difficulty.toUpperCase(),
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: context.colors.surface,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),
@@ -703,7 +704,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                     Row(
                       children: [
                         Icon(Icons.star, size: 14, color: Colors.amber.shade600),
-                        const SizedBox(width: 4),
+                        const HGap.xxs(),
                         Text(
                           recipe.averageRating.toStringAsFixed(1),
                           style: TextStyle(
@@ -714,25 +715,25 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                         ),
                         const Spacer(),
                         Icon(Icons.schedule, size: 14, color: Colors.grey.shade600),
-                        const SizedBox(width: 4),
+                        const HGap.xxs(),
                         Text(
                           '${recipe.totalTime} min',
                           style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const VGap.xxs(),
                     Row(
                       children: [
                         Icon(Icons.restaurant, size: 14, color: Colors.grey.shade600),
-                        const SizedBox(width: 4),
+                        const HGap.xxs(),
                         Text(
                           '${recipe.timesMade} made',
                           style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                         ),
                         const Spacer(),
                         Icon(Icons.favorite, size: 14, color: Colors.red.shade400),
-                        const SizedBox(width: 4),
+                        const HGap.xxs(),
                         Text(
                           '${recipe.favoritesCount}',
                           style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
@@ -757,11 +758,11 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFFEF4444), Color(0xFFF87171)],
+          colors: [context.colors.error, Color(0xFFF87171)],
         ),
       ),
       child: const Center(
-        child: Icon(Icons.restaurant, size: 60, color: Colors.white54),
+        child: Icon(Icons.restaurant, size: 60, color: context.colors.surface54),
       ),
     );
   }
@@ -769,11 +770,11 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
   Color _getDifficultyColor(String difficulty) {
     switch (difficulty.toLowerCase()) {
       case 'easy':
-        return const Color(0xFF10B981);
+        return context.colors.success;
       case 'medium':
-        return const Color(0xFFF59E0B);
+        return context.colors.warning;
       case 'hard':
-        return const Color(0xFFEF4444);
+        return context.colors.error;
       default:
         return Colors.grey;
     }
@@ -803,7 +804,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                   height: 20,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                const SizedBox(height: 8),
+                const VGap.xs(),
                 ShimmerBox(
                   width: double.infinity,
                   height: 14,

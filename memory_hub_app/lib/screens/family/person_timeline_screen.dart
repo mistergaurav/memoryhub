@@ -107,7 +107,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                         Container(
                           padding: Spacing.edgeInsetsAll(3),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.colors.surface,
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
@@ -122,7 +122,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                             backgroundColor: const Color(0xFF4F46E5),
                             backgroundImage: widget.photoUrl != null ? NetworkImage(widget.photoUrl!) : null,
                             child: widget.photoUrl == null
-                                ? const Icon(Icons.person, color: Colors.white, size: 32)
+                                ? const Icon(Icons.person, color: context.colors.surface, size: 32)
                                 : null,
                           ),
                         ),
@@ -134,7 +134,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                             Container(
                               padding: Spacing.edgeInsetsSymmetric(horizontal: Spacing.md, vertical: Spacing.xs),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
+                                color: context.colors.surface.withOpacity(0.9),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Row(
@@ -243,7 +243,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                     ),
                   ],
                 ),
-                child: const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
+                child: const Icon(Icons.auto_awesome, color: context.colors.surface, size: 20),
               ),
               if (index < _memories.length - 1)
                 Container(
@@ -332,7 +332,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                         const VGap.md(),
                         Text(
                           title,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: const context.text.titleLarge,
                         ),
                         if (description.isNotEmpty) ...[
                           const VGap.sm(),

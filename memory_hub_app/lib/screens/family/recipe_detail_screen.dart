@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import 'package:flutter/services.dart';
 import '../../services/family/family_service.dart';
 import '../../models/family/family_recipe.dart';
@@ -171,9 +172,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
+              const VGap.md(),
               const Text('Failed to load recipe'),
-              const SizedBox(height: 16),
+              const VGap.md(),
               ElevatedButton(onPressed: _loadRecipe,
                 child: const Text('Retry'),
               ),
@@ -211,7 +212,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
               IconButton(
                 icon: Icon(
                   _isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: _isFavorite ? Colors.red : Colors.white,
+                  color: _isFavorite ? Colors.red : context.colors.surface,
                 ),
                 onPressed: _toggleFavorite,
               ),
@@ -229,21 +230,21 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
           // Recipe Info Cards
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const Spacing.md,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Rating and Stats
                   _buildStatsRow(),
-                  const SizedBox(height: 20),
+                  const VGap.lg(),
 
                   // Time and Difficulty Badges
                   _buildInfoBadges(),
-                  const SizedBox(height: 20),
+                  const VGap.lg(),
 
                   // Servings Adjuster
                   _buildServingsAdjuster(),
-                  const SizedBox(height: 24),
+                  const VGap.lg(),
 
                   // Tabs
                   _buildTabs(),
@@ -289,11 +290,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFFEF4444), Color(0xFFF87171)],
+                    colors: [context.colors.error, Color(0xFFF87171)],
                   ),
                 ),
                 child: const Center(
-                  child: Icon(Icons.restaurant, size: 120, color: Colors.white54),
+                  child: Icon(Icons.restaurant, size: 120, color: context.colors.surface54),
                 ),
               );
             }
@@ -323,8 +324,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _currentPhotoIndex == index
-                        ? Colors.white
-                        : Colors.white54,
+                        ? context.colors.surface
+                        : context.colors.surface54,
                   ),
                 ),
               ),
@@ -347,7 +348,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
             onTap: _showRatingDialog,
           ),
         ),
-        const SizedBox(width: 12),
+        const HGap.sm(),
         // Times Made
         Expanded(child: _buildStatCard(
             icon: Icons.restaurant,
@@ -356,7 +357,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
             color: Colors.green,
           ),
         ),
-        const SizedBox(width: 12),
+        const HGap.sm(),
         // Favorites
         Expanded(child: _buildStatCard(
             icon: Icons.favorite,
@@ -380,7 +381,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const Spacing.md,
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(16),
@@ -389,7 +390,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
         child: Column(
           children: [
             Icon(icon, color: color, size: 28),
-            const SizedBox(height: 8),
+            const VGap.xs(),
             Text(
               value,
               style: TextStyle(
@@ -419,7 +420,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
           icon: Icons.timer_outlined,
           label: 'Prep',
           value: '${_recipe!.prepTimeMinutes ?? 0} min',
-          color: const Color(0xFF06B6D4),
+          color: context.colors.info,
         ),
         _buildBadge(icon: Icons.timer,
           label: 'Cook',
@@ -434,7 +435,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
         _buildBadge(icon: Icons.category,
           label: 'Category',
           value: _recipe!.categoryDisplay,
-          color: const Color(0xFFF59E0B),
+          color: context.colors.warning,
         ),
       ],
     );
@@ -457,7 +458,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 18, color: color),
-          const SizedBox(width: 8),
+          const HGap.xs(),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -485,7 +486,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
 
   Widget _buildServingsAdjuster() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const Spacing.md,
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(16),
@@ -495,8 +496,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
         children: [
           Row(
             children: [
-              const Icon(Icons.people, color: Color(0xFFEF4444)),
-              const SizedBox(width: 12),
+              const Icon(Icons.people, color: context.colors.error),
+              const HGap.sm(),
               const Text(
                 'Servings',
                 style: TextStyle(
@@ -510,7 +511,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
             children: [
               IconButton(
                 icon: const Icon(Icons.remove_circle_outline),
-                color: const Color(0xFFEF4444),
+                color: context.colors.error,
                 onPressed: () {
                   if (_servings > 1) {
                     setState(() => _servings--);
@@ -522,7 +523,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
                 width: 50,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.colors.surface,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
@@ -537,7 +538,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
               ),
               IconButton(
                 icon: const Icon(Icons.add_circle_outline),
-                color: const Color(0xFFEF4444),
+                color: context.colors.error,
                 onPressed: () {
                   setState(() => _servings++);
                   HapticFeedback.lightImpact();
@@ -553,9 +554,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
   Widget _buildTabs() {
     return TabBar(
       controller: _tabController,
-      labelColor: const Color(0xFFEF4444),
+      labelColor: context.colors.error,
       unselectedLabelColor: Colors.grey,
-      indicatorColor: const Color(0xFFEF4444),
+      indicatorColor: context.colors.error,
       tabs: const [
         Tab(text: 'Ingredients'),
         Tab(text: 'Instructions'),
@@ -566,7 +567,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
 
   Widget _buildIngredientsTab() {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const Spacing.md,
       children: [
         ...List.generate(_recipe!.ingredients.length, (index) {
           final ingredient = _recipe!.ingredients[index];
@@ -582,7 +583,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
               });
               HapticFeedback.selectionClick();
             },
-            activeColor: const Color(0xFFEF4444),
+            activeColor: context.colors.error,
             title: Text(
               ingredient.name,
               style: TextStyle(
@@ -608,7 +609,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
 
   Widget _buildInstructionsTab() {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const Spacing.md,
       children: [
         ...List.generate(_recipe!.steps.length, (index) {
           final step = _recipe!.steps[index];
@@ -622,7 +623,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
                   height: 40,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFEF4444), Color(0xFFF87171)],
+                      colors: [context.colors.error, Color(0xFFF87171)],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -630,14 +631,14 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
                     child: Text(
                       '${step.stepNumber}',
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: context.colors.surface,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const HGap.md(),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -650,7 +651,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
                         ),
                       ),
                       if (step.photo != null) ...[
-                        const SizedBox(height: 12),
+                        const VGap.sm(),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: Image.network(
@@ -674,21 +675,21 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
 
   Widget _buildDetailsTab() {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const Spacing.md,
       children: [
         if (_recipe!.description != null) ...[
           _buildDetailSection('Description', _recipe!.description!),
-          const SizedBox(height: 20),
+          const VGap.lg(),
         ],
         if (_recipe!.originStory != null) ...[
           _buildDetailSection('Origin Story', _recipe!.originStory!,
               icon: Icons.history_edu),
-          const SizedBox(height: 20),
+          const VGap.lg(),
         ],
         if (_recipe!.familyNotes != null) ...[
           _buildDetailSection('Family Notes', _recipe!.familyNotes!,
               icon: Icons.family_restroom),
-          const SizedBox(height: 20),
+          const VGap.lg(),
         ],
         if (_recipe!.createdByName != null) ...[
           _buildDetailSection(
@@ -696,7 +697,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
             _recipe!.createdByName!,
             icon: Icons.person,
           ),
-          const SizedBox(height: 20),
+          const VGap.lg(),
         ],
         _buildDetailSection(
           'Created On',
@@ -709,7 +710,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
 
   Widget _buildDetailSection(String title, String content, {IconData? icon}) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const Spacing.md,
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(16),
@@ -721,20 +722,20 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
           Row(
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 20, color: const Color(0xFFEF4444)),
-                const SizedBox(width: 8),
+                Icon(icon, size: 20, color: context.colors.error),
+                const HGap.xs(),
               ],
               Text(
                 title,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFEF4444),
+                  color: context.colors.error,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const VGap.sm(),
           Text(
             content,
             style: TextStyle(
@@ -750,9 +751,9 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
 
   Widget _buildBottomBar() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const Spacing.md,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -765,8 +766,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
         child: ElevatedButton(
           onPressed: _markAsMade,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFEF4444),
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            backgroundColor: context.colors.error,
+            padding: const EdgeInsets.symmetric(vertical: Spacing.md),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -774,12 +775,12 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
-              Icon(Icons.check_circle, color: Colors.white),
-              SizedBox(width: 8),
+              Icon(Icons.check_circle, color: context.colors.surface),
+              HGap.xs(),
               Text(
                 'I Made This!',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.colors.surface,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -826,11 +827,11 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen>
   Color _getDifficultyColor(String difficulty) {
     switch (difficulty.toLowerCase()) {
       case 'easy':
-        return const Color(0xFF10B981);
+        return context.colors.success;
       case 'medium':
-        return const Color(0xFFF59E0B);
+        return context.colors.warning;
       case 'hard':
-        return const Color(0xFFEF4444);
+        return context.colors.error;
       default:
         return Colors.grey;
     }

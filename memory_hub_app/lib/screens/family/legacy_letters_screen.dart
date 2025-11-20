@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../services/family/family_service.dart';
 import '../../models/family/legacy_letter.dart';
 import '../../widgets/shimmer_loading.dart';
@@ -96,8 +97,8 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF8B5CF6),
-                      Color(0xFFA78BFA),
+                      context.colors.primary,
+                      context.colors.primaryLight,
                       Color(0xFFC4B5FD),
                     ],
                   ),
@@ -110,7 +111,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                       child: Icon(
                         Icons.mail,
                         size: 180,
-                        color: Colors.white.withOpacity(0.1),
+                        color: context.colors.surface.withOpacity(0.1),
                       ),
                     ),
                     Positioned(
@@ -119,7 +120,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                       child: Icon(
                         Icons.favorite,
                         size: 30,
-                        color: Colors.white.withOpacity(0.3),
+                        color: context.colors.surface.withOpacity(0.3),
                       ),
                     ),
                   ],
@@ -128,7 +129,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
             ),
             bottom: TabBar(
               controller: _tabController,
-              indicatorColor: Colors.white,
+              indicatorColor: context.colors.surface,
               tabs: const [
                 Tab(
                   icon: Icon(Icons.send),
@@ -155,7 +156,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
         onPressed: _showAddDialog,
         icon: const Icon(Icons.edit),
         label: const Text('Write Letter'),
-        backgroundColor: const Color(0xFF8B5CF6),
+        backgroundColor: context.colors.primary,
       ),
     );
   }
@@ -185,8 +186,8 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                       actionLabel: 'Write Letter',
                       onAction: _showAddDialog,
                       gradientColors: const [
-                        Color(0xFF8B5CF6),
-                        Color(0xFFA78BFA),
+                        context.colors.primary,
+                        context.colors.primaryLight,
                       ],
                     )
                   : ListView.builder(
@@ -212,8 +213,8 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                   title: 'No Received Letters',
                   message: 'You haven\'t received any legacy letters yet.',
                   gradientColors: const [
-                    Color(0xFF8B5CF6),
-                    Color(0xFFA78BFA),
+                    context.colors.primary,
+                    context.colors.primaryLight,
                   ],
                 )
               : ListView.builder(
@@ -241,8 +242,8 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                const Color(0xFF8B5CF6).withOpacity(0.05),
-                Colors.white,
+                context.colors.primary.withOpacity(0.05),
+                context.colors.surface,
               ],
             ),
           ),
@@ -254,15 +255,15 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const Spacing.md,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF8B5CF6), Color(0xFFA78BFA)],
+                          colors: [context.colors.primary, context.colors.primaryLight],
                         ),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF8B5CF6).withOpacity(0.3),
+                            color: context.colors.primary.withOpacity(0.3),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -270,11 +271,11 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                       ),
                       child: Icon(
                         letter.encrypt ? Icons.lock : Icons.mail,
-                        color: Colors.white,
+                        color: context.colors.surface,
                         size: 32,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const HGap.md(),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,16 +287,16 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const VGap.xxs(),
                           _buildStatusBadge(letter.status),
                         ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const VGap.md(),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const Spacing.sm,
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(12),
@@ -307,7 +308,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                         size: 18,
                         color: Colors.grey.shade700,
                       ),
-                      const SizedBox(width: 8),
+                      const HGap.xs(),
                       Expanded(
                         child: Text(
                           'To: ${letter.recipientNames.isNotEmpty ? letter.recipientNames.join(", ") : "${letter.recipientIds.length} recipient(s)"}',
@@ -322,7 +323,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                const VGap.sm(),
                 Row(
                   children: [
                     Icon(
@@ -330,7 +331,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                       size: 16,
                       color: Colors.grey.shade600,
                     ),
-                    const SizedBox(width: 6),
+                    const HGap.xxs(),
                     Text(
                       'Delivery: ${DateFormat('MMM d, y').format(letter.deliveryDate)}',
                       style: TextStyle(
@@ -339,13 +340,13 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                       ),
                     ),
                     if (letter.deliveredAt != null) ...[
-                      const SizedBox(width: 16),
+                      const HGap.md(),
                       Icon(
                         Icons.check_circle,
                         size: 16,
                         color: Colors.green,
                       ),
-                      const SizedBox(width: 4),
+                      const HGap.xxs(),
                       Text(
                         'Delivered ${DateFormat('MMM d').format(letter.deliveredAt!)}',
                         style: const TextStyle(
@@ -358,7 +359,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                   ],
                 ),
                 if (letter.readCount > 0) ...[
-                  const SizedBox(height: 8),
+                  const VGap.xs(),
                   Row(
                     children: [
                       Icon(
@@ -366,7 +367,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                         size: 16,
                         color: Colors.blue.shade600,
                       ),
-                      const SizedBox(width: 6),
+                      const HGap.xxs(),
                       Text(
                         'Read by ${letter.readCount} recipient${letter.readCount > 1 ? "s" : ""}',
                         style: TextStyle(
@@ -394,7 +395,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
         borderRadius: BorderRadius.circular(20),
         side: letter.isRead
             ? BorderSide.none
-            : BorderSide(color: const Color(0xFF8B5CF6).withOpacity(0.3), width: 2),
+            : BorderSide(color: context.colors.primary.withOpacity(0.3), width: 2),
       ),
       child: InkWell(
         onTap: () => _showReceivedLetterDetails(letter),
@@ -406,10 +407,10 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: letter.isRead
-                  ? [Colors.white, Colors.white]
+                  ? [context.colors.surface, context.colors.surface]
                   : [
-                      const Color(0xFF8B5CF6).withOpacity(0.1),
-                      Colors.white,
+                      context.colors.primary.withOpacity(0.1),
+                      context.colors.surface,
                     ],
             ),
           ),
@@ -421,19 +422,19 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const Spacing.md,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: letter.isRead
                               ? [Colors.grey.shade400, Colors.grey.shade500]
-                              : [const Color(0xFF8B5CF6), const Color(0xFFA78BFA)],
+                              : [context.colors.primary, context.colors.primaryLight],
                         ),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: letter.isRead
                             ? []
                             : [
                                 BoxShadow(
-                                  color: const Color(0xFF8B5CF6).withOpacity(0.3),
+                                  color: context.colors.primary.withOpacity(0.3),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -441,11 +442,11 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                       ),
                       child: Icon(
                         letter.isRead ? Icons.drafts : Icons.mail,
-                        color: Colors.white,
+                        color: context.colors.surface,
                         size: 32,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const HGap.md(),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -466,7 +467,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF8B5CF6),
+                                    color: context.colors.primary,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Text(
@@ -474,13 +475,13 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                      color: context.colors.surface,
                                     ),
                                   ),
                                 ),
                             ],
                           ),
-                          const SizedBox(height: 4),
+                          const VGap.xxs(),
                           Text(
                             'From: ${letter.authorName ?? "Unknown"}',
                             style: TextStyle(
@@ -493,14 +494,14 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const VGap.md(),
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const Spacing.sm,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        const Color(0xFF8B5CF6).withOpacity(0.1),
-                        const Color(0xFFA78BFA).withOpacity(0.1),
+                        context.colors.primary.withOpacity(0.1),
+                        context.colors.primaryLight.withOpacity(0.1),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -510,14 +511,14 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                       const Icon(
                         Icons.favorite,
                         size: 18,
-                        color: Color(0xFF8B5CF6),
+                        color: context.colors.primary,
                       ),
-                      const SizedBox(width: 8),
+                      const HGap.xs(),
                       Text(
                         'Delivered on ${DateFormat('MMMM d, y').format(letter.deliveredAt)}',
                         style: const TextStyle(
                           fontSize: 14,
-                          color: Color(0xFF8B5CF6),
+                          color: context.colors.primary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -575,7 +576,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: badgeColor),
-          const SizedBox(width: 4),
+          const HGap.xxs(),
           Text(
             label,
             style: TextStyle(
@@ -604,20 +605,20 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                   height: 64,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                const SizedBox(width: 16),
+                const HGap.md(),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ShimmerBox(width: 180, height: 18, borderRadius: BorderRadius.circular(4)),
-                      const SizedBox(height: 8),
+                      const VGap.xs(),
                       ShimmerBox(width: 100, height: 14, borderRadius: BorderRadius.circular(4)),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const VGap.md(),
             ShimmerBox(width: double.infinity, height: 40, borderRadius: BorderRadius.circular(12)),
           ],
         ),
@@ -636,7 +637,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
         maxChildSize: 0.95,
         builder: (context, scrollController) => Container(
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: context.colors.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
@@ -653,25 +654,25 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
               Expanded(
                 child: ListView(
                   controller: scrollController,
-                  padding: const EdgeInsets.all(24),
+                  padding: const Spacing.lg,
                   children: [
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const Spacing.sm,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFF8B5CF6), Color(0xFFA78BFA)],
+                              colors: [context.colors.primary, context.colors.primaryLight],
                             ),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.mail, color: Colors.white, size: 24),
+                          child: const Icon(Icons.mail, color: context.colors.surface, size: 24),
                         ),
-                        const SizedBox(width: 12),
+                        const HGap.sm(),
                         Expanded(
                           child: Text(
                             letter.title,
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                            style: const context.text.headlineMedium,
                           ),
                         ),
                         IconButton(
@@ -680,33 +681,33 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.md(),
                     _buildStatusBadge(letter.status),
-                    const SizedBox(height: 20),
+                    const VGap.lg(),
                     _buildInfoRow(Icons.people, 'Recipients', letter.recipientNames.isNotEmpty ? letter.recipientNames.join(", ") : "${letter.recipientIds.length} recipient(s)"),
-                    const SizedBox(height: 12),
+                    const VGap.sm(),
                     _buildInfoRow(Icons.calendar_today, 'Delivery Date', DateFormat('MMMM d, y').format(letter.deliveryDate)),
                     if (letter.deliveredAt != null) ...[
-                      const SizedBox(height: 12),
+                      const VGap.sm(),
                       _buildInfoRow(Icons.check_circle, 'Delivered At', DateFormat('MMMM d, y h:mm a').format(letter.deliveredAt!)),
                     ],
-                    const SizedBox(height: 12),
+                    const VGap.sm(),
                     _buildInfoRow(Icons.visibility, 'Read Count', '${letter.readCount} recipient${letter.readCount != 1 ? "s" : ""}'),
                     if (letter.encrypt) ...[
-                      const SizedBox(height: 12),
+                      const VGap.sm(),
                       _buildInfoRow(Icons.lock, 'Encryption', 'Enabled'),
                     ],
                     if (letter.content != null) ...[
-                      const SizedBox(height: 24),
+                      const VGap.lg(),
                       const Divider(),
-                      const SizedBox(height: 16),
+                      const VGap.md(),
                       const Text(
                         'Letter Content',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: context.text.titleLarge,
                       ),
-                      const SizedBox(height: 12),
+                      const VGap.sm(),
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const Spacing.md,
                         decoration: BoxDecoration(
                           color: Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(12),
@@ -750,7 +751,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
         maxChildSize: 0.95,
         builder: (context, scrollController) => Container(
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: context.colors.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
@@ -767,25 +768,25 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
               Expanded(
                 child: ListView(
                   controller: scrollController,
-                  padding: const EdgeInsets.all(24),
+                  padding: const Spacing.lg,
                   children: [
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const Spacing.sm,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFF8B5CF6), Color(0xFFA78BFA)],
+                              colors: [context.colors.primary, context.colors.primaryLight],
                             ),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.mail, color: Colors.white, size: 24),
+                          child: const Icon(Icons.mail, color: context.colors.surface, size: 24),
                         ),
-                        const SizedBox(width: 12),
+                        const HGap.sm(),
                         Expanded(
                           child: Text(
                             letter.title,
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                            style: const context.text.headlineMedium,
                           ),
                         ),
                         IconButton(
@@ -794,14 +795,14 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const VGap.md(),
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const Spacing.md,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            const Color(0xFF8B5CF6).withOpacity(0.1),
-                            const Color(0xFFA78BFA).withOpacity(0.1),
+                            context.colors.primary.withOpacity(0.1),
+                            context.colors.primaryLight.withOpacity(0.1),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -811,23 +812,23 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.favorite, size: 20, color: Color(0xFF8B5CF6)),
-                              const SizedBox(width: 8),
+                              const Icon(Icons.favorite, size: 20, color: context.colors.primary),
+                              const HGap.xs(),
                               Text(
                                 'From: ${letter.authorName ?? "Unknown"}',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
-                                  color: Color(0xFF8B5CF6),
+                                  color: context.colors.primary,
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 8),
+                          const VGap.xs(),
                           Row(
                             children: [
-                              const Icon(Icons.calendar_today, size: 16, color: Color(0xFF8B5CF6)),
-                              const SizedBox(width: 8),
+                              const Icon(Icons.calendar_today, size: 16, color: context.colors.primary),
+                              const HGap.xs(),
                               Text(
                                 'Delivered on ${DateFormat('MMMM d, y').format(letter.deliveredAt)}',
                                 style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
@@ -837,16 +838,16 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const VGap.lg(),
                     const Divider(),
-                    const SizedBox(height: 16),
+                    const VGap.md(),
                     const Text(
                       'Letter Content',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: context.text.titleLarge,
                     ),
-                    const SizedBox(height: 12),
+                    const VGap.sm(),
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const Spacing.md,
                       decoration: BoxDecoration(
                         color: Colors.grey.shade50,
                         borderRadius: BorderRadius.circular(12),
@@ -872,7 +873,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 20, color: Colors.grey.shade600),
-        const SizedBox(width: 12),
+        const HGap.sm(),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -881,7 +882,7 @@ class _LegacyLettersScreenState extends State<LegacyLettersScreen> with SingleTi
                 label,
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
               ),
-              const SizedBox(height: 2),
+              const VGap.xxs(),
               Text(
                 value,
                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),

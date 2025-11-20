@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memory_hub_app/design_system/design_system.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import '../../services/family/family_service.dart';
 import '../../models/family/family_milestone.dart';
@@ -202,7 +203,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0xFFF59E0B),
+                        context.colors.warning,
                         Color(0xFFFBBF24),
                         Color(0xFFFCD34D),
                       ],
@@ -216,7 +217,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                         child: Icon(
                           Icons.celebration,
                           size: 180,
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: context.colors.surface.withValues(alpha: 0.1),
                         ),
                       ),
                       Positioned(
@@ -225,7 +226,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                         child: Icon(
                           Icons.star,
                           size: 40,
-                          color: Colors.white.withValues(alpha: 0.3),
+                          color: context.colors.surface.withValues(alpha: 0.3),
                         ),
                       ),
                       Positioned(
@@ -234,7 +235,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                         child: Icon(
                           Icons.star,
                           size: 25,
-                          color: Colors.white.withValues(alpha: 0.3),
+                          color: context.colors.surface.withValues(alpha: 0.3),
                         ),
                       ),
                     ],
@@ -261,7 +262,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                             size: 20,
                             color: _sortOrder == 'newest' ? Theme.of(context).primaryColor : null,
                           ),
-                          const SizedBox(width: 8),
+                          const HGap.xs(),
                           Text(
                             'Newest First',
                             style: TextStyle(
@@ -280,7 +281,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                             size: 20,
                             color: _sortOrder == 'oldest' ? Theme.of(context).primaryColor : null,
                           ),
-                          const SizedBox(width: 8),
+                          const HGap.xs(),
                           Text(
                             'Oldest First',
                             style: TextStyle(
@@ -312,16 +313,16 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                               Icon(
                                 filter['icon'] as IconData,
                                 size: 18,
-                                color: isSelected ? Colors.white : filter['color'] as Color,
+                                color: isSelected ? context.colors.surface : filter['color'] as Color,
                               ),
-                              const SizedBox(width: 6),
+                              const HGap.xxs(),
                               Text(filter['label'] as String),
                             ],
                           ),
                           backgroundColor: Colors.grey[100],
                           selectedColor: filter['color'] as Color,
                           labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : Colors.grey[800],
+                            color: isSelected ? context.colors.surface : Colors.grey[800],
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                           ),
                           onSelected: (_) => _selectFilter(filter['value'] as String?),
@@ -363,14 +364,14 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                   actionLabel: 'Add Milestone',
                   onAction: _showAddDialog,
                   gradientColors: const [
-                    Color(0xFFF59E0B),
+                    context.colors.warning,
                     Color(0xFFFBBF24),
                   ],
                 ),
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: Spacing.md),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -378,12 +379,12 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                         return _buildEnhancedMilestoneCard(_milestones[index], index);
                       } else if (_isLoadingMore) {
                         return Padding(
-                          padding: const EdgeInsets.all(16),
+                          padding: const Spacing.md,
                           child: Center(
                             child: Column(
                               children: [
                                 const CircularProgressIndicator(),
-                                const SizedBox(height: 8),
+                                const VGap.xs(),
                                 Text(
                                   'Loading more milestones...',
                                   style: TextStyle(
@@ -411,7 +412,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
         onPressed: _showAddDialog,
         icon: const Icon(Icons.add),
         label: const Text('Add Milestone'),
-        backgroundColor: const Color(0xFFF59E0B),
+        backgroundColor: context.colors.warning,
       ),
     );
   }
@@ -484,7 +485,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                     ),
                     child: Icon(
                       _getCategoryIcon(milestone.category),
-                      color: Colors.white,
+                      color: context.colors.surface,
                       size: 22,
                     ),
                   ),
@@ -527,7 +528,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                           end: Alignment.bottomRight,
                           colors: [
                             _getCategoryColor(milestone.category).withValues(alpha: 0.05),
-                            Colors.white,
+                            context.colors.surface,
                           ],
                         ),
                       ),
@@ -568,7 +569,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            const VGap.xs(),
                             Row(
                               children: [
                                 Icon(
@@ -576,7 +577,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                   size: 14,
                                   color: Colors.grey[600],
                                 ),
-                                const SizedBox(width: 6),
+                                const HGap.xxs(),
                                 Text(
                                   DateFormat('MMMM d, yyyy').format(milestone.milestoneDate),
                                   style: TextStyle(
@@ -584,7 +585,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                     color: Colors.grey[700],
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                const HGap.xs(),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
@@ -603,11 +604,11 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                               ],
                             ),
                             if (milestone.genealogyPersonName != null) ...[
-                              const SizedBox(height: 8),
+                              const VGap.xs(),
                               Row(
                                 children: [
                                   const Icon(Icons.person, size: 14, color: Colors.indigo),
-                                  const SizedBox(width: 6),
+                                  const HGap.xxs(),
                                   Text(
                                     milestone.genealogyPersonName!,
                                     style: const TextStyle(
@@ -617,14 +618,14 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                     ),
                                   ),
                                   if (milestone.autoGenerated) ...[
-                                    const SizedBox(width: 6),
+                                    const HGap.xxs(),
                                     Icon(Icons.auto_awesome, size: 12, color: Colors.amber.shade700),
                                   ],
                                 ],
                               ),
                             ],
                             if (milestone.description != null) ...[
-                              const SizedBox(height: 12),
+                              const VGap.sm(),
                               Text(
                                 milestone.description!,
                                 style: TextStyle(
@@ -637,7 +638,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                               ),
                             ],
                             if (photos.isNotEmpty) ...[
-                              const SizedBox(height: 12),
+                              const VGap.sm(),
                               if (photos.length == 1)
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
@@ -686,7 +687,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                 ),
                             ],
                             if (milestone.celebrationDetails != null) ...[
-                              const SizedBox(height: 10),
+                              const VGap.xs(),
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
@@ -697,7 +698,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                 child: Row(
                                   children: [
                                     Icon(Icons.party_mode, size: 16, color: Colors.purple.shade700),
-                                    const SizedBox(width: 8),
+                                    const HGap.xs(),
                                     Expanded(
                                       child: Text(
                                         'Celebration Details Available',
@@ -712,19 +713,19 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                 ),
                               ),
                             ],
-                            const SizedBox(height: 12),
+                            const VGap.sm(),
                             Row(
                               children: [
                                 _buildInteractionChip(
                                   Icons.favorite,
                                   milestone.likesCount.toString(),
-                                  const Color(0xFFEC4899),
+                                  context.colors.accent,
                                 ),
-                                const SizedBox(width: 10),
+                                const HGap.xs(),
                                 _buildInteractionChip(
                                   Icons.comment,
                                   milestone.commentsCount.toString(),
-                                  const Color(0xFF06B6D4),
+                                  context.colors.info,
                                 ),
                                 const Spacer(),
                                 if (milestone.createdByName != null)
@@ -738,9 +739,9 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                   ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            const VGap.xs(),
                             Divider(color: Colors.grey[300]),
-                            const SizedBox(height: 4),
+                            const VGap.xxs(),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -783,7 +784,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
+          const HGap.xxs(),
           Text(
             count,
             style: TextStyle(
@@ -800,21 +801,21 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
   Color _getCategoryColor(String category) {
     switch (category.toLowerCase()) {
       case 'birth':
-        return const Color(0xFFEC4899);
+        return context.colors.accent;
       case 'graduation':
-        return const Color(0xFF8B5CF6);
+        return context.colors.primary;
       case 'wedding':
-        return const Color(0xFFEF4444);
+        return context.colors.error;
       case 'anniversary':
-        return const Color(0xFFF59E0B);
+        return context.colors.warning;
       case 'achievement':
         return const Color(0xFFEAB308);
       case 'first_words':
       case 'first_word':
-        return const Color(0xFF06B6D4);
+        return context.colors.info;
       case 'first_steps':
       case 'first_step':
-        return const Color(0xFF10B981);
+        return context.colors.success;
       case 'other':
         return const Color(0xFF64748B);
       default:
@@ -871,22 +872,22 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                     height: 44,
                     borderRadius: BorderRadius.circular(22),
                   ),
-                  const SizedBox(width: 12),
+                  const HGap.sm(),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ShimmerBox(width: 200, height: 18, borderRadius: BorderRadius.circular(4)),
-                        const SizedBox(height: 8),
+                        const VGap.xs(),
                         ShimmerBox(width: 120, height: 13, borderRadius: BorderRadius.circular(4)),
                       ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const VGap.sm(),
               ShimmerBox(width: double.infinity, height: 14, borderRadius: BorderRadius.circular(4)),
-              const SizedBox(height: 4),
+              const VGap.xxs(),
               ShimmerBox(width: 250, height: 14, borderRadius: BorderRadius.circular(4)),
             ],
           ),
