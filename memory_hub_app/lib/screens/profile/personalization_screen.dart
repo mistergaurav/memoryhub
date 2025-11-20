@@ -53,8 +53,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
           ),
         ],
       ),
-      body: Padded(
-        padding: Spacing.edgeInsetsAll(Spacing.lg),
+      body: Padded.lg(
         child: ListView(
           children: [
           CollapsibleSettingsGroup(

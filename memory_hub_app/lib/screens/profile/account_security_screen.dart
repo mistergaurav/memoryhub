@@ -13,8 +13,7 @@ class AccountSecurityScreen extends StatelessWidget {
         title: const Text('Account & Security'),
         elevation: 0,
       ),
-      body: Padded(
-        padding: Spacing.edgeInsetsAll(Spacing.lg),
+      body: Padded.lg(
         child: ListView(
           children: [
           CollapsibleSettingsGroup(

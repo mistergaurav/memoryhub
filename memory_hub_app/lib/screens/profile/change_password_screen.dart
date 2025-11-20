@@ -65,9 +65,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       ),
       body: Form(
         key: _formKey,
-        child: ListView(
-          padding: Spacing.edgeInsetsAll(Spacing.md),
-          children: [
+        child: Padded.md(
+          child: ListView(
+            children: [
             TextFormField(
               controller: _currentPasswordController,
               obscureText: _obscureCurrentPassword,
@@ -160,7 +160,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               isLoading: _isLoading,
               label: 'Change Password',
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );

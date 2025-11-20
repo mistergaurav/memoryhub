@@ -111,7 +111,10 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
                 ),
               ),
               centerTitle: false,
-              titlePadding: const EdgeInsets.only(left: MemoryHubSpacing.lg, bottom: MemoryHubSpacing.lg),
+              titlePadding: const EdgeInsets.only(
+                left: MemoryHubSpacing.lg,
+                bottom: MemoryHubSpacing.lg,
+              ),
             ),
           ),
           SliverToBoxAdapter(
@@ -122,9 +125,9 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: MemoryHubColors.gray100,
+                      color: context.colors.surfaceVariant,
                       borderRadius: MemoryHubBorderRadius.mdRadius,
-                      border: Border.all(color: MemoryHubColors.gray300),
+                      border: Border.all(color: context.colors.outline),
                     ),
                     child: TextField(
                       controller: _searchController,
@@ -135,7 +138,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
                       },
                       decoration: InputDecoration(
                         hintText: 'Search settings...',
-                        prefixIcon: const Icon(Icons.search, color: MemoryHubColors.gray600),
+                        prefixIcon: Icon(Icons.search, color: context.colors.onSurfaceVariant),
                         suffixIcon: _searchQuery.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.clear),
@@ -148,10 +151,6 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
                               )
                             : null,
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: MemoryHubSpacing.lg,
-                          vertical: MemoryHubSpacing.lg,
-                        ),
                       ),
                     ),
                   ),

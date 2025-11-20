@@ -32,9 +32,9 @@ class SupportLegalScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Support & Legal'),
       ),
-      body: ListView(
-        padding: Spacing.edgeInsetsAll(Spacing.lg),
-        children: [
+      body: Padded.lg(
+        child: ListView(
+          children: [
           CollapsibleSettingsGroup(
             title: 'Data Rights (GDPR)',
             icon: Icons.gavel,
@@ -113,7 +113,8 @@ class SupportLegalScreen extends StatelessWidget {
               const VGap.sm(),
             ],
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

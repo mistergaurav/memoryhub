@@ -91,10 +91,6 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
               labelText: 'Email Address',
               hintText: 'your@email.com',
               prefixIcon: const Icon(Icons.email_outlined),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: MemoryHubSpacing.lg,
-                vertical: MemoryHubSpacing.lg,
-              ),
               border: OutlineInputBorder(
                 borderRadius: MemoryHubBorderRadius.lgRadius,
               ),
@@ -148,16 +144,17 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
     return Column(
       children: [
         const VGap.xl(),
-        Container(
-          padding: const EdgeInsets.all(MemoryHubSpacing.xl),
-          decoration: BoxDecoration(
-            color: context.colors.primaryContainer,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.check_circle,
-            size: 80,
-            color: context.colors.primary,
+        Padded.xl(
+          child: Container(
+            decoration: BoxDecoration(
+              color: context.colors.primaryContainer,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.check_circle,
+              size: 80,
+              color: context.colors.primary,
+            ),
           ),
         ),
         const VGap.lg(),
@@ -184,26 +181,27 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
           ),
         ),
         const VGap.xl(),
-        Container(
-          padding: const EdgeInsets.all(MemoryHubSpacing.lg),
-          decoration: BoxDecoration(
-            color: context.colors.tertiaryContainer,
-            borderRadius: MemoryHubBorderRadius.lgRadius,
-            border: Border.all(color: context.colors.tertiary.withOpacity(0.3)),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.info_outline, color: context.colors.tertiary),
-              const HGap.sm(),
-              Expanded(
-                child: Text(
-                  'The link will expire in 1 hour for security reasons.',
-                  style: context.text.bodyMedium?.copyWith(
-                    color: context.colors.onTertiaryContainer,
+        Padded.lg(
+          child: Container(
+            decoration: BoxDecoration(
+              color: context.colors.tertiaryContainer,
+              borderRadius: MemoryHubBorderRadius.lgRadius,
+              border: Border.all(color: context.colors.tertiary.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, color: context.colors.tertiary),
+                const HGap.sm(),
+                Expanded(
+                  child: Text(
+                    'The link will expire in 1 hour for security reasons.',
+                    style: context.text.bodyMedium?.copyWith(
+                      color: context.colors.onTertiaryContainer,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         const VGap.lg(),

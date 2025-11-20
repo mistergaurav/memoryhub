@@ -108,10 +108,6 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               labelText: 'Reset Token',
               hintText: 'Enter the token from your email',
               prefixIcon: const Icon(Icons.confirmation_number),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: MemoryHubSpacing.lg,
-                vertical: MemoryHubSpacing.lg,
-              ),
               border: OutlineInputBorder(
                 borderRadius: MemoryHubBorderRadius.lgRadius,
               ),
@@ -146,10 +142,6 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               labelText: 'New Password',
               hintText: 'At least 8 characters',
               prefixIcon: const Icon(Icons.lock_outline),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: MemoryHubSpacing.lg,
-                vertical: MemoryHubSpacing.lg,
-              ),
               border: OutlineInputBorder(
                 borderRadius: MemoryHubBorderRadius.lgRadius,
               ),
@@ -195,10 +187,6 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               labelText: 'Confirm Password',
               hintText: 'Re-enter your password',
               prefixIcon: const Icon(Icons.lock_outline),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: MemoryHubSpacing.lg,
-                vertical: MemoryHubSpacing.lg,
-              ),
               border: OutlineInputBorder(
                 borderRadius: MemoryHubBorderRadius.lgRadius,
               ),
@@ -237,34 +225,35 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
             },
           ),
           const VGap.lg(),
-          Container(
-            padding: const EdgeInsets.all(MemoryHubSpacing.lg),
-            decoration: BoxDecoration(
-              color: context.colors.secondaryContainer,
-              borderRadius: MemoryHubBorderRadius.lgRadius,
-              border: Border.all(color: context.colors.secondary.withOpacity(0.3)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.tips_and_updates, color: context.colors.secondary, size: 20),
-                    const HGap.xs(),
-                    Text(
-                      'Password Tips:',
-                      style: context.text.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.onSecondaryContainer,
+          Padded.lg(
+            child: Container(
+              decoration: BoxDecoration(
+                color: context.colors.secondaryContainer,
+                borderRadius: MemoryHubBorderRadius.lgRadius,
+                border: Border.all(color: context.colors.secondary.withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.tips_and_updates, color: context.colors.secondary, size: 20),
+                      const HGap.xs(),
+                      Text(
+                        'Password Tips:',
+                        style: context.text.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.onSecondaryContainer,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const VGap.xs(),
-                _buildPasswordTip('At least 8 characters'),
-                _buildPasswordTip('Include upper & lowercase letters'),
-                _buildPasswordTip('Include numbers and symbols'),
-              ],
+                    ],
+                  ),
+                  const VGap.xs(),
+                  _buildPasswordTip('At least 8 characters'),
+                  _buildPasswordTip('Include upper & lowercase letters'),
+                  _buildPasswordTip('Include numbers and symbols'),
+                ],
+              ),
             ),
           ),
           const VGap.lg(),
@@ -281,8 +270,9 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
   }
 
   Widget _buildPasswordTip(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(left: MemoryHubSpacing.xs, top: MemoryHubSpacing.xs),
+    return Padded.only(
+      left: MemoryHubSpacing.xs,
+      top: MemoryHubSpacing.xs,
       child: Row(
         children: [
           Icon(Icons.check_circle_outline, size: 16, color: context.colors.secondary),
@@ -302,16 +292,17 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
     return Column(
       children: [
         const VGap.xl(),
-        Container(
-          padding: const EdgeInsets.all(MemoryHubSpacing.xl),
-          decoration: BoxDecoration(
-            color: context.colors.primaryContainer,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.check_circle,
-            size: 80,
-            color: context.colors.primary,
+        Padded.xl(
+          child: Container(
+            decoration: BoxDecoration(
+              color: context.colors.primaryContainer,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.check_circle,
+              size: 80,
+              color: context.colors.primary,
+            ),
           ),
         ),
         const VGap.lg(),

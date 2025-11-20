@@ -67,22 +67,20 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
           ),
         ],
       ),
-      body: Padded(
-        padding: Spacing.edgeInsetsAll(Spacing.lg),
+      body: Padded.lg(
         child: ListView(
           children: [
-            Padded(
-              padding: Spacing.edgeInsetsAll(Spacing.lg),
+            Padded.lg(
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [MemoryHubColors.success, MemoryHubColors.successLight],
+                    colors: [context.colors.primary, context.colors.primaryContainer],
                   ),
                   borderRadius: MemoryHubBorderRadius.lg,
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.notifications_active, color: MemoryHubColors.white, size: 32),
+                    Icon(Icons.notifications_active, color: context.colors.onPrimary, size: 32),
                     const HGap.md(),
                     Expanded(
                       child: Column(
@@ -91,14 +89,14 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
                           Text(
                             'Master Control',
                             style: context.text.titleMedium?.copyWith(
-                              color: MemoryHubColors.white,
+                              color: context.colors.onPrimary,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
                             'Enable or disable all notifications',
                             style: context.text.bodyMedium?.copyWith(
-                              color: MemoryHubColors.white.withValues(alpha: 0.9),
+                              color: context.colors.onPrimary.withValues(alpha: 0.9),
                             ),
                           ),
                         ],
@@ -109,8 +107,8 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
                       onChanged: (value) {
                         setState(() => _notificationsEnabled = value);
                       },
-                      activeColor: MemoryHubColors.white,
-                      activeTrackColor: MemoryHubColors.white.withValues(alpha: 0.5),
+                      activeColor: context.colors.onPrimary,
+                      activeTrackColor: context.colors.onPrimary.withValues(alpha: 0.5),
                     ),
                   ],
                 ),
