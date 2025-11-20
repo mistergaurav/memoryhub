@@ -555,7 +555,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Row(
             children: [
               Icon(icon, size: 20, color: context.colors.primary),
-              const HGap.sm(),
+              HGap.sm(),
               Text(
                 title,
                 style: context.text.labelLarge?.copyWith(

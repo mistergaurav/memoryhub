@@ -4,8 +4,6 @@ import 'package:intl/intl.dart';
 import '../../models/family/genealogy_person.dart';
 import '../../models/memory.dart';
 import '../../services/api_service.dart';
-import '../../widgets/common/custom_app_bar.dart';
-import '../../widgets/memory_card.dart';
 
 class PersonProfileScreen extends StatefulWidget {
   final GenealogyPerson person;
@@ -71,9 +69,9 @@ class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTi
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        title: widget.person.fullName,
-        showBackButton: true,
+      appBar: AppBar(
+        title: Text(widget.person.fullName),
+        centerTitle: true,
       ),
       body: Column(
         children: [
@@ -106,7 +104,7 @@ class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTi
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(MemoryHubSpacing.md),
+      padding: EdgeInsets.all(MemoryHubSpacing.md),
       child: Row(
         children: [
           CircleAvatar(
@@ -121,7 +119,7 @@ class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTi
                   )
                 : null,
           ),
-          const HGap.md(),
+          HGap.md(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,9 +148,9 @@ class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTi
                       ),
                     ),
                   ),
-                const VGap.xxs(),
+                VGap.xxs(),
                 Text(
-                  widget.person.lifespan,
+                  widget.person.lifespan != null ? '${widget.person.lifespan} years' : '',
                   style: TextStyle(color: Colors.grey[600]),
                 ),
               ],
@@ -165,18 +163,18 @@ class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTi
 
   Widget _buildAboutTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(MemoryHubSpacing.md),
+      padding: EdgeInsets.all(MemoryHubSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildInfoSection('Biography', widget.person.biography ?? 'No biography available.'),
-          const VGap.md(),
+          VGap.md(),
           _buildInfoSection('Occupation', widget.person.occupation ?? 'Unknown'),
-          const VGap.md(),
+          VGap.md(),
           _buildInfoSection('Birth', 
             '${widget.person.dateOfBirth != null ? DateFormat.yMMMd().format(widget.person.dateOfBirth!) : 'Unknown'}\n${widget.person.placeOfBirth ?? ''}'),
           if (widget.person.isDeceased) ...[
-            const VGap.md(),
+            VGap.md(),
             _buildInfoSection('Death', 
               '${widget.person.dateOfDeath != null ? DateFormat.yMMMd().format(widget.person.dateOfDeath!) : 'Unknown'}\n${widget.person.placeOfDeath ?? ''}'),
           ],
@@ -196,7 +194,7 @@ class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTi
             fontWeight: FontWeight.bold,
           ),
         ),
-        const VGap.xs(),
+        VGap.xs(),
         Text(
           content,
           style: const TextStyle(fontSize: 16),
@@ -216,7 +214,7 @@ class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTi
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.photo_album_outlined, size: 64, color: Colors.grey),
-            const VGap.md(),
+            VGap.md(),
             Text(
               'No memories found for ${widget.person.firstName}',
               style: const TextStyle(color: Colors.grey),
@@ -230,7 +228,17 @@ class _PersonProfileScreenState extends State<PersonProfileScreen> with SingleTi
       padding: EdgeInsets.all(MemoryHubSpacing.xs),
       itemCount: _memories.length,
       itemBuilder: (context, index) {
-        return MemoryCard(memory: _memories[index]);
+        final memory = _memories[index];
+        return Card(
+          margin: EdgeInsets.all(MemoryHubSpacing.xs),
+          child: ListTile(
+            title: Text(memory.title),
+            subtitle: memory.content.isNotEmpty ? Text(memory.content, maxLines: 2, overflow: TextOverflow.ellipsis) : null,
+            onTap: () {
+              // Navigate to memory detail if needed
+            },
+          ),
+        );
       },
     );
   }

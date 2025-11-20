@@ -29,7 +29,7 @@ class AppCard extends StatelessWidget {
       color: color,
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: padding ?? const EdgeInsets.all(Spacing.md),
+        padding: padding ?? EdgeInsets.all(Spacing.md),
         child: child,
       ),
     );

@@ -184,15 +184,15 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildMyHubsSection(),
-                      const VGap.xxl(),
+                      VGap.xxl(),
                       _buildStatsSection(),
-                      const VGap.xxl(),
+                      VGap.xxl(),
                       _buildQuickActionsSection(),
-                      const VGap.xxl(),
+                      VGap.xxl(),
                       _buildFeaturesSection(),
-                      const VGap.xxl(),
+                      VGap.xxl(),
                       _buildRecentActivitySection(),
-                      const VGap.xl(),
+                      VGap.xl(),
                     ],
                   ),
                 ),
@@ -262,7 +262,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                         fontWeight: MemoryHubTypography.semiBold,
                       ),
                     ),
-                    const VGap.xs(),
+                    VGap.xs(),
                     Text(
                       'Ready to create amazing memories?',
                       style: context.text.bodyMedium?.copyWith(
@@ -330,7 +330,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                     size: 14,
                     color: context.colors.primary,
                   ),
-                  const HGap.xs(),
+                  HGap.xs(),
                   Text(
                     'Active',
                     style: context.text.bodySmall?.copyWith(
@@ -343,7 +343,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             ),
           ],
         ),
-        const VGap.lg(),
+        VGap.lg(),
         _buildLargeHubCard(
           context,
           title: 'Collections',
@@ -468,7 +468,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                                 color: context.colors.onPrimary,
                               ),
                             ),
-                            const HGap.sm(),
+                            HGap.sm(),
                             Text(
                               countLabel,
                               style: context.text.bodySmall?.copyWith(
@@ -495,18 +495,18 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       ],
                     ),
                   ),
-                  const VGap.sm(),
+                  VGap.sm(),
                   Text(
                     subtitle,
                     style: context.text.bodyMedium?.copyWith(
                       color: context.colors.onPrimary.withValues(alpha: 0.95),
                     ),
                   ),
-                  const VGap.lg(),
+                  VGap.lg(),
                   Row(
                     children: stats.map((stat) {
                       return Padding(
-                        padding: const EdgeInsets.only(right: MemoryHubSpacing.lg),
+                        padding: EdgeInsets.only(right: MemoryHubSpacing.lg),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -547,7 +547,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             fontWeight: MemoryHubTypography.bold,
           ),
         ),
-        const VGap.lg(),
+        VGap.lg(),
         Row(
           children: [
             Expanded(
@@ -561,7 +561,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 _stats['memories_growth'] ?? '+0%',
               ),
             ),
-            const HGap.md(),
+            HGap.md(),
             Expanded(
               child: _buildStatCard(
                 'Files',
@@ -581,7 +581,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
 
   Widget _buildStatCard(String label, int value, IconData icon, Color color, String trend) {
     return Container(
-      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: BoxDecoration(
         color: context.theme.cardColor,
         borderRadius: MemoryHubBorderRadius.xlRadius,
@@ -595,7 +595,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(MemoryHubSpacing.sm + 2),
+                padding: EdgeInsets.all(MemoryHubSpacing.sm + 2),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
                   borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -622,7 +622,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               ),
             ],
           ),
-          const VGap.lg(),
+          VGap.lg(),
           Text(
             value.toString(),
             style: context.text.headlineLarge?.copyWith(
@@ -630,7 +630,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               color: color,
             ),
           ),
-          const VGap.xs(),
+          VGap.xs(),
           Text(
             label,
             style: context.text.bodyMedium?.copyWith(
@@ -673,13 +673,13 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             fontWeight: MemoryHubTypography.bold,
           ),
         ),
-        const VGap.lg(),
+        VGap.lg(),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
             children: quickActions.map((action) {
               return Padding(
-                padding: const EdgeInsets.only(right: MemoryHubSpacing.md),
+                padding: EdgeInsets.only(right: MemoryHubSpacing.md),
                 child: _buildQuickActionCard(
                   title: action['title'] as String,
                   icon: action['icon'] as IconData,
@@ -704,7 +704,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
       onTap: onTap,
       child: Container(
         width: 140,
-        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         decoration: BoxDecoration(
           gradient: gradient,
           borderRadius: MemoryHubBorderRadius.xlRadius,
@@ -720,14 +720,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(MemoryHubSpacing.md),
+              padding: EdgeInsets.all(MemoryHubSpacing.md),
               decoration: BoxDecoration(
                 color: context.colors.onPrimary.withValues(alpha: 0.2),
                 borderRadius: MemoryHubBorderRadius.mdRadius,
               ),
               child: Icon(icon, color: context.colors.onPrimary, size: 28),
             ),
-            const VGap.md(),
+            VGap.md(),
             Text(
               title,
               style: context.text.bodyMedium?.copyWith(
@@ -761,7 +761,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             fontWeight: MemoryHubTypography.bold,
           ),
         ),
-        const VGap.lg(),
+        VGap.lg(),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -788,7 +788,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                      padding: EdgeInsets.all(MemoryHubSpacing.md),
                       decoration: BoxDecoration(
                         color: (feature['color'] as Color).withValues(alpha: 0.1),
                         shape: BoxShape.circle,
@@ -799,7 +799,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                         size: 28,
                       ),
                     ),
-                    const VGap.sm(),
+                    VGap.sm(),
                     Text(
                       feature['title'] as String,
                       style: context.text.bodySmall?.copyWith(
@@ -850,12 +850,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             ),
           ],
         ),
-        const VGap.lg(),
+        VGap.lg(),
         _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _recentActivity.isEmpty
                 ? Container(
-                    padding: const EdgeInsets.all(MemoryHubSpacing.xxxxl),
+                    padding: EdgeInsets.all(MemoryHubSpacing.xxxxl),
                     decoration: BoxDecoration(
                       color: context.theme.cardColor,
                       borderRadius: MemoryHubBorderRadius.xlRadius,
@@ -871,7 +871,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                             size: 48,
                             color: MemoryHubColors.gray400,
                           ),
-                          const VGap.md(),
+                          VGap.md(),
                           Text(
                             'No recent activity',
                             style: context.text.bodyMedium?.copyWith(
@@ -886,7 +886,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 : Column(
                     children: _recentActivity.map((activity) {
                       return Container(
-                        margin: const EdgeInsets.only(bottom: MemoryHubSpacing.md),
+                        margin: EdgeInsets.only(bottom: MemoryHubSpacing.md),
                         decoration: BoxDecoration(
                           color: context.theme.cardColor,
                           borderRadius: MemoryHubBorderRadius.lgRadius,
@@ -900,7 +900,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                             vertical: MemoryHubSpacing.sm,
                           ),
                           leading: Container(
-                            padding: const EdgeInsets.all(MemoryHubSpacing.sm + 2),
+                            padding: EdgeInsets.all(MemoryHubSpacing.sm + 2),
                             decoration: BoxDecoration(
                               color: (activity['color'] as Color).withValues(alpha: 0.1),
                               shape: BoxShape.circle,

@@ -248,7 +248,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      insetPadding: EdgeInsets.all(MemoryHubSpacing.lg),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
         decoration: BoxDecoration(
@@ -302,7 +302,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [MemoryHubColors.yellow500, MemoryHubColors.yellow400],
@@ -404,7 +404,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
     required Widget content,
   }) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -904,7 +904,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                 ),
                 const SizedBox(height: MemoryHubSpacing.lg),
                 Container(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                  padding: EdgeInsets.all(MemoryHubSpacing.lg),
                   decoration: BoxDecoration(
                     color: MemoryHubColors.yellow50,
                     borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -969,7 +969,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.lgRadius),
       child: Padding(
-        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1039,7 +1039,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   
   Widget _buildNavigationButtons() {
     return Container(
-      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: const BorderRadius.only(
@@ -1057,7 +1057,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
               label: const Text('Back'),
             )
           else
-            const SizedBox.shrink(),
+            SizedBox.shrink(),
           if (_currentStep < 4)
             ElevatedButton(
               onPressed: _canProceedFromCurrentStep() ? _nextStep : null,

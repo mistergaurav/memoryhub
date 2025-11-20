@@ -10,6 +10,7 @@ import '../../widgets/hero_header.dart';
 import '../../design_system/design_system.dart';
 import '../../dialogs/family/add_album_dialog.dart';
 import 'dart:io';
+import '../../design_system/layout/padded.dart';
 
 class FamilyAlbumsScreen extends StatefulWidget {
   const FamilyAlbumsScreen({Key? key}) : super(key: key);
@@ -213,12 +214,13 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
               ),
             if (_isLoadingMore)
               SliverToBoxAdapter(
-                child: Padded(padding: const EdgeInsets.all(16), 
+                child: Padding(
+                  padding: const EdgeInsets.all(16), 
                   child: Center(child: CircularProgressIndicator()),
                 ),
               ),
             SliverToBoxAdapter(
-              child: const VGap(80),
+              child: VGap(80),
             ),
           ],
         ),
@@ -350,7 +352,8 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
                   ),
                   Expanded(
                     flex: 2,
-                    child: Padded(padding: const EdgeInsets.all(12), 
+                    child: Padding(
+                      padding: const EdgeInsets.all(12), 
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -367,7 +370,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
                                 overflow: TextOverflow.ellipsis,
                               ),
                               if (album.description != null && album.description!.isNotEmpty) ...[
-                                const VGap(8),
+                                VGap(8),
                                 Text(
                                   album.description!,
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -389,7 +392,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
                                     size: 14,
                                     color: MemoryHubColors.gray500,
                                   ),
-                                  const HGap(8),
+                                  HGap(8),
                                   Expanded(
                                     child: Text(
                                       album.createdByName ?? 'Unknown',
@@ -402,7 +405,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
                                   ),
                                 ],
                               ),
-                              const VGap(8),
+                              VGap(8),
                               Row(
                                 children: [
                                   const Icon(
@@ -410,7 +413,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
                                     size: 14,
                                     color: MemoryHubColors.gray500,
                                   ),
-                                  const HGap(8),
+                                  HGap(8),
                                   Text(
                                     DateFormat('MMM d, yyyy').format(album.createdAt),
                                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -461,9 +464,11 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
         label = 'Custom';
     }
 
-    return Padded.symmetric(
+    return Container(
+      padding: EdgeInsets.symmetric(
         horizontal: 12,
         vertical: 8,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.9),
         borderRadius: Radii.mdRadius,
@@ -472,7 +477,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 12, color: Colors.white),
-          const HGap(8),
+          HGap(8),
           Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -487,9 +492,11 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
   }
 
   Widget _buildPhotoBadge(int count) {
-    return Padded.symmetric(
+    return Container(
+      padding: EdgeInsets.symmetric(
         horizontal: 12,
         vertical: 8,
+      ),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.7),
         borderRadius: Radii.mdRadius,
@@ -502,7 +509,7 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
             size: 14,
             color: Colors.white,
           ),
-          const HGap(8),
+          HGap(8),
           Text(
             count.toString(),
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -548,14 +555,15 @@ class _FamilyAlbumsScreenState extends State<FamilyAlbumsScreen> with SingleTick
           ),
           Expanded(
             flex: 2,
-            child: Padded(padding: const EdgeInsets.all(12), 
+            child: Padding(
+              padding: const EdgeInsets.all(12), 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ShimmerBox(width: 120, height: 16, borderRadius: MemoryHubBorderRadius.xsRadius),
-                  const VGap(12),
+                  VGap(12),
                   ShimmerBox(width: double.infinity, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
-                  const VGap(8),
+                  VGap(8),
                   ShimmerBox(width: 100, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
                   const Spacer(),
                   ShimmerBox(width: 80, height: 12, borderRadius: MemoryHubBorderRadius.xsRadius),
@@ -930,14 +938,15 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
           ),
           if (_isUploading)
             SliverToBoxAdapter(
-              child: Padded(padding: const EdgeInsets.all(16), 
+              child: Container(
+                padding: const EdgeInsets.all(16), 
                 color: MemoryHubColors.primary.withValues(alpha: 0.1),
                 child: Column(
                   children: [
                     Row(
                       children: [
                         const CircularProgressIndicator(),
-                        const HGap(12),
+                        HGap(12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -948,7 +957,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                                       fontWeight: MemoryHubTypography.semiBold,
                                     ),
                               ),
-                              const VGap(8),
+                              VGap(8),
                               LinearProgressIndicator(
                                 value: _uploadProgress,
                                 backgroundColor: Colors.grey[300],
@@ -1009,7 +1018,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
               ),
             ),
           SliverToBoxAdapter(
-            child: const VGap(80),
+            child: VGap(80),
           ),
         ],
       ),
@@ -1067,7 +1076,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
               child: GestureDetector(
                 onTap: () => _toggleLike(photo),
                 child: Container(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.xs),
+                  padding: EdgeInsets.all(MemoryHubSpacing.xs),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.6),
                     shape: BoxShape.circle,
@@ -1086,7 +1095,7 @@ class _AlbumDetailScreenState extends State<AlbumDetailScreen> {
                 left: 0,
                 right: 0,
                 child: Container(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.xs),
+                  padding: EdgeInsets.all(MemoryHubSpacing.xs),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -1214,7 +1223,7 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+              padding: EdgeInsets.all(MemoryHubSpacing.lg),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,

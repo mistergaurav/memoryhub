@@ -64,14 +64,14 @@ class RecentSection extends StatelessWidget {
 
     return Container(
       width: 200,
-      margin: const EdgeInsets.only(right: MemoryHubSpacing.md),
+      margin: EdgeInsets.only(right: MemoryHubSpacing.md),
       child: Card(
         elevation: MemoryHubElevation.sm,
         shape: RoundedRectangleBorder(
           borderRadius: MemoryHubBorderRadius.mdRadius,
         ),
         child: Container(
-          padding: const EdgeInsets.all(MemoryHubSpacing.md),
+          padding: EdgeInsets.all(MemoryHubSpacing.md),
           decoration: BoxDecoration(
             borderRadius: MemoryHubBorderRadius.mdRadius,
             gradient: LinearGradient(

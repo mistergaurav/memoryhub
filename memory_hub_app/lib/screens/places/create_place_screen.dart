@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../widgets/gradient_container.dart';
 import '../../design_system/design_system.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../design_system/layout/padded.dart';
 
 class CreatePlaceScreen extends StatefulWidget {
   const CreatePlaceScreen({super.key});
@@ -347,7 +349,7 @@ class _CreatePlaceScreenState extends State<CreatePlaceScreen> {
                         style: context.text.bodyMedium,
                       ),
                       style: OutlinedButton.styleFrom(
-                        padding: Padded.symmetric(vertical: 14),
+                        padding: EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -397,7 +399,7 @@ class _CreatePlaceScreenState extends State<CreatePlaceScreen> {
                         ),
                       ),
                       style: FilledButton.styleFrom(
-                        padding: Padded.symmetric(vertical: 16),
+                        padding: EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),

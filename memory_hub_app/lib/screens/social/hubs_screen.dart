@@ -5,6 +5,7 @@ import '../../services/auth_service.dart';
 import '../../config/api_config.dart';
 import 'hub_detail_screen.dart';
 import '../../design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class HubsScreen extends StatefulWidget {
   const HubsScreen({super.key});
@@ -62,7 +63,7 @@ class _HubsScreenState extends State<HubsScreen> {
                 hintText: 'Enter hub name',
               ),
             ),
-            const VGap.md(),
+            VGap.md(),
             TextField(
               controller: descController,
               decoration: const InputDecoration(
@@ -129,14 +130,14 @@ class _HubsScreenState extends State<HubsScreen> {
                         size: 64,
                         color: context.colors.onSurface.withValues(alpha: 0.3),
                       ),
-                      const VGap.md(),
+                      VGap.md(),
                       Text(
                         'No hubs yet',
                         style: context.text.titleMedium?.copyWith(
                           color: context.colors.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
-                      const VGap.sm(),
+                      VGap.sm(),
                       PrimaryButton(
                         onPressed: _createHub,
                         leading: const Icon(Icons.add),

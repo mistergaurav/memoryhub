@@ -9,6 +9,7 @@ import '../../design_system/design_tokens.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../dialogs/family/create_family_circle_dialog.dart';
 import 'family_circle_detail_screen.dart';
+import '../../design_system/layout/padded.dart';
 
 class FamilyCirclesScreen extends StatefulWidget {
   const FamilyCirclesScreen({Key? key}) : super(key: key);
@@ -343,7 +344,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                             size: 16,
                             color: _getCircleColor(circle.color),
                           ),
-                          const HGap.xs(),
+                          HGap.xs(),
                           Text(
                             '${circle.memberCount}',
                             style: TextStyle(
@@ -356,7 +357,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                     ),
                   ],
                 ),
-                const VGap.lg(),
+                VGap.lg(),
                 Text(
                   circle.name,
                   style: context.text.titleLarge?.copyWith(
@@ -365,7 +366,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const VGap.xs(),
+                VGap.xs(),
                 Text(
                   circle.displayCircleType,
                   style: context.text.bodySmall?.copyWith(
@@ -373,7 +374,7 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                       ),
                 ),
                 if (circle.description != null && circle.description!.isNotEmpty) ...[
-                  const VGap.sm(),
+                  VGap.sm(),
                   Text(
                     circle.description!,
                     style: context.text.bodyMedium?.copyWith(
@@ -449,19 +450,19 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
                   ),
                 ],
               ),
-              const VGap.lg(),
+              VGap.lg(),
               ShimmerBox(
                 width: 150,
                 height: 20,
                 borderRadius: MemoryHubBorderRadius.smRadius,
               ),
-              const VGap.xs(),
+              VGap.xs(),
               ShimmerBox(
                 width: 100,
                 height: 16,
                 borderRadius: MemoryHubBorderRadius.smRadius,
               ),
-              const VGap.sm(),
+              VGap.sm(),
               ShimmerBox(
                 width: double.infinity,
                 height: 32,

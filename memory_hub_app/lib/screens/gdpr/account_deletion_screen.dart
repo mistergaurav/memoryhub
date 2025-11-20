@@ -168,7 +168,7 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
                           color: MemoryHubColors.amber700,
                           size: MemoryHubSpacing.xxl,
                         ),
-                        const HGap.sm(),
+                        HGap.sm(),
                         Expanded(
                           child: Text(
                             'Deletion Scheduled',
@@ -180,18 +180,18 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
                         ),
                       ],
                     ),
-                    const VGap.sm(),
+                    VGap.sm(),
                     Text(
                       'Your account is scheduled for deletion on '
                       '${_deletionScheduledDate != null ? _deletionScheduledDate.toString().substring(0, 10) : 'N/A'}.',
                       style: TextStyle(fontSize: MemoryHubTypography.bodyMedium),
                     ),
-                    const VGap.xs(),
+                    VGap.xs(),
                     Text(
                       'You can cancel this request anytime before the deletion date.',
                       style: TextStyle(fontSize: MemoryHubTypography.bodySmall),
                     ),
-                    const VGap.md(),
+                    VGap.md(),
                     PrimaryButton(
                       onPressed: _isProcessing ? null : _cancelDeletion,
                       label: 'Cancel Deletion Request',
@@ -202,7 +202,7 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
                   ],
                 ),
               ),
-              const VGap.lg(),
+              VGap.lg(),
             ] else ...[
               AppCard(
                 color: MemoryHubColors.red50,
@@ -217,7 +217,7 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
                           color: MemoryHubColors.red600,
                           size: MemoryHubSpacing.xxl,
                         ),
-                        const HGap.sm(),
+                        HGap.sm(),
                         Expanded(
                           child: Text(
                             'Warning',
@@ -230,7 +230,7 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
                         ),
                       ],
                     ),
-                    const VGap.sm(),
+                    VGap.sm(),
                     Text(
                       'Deleting your account is permanent and cannot be undone.',
                       style: TextStyle(
@@ -241,7 +241,7 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
                   ],
                 ),
               ),
-              const VGap.lg(),
+              VGap.lg(),
               Text(
                 'What happens when you delete your account?',
                 style: TextStyle(
@@ -249,7 +249,7 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
                   fontWeight: MemoryHubTypography.bold,
                 ),
               ),
-              const VGap.md(),
+              VGap.md(),
               _buildInfoItem(
                 icon: Icons.delete_forever,
                 title: 'All data will be deleted',
@@ -270,7 +270,7 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
                 title: 'No recovery',
                 description: 'After 30 days, recovery will be impossible',
               ),
-              const VGap.xl(),
+              VGap.xl(),
               Text(
                 'Type "DELETE MY ACCOUNT" to confirm:',
                 style: TextStyle(
@@ -278,12 +278,12 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
                   fontWeight: MemoryHubTypography.semiBold,
                 ),
               ),
-              const VGap.sm(),
+              VGap.sm(),
               TextFieldX(
                 controller: _confirmationController,
                 hint: 'DELETE MY ACCOUNT',
               ),
-              const VGap.lg(),
+              VGap.lg(),
               DangerButton(
                 onPressed: _isProcessing ? null : _requestDeletion,
                 label: 'Request Account Deletion',
@@ -319,7 +319,7 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
               size: MemoryHubSpacing.xl,
             ),
           ),
-          const HGap.md(),
+          HGap.md(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,7 +331,7 @@ class _AccountDeletionScreenState extends State<AccountDeletionScreen> {
                     fontSize: MemoryHubTypography.bodyMedium,
                   ),
                 ),
-                const VGap.xxs(),
+                VGap.xxs(),
                 Text(
                   description,
                   style: TextStyle(

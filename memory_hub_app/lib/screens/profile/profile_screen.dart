@@ -131,9 +131,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.error_outline, size: 64, color: MemoryHubColors.red500),
-              const VGap.lg(),
+              VGap.lg(),
               Text(_error ?? 'Failed to load profile'),
-              const VGap.lg(),
+              VGap.lg(),
               PrimaryButton(
                 onPressed: _loadProfile,
                 label: 'Retry',
@@ -254,7 +254,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         ),
                       ),
                     ),
-                    const VGap.lg(),
+                    VGap.lg(),
                     Text(
                       _user!.fullName ?? 'User',
                       style: context.text.headlineMedium?.copyWith(
@@ -269,7 +269,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         ],
                       ),
                     ),
-                    const VGap.xs(),
+                    VGap.xs(),
                     Text(
                       '@${_getUsername()}',
                       style: context.text.bodyLarge?.copyWith(
@@ -278,7 +278,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       ),
                     ),
                     if (_user!.bio != null && _user!.bio!.isNotEmpty) ...[
-                      const VGap.md(),
+                      VGap.md(),
                       Padded.symmetric(
                         horizontal: MemoryHubSpacing.xxl,
                         child: Text(
@@ -293,7 +293,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         ),
                       ),
                     ],
-                    const VGap.lg(),
+                    VGap.lg(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -309,7 +309,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         _buildFollowStat('Followers', followersCount),
                       ],
                     ),
-                    const VGap.xl(),
+                    VGap.xl(),
                   ],
                 ),
               ),
@@ -355,9 +355,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           child: Row(
             children: [
               Expanded(child: _buildStatCard('Posts', memories, Icons.auto_awesome, MemoryHubColors.indigo500)),
-              const HGap.md(),
+              HGap.md(),
               Expanded(child: _buildStatCard('Files', files, Icons.folder_outlined, MemoryHubColors.purple500)),
-              const HGap.md(),
+              HGap.md(),
               Expanded(child: _buildStatCard('Albums', collections, Icons.collections_outlined, MemoryHubColors.pink500)),
             ],
           ),
@@ -368,11 +368,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   Widget _buildStatCard(String label, int value, IconData icon, Color color) {
     return AppCard(
-      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      padding: EdgeInsets.all(MemoryHubSpacing.lg),
       child: Column(
         children: [
           Icon(icon, color: color, size: 28),
-          const VGap.sm(),
+          VGap.sm(),
           Text(
             value.toString(),
             style: context.text.headlineSmall?.copyWith(
@@ -380,7 +380,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               color: color,
             ),
           ),
-          const VGap.xs(),
+          VGap.xs(),
           Text(
             label,
             style: context.text.bodySmall?.copyWith(
@@ -395,15 +395,15 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   Widget _buildProfileSections() {
     return SliverPadding(
-      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      padding: EdgeInsets.all(MemoryHubSpacing.lg),
       sliver: SliverList(
         delegate: SliverChildListDelegate([
           _buildEditProfileCard(),
-          const VGap.lg(),
+          VGap.lg(),
           _buildQuickActionsSection(),
-          const VGap.lg(),
+          VGap.lg(),
           _buildAccountInfoSection(),
-          const VGap(100),
+          VGap(100),
         ]),
       ),
     );
@@ -411,7 +411,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   Widget _buildEditProfileCard() {
     return AppCard(
-      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      padding: EdgeInsets.all(MemoryHubSpacing.lg),
       onTap: () async {
         final result = await Navigator.of(context).pushNamed('/profile/edit');
         if (result == true) {
@@ -423,14 +423,14 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(MemoryHubSpacing.md),
+              padding: EdgeInsets.all(MemoryHubSpacing.md),
               decoration: BoxDecoration(
                 color: MemoryHubColors.indigo500.withValues(alpha: 0.2),
                 borderRadius: MemoryHubBorderRadius.mdRadius,
               ),
               child: const Icon(Icons.edit_outlined, color: MemoryHubColors.indigo600, size: 24),
             ),
-            const HGap.lg(),
+            HGap.lg(),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -441,7 +441,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const VGap.xxs(),
+                  VGap.xxs(),
                   Text(
                     'Update your profile information',
                     style: context.text.bodySmall?.copyWith(
@@ -501,7 +501,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(MemoryHubSpacing.sm),
+                      padding: EdgeInsets.all(MemoryHubSpacing.sm),
                       decoration: BoxDecoration(
                         color: (action['color'] as Color).withValues(alpha: 0.2),
                         borderRadius: MemoryHubBorderRadius.smRadius,
@@ -512,7 +512,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                         size: 24,
                       ),
                     ),
-                    const VGap.sm(),
+                    VGap.sm(),
                     Text(
                       action['title'] as String,
                       style: context.text.bodyMedium?.copyWith(
@@ -531,7 +531,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
 
   Widget _buildAccountInfoSection() {
     return AppCard(
-      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      padding: EdgeInsets.all(MemoryHubSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -541,7 +541,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               fontWeight: FontWeight.bold,
             ),
           ),
-          const VGap.lg(),
+          VGap.lg(),
           _buildInfoRow(Icons.email_outlined, 'Email', _user!.email),
           const Divider(height: MemoryHubSpacing.xl),
           _buildInfoRow(Icons.calendar_today_outlined, 'Member Since', 
@@ -559,7 +559,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     return Row(
       children: [
         Icon(icon, size: 20, color: MemoryHubColors.gray500),
-        const HGap.md(),
+        HGap.md(),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -571,7 +571,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const VGap.xxs(),
+              VGap.xxs(),
               Text(
                 value,
                 style: context.text.bodyMedium?.copyWith(

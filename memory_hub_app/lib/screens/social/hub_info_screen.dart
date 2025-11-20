@@ -8,6 +8,7 @@ import '../../config/api_config.dart';
 import '../../widgets/user_search_autocomplete.dart';
 import 'user_profile_view_screen.dart';
 import '../../design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class HubInfoScreen extends StatefulWidget {
   final String hubId;
@@ -139,7 +140,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
         title: Row(
           children: [
             Icon(Icons.edit, color: context.colors.primary),
-            const HGap.md(),
+            HGap.md(),
             Text(
               'Edit Hub',
               style: context.text.titleMedium?.copyWith(fontWeight: MemoryHubTypography.bold),
@@ -157,7 +158,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                   color: MemoryHubColors.gray600,
                 ),
               ),
-              const VGap.lg(),
+              VGap.lg(),
               TextField(
                 controller: nameController,
                 decoration: InputDecoration(
@@ -169,7 +170,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                   ),
                 ),
               ),
-              const VGap.lg(),
+              VGap.lg(),
               TextField(
                 controller: descController,
                 decoration: InputDecoration(
@@ -250,7 +251,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
         title: Row(
           children: [
             Icon(Icons.share, color: context.colors.primary),
-            const HGap.md(),
+            HGap.md(),
             Text(
               'Share Hub',
               style: context.text.titleMedium?.copyWith(fontWeight: MemoryHubTypography.bold),
@@ -267,7 +268,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                 color: MemoryHubColors.gray600,
               ),
             ),
-            const VGap.lg(),
+            VGap.lg(),
             Padded.all(
               Spacing.md,
               child: Container(
@@ -282,7 +283,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                 ),
               ),
             ),
-            const VGap.md(),
+            VGap.md(),
             Text(
               'Copy this link and share it with people you want to invite to this hub',
               style: context.text.bodySmall?.copyWith(
@@ -324,7 +325,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
           title: Row(
             children: [
               Icon(Icons.person_add, color: context.colors.primary),
-              const HGap.md(),
+              HGap.md(),
               Expanded(
                 child: Text(
                   'Add Member to Hub',
@@ -344,7 +345,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                     'Search for a user from your family circles',
                     style: context.text.bodyMedium?.copyWith(color: MemoryHubColors.gray600),
                   ),
-                  const VGap.lg(),
+                  VGap.lg(),
                   UserSearchAutocomplete(
                     onUserSelected: (user) {
                       setState(() {
@@ -354,9 +355,9 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                     helpText: 'Search for users in your family circles',
                   ),
                   if (selectedUser != null) ...[
-                    const VGap.lg(),
+                    VGap.lg(),
                     Container(
-                      padding: const EdgeInsets.all(Spacing.md),
+                      padding: EdgeInsets.all(Spacing.md),
                       decoration: BoxDecoration(
                         color: context.colors.primaryContainer.withOpacity(0.3),
                         borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -373,7 +374,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                               style: const TextStyle(color: Colors.white),
                             ),
                           ),
-                          const HGap.md(),
+                          HGap.md(),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -405,14 +406,14 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                       ),
                     ),
                   ],
-                  const VGap.xl(),
+                  VGap.xl(),
                   Text(
                     'Select Role',
                     style: context.text.bodyMedium?.copyWith(
                       fontWeight: MemoryHubTypography.semiBold,
                     ),
                   ),
-                  const VGap.sm(),
+                  VGap.sm(),
                   ValueListenableBuilder<String>(
                     valueListenable: selectedRole,
                     builder: (context, role, _) {
@@ -437,7 +438,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                               title: Row(
                                 children: [
                                   Icon(Icons.person, size: 20, color: MemoryHubColors.green500),
-                                  const HGap.sm(),
+                                  HGap.sm(),
                                   Text(
                                     'Member',
                                     style: context.text.bodyMedium?.copyWith(
@@ -452,7 +453,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                               ),
                             ),
                           ),
-                          const VGap.sm(),
+                          VGap.sm(),
                           Container(
                             decoration: BoxDecoration(
                               color: role == 'admin' 
@@ -472,7 +473,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                               title: Row(
                                 children: [
                                   Icon(Icons.admin_panel_settings, size: 20, color: MemoryHubColors.blue500),
-                                  const HGap.sm(),
+                                  HGap.sm(),
                                   Text(
                                     'Admin',
                                     style: context.text.bodyMedium?.copyWith(
@@ -632,7 +633,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(Spacing.lg),
+      padding: EdgeInsets.all(Spacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -648,7 +649,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                         color: context.colors.primary,
                         size: 28,
                       ),
-                      const HGap.md(),
+                      HGap.md(),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -680,19 +681,19 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                     'Privacy',
                     _hubInfo!['privacy']?.toString().toUpperCase() ?? 'PRIVATE',
                   ),
-                  const VGap.md(),
+                  VGap.md(),
                   _buildInfoRow(
                     Icons.people,
                     'Members',
                     '${_hubInfo!['member_count'] ?? 0} members',
                   ),
-                  const VGap.md(),
+                  VGap.md(),
                   _buildInfoRow(
                     Icons.person,
                     'Your Role',
                     _hubInfo!['my_role']?.toString().toUpperCase() ?? 'MEMBER',
                   ),
-                  const VGap.md(),
+                  VGap.md(),
                   _buildInfoRow(
                     Icons.calendar_today,
                     'Created',
@@ -706,7 +707,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                         fontWeight: MemoryHubTypography.bold,
                       ),
                     ),
-                    const VGap.md(),
+                    VGap.md(),
                     Wrap(
                       spacing: Spacing.sm,
                       runSpacing: Spacing.sm,
@@ -722,7 +723,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
               ),
             ),
           ),
-          const VGap.lg(),
+          VGap.lg(),
           if (_hubInfo!['my_role'] == 'owner' || _hubInfo!['my_role'] == 'admin')
             AppCard(
               child: Padded.lg(
@@ -735,7 +736,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                         fontWeight: MemoryHubTypography.bold,
                       ),
                     ),
-                    const VGap.md(),
+                    VGap.md(),
                     ListTile(
                       leading: const Icon(Icons.edit),
                       title: const Text('Edit Hub'),
@@ -771,7 +772,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.people_outline, size: 64, color: MemoryHubColors.gray400),
-            const VGap.lg(),
+            VGap.lg(),
             Text(
               'No members yet',
               style: context.text.titleMedium?.copyWith(color: MemoryHubColors.gray600),
@@ -782,7 +783,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(Spacing.lg),
+      padding: EdgeInsets.all(Spacing.lg),
       itemCount: _members.length,
       itemBuilder: (context, index) {
         final member = _members[index];
@@ -829,7 +830,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
                         size: 14,
                         color: _getRoleColor(member['role'] ?? 'member'),
                       ),
-                      const HGap.xs(),
+                      HGap.xs(),
                       Text(
                         member['role']?.toString().toUpperCase() ?? 'MEMBER',
                         style: context.text.labelSmall?.copyWith(
@@ -867,7 +868,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
     return Row(
       children: [
         Icon(icon, size: 20, color: MemoryHubColors.gray600),
-        const HGap.md(),
+        HGap.md(),
         Text(
           '$label:',
           style: context.text.bodyMedium?.copyWith(
@@ -875,7 +876,7 @@ class _HubInfoScreenState extends State<HubInfoScreen> with SingleTickerProvider
             fontWeight: MemoryHubTypography.medium,
           ),
         ),
-        const HGap.sm(),
+        HGap.sm(),
         Expanded(
           child: Text(
             value,

@@ -9,6 +9,7 @@ import '../../design_system/design_system.dart';
 import 'event_detail_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../../design_system/layout/padded.dart';
 
 enum CalendarView { month, agenda }
 
@@ -339,7 +340,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
               child: Row(
                 children: [
                   const Icon(Icons.cake, color: Colors.white, size: 28),
-                  const HGap.md(),
+                  HGap.md(),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -352,7 +353,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                             fontWeight: MemoryHubTypography.bold,
                           ),
                         ),
-                        const VGap.xs(),
+                        VGap.xs(),
                         Text(
                           '${_upcomingBirthdays.length} ${_upcomingBirthdays.length == 1 ? 'birthday' : 'birthdays'} in the next 30 days',
                           style: TextStyle(
@@ -361,7 +362,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                           ),
                         ),
                         if (_upcomingBirthdays.isNotEmpty) ...[
-                          const VGap.sm(),
+                          VGap.sm(),
                           _buildNextBirthdayPreview(),
                         ],
                       ],
@@ -391,7 +392,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.celebration, color: Colors.white, size: 16),
-          const HGap.xs(),
+          HGap.xs(),
           Flexible(
             child: Text(
               daysUntil == 0
@@ -631,13 +632,13 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, size: 64, color: MemoryHubColors.red300),
-              const VGap.lg(),
+              VGap.lg(),
               Text(
                 _error!.replaceAll('Exception: ', ''),
                 style: TextStyle(color: MemoryHubColors.gray600),
                 textAlign: TextAlign.center,
               ),
-              const VGap.xl(),
+              VGap.xl(),
               PrimaryButton(
                 onPressed: _loadEvents,
                 label: 'Retry',
@@ -662,7 +663,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                 size: 64,
                 color: MemoryHubColors.gray300,
               ),
-              const VGap.lg(),
+              VGap.lg(),
               Text(
                 'No events for this day',
                 style: TextStyle(
@@ -710,13 +711,13 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, size: 64, color: MemoryHubColors.red300),
-              const VGap.lg(),
+              VGap.lg(),
               Text(
                 _error!.replaceAll('Exception: ', ''),
                 style: TextStyle(color: MemoryHubColors.gray600),
                 textAlign: TextAlign.center,
               ),
-              const VGap.xl(),
+              VGap.xl(),
               PrimaryButton(
                 onPressed: _loadEvents,
                 label: 'Retry',
@@ -794,7 +795,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                           ],
                         ),
                       ),
-                      const HGap.md(),
+                      HGap.md(),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -836,7 +837,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                 ...events.asMap().entries.map((entry) {
                   return _buildEventCard(entry.value, entry.key);
                 }).toList(),
-                const VGap.sm(),
+                VGap.sm(),
               ],
             );
           },
@@ -909,7 +910,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                         ),
                         child: Icon(icon, color: Colors.white, size: 20),
                       ),
-                      const HGap.md(),
+                      HGap.md(),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -939,7 +940,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Icon(Icons.repeat, size: 12, color: MemoryHubColors.blue700),
-                                          const HGap.xs(),
+                                          HGap.xs(),
                                           Text(
                                             _getRecurrenceShortForm(event.recurrenceRule!),
                                             style: TextStyle(
@@ -954,7 +955,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                                   ),
                               ],
                             ),
-                            const VGap.xs(),
+                            VGap.xs(),
                             Row(
                               children: [
                                 Icon(
@@ -962,7 +963,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                                   size: 14,
                                   color: MemoryHubColors.gray600,
                                 ),
-                                const HGap.xs(),
+                                HGap.xs(),
                                 Text(
                                   event.isAllDay
                                       ? 'All Day'
@@ -989,7 +990,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                     ],
                   ),
                   if (event.description != null && event.description!.isNotEmpty) ...[
-                    const VGap.md(),
+                    VGap.md(),
                     Text(
                       event.description!,
                       maxLines: 2,
@@ -1002,11 +1003,11 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                     ),
                   ],
                   if (event.location != null && event.location!.isNotEmpty) ...[
-                    const VGap.sm(),
+                    VGap.sm(),
                     Row(
                       children: [
                         Icon(Icons.location_on, size: 14, color: MemoryHubColors.gray600),
-                        const HGap.xs(),
+                        HGap.xs(),
                         Expanded(
                           child: Text(
                             event.location!,
@@ -1020,7 +1021,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                       ],
                     ),
                   ],
-                  const VGap.md(),
+                  VGap.md(),
                   Row(
                     children: [
                       Container(
@@ -1043,7 +1044,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                         Row(
                           children: [
                             Icon(Icons.people, size: 14, color: MemoryHubColors.gray600),
-                            const HGap.xs(),
+                            HGap.xs(),
                             Text(
                               '${event.attendeeIds.length}',
                               style: TextStyle(
@@ -1054,7 +1055,7 @@ class _FamilyCalendarScreenState extends State<FamilyCalendarScreen> with Single
                           ],
                         ),
                       if (event.autoGenerated) ...[
-                        const HGap.sm(),
+                        HGap.sm(),
                         Tooltip(
                           message: 'Auto-generated from Family Tree',
                           child: Icon(

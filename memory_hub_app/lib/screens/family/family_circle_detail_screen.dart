@@ -10,6 +10,7 @@ import '../../design_system/design_tokens.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../dialogs/family/create_family_circle_dialog.dart';
 import '../../widgets/user_search_autocomplete.dart';
+import '../../design_system/layout/padded.dart';
 
 class FamilyCircleDetailScreen extends StatefulWidget {
   final FamilyCircle circle;
@@ -86,7 +87,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const CircularProgressIndicator(),
-                    const VGap.lg(),
+                    VGap.lg(),
                     Text(
                       'Loading circle details...',
                       style: context.text.bodyLarge?.copyWith(
@@ -211,7 +212,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                     value: _circle.displayCircleType,
                   ),
                 ),
-                const HGap.md(),
+                HGap.md(),
                 Expanded(child: _buildInfoCard(
                     icon: Icons.people,
                     label: 'Members',
@@ -221,7 +222,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
               ],
             ),
             if (_circle.description != null && _circle.description!.isNotEmpty) ...[
-              const VGap.lg(),
+              VGap.lg(),
               Card(
                 elevation: MemoryHubElevation.sm,
                 shape: RoundedRectangleBorder(
@@ -239,7 +240,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                             color: MemoryHubColors.gray600,
                             size: 20,
                           ),
-                          const HGap.sm(),
+                          HGap.sm(),
                           Text(
                             'Description',
                             style: context.text.titleMedium?.copyWith(
@@ -248,7 +249,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                           ),
                         ],
                       ),
-                      const VGap.md(),
+                      VGap.md(),
                       Text(
                         _circle.description!,
                         style: context.text.bodyMedium,
@@ -258,7 +259,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                 ),
               ),
             ],
-            const VGap.md(),
+            VGap.md(),
             Text(
               'Created ${DateFormat.yMMMMd().format(_circle.createdAt)}',
               style: context.text.bodySmall?.copyWith(
@@ -286,14 +287,14 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
         child: Column(
           children: [
             Icon(icon, color: _getCircleColor(_circle.color), size: 32),
-            const VGap.sm(),
+            VGap.sm(),
             Text(
               value,
               style: context.text.headlineSmall?.copyWith(
                     fontWeight: MemoryHubTypography.bold,
                   ),
             ),
-            const VGap.xs(),
+            VGap.xs(),
             Text(
               label,
               style: context.text.bodySmall?.copyWith(
@@ -319,7 +320,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                     fontWeight: MemoryHubTypography.bold,
                   ),
             ),
-            const VGap.md(),
+            VGap.md(),
             if (_circle.members.isEmpty)
               Card(
                 elevation: MemoryHubElevation.sm,
@@ -336,7 +337,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                           size: 48,
                           color: MemoryHubColors.gray400,
                         ),
-                        const VGap.md(),
+                        VGap.md(),
                         Text(
                           'No members yet',
                           style: context.text.titleMedium?.copyWith(
@@ -359,7 +360,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                   final canRemove = _isOwner && member.id != _circle.ownerId;
                   
                   return Card(
-                    margin: const EdgeInsets.only(bottom: MemoryHubSpacing.md),
+                    margin: EdgeInsets.only(bottom: MemoryHubSpacing.md),
                     elevation: MemoryHubElevation.sm,
                     shape: RoundedRectangleBorder(
                       borderRadius: MemoryHubBorderRadius.lgRadius,

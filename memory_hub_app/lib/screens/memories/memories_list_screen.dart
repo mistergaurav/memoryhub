@@ -125,7 +125,7 @@ class _MemoriesListScreenState extends State<MemoriesListScreen> {
               size: 64,
               color: context.colors.error,
             ),
-            const VGap.lg(),
+            VGap.lg(),
             Padded.symmetric(
               horizontal: Spacing.xl,
               child: Text(
@@ -136,7 +136,7 @@ class _MemoriesListScreenState extends State<MemoriesListScreen> {
                 textAlign: TextAlign.center,
               ),
             ),
-            const VGap.lg(),
+            VGap.lg(),
             SecondaryButton(
               onPressed: _loadMemories,
               label: 'Retry',
@@ -156,14 +156,14 @@ class _MemoriesListScreenState extends State<MemoriesListScreen> {
               size: 64,
               color: context.colors.outline,
             ),
-            const VGap.lg(),
+            VGap.lg(),
             Text(
               _searchQuery != null ? 'No memories found' : 'No memories yet',
               style: context.text.titleMedium?.copyWith(
                 color: context.colors.outline,
               ),
             ),
-            const VGap.lg(),
+            VGap.lg(),
             PrimaryButton(
               onPressed: () async {
                 final result = await Navigator.of(context).pushNamed('/memories/create');
@@ -244,7 +244,7 @@ class _MemoriesListScreenState extends State<MemoriesListScreen> {
                     fontWeight: MemoryHubTypography.bold,
                   ),
                 ),
-                const VGap.xs(),
+                VGap.xs(),
                 Text(
                   memory.content,
                   maxLines: 3,
@@ -254,7 +254,7 @@ class _MemoriesListScreenState extends State<MemoriesListScreen> {
                   ),
                 ),
                 if (memory.tags.isNotEmpty) ...[
-                  const VGap.sm(),
+                  VGap.sm(),
                   Wrap(
                     spacing: Spacing.xs,
                     runSpacing: Spacing.xs,
@@ -271,7 +271,7 @@ class _MemoriesListScreenState extends State<MemoriesListScreen> {
                     }).toList(),
                   ),
                 ],
-                const VGap.sm(),
+                VGap.sm(),
                 Row(
                   children: [
                     Icon(
@@ -281,20 +281,20 @@ class _MemoriesListScreenState extends State<MemoriesListScreen> {
                           ? MemoryHubColors.red500
                           : context.colors.outline,
                     ),
-                    const HGap.xxs(),
+                    HGap.xxs(),
                     Text(
                       '${memory.likeCount}',
                       style: context.text.bodySmall?.copyWith(
                         color: context.colors.onSurfaceVariant,
                       ),
                     ),
-                    const HGap.md(),
+                    HGap.md(),
                     Icon(
                       Icons.visibility,
                       size: 16,
                       color: context.colors.outline,
                     ),
-                    const HGap.xxs(),
+                    HGap.xxs(),
                     Text(
                       '${memory.viewCount}',
                       style: context.text.bodySmall?.copyWith(
@@ -307,7 +307,7 @@ class _MemoriesListScreenState extends State<MemoriesListScreen> {
                       size: 14,
                       color: context.colors.outline,
                     ),
-                    const HGap.xxs(),
+                    HGap.xxs(),
                     Text(
                       DateFormat('MMM d, yyyy').format(memory.createdAt),
                       style: context.text.bodySmall?.copyWith(

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../providers/notifications_provider.dart';
 import '../../models/notification.dart' as models;
 import '../../widgets/gradient_container.dart';
 import '../../widgets/animated_list_item.dart';
 import '../../services/websocket_service.dart';
 import '../../design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -125,7 +127,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ],
                 ),
                 if (provider.unreadCount > 0) ...[
-                  const VGap.sm(),
+                  VGap.sm(),
                   Padded(
                     padding: Spacing.edgeInsetsSymmetric(
                       horizontal: Spacing.lg,

@@ -111,7 +111,7 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
                 size: 64,
                 color: context.colors.error,
               ),
-              const VGap.lg(),
+              VGap.lg(),
               Padded.symmetric(
                 horizontal: Spacing.xl,
                 child: Text(
@@ -122,7 +122,7 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              const VGap.lg(),
+              VGap.lg(),
               SecondaryButton(
                 onPressed: _loadMemory,
                 label: 'Retry',
@@ -189,7 +189,7 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
                       fontWeight: MemoryHubTypography.bold,
                     ),
                   ),
-                  const VGap.xs(),
+                  VGap.xs(),
                   Row(
                     children: [
                       Icon(
@@ -197,7 +197,7 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
                         size: 16,
                         color: context.colors.outline,
                       ),
-                      const HGap.xxs(),
+                      HGap.xxs(),
                       Text(
                         DateFormat('MMMM d, yyyy').format(_memory!.createdAt),
                         style: context.text.bodyMedium?.copyWith(
@@ -205,13 +205,13 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
                         ),
                       ),
                       if (_memory!.mood != null) ...[
-                        const HGap.lg(),
+                        HGap.lg(),
                         Icon(
                           Icons.mood,
                           size: 16,
                           color: context.colors.outline,
                         ),
-                        const HGap.xxs(),
+                        HGap.xxs(),
                         Text(
                           _memory!.mood!,
                           style: context.text.bodyMedium?.copyWith(
@@ -221,7 +221,7 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
                       ],
                     ],
                   ),
-                  const VGap.xl(),
+                  VGap.xl(),
                   Text(
                     _memory!.content,
                     style: context.text.bodyLarge?.copyWith(
@@ -229,7 +229,7 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
                     ),
                   ),
                   if (_memory!.tags.isNotEmpty) ...[
-                    const VGap.xl(),
+                    VGap.xl(),
                     Wrap(
                       spacing: Spacing.xs,
                       runSpacing: Spacing.xs,
@@ -244,9 +244,9 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
                       }).toList(),
                     ),
                   ],
-                  const VGap.xl(),
+                  VGap.xl(),
                   Divider(color: context.colors.outlineVariant),
-                  const VGap.lg(),
+                  VGap.lg(),
                   Row(
                     children: [
                       IconButton(
@@ -262,22 +262,22 @@ class _MemoryDetailScreenState extends State<MemoryDetailScreen> {
                         '${_memory!.likeCount}',
                         style: context.text.bodyMedium,
                       ),
-                      const HGap.xl(),
+                      HGap.xl(),
                       Icon(
                         Icons.visibility,
                         color: context.colors.outline,
                       ),
-                      const HGap.xs(),
+                      HGap.xs(),
                       Text(
                         '${_memory!.viewCount}',
                         style: context.text.bodyMedium,
                       ),
-                      const HGap.xl(),
+                      HGap.xl(),
                       Icon(
                         Icons.comment,
                         color: context.colors.outline,
                       ),
-                      const HGap.xs(),
+                      HGap.xs(),
                       Text(
                         '${_memory!.commentCount}',
                         style: context.text.bodyMedium,

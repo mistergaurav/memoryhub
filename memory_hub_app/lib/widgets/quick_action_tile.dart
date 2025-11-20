@@ -25,7 +25,7 @@ class QuickActionTile extends StatelessWidget {
       borderRadius: MemoryHubBorderRadius.xlRadius,
       child: Container(
         width: 85,
-        padding: const EdgeInsets.all(MemoryHubSpacing.md),
+        padding: EdgeInsets.all(MemoryHubSpacing.md),
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: MemoryHubBorderRadius.xlRadius,
@@ -41,7 +41,7 @@ class QuickActionTile extends StatelessWidget {
               clipBehavior: Clip.none,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.sm),
+                  padding: EdgeInsets.all(MemoryHubSpacing.sm),
                   decoration: BoxDecoration(
                     color: color,
                     shape: BoxShape.circle,

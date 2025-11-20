@@ -11,6 +11,7 @@ from .traditions import router as traditions_router
 from .genealogy import router as genealogy_router
 from .letters import router as letters_router
 from .parental_controls import router as parental_router
+from .relationships import router as new_relationships_router
 
 # Import from core modules (refactored family.py)
 from .core import (
@@ -43,5 +44,8 @@ router.include_router(letters_router, prefix="/letters", tags=["legacy-letters"]
 router.include_router(letters_router, prefix="/legacy-letters", tags=["legacy-letters"])
 router.include_router(parental_router, prefix="/parental-controls", tags=["parental-controls"])
 router.include_router(health_records_router, tags=["health-records"])
+
+# Include new relationship endpoints
+router.include_router(new_relationships_router, prefix="/relationships", tags=["relationships"])
 
 __all__ = ["router"]

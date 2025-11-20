@@ -104,13 +104,13 @@ class _StatCardState extends State<StatCard>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+                padding: EdgeInsets.all(MemoryHubSpacing.xl),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                      padding: EdgeInsets.all(MemoryHubSpacing.md),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: MemoryHubBorderRadius.mdRadius,

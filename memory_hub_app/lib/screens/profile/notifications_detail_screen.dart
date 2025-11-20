@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../widgets/collapsible_settings_group.dart';
+import '../../design_system/layout/padded.dart';
 
 class NotificationsDetailScreen extends StatefulWidget {
   const NotificationsDetailScreen({super.key});
@@ -76,12 +77,12 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
                   gradient: LinearGradient(
                     colors: [context.colors.primary, context.colors.primaryContainer],
                   ),
-                  borderRadius: MemoryHubBorderRadius.lg,
+                  borderRadius: BorderRadius.circular(MemoryHubBorderRadius.lg),
                 ),
                 child: Row(
                   children: [
                     Icon(Icons.notifications_active, color: context.colors.onPrimary, size: 32),
-                    const HGap.md(),
+                    HGap.md(),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +115,7 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
                 ),
               ),
             ),
-          const VGap.lg(),
+          VGap.lg(),
           CollapsibleSettingsGroup(
             title: 'Notification Channels',
             icon: Icons.send,
@@ -141,7 +142,7 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
               ),
             ],
           ),
-          const VGap.md(),
+          VGap.md(),
           CollapsibleSettingsGroup(
             title: 'Content Notifications',
             icon: Icons.auto_awesome,
@@ -178,7 +179,7 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
               ),
             ],
           ),
-          const VGap.md(),
+          VGap.md(),
           CollapsibleSettingsGroup(
             title: 'Social Notifications',
             icon: Icons.people,

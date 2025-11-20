@@ -154,20 +154,20 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
                       ),
                     ),
                   ),
-                  const VGap.lg(),
+                  VGap.lg(),
                   Text(
                     _searchQuery.isEmpty ? 'Categories' : 'Search Results',
                     style: context.text.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const VGap.md(),
+                  VGap.md(),
                 ],
               ),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
+            padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -190,7 +190,7 @@ class _SettingsHomeScreenState extends State<SettingsHomeScreen> {
               ),
             ),
           ),
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: VGap(100),
           ),
         ],

@@ -139,7 +139,7 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                 return null;
               },
             ),
-            const VGap.lg(),
+            VGap.lg(),
             TextFormField(
               controller: _contentController,
               decoration: InputDecoration(
@@ -158,7 +158,7 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                 return null;
               },
             ),
-            const VGap.lg(),
+            VGap.lg(),
             TextFormField(
               controller: _tagsController,
               decoration: InputDecoration(
@@ -170,7 +170,7 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
               ),
               style: context.text.bodyLarge,
             ),
-            const VGap.lg(),
+            VGap.lg(),
             TextFormField(
               controller: _moodController,
               decoration: InputDecoration(
@@ -182,7 +182,7 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
               ),
               style: context.text.bodyLarge,
             ),
-            const VGap.lg(),
+            VGap.lg(),
             DropdownButtonFormField<String>(
               value: _privacy,
               decoration: InputDecoration(
@@ -203,14 +203,14 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                 }
               },
             ),
-            const VGap.xl(),
+            VGap.xl(),
             Text(
               'Media Files',
               style: context.text.titleMedium?.copyWith(
                 fontWeight: MemoryHubTypography.bold,
               ),
             ),
-            const VGap.xs(),
+            VGap.xs(),
             if (_selectedFiles.isNotEmpty)
               SizedBox(
                 height: 120,
@@ -269,14 +269,14 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
                   },
                 ),
               ),
-            if (_selectedFiles.isNotEmpty) const VGap.xs(),
+            if (_selectedFiles.isNotEmpty) VGap.xs(),
             SecondaryButton(
               onPressed: _pickFiles,
               label: 'Add Media Files',
               leading: const Icon(Icons.add_photo_alternate),
               fullWidth: true,
             ),
-            const VGap.xl(),
+            VGap.xl(),
             PrimaryButton(
               onPressed: _isLoading ? null : _handleCreate,
               label: _isLoading ? 'Posting...' : 'Post Memory',
@@ -293,7 +293,7 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
               isLoading: _isLoading,
               fullWidth: true,
             ),
-            const VGap.lg(),
+            VGap.lg(),
           ],
         ),
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import '../../design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class FamilyDocumentVaultScreen extends StatefulWidget {
   const FamilyDocumentVaultScreen({Key? key}) : super(key: key);
@@ -178,7 +179,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
                         ),
                       ),
                       HGap(MemoryHubSpacing.lg),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -207,7 +208,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
             ),
           ),
           SliverPadding(
-            padding: Padded.symmetric(horizontal: MemoryHubSpacing.lg),
+            padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
             sliver: SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,7 +226,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
             ),
           ),
           SliverPadding(
-            padding: Padded.symmetric(horizontal: MemoryHubSpacing.lg),
+            padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -242,7 +243,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
               ),
             ),
           ),
-          const SliverToBoxAdapter(child: VGap(80)),
+          SliverToBoxAdapter(child: VGap(80)),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -328,7 +329,7 @@ class _FamilyDocumentVaultScreenState extends State<FamilyDocumentVaultScreen> {
               ),
               VGap(MemoryHubSpacing.xs),
               Container(
-                padding: Padded.symmetric(
+                padding: EdgeInsets.symmetric(
                   horizontal: MemoryHubSpacing.md,
                   vertical: MemoryHubSpacing.xs,
                 ),

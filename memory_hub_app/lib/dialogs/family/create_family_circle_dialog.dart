@@ -117,7 +117,7 @@ class _CreateFamilyCircleDialogState extends State<CreateFamilyCircleDialog> {
       shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.xlRadius),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600),
-        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -126,7 +126,7 @@ class _CreateFamilyCircleDialogState extends State<CreateFamilyCircleDialog> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                    padding: EdgeInsets.all(MemoryHubSpacing.md),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         begin: Alignment.topLeft,
@@ -199,7 +199,7 @@ class _CreateFamilyCircleDialogState extends State<CreateFamilyCircleDialog> {
                     ..._circleTypes.map((type) {
                       final isSelected = _selectedCircleType == type['value'];
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: MemoryHubSpacing.sm),
+                        padding: EdgeInsets.only(bottom: MemoryHubSpacing.sm),
                         child: InkWell(
                           onTap: () {
                             setState(() {
@@ -208,7 +208,7 @@ class _CreateFamilyCircleDialogState extends State<CreateFamilyCircleDialog> {
                           },
                           borderRadius: MemoryHubBorderRadius.mdRadius,
                           child: Container(
-                            padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                            padding: EdgeInsets.all(MemoryHubSpacing.md),
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? Theme.of(context).primaryColor.withOpacity(0.1)

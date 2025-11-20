@@ -50,13 +50,13 @@ class _AddLegacyLetterDialogState extends State<AddLegacyLetterDialog> {
       shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.xlRadius),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
-        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                  padding: EdgeInsets.all(MemoryHubSpacing.md),
                   decoration: BoxDecoration(gradient: const LinearGradient(colors: [MemoryHubColors.purple600, MemoryHubColors.purple400]), borderRadius: MemoryHubBorderRadius.mdRadius),
                   child: const Icon(Icons.mail, color: Colors.white),
                 ),
@@ -106,7 +106,7 @@ class _AddLegacyLetterDialogState extends State<AddLegacyLetterDialog> {
                 const SizedBox(width: MemoryHubSpacing.md),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
-                  style: ElevatedButton.styleFrom(backgroundColor: MemoryHubColors.purple600, padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg)),
+                  style: ElevatedButton.styleFrom(backgroundColor: MemoryHubColors.purple600, padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg)),
                   child: _isLoading
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
                       : const Text('Save Letter', style: TextStyle(color: Colors.white)),

@@ -295,7 +295,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
             SliverToBoxAdapter(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.md),
+                padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.md),
                 child: Row(children: [
                     _buildFilterChip(
                       label: 'All',
@@ -337,7 +337,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                       'Sort by:',
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    const HGap.sm(),
+                    HGap.sm(),
                     Expanded(
                       child: DropdownButton<String>(
                         value: _sortBy,
@@ -559,13 +559,13 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                     children: [
                       Text(
                         recipe.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: context.colors.surface,
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const VGap.xs(),
+                      VGap.xs(),
                       Row(
                         children: [
                           _buildInfoBadge(
@@ -573,13 +573,13 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                             '${recipe.averageRating.toStringAsFixed(1)}',
                             Colors.amber,
                           ),
-                          const HGap.sm(),
+                          HGap.sm(),
                           _buildInfoBadge(
                             Icons.restaurant,
                             '${recipe.timesMade} made',
                             Colors.green,
                           ),
-                          const HGap.sm(),
+                          HGap.sm(),
                           _buildInfoBadge(
                             Icons.favorite,
                             '${recipe.favoritesCount}',
@@ -610,7 +610,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          const HGap.xxs(),
+          HGap.xxs(),
           Text(
             text,
             style: TextStyle(
@@ -672,7 +672,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                       ),
                       child: Text(
                         recipe.difficulty.toUpperCase(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: context.colors.surface,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -704,7 +704,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                     Row(
                       children: [
                         Icon(Icons.star, size: 14, color: Colors.amber.shade600),
-                        const HGap.xxs(),
+                        HGap.xxs(),
                         Text(
                           recipe.averageRating.toStringAsFixed(1),
                           style: TextStyle(
@@ -715,25 +715,25 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                         ),
                         const Spacer(),
                         Icon(Icons.schedule, size: 14, color: Colors.grey.shade600),
-                        const HGap.xxs(),
+                        HGap.xxs(),
                         Text(
                           '${recipe.totalTime} min',
                           style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                         ),
                       ],
                     ),
-                    const VGap.xxs(),
+                    VGap.xxs(),
                     Row(
                       children: [
                         Icon(Icons.restaurant, size: 14, color: Colors.grey.shade600),
-                        const HGap.xxs(),
+                        HGap.xxs(),
                         Text(
                           '${recipe.timesMade} made',
                           style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                         ),
                         const Spacer(),
                         Icon(Icons.favorite, size: 14, color: Colors.red.shade400),
-                        const HGap.xxs(),
+                        HGap.xxs(),
                         Text(
                           '${recipe.favoritesCount}',
                           style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
@@ -804,7 +804,7 @@ class _FamilyRecipesScreenState extends State<FamilyRecipesScreen> {
                   height: 20,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                const VGap.xs(),
+                VGap.xs(),
                 ShimmerBox(
                   width: double.infinity,
                   height: 14,

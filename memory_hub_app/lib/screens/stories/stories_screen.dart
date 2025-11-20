@@ -64,7 +64,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.auto_awesome_outlined, size: 80, color: MemoryHubColors.white.withOpacity(0.5)),
-          const VGap.lg(),
+          VGap.lg(),
           Text(
             'No Stories Yet',
             style: context.text.headlineSmall?.copyWith(
@@ -72,7 +72,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
               color: MemoryHubColors.white,
             ),
           ),
-          const VGap.xs(),
+          VGap.xs(),
           Text(
             'Share your moments',
             style: context.text.bodyLarge?.copyWith(
@@ -97,7 +97,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
 
   Widget _buildStoryCard(Map<String, dynamic> story) {
     return Container(
-      margin: EdgeInsets.onlyBottom16,
+      margin: EdgeInsets.only(bottom: 16),
       height: 200,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -150,7 +150,7 @@ class _StoriesScreenState extends State<StoriesScreen> {
                         style: context.text.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
-                    const HGap.sm(),
+                    HGap.sm(),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

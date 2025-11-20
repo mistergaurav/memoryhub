@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../services/api_service.dart';
+import '../../design_system/layout/padded.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -94,7 +95,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 return null;
               },
             ),
-            const VGap.md(),
+            VGap.md(),
             TextFormField(
               controller: _newPasswordController,
               obscureText: _obscureNewPassword,
@@ -124,7 +125,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 return null;
               },
             ),
-            const VGap.md(),
+            VGap.md(),
             TextFormField(
               controller: _confirmPasswordController,
               obscureText: _obscureConfirmPassword,
@@ -154,7 +155,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 return null;
               },
             ),
-            const VGap.lg(),
+            VGap.lg(),
             PrimaryButton(
               onPressed: _isLoading ? null : _handleChangePassword,
               isLoading: _isLoading,

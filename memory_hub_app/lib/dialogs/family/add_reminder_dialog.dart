@@ -204,7 +204,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
               child: Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+                  padding: EdgeInsets.all(MemoryHubSpacing.xl),
                   children: [
                     _buildRecordInfo(),
                     const SizedBox(height: MemoryHubSpacing.xl),
@@ -236,7 +236,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [MemoryHubColors.indigo600, MemoryHubColors.purple600],
@@ -249,7 +249,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(MemoryHubSpacing.sm),
+            padding: EdgeInsets.all(MemoryHubSpacing.sm),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
               borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -288,7 +288,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
 
   Widget _buildRecordInfo() {
     return Container(
-      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      padding: EdgeInsets.all(MemoryHubSpacing.lg),
       decoration: BoxDecoration(
         color: Colors.grey[100],
         borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -337,7 +337,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
             return InkWell(
               onTap: () => setState(() => _selectedReminderType = type['value'] as String),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.sm),
+                padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.sm),
                 decoration: BoxDecoration(
                   color: isSelected ? type['color'] as Color : Colors.grey[100],
                   borderRadius: MemoryHubBorderRadius.xlRadius,
@@ -418,7 +418,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
               child: InkWell(
                 onTap: _selectDate,
                 child: Container(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                  padding: EdgeInsets.all(MemoryHubSpacing.lg),
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
                     borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -442,7 +442,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
               child: InkWell(
                 onTap: _selectTime,
                 child: Container(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                  padding: EdgeInsets.all(MemoryHubSpacing.lg),
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
                     borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -484,7 +484,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
             return InkWell(
               onTap: () => setState(() => _repeatFrequency = freq['value'] as String),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.sm),
+                padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.sm),
                 decoration: BoxDecoration(
                   color: isSelected ? MemoryHubColors.indigo600 : Colors.grey[100],
                   borderRadius: MemoryHubBorderRadius.xlRadius,
@@ -541,7 +541,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
             return InkWell(
               onTap: () => _toggleDeliveryChannel(channel['value'] as String),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.sm),
+                padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg, vertical: MemoryHubSpacing.sm),
                 decoration: BoxDecoration(
                   color: isSelected ? MemoryHubColors.green500 : Colors.grey[100],
                   borderRadius: MemoryHubBorderRadius.xlRadius,
@@ -574,7 +574,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
 
   Widget _buildFooter() {
     return Container(
-      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: BoxDecoration(
         color: Colors.grey[50],
         borderRadius: const BorderRadius.only(
@@ -594,7 +594,7 @@ class _AddReminderDialogState extends State<AddReminderDialog> {
             onPressed: _isLoading ? null : _submit,
             style: ElevatedButton.styleFrom(
               backgroundColor: MemoryHubColors.indigo600,
-              padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg),
+              padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg),
               shape: RoundedRectangleBorder(
                 borderRadius: MemoryHubBorderRadius.mdRadius,
               ),

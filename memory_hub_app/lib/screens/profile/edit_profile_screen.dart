@@ -146,7 +146,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+          padding: EdgeInsets.all(MemoryHubSpacing.lg),
           children: [
             Center(
               child: Stack(
@@ -209,9 +209,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ],
               ),
             ),
-            const VGap.xxl(),
+            VGap.xxl(),
             AppCard(
-              padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+              padding: EdgeInsets.all(MemoryHubSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -221,7 +221,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const VGap.lg(),
+                  VGap.lg(),
                   TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(
@@ -242,7 +242,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       return null;
                     },
                   ),
-                  const VGap.md(),
+                  VGap.md(),
                   TextFormField(
                     controller: _usernameController,
                     decoration: InputDecoration(
@@ -271,9 +271,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ],
               ),
             ),
-            const VGap.lg(),
+            VGap.lg(),
             AppCard(
-              padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+              padding: EdgeInsets.all(MemoryHubSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -283,7 +283,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const VGap.lg(),
+                  VGap.lg(),
                   TextFormField(
                     controller: _fullNameController,
                     decoration: InputDecoration(
@@ -294,7 +294,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ),
                   ),
-                  const VGap.md(),
+                  VGap.md(),
                   TextFormField(
                     controller: _bioController,
                     decoration: InputDecoration(
@@ -311,14 +311,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ],
               ),
             ),
-            const VGap.xxl(),
+            VGap.xxl(),
             PrimaryButton(
               onPressed: _isSaving ? null : _handleSave,
               isLoading: _isSaving,
               label: 'Save Changes',
               fullWidth: true,
             ),
-            const VGap.lg(),
+            VGap.lg(),
           ],
         ),
       ),

@@ -6,7 +6,7 @@ import '../tokens/spacing_tokens.dart';
 class Gap extends StatelessWidget {
   final double size;
 
-  const Gap(this.size, {super.key});
+  Gap(this.size, {super.key});
 
   /// 4px gap
   const Gap.xxs({super.key}) : size = Spacing.xxs;
@@ -42,7 +42,7 @@ class Gap extends StatelessWidget {
 class HGap extends StatelessWidget {
   final double width;
 
-  const HGap(this.width, {super.key});
+  HGap(this.width, {super.key});
 
   const HGap.xxs({super.key}) : width = Spacing.xxs;
   const HGap.xs({super.key}) : width = Spacing.xs;
@@ -63,7 +63,7 @@ class HGap extends StatelessWidget {
 class VGap extends StatelessWidget {
   final double height;
 
-  const VGap(this.height, {super.key});
+  VGap(this.height, {super.key});
 
   const VGap.xxs({super.key}) : height = Spacing.xxs;
   const VGap.xs({super.key}) : height = Spacing.xs;

@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 Widget buildApprovalStatusBadge(String? approvalStatus) {
   if (approvalStatus == null || approvalStatus == 'draft') {
-    return const SizedBox.shrink();
+    return SizedBox.shrink();
   }
 
   Color color;
@@ -27,7 +27,7 @@ Widget buildApprovalStatusBadge(String? approvalStatus) {
       icon = Icons.cancel;
       break;
     default:
-      return const SizedBox.shrink();
+      return SizedBox.shrink();
   }
 
   return Container(

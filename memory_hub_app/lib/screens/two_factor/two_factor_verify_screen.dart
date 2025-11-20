@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import 'package:memory_hub_app/design_system/design_tokens.dart';
+import '../../design_system/layout/padded.dart';
 
 class TwoFactorVerifyScreen extends StatelessWidget {
   const TwoFactorVerifyScreen({super.key});
@@ -25,7 +26,7 @@ class TwoFactorVerifyScreen extends StatelessWidget {
               size: 80,
               color: context.colors.primary,
             ),
-            const VGap.lg(),
+            VGap.lg(),
             Text(
               'Enter Verification Code',
               style: context.text.headlineSmall?.copyWith(
@@ -33,7 +34,7 @@ class TwoFactorVerifyScreen extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const VGap.sm(),
+            VGap.sm(),
             Text(
               'Enter the 6-digit code from your authenticator app',
               style: context.text.bodyMedium?.copyWith(
@@ -41,7 +42,7 @@ class TwoFactorVerifyScreen extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const VGap.xl(),
+            VGap.xl(),
             TextField(
               textAlign: TextAlign.center,
               keyboardType: TextInputType.number,
@@ -75,7 +76,7 @@ class TwoFactorVerifyScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const VGap.xl(),
+            VGap.xl(),
             PrimaryButton(
               onPressed: () {},
               label: 'Verify',

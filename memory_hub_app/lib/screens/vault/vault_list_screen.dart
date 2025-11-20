@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../models/vault_file.dart';
 import '../../design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class VaultListScreen extends StatefulWidget {
   const VaultListScreen({super.key});

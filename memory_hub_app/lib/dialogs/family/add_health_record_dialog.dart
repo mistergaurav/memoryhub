@@ -707,7 +707,7 @@ class _AddHealthRecordDialogState extends State<AddHealthRecordDialog> with Sing
                     ),
                   );
                 }
-                return const SizedBox.shrink();
+                return SizedBox.shrink();
               },
             ),
             Expanded(

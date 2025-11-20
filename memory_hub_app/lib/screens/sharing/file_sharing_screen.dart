@@ -56,14 +56,14 @@ class _FileSharingScreenState extends State<FileSharingScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.link_off, size: 80, color: MemoryHubColors.gray500.withOpacity(0.5)),
-          const VGap.lg(),
+          VGap.lg(),
           Text(
             'No Shared Files',
             style: context.text.headlineSmall?.copyWith(
               fontWeight: MemoryHubTypography.bold,
             ),
           ),
-          const VGap.sm(),
+          VGap.sm(),
           Text(
             'Share files with others using secure links',
             style: context.text.bodyLarge?.copyWith(
@@ -77,7 +77,7 @@ class _FileSharingScreenState extends State<FileSharingScreen> {
 
   Widget _buildFilesList() {
     return ListView.builder(
-      padding: const EdgeInsets.all(Spacing.xl),
+      padding: EdgeInsets.all(Spacing.xl),
       itemCount: _sharedFiles.length,
       itemBuilder: (context, index) {
         final file = _sharedFiles[index];
@@ -88,12 +88,12 @@ class _FileSharingScreenState extends State<FileSharingScreen> {
 
   Widget _buildFileCard(Map<String, dynamic> file) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: Spacing.md),
+      padding: EdgeInsets.only(bottom: Spacing.md),
       child: AppCard(
         child: ListTile(
-        contentPadding: const EdgeInsets.all(Spacing.lg),
+        contentPadding: EdgeInsets.all(Spacing.lg),
         leading: Container(
-          padding: const EdgeInsets.all(Spacing.md),
+          padding: EdgeInsets.all(Spacing.md),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -118,14 +118,14 @@ class _FileSharingScreenState extends State<FileSharingScreen> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const VGap.xs(),
+            VGap.xs(),
             Text(
               'Expires: ${file['expires_at'] ?? 'Never'}',
               style: context.text.bodySmall?.copyWith(
                 color: MemoryHubColors.gray500,
               ),
             ),
-            const VGap.sm(),
+            VGap.sm(),
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: Spacing.sm,

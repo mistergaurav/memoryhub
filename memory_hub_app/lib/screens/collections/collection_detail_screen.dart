@@ -247,7 +247,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                     child: Row(
                       children: [
                         const Icon(Icons.edit),
-                        const HGap.md(),
+                        HGap.md(),
                         const Text('Edit Collection'),
                       ],
                     ),
@@ -257,7 +257,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                     child: Row(
                       children: [
                         Icon(Icons.delete, color: MemoryHubColors.red500),
-                        const HGap.md(),
+                        HGap.md(),
                         Text('Delete Collection', style: TextStyle(color: MemoryHubColors.red500)),
                       ],
                     ),
@@ -327,7 +327,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                             Icons.photo_library,
                             color: Theme.of(context).colorScheme.primary,
                           ),
-                          const HGap.md(),
+                          HGap.md(),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -385,7 +385,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                         size: 64,
                         color: MemoryHubColors.gray400,
                       ),
-                      const VGap.lg(),
+                      VGap.lg(),
                       Text(
                         'No memories in this collection',
                         style: TextStyle(
@@ -393,7 +393,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                           color: MemoryHubColors.gray600,
                         ),
                       ),
-                      const VGap.xs(),
+                      VGap.xs(),
                       Text(
                         'Add memories to this collection from the memory detail screen',
                         style: TextStyle(
@@ -474,7 +474,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    const VGap(4),
+                                    VGap(4),
                                     Text(
                                       _formatDate(memory['created_at']),
                                       style: TextStyle(
@@ -515,7 +515,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     return Column(
       children: [
         Icon(icon, color: Theme.of(context).colorScheme.primary),
-        const VGap.xs(),
+        VGap.xs(),
         Text(
           value,
           style: TextStyle(

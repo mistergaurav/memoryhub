@@ -33,7 +33,7 @@ class AnimatedVisibilityX extends StatelessWidget {
       child: AnimatedSize(
         duration: effectiveDuration,
         curve: effectiveCurve,
-        child: visible ? child : const SizedBox.shrink(),
+        child: visible ? child : SizedBox.shrink(),
       ),
     );
   }

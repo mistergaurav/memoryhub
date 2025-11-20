@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class VoiceNotesScreen extends StatefulWidget {
   const VoiceNotesScreen({super.key});
@@ -60,14 +61,14 @@ class _VoiceNotesScreenState extends State<VoiceNotesScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.mic_none, size: 80, color: context.colors.outline.withOpacity(0.5)),
-          const VGap.lg(),
+          VGap.lg(),
           Text(
             'No Voice Notes',
             style: context.text.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const VGap.xs(),
+          VGap.xs(),
           Text(
             'Record your first voice note',
             style: context.text.bodyLarge?.copyWith(
@@ -105,7 +106,7 @@ class _VoiceNotesScreenState extends State<VoiceNotesScreen> {
         ],
       ),
       child: ListTile(
-        contentPadding: Padded.all16,
+        contentPadding: const EdgeInsets.all(16),
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -132,7 +133,7 @@ class _VoiceNotesScreenState extends State<VoiceNotesScreen> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const VGap.xxs(),
+            VGap.xxs(),
             Text(
               _formatDuration(note['duration'] ?? 0),
               style: context.text.bodyMedium?.copyWith(
@@ -140,7 +141,7 @@ class _VoiceNotesScreenState extends State<VoiceNotesScreen> {
               ),
             ),
             if (note['transcription'] != null) ...[
-              const VGap.xs(),
+              VGap.xs(),
               Text(
                 note['transcription'],
                 style: context.text.bodySmall,

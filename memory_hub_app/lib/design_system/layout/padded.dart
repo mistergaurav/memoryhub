@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../tokens/spacing_tokens.dart';
 import '../utils/context_ext.dart';
+import '../../design_system/layout/padded.dart';
 
 /// Padding wrapper widget
 /// Use instead of Padding with hardcoded EdgeInsets
@@ -48,25 +49,25 @@ class Padded extends StatelessWidget {
         );
 
   /// Named constructors for common sizes
-  const Padded.xxs({required this.child, super.key})
+  Padded.xxs({required this.child, super.key})
       : padding = const EdgeInsets.all(Spacing.xxs);
 
-  const Padded.xs({required this.child, super.key})
+  Padded.xs({required this.child, super.key})
       : padding = const EdgeInsets.all(Spacing.xs);
 
-  const Padded.sm({required this.child, super.key})
+  Padded.sm({required this.child, super.key})
       : padding = const EdgeInsets.all(Spacing.sm);
 
-  const Padded.md({required this.child, super.key})
+  Padded.md({required this.child, super.key})
       : padding = const EdgeInsets.all(Spacing.md);
 
-  const Padded.lg({required this.child, super.key})
+  Padded.lg({required this.child, super.key})
       : padding = const EdgeInsets.all(Spacing.lg);
 
-  const Padded.xl({required this.child, super.key})
+  Padded.xl({required this.child, super.key})
       : padding = const EdgeInsets.all(Spacing.xl);
 
-  const Padded.xxl({required this.child, super.key})
+  Padded.xxl({required this.child, super.key})
       : padding = const EdgeInsets.all(Spacing.xxl);
 
   @override

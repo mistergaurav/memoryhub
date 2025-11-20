@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class QRCodeScreen extends StatelessWidget {
   final String shareUrl;
@@ -35,10 +36,10 @@ class QRCodeScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(Spacing.xxl),
+        padding: EdgeInsets.all(Spacing.xxl),
         child: Column(
           children: [
-            const VGap.xl(),
+            VGap.xl(),
             Text(
               title,
               style: context.text.headlineSmall?.copyWith(
@@ -47,7 +48,7 @@ class QRCodeScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             if (description != null) ...[
-              const VGap.sm(),
+              VGap.sm(),
               Text(
                 description!,
                 style: context.text.bodyMedium?.copyWith(
@@ -56,13 +57,13 @@ class QRCodeScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ],
-            const VGap.xxxl(),
+            VGap.xxxl(),
             AppCard(
               child: Padded.xxl(
                 child: Column(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(Spacing.lg),
+                      padding: EdgeInsets.all(Spacing.lg),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -71,7 +72,7 @@ class QRCodeScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(Spacing.lg),
+                            padding: EdgeInsets.all(Spacing.lg),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: MemoryHubBorderRadius.smRadius,
@@ -85,7 +86,7 @@ class QRCodeScreen extends StatelessWidget {
                               embeddedImage: null,
                             ),
                           ),
-                          const VGap.lg(),
+                          VGap.lg(),
                           Text(
                             'Scan this QR code to access',
                             style: context.text.bodySmall?.copyWith(
@@ -99,16 +100,16 @@ class QRCodeScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const VGap.xxxl(),
+            VGap.xxxl(),
             Text(
               'Share Link',
               style: context.text.bodyLarge?.copyWith(
                 fontWeight: MemoryHubTypography.bold,
               ),
             ),
-            const VGap.md(),
+            VGap.md(),
             Container(
-              padding: const EdgeInsets.all(Spacing.lg),
+              padding: EdgeInsets.all(Spacing.lg),
               decoration: BoxDecoration(
                 color: MemoryHubColors.gray100,
                 borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -133,7 +134,7 @@ class QRCodeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const VGap.xxl(),
+            VGap.xxl(),
             SizedBox(
               width: double.infinity,
               child: PrimaryButton(
@@ -142,7 +143,7 @@ class QRCodeScreen extends StatelessWidget {
                 leading: const Icon(Icons.copy, size: 20),
               ),
             ),
-            const VGap.md(),
+            VGap.md(),
             SizedBox(
               width: double.infinity,
               child: SecondaryButton(

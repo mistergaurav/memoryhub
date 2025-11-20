@@ -211,7 +211,7 @@ class _HealthRecordDetailsScreenState extends State<HealthRecordDetailsScreen> {
   }
 
   Widget _buildContent() {
-    if (_record == null) return const SizedBox.shrink();
+    if (_record == null) return SizedBox.shrink();
 
     return CustomScrollView(
       slivers: [

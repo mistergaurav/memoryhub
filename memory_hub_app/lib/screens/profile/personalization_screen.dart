@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../widgets/collapsible_settings_group.dart';
 import '../../widgets/modern_list_tile.dart';
+import '../../design_system/layout/padded.dart';
 
 class PersonalizationScreen extends StatefulWidget {
   const PersonalizationScreen({super.key});
@@ -60,7 +61,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
             title: 'Appearance',
             icon: Icons.palette,
             children: [
-              const VGap.sm(),
+              VGap.sm(),
               SwitchListTile(
                 title: const Text('Dark Mode'),
                 subtitle: const Text('Use dark theme'),
@@ -71,41 +72,41 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
               ),
             ],
           ),
-          const VGap.md(),
+          VGap.md(),
           CollapsibleSettingsGroup(
             title: 'Content Preferences',
             icon: Icons.tune,
             children: [
-              const VGap.sm(),
+              VGap.sm(),
               ModernListTile(
                 icon: Icons.label,
                 title: 'Tags Management',
                 subtitle: 'Organize and manage your tags',
                 onTap: () => Navigator.pushNamed(context, '/tags/management'),
               ),
-              const VGap.sm(),
+              VGap.sm(),
               ModernListTile(
                 icon: Icons.category,
                 title: 'Categories',
                 subtitle: 'Manage content categories',
                 onTap: () => Navigator.pushNamed(context, '/categories'),
               ),
-              const VGap.sm(),
+              VGap.sm(),
               ModernListTile(
                 icon: Icons.description,
                 title: 'Memory Templates',
                 subtitle: 'Use and create templates',
                 onTap: () => Navigator.pushNamed(context, '/templates'),
               ),
-              const VGap.sm(),
+              VGap.sm(),
             ],
           ),
-          const VGap.md(),
+          VGap.md(),
           CollapsibleSettingsGroup(
             title: 'Language & Region',
             icon: Icons.language,
             children: [
-              const VGap.sm(),
+              VGap.sm(),
               ListTile(
                 title: const Text('Language'),
                 subtitle: Text(_language),

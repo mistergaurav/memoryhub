@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 class MemoryHubColors {
   static const Color primary = Color(0xFF4F46E5);
   
+  static const Color white = Color(0xFFFFFFFF);
+  static const Color black = Color(0xFF000000);
+  
   static const Color blue50 = Color(0xFFEFF6FF);
   static const Color blue100 = Color(0xFFDBEAFE);
   static const Color blue200 = Color(0xFFBFDBFE);
@@ -26,6 +29,8 @@ class MemoryHubColors {
   static const Color purple400 = Color(0xFFA78BFA);
   static const Color purple600 = Color(0xFF7C3AED);
   static const Color purple700 = Color(0xFF6D28D9);
+  
+  static const Color violet600 = Color(0xFF7C3AED);
   
   static const Color cyan300 = Color(0xFF67E8F9);
   static const Color cyan500 = Color(0xFF06B6D4);
@@ -72,6 +77,9 @@ class MemoryHubColors {
   static const Color gray700 = Color(0xFF374151);
   static const Color gray800 = Color(0xFF1F2937);
   static const Color gray900 = Color(0xFF111827);
+  
+  static EdgeInsets get edgeInsetsAll => const EdgeInsets.all(16);
+  static EdgeInsets get edgeInsetsSymmetric => const EdgeInsets.symmetric(horizontal: 16, vertical: 8);
 }
 
 class MemoryHubSpacing {

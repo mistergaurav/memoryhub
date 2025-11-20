@@ -3,6 +3,7 @@ import '../tokens/spacing_tokens.dart';
 import '../tokens/radius_tokens.dart';
 import '../layout/gap.dart';
 import '../layout/padded.dart';
+import '../../design_system/layout/padded.dart';
 
 /// Section container with optional title and divider
 /// Use for grouping related content
@@ -26,18 +27,18 @@ class Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: backgroundColor,
-      padding: padding ?? const EdgeInsets.all(Spacing.md),
+      padding: padding ?? EdgeInsets.all(Spacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           if (title != null) ...[
             title!,
-            const VGap.sm(),
+            VGap.sm(),
           ],
           if (showDivider && title != null) ...[
             const Divider(),
-            const VGap.sm(),
+            VGap.sm(),
           ],
           child,
         ],
@@ -69,7 +70,7 @@ class CardSection extends StatelessWidget {
         borderRadius: Radii.lgRadius,
       ),
       child: Padded(
-        padding: padding ?? const EdgeInsets.all(Spacing.lg),
+        padding: padding ?? EdgeInsets.all(Spacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -79,7 +80,7 @@ class CardSection extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium!,
                 child: title!,
               ),
-              const VGap.md(),
+              VGap.md(),
             ],
             child,
           ],

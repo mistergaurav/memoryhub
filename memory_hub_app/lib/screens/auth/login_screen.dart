@@ -7,6 +7,7 @@ import 'package:memory_hub_app/design_system/components/buttons/secondary_button
 import 'package:memory_hub_app/design_system/components/feedback/app_snackbar.dart';
 import 'package:memory_hub_app/design_system/utils/context_ext.dart';
 import '../../services/auth_service.dart';
+import '../../design_system/layout/padded.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -158,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                            padding: EdgeInsets.all(MemoryHubSpacing.lg),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: MemoryHubGradients.primary,
@@ -169,7 +170,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               color: context.colors.onPrimary,
                             ),
                           ),
-                          const VGap.lg(),
+                          VGap.lg(),
                           Text(
                             'The Memory Hub',
                             textAlign: TextAlign.center,
@@ -178,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               color: context.colors.onSurface,
                             ),
                           ),
-                          const VGap.xs(),
+                          VGap.xs(),
                           Text(
                             'Welcome back! Login to continue',
                             textAlign: TextAlign.center,
@@ -186,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               color: context.colors.onSurfaceVariant,
                             ),
                           ),
-                          const VGap.xxl(),
+                          VGap.xxl(),
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
@@ -204,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               return null;
                             },
                           ),
-                          const VGap.md(),
+                          VGap.md(),
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
@@ -231,29 +232,29 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                               return null;
                             },
                           ),
-                          const VGap.lg(),
+                          VGap.lg(),
                           PrimaryButton(
                             onPressed: _handleLogin,
                             label: 'Login',
                             isLoading: _isLoading,
                             fullWidth: true,
                           ),
-                          const VGap.md(),
+                          VGap.md(),
                           Row(
                             children: [
                               const Expanded(child: Divider()),
-                              const HGap.md(),
+                              HGap.md(),
                               Text(
                                 'OR',
                                 style: context.text.bodySmall?.copyWith(
                                   color: context.colors.onSurfaceVariant,
                                 ),
                               ),
-                              const HGap.md(),
+                              HGap.md(),
                               const Expanded(child: Divider()),
                             ],
                           ),
-                          const VGap.md(),
+                          VGap.md(),
                           SecondaryButton(
                             onPressed: _isLoading
                                 ? null
@@ -267,7 +268,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             leading: const Icon(Icons.login),
                             fullWidth: true,
                           ),
-                          const VGap.md(),
+                          VGap.md(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

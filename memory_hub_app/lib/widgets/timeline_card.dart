@@ -27,12 +27,12 @@ class TimelineCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Card(
-      margin: const EdgeInsets.only(bottom: MemoryHubSpacing.md),
+      margin: EdgeInsets.only(bottom: MemoryHubSpacing.md),
       child: InkWell(
         onTap: onTap,
         borderRadius: MemoryHubBorderRadius.xlRadius,
         child: Padding(
-          padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+          padding: EdgeInsets.all(MemoryHubSpacing.lg),
           child: Row(
             children: [
               Container(
@@ -134,12 +134,12 @@ class TimelineCardWithDate extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Card(
-      margin: const EdgeInsets.only(bottom: MemoryHubSpacing.md),
+      margin: EdgeInsets.only(bottom: MemoryHubSpacing.md),
       child: InkWell(
         onTap: onTap,
         borderRadius: MemoryHubBorderRadius.xlRadius,
         child: Padding(
-          padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+          padding: EdgeInsets.all(MemoryHubSpacing.lg),
           child: Row(
             children: [
               Container(

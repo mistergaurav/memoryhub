@@ -117,6 +117,32 @@ async def create_all_indexes():
     await get_collection("vaccination_records").create_index("family_member_id")
     await get_collection("vaccination_records").create_index([("family_id", 1), ("date_administered", -1)])
     
+    # User milestones indexes (timeline system)
+    await get_collection("user_milestones").create_index([("owner_id", 1), ("created_at", -1)])
+    await get_collection("user_milestones").create_index([("audience_scope", 1), ("created_at", -1)])
+    await get_collection("user_milestones").create_index("owner_id")
+    await get_collection("user_milestones").create_index("circle_ids")
+    
+    # Milestone comments indexes
+    await get_collection("milestone_comments").create_index([("milestone_id", 1), ("created_at", 1)])
+    await get_collection("milestone_comments").create_index("milestone_id")
+    await get_collection("milestone_comments").create_index("author_id")
+    await get_collection("milestone_comments").create_index("parent_comment_id")
+    
+    # Milestone reactions indexes
+    await get_collection("milestone_reactions").create_index([("milestone_id", 1), ("actor_id", 1)], unique=True)
+    await get_collection("milestone_reactions").create_index([("milestone_id", 1), ("created_at", -1)])
+    await get_collection("milestone_reactions").create_index("milestone_id")
+    await get_collection("milestone_reactions").create_index("actor_id")
+    
+    # Relationships indexes (dual-row pattern)
+    await get_collection("relationships").create_index([("user_id", 1), ("status", 1)])
+    await get_collection("relationships").create_index([("user_id", 1), ("relationship_type", 1)])
+    await get_collection("relationships").create_index("user_id")
+    await get_collection("relationships").create_index("related_user_id")
+    await get_collection("relationships").create_index([("user_id", 1), ("related_user_id", 1)])
+    await get_collection("relationships").create_index("requester_id")
+    
     print("✅ All database indexes created successfully")
 
 

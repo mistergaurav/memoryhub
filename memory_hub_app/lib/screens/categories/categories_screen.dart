@@ -64,7 +64,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.category_outlined, size: 80, color: MemoryHubColors.gray400.withOpacity(0.5)),
-          const VGap.lg(),
+          VGap.lg(),
           Text(
             'No Categories',
             style: GoogleFonts.inter(
@@ -72,7 +72,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               fontWeight: MemoryHubTypography.bold,
             ),
           ),
-          const VGap.xs(),
+          VGap.xs(),
           Text(
             'Create your first category',
             style: GoogleFonts.inter(
@@ -162,7 +162,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   fontWeight: MemoryHubTypography.bold,
                 ),
               ),
-              const VGap(4),
+              VGap(4),
               Text(
                 '${category['memory_count'] ?? 0} memories',
                 style: GoogleFonts.inter(

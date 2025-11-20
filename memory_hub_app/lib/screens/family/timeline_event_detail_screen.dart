@@ -116,7 +116,7 @@ class _TimelineEventDetailScreenState extends State<TimelineEventDetailScreen> w
     });
     
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text('💬 Comment added!'),
         behavior: SnackBarBehavior.floating,
         backgroundColor: Colors.blue,
@@ -137,7 +137,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
 
     Clipboard.setData(ClipboardData(text: eventDetails));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text('📋 Event details copied to clipboard'),
         backgroundColor: context.colors.primary,
         behavior: SnackBarBehavior.floating,
@@ -314,7 +314,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                           animation: _scaleAnimation,
                         ),
                       ),
-                      const HGap.sm(),
+                      HGap.sm(),
                       Expanded(child: _buildInteractionButton(
                           icon: Icons.chat_bubble_outline,
                           label: '$_commentsCount ${_commentsCount == 1 ? 'Comment' : 'Comments'}',
@@ -326,7 +326,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                       ),
                     ],
                   ),
-                  const VGap.lg(),
+                  VGap.lg(),
                   _buildInfoCard(
                     icon: Icons.calendar_today,
                     title: 'Event Date',
@@ -338,7 +338,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const VGap.xxs(),
+                      VGap.xxs(),
                       Text(
                         'Created ${_formatRelativeTime(_event.createdAt)}',
                         style: TextStyle(
@@ -348,7 +348,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                       ),
                     ],
                   ),
-                  const VGap.md(),
+                  VGap.md(),
                   if (_event.description != null && _event.description!.isNotEmpty) ...[
                     _buildInfoCard(
                       icon: Icons.description,
@@ -363,7 +363,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                         ),
                       ],
                     ),
-                    const VGap.md(),
+                    VGap.md(),
                   ],
                   _buildInfoCard(
                     icon: Icons.category,
@@ -386,10 +386,10 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                               color: context.colors.surface,
                               size: 20,
                             ),
-                            const HGap.xs(),
+                            HGap.xs(),
                             Text(
                               _formatEventType(_event.eventType),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: context.colors.surface,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
@@ -400,9 +400,9 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                       ),
                     ],
                   ),
-                  const VGap.md(),
+                  VGap.md(),
                   _buildRelatedContent(),
-                  const VGap.md(),
+                  VGap.md(),
                   if (_event.createdByName != null) ...[
                     _buildInfoCard(
                       icon: Icons.person,
@@ -417,7 +417,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                         ),
                       ],
                     ),
-                    const VGap.md(),
+                    VGap.md(),
                   ],
                   if (_event.taggedMembers.isNotEmpty) ...[
                     _buildInfoCard(
@@ -430,10 +430,10 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                         ),
                       ],
                     ),
-                    const VGap.md(),
+                    VGap.md(),
                   ],
                   _buildCommentsSection(),
-                  const VGap(80),
+                  VGap(80),
                 ],
               ),
             ),
@@ -475,7 +475,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(24),
-                      borderSide: const BorderSide(color: context.colors.primary, width: 2),
+                      borderSide: BorderSide(color: context.colors.primary, width: 2),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -488,7 +488,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                   textCapitalization: TextCapitalization.sentences,
                 ),
               ),
-              const HGap.sm(),
+              HGap.sm(),
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -542,7 +542,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             iconWidget,
-            const HGap.xs(),
+            HGap.xs(),
             Text(
               label,
               style: TextStyle(
@@ -584,7 +584,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                   ),
                   child: Icon(icon, color: context.colors.surface, size: 20),
                 ),
-                const HGap.sm(),
+                HGap.sm(),
                 Text(
                   title,
                   style: const TextStyle(
@@ -594,7 +594,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                 ),
               ],
             ),
-            const VGap.sm(),
+            VGap.sm(),
             ...children,
           ],
         ),
@@ -653,7 +653,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
     }
     
     if (relatedItems.isEmpty) {
-      return const SizedBox.shrink();
+      return SizedBox.shrink();
     }
     
     return Card(
@@ -680,7 +680,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                     size: 20,
                   ),
                 ),
-                const HGap.sm(),
+                HGap.sm(),
                 const Text(
                   'Related Content',
                   style: TextStyle(
@@ -690,7 +690,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                 ),
               ],
             ),
-            const VGap.sm(),
+            VGap.sm(),
             ...relatedItems.map((item) => Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
               child: InkWell(
@@ -727,7 +727,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                           size: 20,
                         ),
                       ),
-                      const HGap.sm(),
+                      HGap.sm(),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -791,7 +791,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                     size: 20,
                   ),
                 ),
-                const HGap.sm(),
+                HGap.sm(),
                 Text(
                   'Comments ($_commentsCount)',
                   style: const TextStyle(
@@ -801,7 +801,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                 ),
               ],
             ),
-            const VGap.md(),
+            VGap.md(),
             if (_comments.isEmpty)
               Center(
                 child: Padding(
@@ -813,7 +813,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                         size: 48,
                         color: Colors.grey.shade300,
                       ),
-                      const VGap.sm(),
+                      VGap.sm(),
                       Text(
                         'No comments yet',
                         style: TextStyle(
@@ -821,7 +821,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                           fontSize: 15,
                         ),
                       ),
-                      const VGap.xxs(),
+                      VGap.xxs(),
                       Text(
                         'Be the first to comment!',
                         style: TextStyle(
@@ -844,14 +844,14 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                       backgroundColor: context.colors.primary,
                       child: Text(
                         comment['avatar'],
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: context.colors.surface,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
                       ),
                     ),
-                    const HGap.sm(),
+                    HGap.sm(),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -865,7 +865,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                                   fontSize: 14,
                                 ),
                               ),
-                              const HGap.xs(),
+                              HGap.xs(),
                               Text(
                                 comment['time'],
                                 style: TextStyle(
@@ -875,7 +875,7 @@ ${_event.photoUrl != null ? '📸 Photo attached' : ''}
                               ),
                             ],
                           ),
-                          const VGap.xxs(),
+                          VGap.xxs(),
                           Text(
                             comment['comment'],
                             style: const TextStyle(

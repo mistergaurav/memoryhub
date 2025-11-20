@@ -94,7 +94,7 @@ class _DataExportScreenState extends State<DataExportScreen> {
                   Row(
                     children: [
                       Icon(Icons.download, color: MemoryHubColors.indigo400),
-                      const HGap.xs(),
+                      HGap.xs(),
                       Text(
                         'Data Portability',
                         style: TextStyle(
@@ -104,7 +104,7 @@ class _DataExportScreenState extends State<DataExportScreen> {
                       ),
                     ],
                   ),
-                  const VGap.sm(),
+                  VGap.sm(),
                   Text(
                     'Under GDPR Article 20, you have the right to receive your personal data '
                     'in a structured, commonly used, and machine-readable format.',
@@ -113,7 +113,7 @@ class _DataExportScreenState extends State<DataExportScreen> {
                 ],
               ),
             ),
-            const VGap.lg(),
+            VGap.lg(),
             Text(
               'Export Options',
               style: TextStyle(
@@ -121,7 +121,7 @@ class _DataExportScreenState extends State<DataExportScreen> {
                 fontWeight: MemoryHubTypography.bold,
               ),
             ),
-            const VGap.md(),
+            VGap.md(),
             _buildExportOption(
               title: 'JSON Export',
               description: 'Download all your data in JSON format',
@@ -136,7 +136,7 @@ class _DataExportScreenState extends State<DataExportScreen> {
               iconColor: MemoryHubColors.amber500,
               onTap: () => _exportData('Archive'),
             ),
-            const VGap.xl(),
+            VGap.xl(),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -153,7 +153,7 @@ class _DataExportScreenState extends State<DataExportScreen> {
                 ),
               ],
             ),
-            const VGap.md(),
+            VGap.md(),
             _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _exportHistory.isEmpty
@@ -167,7 +167,7 @@ class _DataExportScreenState extends State<DataExportScreen> {
                                 size: MemoryHubSpacing.xxxl,
                                 color: MemoryHubColors.gray400,
                               ),
-                              const VGap.xs(),
+                              VGap.xs(),
                               Text(
                                 'No export history',
                                 style: TextStyle(color: MemoryHubColors.gray600),

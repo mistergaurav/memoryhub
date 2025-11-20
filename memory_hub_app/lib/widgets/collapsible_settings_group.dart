@@ -112,7 +112,7 @@ class _CollapsibleSettingsGroupState extends State<CollapsibleSettingsGroup>
               ? Column(
                   children: widget.children,
                 )
-              : const SizedBox.shrink(),
+              : SizedBox.shrink(),
         ),
       ],
     );

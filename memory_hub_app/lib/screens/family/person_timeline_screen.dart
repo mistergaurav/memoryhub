@@ -4,6 +4,7 @@ import '../../widgets/shimmer_loading.dart';
 import '../../widgets/enhanced_empty_state.dart';
 import 'package:intl/intl.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class PersonTimelineScreen extends StatefulWidget {
   final String personId;
@@ -126,7 +127,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                                 : null,
                           ),
                         ),
-                        const HGap.md(),
+                        HGap.md(),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
@@ -141,7 +142,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   const Icon(Icons.history, size: 16, color: Color(0xFF4F46E5)),
-                                  const HGap.xs(),
+                                  HGap.xs(),
                                   Text(
                                     '${_memories.length} ${_memories.length == 1 ? 'Memory' : 'Memories'}',
                                     style: const TextStyle(
@@ -263,7 +264,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                 ),
             ],
           ),
-          const HGap.lg(),
+          HGap.lg(),
           Expanded(
             child: Card(
               elevation: 3,
@@ -309,12 +310,12 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                               ),
                             ),
                             if (location != null && location['name'] != null) ...[
-                              const HGap.sm(),
+                              HGap.sm(),
                               Expanded(
                                 child: Row(
                                   children: [
                                     Icon(Icons.location_on, size: 14, color: Colors.grey.shade600),
-                                    const HGap.xs(),
+                                    HGap.xs(),
                                     Expanded(
                                       child: Text(
                                         location['name'],
@@ -329,13 +330,13 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                             ],
                           ],
                         ),
-                        const VGap.md(),
+                        VGap.md(),
                         Text(
                           title,
-                          style: const context.text.titleLarge,
+                          style: context.text.titleLarge,
                         ),
                         if (description.isNotEmpty) ...[
-                          const VGap.sm(),
+                          VGap.sm(),
                           Text(
                             description,
                             style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
@@ -344,7 +345,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                           ),
                         ],
                         if (tags.isNotEmpty) ...[
-                          const VGap.md(),
+                          VGap.md(),
                           Wrap(
                             spacing: 6,
                             runSpacing: 6,
@@ -362,11 +363,11 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                           ),
                         ],
                         if (mediaUrls.length > 1) ...[
-                          const VGap.md(),
+                          VGap.md(),
                           Row(
                             children: [
                               Icon(Icons.photo_library, size: 14, color: Colors.grey.shade600),
-                              const HGap.xs(),
+                              HGap.xs(),
                               Text(
                                 '+${mediaUrls.length - 1} more ${mediaUrls.length - 1 == 1 ? 'photo' : 'photos'}',
                                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
@@ -393,7 +394,7 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ShimmerBox(width: 40, height: 40, borderRadius: BorderRadius.circular(20)),
-          const HGap.lg(),
+          HGap.lg(),
           Expanded(
             child: Card(
               elevation: 2,
@@ -404,9 +405,9 @@ class _PersonTimelineScreenState extends State<PersonTimelineScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ShimmerBox(width: 100, height: 12, borderRadius: BorderRadius.circular(6)),
-                    const VGap.md(),
+                    VGap.md(),
                     ShimmerBox(width: double.infinity, height: 16, borderRadius: BorderRadius.circular(4)),
-                    const VGap.sm(),
+                    VGap.sm(),
                     ShimmerBox(width: 200, height: 12, borderRadius: BorderRadius.circular(4)),
                   ],
                 ),

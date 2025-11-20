@@ -218,7 +218,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                   ),
                 ),
                 background: Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -255,7 +255,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                             ),
                             child: Text(
                               '$_totalCount ${_totalCount == 1 ? 'Event' : 'Events'}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: context.colors.surface,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -277,7 +277,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: MemoryHubSpacing.md),
+                padding: EdgeInsets.symmetric(vertical: MemoryHubSpacing.md),
                 child: _buildFilterChips(),
               ),
             ),
@@ -324,11 +324,11 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
             if (_isLoadingMore)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+                  padding: EdgeInsets.all(MemoryHubSpacing.xl),
                   child: Center(
                     child: Column(
                       children: [
-                        const CircularProgressIndicator(
+                        CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
                             context.colors.primary,
                           ),
@@ -349,7 +349,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
             if (!_hasMoreData && _events.isNotEmpty)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+                  padding: EdgeInsets.all(MemoryHubSpacing.xl),
                   child: Center(
                     child: Column(
                       children: [
@@ -358,7 +358,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                           color: MemoryHubColors.gray400,
                           size: 32,
                         ),
-                        const VGap.xs(),
+                        VGap.xs(),
                         Text(
                           'All events loaded',
                           style: TextStyle(
@@ -418,14 +418,14 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                   ),
                   child: Text(
                     sectionName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: context.colors.surface,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                const HGap.sm(),
+                HGap.sm(),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
@@ -437,7 +437,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                   ),
                   child: Text(
                     '${sectionEvents.length}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: context.colors.primary,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -501,7 +501,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                     size: 18,
                     color: isSelected ? context.colors.surface : context.colors.primary,
                   ),
-                  const HGap.xxs(),
+                  HGap.xxs(),
                   Text(filter['label'] as String),
                 ],
               ),
@@ -587,7 +587,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                   ),
               ],
             ),
-            const HGap.md(),
+            HGap.md(),
             Expanded(
               child: Card(
                 elevation: MemoryHubElevation.md,
@@ -602,7 +602,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                   onTap: () => _navigateToDetail(event),
                   borderRadius: MemoryHubBorderRadius.xlRadius,
                   child: Padding(
-                    padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                    padding: EdgeInsets.all(MemoryHubSpacing.lg),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -620,7 +620,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                                       fontWeight: MemoryHubTypography.bold,
                                     ),
                                   ),
-                                  const VGap.xxs(),
+                                  VGap.xxs(),
                                   Text(
                                     _getRelativeTime(event.createdAt),
                                     style: TextStyle(
@@ -631,7 +631,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                                 ],
                               ),
                             ),
-                            const HGap.xs(),
+                            HGap.xs(),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: MemoryHubSpacing.sm,
@@ -645,7 +645,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                               ),
                               child: Text(
                                 DateFormat('MMM d').format(event.eventDate),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: MemoryHubTypography.caption,
                                   color: context.colors.surface,
                                   fontWeight: MemoryHubTypography.semiBold,
@@ -740,10 +740,10 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
       tags.add({'icon': Icons.local_florist, 'label': 'Tradition', 'color': const Color(0xFF14B8A6)});
     }
     
-    if (tags.isEmpty) return const SizedBox.shrink();
+    if (tags.isEmpty) return SizedBox.shrink();
     
     return Padding(
-      padding: const EdgeInsets.only(top: MemoryHubSpacing.md),
+      padding: EdgeInsets.only(top: MemoryHubSpacing.md),
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
@@ -769,7 +769,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                   size: 14,
                   color: tag['color'] as Color,
                 ),
-                const HGap.xxs(),
+                HGap.xxs(),
                 Text(
                   tag['label'] as String,
                   style: TextStyle(
@@ -812,15 +812,15 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.favorite,
               size: 16,
               color: Theme.of(context).colorScheme.secondary,
             ),
-            const HGap.xxs(),
+            HGap.xxs(),
             Text(
               event.likesCount > 0 ? '${event.likesCount}' : 'Like',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 color: Theme.of(context).colorScheme.secondary,
                 fontWeight: FontWeight.w600,
@@ -854,7 +854,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
               size: 16,
               color: Colors.blue,
             ),
-            const HGap.xxs(),
+            HGap.xxs(),
             Text(
               event.commentsCount > 0 ? '${event.commentsCount}' : 'Comment',
               style: const TextStyle(
@@ -955,7 +955,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
           height: 56,
           borderRadius: BorderRadius.circular(28),
         ),
-        const HGap.md(),
+        HGap.md(),
         Expanded(
           child: Card(
             child: Padding(
@@ -970,11 +970,11 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
                       ShimmerBox(width: 60, height: 24, borderRadius: BorderRadius.circular(12)),
                     ],
                   ),
-                  const VGap.sm(),
+                  VGap.sm(),
                   ShimmerBox(width: double.infinity, height: 14, borderRadius: BorderRadius.circular(4)),
-                  const VGap.xxs(),
+                  VGap.xxs(),
                   ShimmerBox(width: 200, height: 14, borderRadius: BorderRadius.circular(4)),
-                  const VGap.sm(),
+                  VGap.sm(),
                   ShimmerBox(width: double.infinity, height: 120, borderRadius: BorderRadius.circular(8)),
                 ],
               ),
@@ -990,7 +990,7 @@ class _FamilyTimelineScreenState extends State<FamilyTimelineScreen> with Ticker
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.filter_list, color: context.colors.primary),
             HGap.sm(),

@@ -6,6 +6,7 @@ import '../../services/family/family_service.dart';
 import '../../dialogs/family/add_event_dialog.dart';
 import '../../design_system/design_tokens.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final String eventId;
@@ -174,12 +175,12 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, size: 64, color: MemoryHubColors.red300),
-              const VGap.lg(),
+              VGap.lg(),
               Text(
                 _error ?? 'Event not found',
                 style: TextStyle(color: MemoryHubColors.gray600),
               ),
-              const VGap.xl(),
+              VGap.xl(),
               PrimaryButton(
                 onPressed: _loadEvent,
                 label: 'Retry',
@@ -298,7 +299,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                             size: 16, 
                             color: MemoryHubColors.blue700,
                           ),
-                          const HGap.xs(),
+                          HGap.xs(),
                           Text(
                             'Auto-generated from Family Tree',
                             style: TextStyle(
@@ -310,7 +311,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ],
                       ),
                     ),
-                    const VGap.lg(),
+                    VGap.lg(),
                   ],
                   _buildInfoCard(
                     icon: Icons.calendar_today,
@@ -323,7 +324,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                             : DateFormat('EEEE, MMMM d, yyyy h:mm a').format(event.startDate),
                       ),
                       if (event.endDate != null) ...[
-                        const VGap.sm(),
+                        VGap.sm(),
                         _buildInfoRow(
                           'End',
                           event.isAllDay
@@ -332,7 +333,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                       ],
                       if (event.recurrenceRule != null && event.recurrenceRule != 'none') ...[
-                        const VGap.sm(),
+                        VGap.sm(),
                         _buildInfoRow(
                           'Repeats',
                           _formatRecurrence(event.recurrenceRule!),
@@ -340,7 +341,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                       ],
                     ],
                   ),
-                  const VGap.lg(),
+                  VGap.lg(),
                   if (event.description != null && event.description!.isNotEmpty) ...[
                     _buildInfoCard(
                       icon: Icons.description,
@@ -352,7 +353,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                       ],
                     ),
-                    const VGap.lg(),
+                    VGap.lg(),
                   ],
                   if (event.location != null && event.location!.isNotEmpty) ...[
                     _buildInfoCard(
@@ -365,7 +366,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                       ],
                     ),
-                    const VGap.lg(),
+                    VGap.lg(),
                   ],
                   _buildInfoCard(
                     icon: Icons.category,
@@ -390,7 +391,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                       ),
                     ],
                   ),
-                  const VGap.lg(),
+                  VGap.lg(),
                   if (event.reminder != null) ...[
                     _buildInfoCard(
                       icon: Icons.notifications_active,
@@ -402,7 +403,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                       ],
                     ),
-                    const VGap.lg(),
+                    VGap.lg(),
                   ],
                   if (event.genealogyPersonName != null) ...[
                     _buildInfoCard(
@@ -418,7 +419,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                       ],
                     ),
-                    const VGap.lg(),
+                    VGap.lg(),
                   ],
                   if (event.attendeeIds.isNotEmpty) ...[
                     _buildInfoCard(
@@ -431,7 +432,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         ),
                       ],
                     ),
-                    const VGap.lg(),
+                    VGap.lg(),
                   ],
                   _buildInfoCard(
                     icon: Icons.info_outline,
@@ -441,13 +442,13 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                         'Created by',
                         event.createdByName ?? 'Unknown',
                       ),
-                      const VGap.sm(),
+                      VGap.sm(),
                       _buildInfoRow(
                         'Created',
                         DateFormat('MMM d, yyyy h:mm a').format(event.createdAt),
                       ),
                       if (event.createdAt != event.updatedAt) ...[
-                        const VGap.sm(),
+                        VGap.sm(),
                         _buildInfoRow(
                           'Last updated',
                           DateFormat('MMM d, yyyy h:mm a').format(event.updatedAt),
@@ -455,7 +456,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                       ],
                     ],
                   ),
-                  const VGap(80),
+                  VGap(80),
                 ],
               ),
             ),
@@ -488,7 +489,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                   ),
                   child: Icon(icon, color: DesignTokens.primaryColor, size: 20),
                 ),
-                const HGap.md(),
+                HGap.md(),
                 Text(
                   title,
                   style: const TextStyle(
@@ -498,7 +499,7 @@ ${_event!.location != null ? '📍 ${_event!.location}' : ''}
                 ),
               ],
             ),
-            const VGap.md(),
+            VGap.md(),
             ...children,
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../services/api_service.dart';
+import '../../design_system/layout/padded.dart';
 
 class PasswordResetConfirmScreen extends StatefulWidget {
   final String? token;
@@ -80,20 +81,20 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const VGap.xl(),
+          VGap.xl(),
           Icon(
             Icons.vpn_key,
             size: 80,
             color: context.colors.primary,
           ),
-          const VGap.md(),
+          VGap.md(),
           Text(
             'Create new password',
             style: context.text.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const VGap.sm(),
+          VGap.sm(),
           Text(
             'Your new password must be different from previously used passwords.',
             style: context.text.bodyLarge?.copyWith(
@@ -101,7 +102,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               height: 1.5,
             ),
           ),
-          const VGap.xl(),
+          VGap.xl(),
           TextFormField(
             controller: _tokenController,
             decoration: InputDecoration(
@@ -134,7 +135,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               return null;
             },
           ),
-          const VGap.md(),
+          VGap.md(),
           TextFormField(
             controller: _passwordController,
             obscureText: !_passwordVisible,
@@ -179,7 +180,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               return null;
             },
           ),
-          const VGap.md(),
+          VGap.md(),
           TextFormField(
             controller: _confirmPasswordController,
             obscureText: !_confirmPasswordVisible,
@@ -224,7 +225,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               return null;
             },
           ),
-          const VGap.lg(),
+          VGap.lg(),
           Padded.lg(
             child: Container(
               decoration: BoxDecoration(
@@ -238,7 +239,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
                   Row(
                     children: [
                       Icon(Icons.tips_and_updates, color: context.colors.secondary, size: 20),
-                      const HGap.xs(),
+                      HGap.xs(),
                       Text(
                         'Password Tips:',
                         style: context.text.titleSmall?.copyWith(
@@ -248,7 +249,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
                       ),
                     ],
                   ),
-                  const VGap.xs(),
+                  VGap.xs(),
                   _buildPasswordTip('At least 8 characters'),
                   _buildPasswordTip('Include upper & lowercase letters'),
                   _buildPasswordTip('Include numbers and symbols'),
@@ -256,7 +257,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
               ),
             ),
           ),
-          const VGap.lg(),
+          VGap.lg(),
           PrimaryButton(
             onPressed: _handleSubmit,
             label: _isLoading ? 'Resetting...' : 'Reset Password',
@@ -276,7 +277,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
       child: Row(
         children: [
           Icon(Icons.check_circle_outline, size: 16, color: context.colors.secondary),
-          const HGap.xs(),
+          HGap.xs(),
           Text(
             text,
             style: context.text.bodySmall?.copyWith(
@@ -291,7 +292,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
   Widget _buildSuccessView() {
     return Column(
       children: [
-        const VGap.xl(),
+        VGap.xl(),
         Padded.xl(
           child: Container(
             decoration: BoxDecoration(
@@ -305,14 +306,14 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
             ),
           ),
         ),
-        const VGap.lg(),
+        VGap.lg(),
         Text(
           'Password Reset!',
           style: context.text.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
-        const VGap.sm(),
+        VGap.sm(),
         Text(
           'Your password has been successfully reset.',
           style: context.text.bodyLarge?.copyWith(
@@ -320,7 +321,7 @@ class _PasswordResetConfirmScreenState extends State<PasswordResetConfirmScreen>
           ),
           textAlign: TextAlign.center,
         ),
-        const VGap.xl(),
+        VGap.xl(),
         PrimaryButton(
           onPressed: () {
             Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);

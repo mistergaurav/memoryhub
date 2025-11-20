@@ -69,7 +69,7 @@ class _TagsScreenState extends State<TagsScreen> {
                           fontWeight: MemoryHubTypography.bold,
                         ),
                       ),
-                      const VGap.lg(),
+                      VGap.lg(),
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -85,7 +85,7 @@ class _TagsScreenState extends State<TagsScreen> {
                           return _buildPopularTagCard(tag);
                         },
                       ),
-                      const VGap.xxl(),
+                      VGap.xxl(),
                     ],
                     Text(
                       'All Tags',
@@ -94,7 +94,7 @@ class _TagsScreenState extends State<TagsScreen> {
                         fontWeight: MemoryHubTypography.bold,
                       ),
                     ),
-                    const VGap.lg(),
+                    VGap.lg(),
                     Wrap(
                       spacing: MemoryHubSpacing.sm,
                       runSpacing: MemoryHubSpacing.sm,
@@ -141,7 +141,7 @@ class _TagsScreenState extends State<TagsScreen> {
             Row(
               children: [
                 Icon(Icons.tag, color: color, size: 20),
-                const HGap.xs(),
+                HGap.xs(),
                 Expanded(
                   child: Text(
                     tag['name'],
@@ -155,7 +155,7 @@ class _TagsScreenState extends State<TagsScreen> {
                 ),
               ],
             ),
-            const VGap(4),
+            VGap(4),
             Text(
               '${tag['count']} items',
               style: GoogleFonts.inter(

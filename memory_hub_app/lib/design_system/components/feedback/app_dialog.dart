@@ -31,7 +31,7 @@ class AppDialog {
             onPressed: () => Navigator.of(context).pop(false),
             label: cancelText,
           ),
-          const HGap.sm(),
+          HGap.sm(),
           PrimaryButton(
             onPressed: () => Navigator.of(context).pop(true),
             label: confirmText,
@@ -58,7 +58,7 @@ class AppDialog {
         title: Row(
           children: [
             Icon(Icons.error, color: Theme.of(context).colorScheme.error),
-            const HGap.sm(),
+            HGap.sm(),
             Text(title),
           ],
         ),

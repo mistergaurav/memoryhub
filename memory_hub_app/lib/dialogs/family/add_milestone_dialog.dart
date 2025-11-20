@@ -29,6 +29,7 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
   int _importance = 3;
   bool _isLoading = false;
   final List<String> _photoUrls = [];
+  String _audienceScope = 'friends';
 
   final List<Map<String, dynamic>> _milestoneTypes = [
     {'value': 'birth', 'label': 'Birth', 'icon': Icons.child_care, 'color': MemoryHubColors.pink500},
@@ -108,13 +109,12 @@ class _AddMilestoneDialogState extends State<AddMilestoneDialog> {
 
     final data = {
       'title': _titleController.text.trim(),
-      'description': _descriptionController.text.trim().isNotEmpty 
+      'content': _descriptionController.text.trim().isNotEmpty 
           ? _descriptionController.text.trim() 
           : null,
-      'milestone_type': _milestoneType,
-      'milestone_date': _milestoneDate.toIso8601String(),
-      'photos': _photoUrls,
-      'auto_generated': false,
+      'media': _photoUrls.map((url) => {'url': url, 'type': 'image'}).toList(),
+      'audience_scope': _audienceScope,
+      'circle_ids': [],
     };
 
     if (_celebrationNotesController.text.trim().isNotEmpty) {

@@ -39,6 +39,7 @@ import 'family_document_vault_screen.dart';
 import 'genealogy_tree_screen.dart';
 import 'health_records_screen.dart';
 import 'family_circles_screen.dart';
+import '../../design_system/layout/padded.dart';
 
 class FamilyHubDashboardScreen extends StatefulWidget {
   const FamilyHubDashboardScreen({Key? key}) : super(key: key);
@@ -221,7 +222,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                 SliverToBoxAdapter(child: _buildRecentItemsSection()),
                 SliverToBoxAdapter(child: _buildWhatsNewSection()),
                 SliverToBoxAdapter(child: _buildFeaturesSection()),
-                const SliverToBoxAdapter(child: const VGap.xxxl()),
+                const SliverToBoxAdapter(child: VGap.xxxl()),
               ],
             ),
           ),
@@ -335,7 +336,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               fontWeight: FontWeight.bold,
             ),
           ),
-          const VGap.md(),
+          VGap.md(),
           GridView.count(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -413,7 +414,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
     final recentMilestones = _getRecentItems('recent_milestones');
 
     if (recentAlbums.isEmpty && upcomingEvents.isEmpty && recentMilestones.isEmpty) {
-      return const SizedBox.shrink();
+      return SizedBox.shrink();
     }
 
     return Padded.all(
@@ -427,7 +428,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               fontWeight: FontWeight.bold,
             ),
           ),
-          const VGap.md(),
+          VGap.md(),
           if (recentAlbums.isNotEmpty) ...[
             RecentSection(
               title: 'Recent Albums',
@@ -439,7 +440,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                 MaterialPageRoute(builder: (context) => const FamilyAlbumsScreen()),
               ),
             ),
-            const VGap.md(),
+            VGap.md(),
           ],
           if (upcomingEvents.isNotEmpty) ...[
             RecentSection(
@@ -452,7 +453,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                 MaterialPageRoute(builder: (context) => const FamilyCalendarScreen()),
               ),
             ),
-            const VGap.md(),
+            VGap.md(),
           ],
           if (recentMilestones.isNotEmpty) ...[
             RecentSection(
@@ -519,7 +520,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               ),
             ],
           ),
-          const VGap.md(),
+          VGap.md(),
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -557,7 +558,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               fontWeight: FontWeight.bold,
             ),
           ),
-          const VGap.md(),
+          VGap.md(),
           Semantics(label: 'Document Vault - Secure family documents',
             button: true,
             child: _buildFeatureCard(
@@ -571,7 +572,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               ),
             ),
           ),
-          const VGap.md(),
+          VGap.md(),
           Semantics(label: 'Genealogy Tree - Build your family tree',
             button: true,
             child: _buildFeatureCard(
@@ -585,7 +586,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               ),
             ),
           ),
-          const VGap.md(),
+          VGap.md(),
           Semantics(label: 'Parental Controls - Manage family settings',
             button: true,
             child: _buildFeatureCard(
@@ -637,7 +638,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                 size: 32,
               ),
             ),
-            const HGap.lg(),
+            HGap.lg(),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -649,7 +650,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
                           fontWeight: FontWeight.w600,
                         ),
                   ),
-                  const VGap.xs(),
+                  VGap.xs(),
                   Text(
                     subtitle,
                     style: context.text.bodyMedium?.copyWith(
@@ -679,7 +680,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircularProgressIndicator(),
-          const VGap.lg(),
+          VGap.lg(),
           Text(
             'Loading your family hub...',
             style: context.text.bodyLarge?.copyWith(
@@ -843,7 +844,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               onTap: () => _showDialog('album'),
             ),
           ),
-          const VGap.sm(),
+          VGap.sm(),
           Semantics(label: 'Create new event',
             button: true,
             child: _buildFABOption(
@@ -852,7 +853,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               onTap: () => _showDialog('event'),
             ),
           ),
-          const VGap.sm(),
+          VGap.sm(),
           Semantics(label: 'Create new milestone',
             button: true,
             child: _buildFABOption(
@@ -861,7 +862,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               onTap: () => _showDialog('milestone'),
             ),
           ),
-          const VGap.sm(),
+          VGap.sm(),
           Semantics(label: 'Create new recipe',
             button: true,
             child: _buildFABOption(
@@ -870,7 +871,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               onTap: () => _showDialog('recipe'),
             ),
           ),
-          const VGap.sm(),
+          VGap.sm(),
           Semantics(label: 'Add health record',
             button: true,
             child: _buildFABOption(
@@ -879,7 +880,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               onTap: () => _showDialog('health'),
             ),
           ),
-          const VGap.sm(),
+          VGap.sm(),
           Semantics(label: 'Create legacy letter',
             button: true,
             child: _buildFABOption(
@@ -888,7 +889,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
               onTap: () => _showDialog('letter'),
             ),
           ),
-          const VGap.md(),
+          VGap.md(),
         ],
         Semantics(
           label: _isFabExpanded ? 'Close create menu' : 'Open create menu',
@@ -937,7 +938,7 @@ class _FamilyHubDashboardScreenState extends State<FamilyHubDashboardScreen> wit
             ),
           ),
         ),
-        const HGap.sm(),
+        HGap.sm(),
         FloatingActionButton.small(
           heroTag: 'family_hub_fab_$label',
           onPressed: () {

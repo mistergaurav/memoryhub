@@ -212,13 +212,13 @@ class _AddRecipeDialogState extends State<AddRecipeDialog> {
       shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.xlRadius),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 700, maxHeight: 800),
-        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                  padding: EdgeInsets.all(MemoryHubSpacing.md),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [MemoryHubColors.red500, MemoryHubColors.red400],

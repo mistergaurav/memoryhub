@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../widgets/collapsible_settings_group.dart';
 import '../../widgets/modern_list_tile.dart';
+import '../../design_system/layout/padded.dart';
 
 class AccountSecurityScreen extends StatelessWidget {
   const AccountSecurityScreen({super.key});
@@ -20,58 +21,58 @@ class AccountSecurityScreen extends StatelessWidget {
             title: 'Authentication',
             icon: Icons.lock_outline,
             children: [
-              const VGap.sm(),
+              VGap.sm(),
               ModernListTile(
                 icon: Icons.vpn_key,
                 title: 'Change Password',
                 subtitle: 'Update your password',
                 onTap: () => _navigateToChangePassword(context),
               ),
-              const VGap.sm(),
+              VGap.sm(),
               ModernListTile(
                 icon: Icons.security,
                 title: 'Two-Factor Authentication',
                 subtitle: 'Add extra security to your account',
                 onTap: () => _navigateToTwoFactor(context),
               ),
-              const VGap.sm(),
+              VGap.sm(),
             ],
           ),
-          const VGap.md(),
+          VGap.md(),
           CollapsibleSettingsGroup(
             title: 'Privacy Control',
             icon: Icons.visibility_outlined,
             children: [
-              const VGap.sm(),
+              VGap.sm(),
               ModernListTile(
                 icon: Icons.block,
                 title: 'Blocked Users',
                 subtitle: 'Manage blocked accounts',
                 onTap: () => _navigateToBlockedUsers(context),
               ),
-              const VGap.sm(),
+              VGap.sm(),
               ModernListTile(
                 icon: Icons.privacy_tip,
                 title: 'Privacy Settings',
                 subtitle: 'Control your privacy preferences',
                 onTap: () => _navigateToPrivacySettings(context),
               ),
-              const VGap.sm(),
+              VGap.sm(),
             ],
           ),
-          const VGap.md(),
+          VGap.md(),
           CollapsibleSettingsGroup(
             title: 'Account Management',
             icon: Icons.manage_accounts,
             children: [
-              const VGap.sm(),
+              VGap.sm(),
               ModernListTile(
                 icon: Icons.person,
                 title: 'Edit Profile',
                 subtitle: 'Update your profile information',
                 onTap: () => _navigateToEditProfile(context),
               ),
-              const VGap.sm(),
+              VGap.sm(),
             ],
           ),
         ],

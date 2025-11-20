@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import 'package:memory_hub_app/design_system/design_tokens.dart';
 import '../../services/api_service.dart';
+import '../../design_system/layout/padded.dart';
 
 class TwoFactorSetupScreen extends StatefulWidget {
   const TwoFactorSetupScreen({super.key});
@@ -158,7 +159,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+          padding: EdgeInsets.all(MemoryHubSpacing.xl),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -175,7 +176,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                 size: 64,
                 color: context.colors.primary,
               ),
-              const VGap.md(),
+              VGap.md(),
               Text(
                 'Secure Your Account',
                 style: context.text.headlineSmall?.copyWith(
@@ -183,7 +184,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const VGap.xs(),
+              VGap.xs(),
               Text(
                 'Add an extra layer of security to your account with two-factor authentication',
                 style: context.text.bodyMedium?.copyWith(
@@ -194,18 +195,18 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
             ],
           ),
         ),
-        const VGap.xl(),
+        VGap.xl(),
         Text(
           'How it works',
           style: context.text.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
-        const VGap.md(),
+        VGap.md(),
         _buildStep(1, 'Scan QR Code', 'Use an authenticator app to scan the QR code'),
         _buildStep(2, 'Enter Code', 'Enter the 6-digit code from your app'),
         _buildStep(3, 'All Set!', 'Your account is now extra secure'),
-        const VGap.xl(),
+        VGap.xl(),
         PrimaryButton(
           onPressed: _isLoading ? null : _enable2FA,
           label: 'Enable 2FA',
@@ -227,17 +228,17 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        const VGap.xs(),
+        VGap.xs(),
         Text(
           'Use Google Authenticator or similar app',
           style: context.text.bodyMedium?.copyWith(
             color: context.colors.onSurfaceVariant,
           ),
         ),
-        const VGap.lg(),
+        VGap.lg(),
         if (_setupData?['qr_code'] != null)
           Container(
-            padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+            padding: EdgeInsets.all(MemoryHubSpacing.lg),
             decoration: BoxDecoration(
               color: context.colors.surface,
               borderRadius: MemoryHubBorderRadius.xlRadius,
@@ -262,16 +263,16 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                     ),
                   ),
                 ),
-                const VGap.md(),
+                VGap.md(),
                 Text(
                   'Secret Key',
                   style: context.text.bodySmall?.copyWith(
                     color: context.colors.onSurfaceVariant,
                   ),
                 ),
-                const VGap.xxs(),
+                VGap.xxs(),
                 Container(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                  padding: EdgeInsets.all(MemoryHubSpacing.md),
                   decoration: BoxDecoration(
                     color: context.colors.surfaceVariant,
                     borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -287,14 +288,14 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
               ],
             ),
           ),
-        const VGap.xl(),
+        VGap.xl(),
         Text(
           'Enter Verification Code',
           style: context.text.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
-        const VGap.md(),
+        VGap.md(),
         TextField(
           controller: _codeController,
           keyboardType: TextInputType.number,
@@ -329,7 +330,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
             ),
           ),
         ),
-        const VGap.lg(),
+        VGap.lg(),
         PrimaryButton(
           onPressed: _isLoading ? null : _verify2FA,
           label: 'Verify and Enable',
@@ -344,7 +345,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(MemoryHubSpacing.xxl),
+          padding: EdgeInsets.all(MemoryHubSpacing.xxl),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -361,14 +362,14 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
                 size: 64,
                 color: context.colors.primary,
               ),
-              const VGap.md(),
+              VGap.md(),
               Text(
                 '2FA is Enabled',
                 style: context.text.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const VGap.xs(),
+              VGap.xs(),
               Text(
                 'Your account is protected with two-factor authentication',
                 style: context.text.bodyMedium?.copyWith(
@@ -379,7 +380,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
             ],
           ),
         ),
-        const VGap.xl(),
+        VGap.xl(),
         SecondaryButton(
           onPressed: _disable2FA,
           label: 'Disable 2FA',
@@ -411,7 +412,7 @@ class _TwoFactorSetupScreenState extends State<TwoFactorSetupScreen> {
               ),
             ),
           ),
-          const HGap.md(),
+          HGap.md(),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

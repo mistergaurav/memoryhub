@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../services/api_service.dart';
+import '../../design_system/layout/padded.dart';
 
 class PasswordResetRequestScreen extends StatefulWidget {
   const PasswordResetRequestScreen({super.key});
@@ -61,20 +62,20 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const VGap.xl(),
+          VGap.xl(),
           Icon(
             Icons.lock_reset,
             size: 80,
             color: context.colors.primary,
           ),
-          const VGap.md(),
+          VGap.md(),
           Text(
             'Forgot your password?',
             style: context.text.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const VGap.sm(),
+          VGap.sm(),
           Text(
             'Enter your email address and we\'ll send you instructions to reset your password.',
             style: context.text.bodyLarge?.copyWith(
@@ -82,7 +83,7 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
               height: 1.5,
             ),
           ),
-          const VGap.xl(),
+          VGap.xl(),
           TextFormField(
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
@@ -120,7 +121,7 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
               return null;
             },
           ),
-          const VGap.lg(),
+          VGap.lg(),
           PrimaryButton(
             onPressed: _handleSubmit,
             label: _isLoading ? 'Sending...' : 'Send Reset Link',
@@ -128,7 +129,7 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
             isLoading: _isLoading,
             fullWidth: true,
           ),
-          const VGap.md(),
+          VGap.md(),
           SecondaryButton(
             onPressed: () => Navigator.pop(context),
             label: 'Back to Login',
@@ -143,7 +144,7 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
   Widget _buildSuccessView() {
     return Column(
       children: [
-        const VGap.xl(),
+        VGap.xl(),
         Padded.xl(
           child: Container(
             decoration: BoxDecoration(
@@ -157,14 +158,14 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
             ),
           ),
         ),
-        const VGap.lg(),
+        VGap.lg(),
         Text(
           'Check your email!',
           style: context.text.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
-        const VGap.sm(),
+        VGap.sm(),
         Text(
           'We\'ve sent password reset instructions to:',
           style: context.text.bodyLarge?.copyWith(
@@ -172,7 +173,7 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
           ),
           textAlign: TextAlign.center,
         ),
-        const VGap.xs(),
+        VGap.xs(),
         Text(
           _emailController.text,
           style: context.text.bodyLarge?.copyWith(
@@ -180,7 +181,7 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
             color: context.colors.primary,
           ),
         ),
-        const VGap.xl(),
+        VGap.xl(),
         Padded.lg(
           child: Container(
             decoration: BoxDecoration(
@@ -191,7 +192,7 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
             child: Row(
               children: [
                 Icon(Icons.info_outline, color: context.colors.tertiary),
-                const HGap.sm(),
+                HGap.sm(),
                 Expanded(
                   child: Text(
                     'The link will expire in 1 hour for security reasons.',
@@ -204,14 +205,14 @@ class _PasswordResetRequestScreenState extends State<PasswordResetRequestScreen>
             ),
           ),
         ),
-        const VGap.lg(),
+        VGap.lg(),
         SecondaryButton(
           onPressed: () => Navigator.pop(context),
           label: 'Back to Login',
           leading: const Icon(Icons.arrow_back),
           fullWidth: true,
         ),
-        const VGap.md(),
+        VGap.md(),
         TextButton(
           onPressed: () {
             setState(() => _emailSent = false);

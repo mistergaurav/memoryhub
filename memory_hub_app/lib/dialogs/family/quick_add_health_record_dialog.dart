@@ -254,7 +254,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [MemoryHubColors.red500, MemoryHubColors.red400],
@@ -267,7 +267,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(MemoryHubSpacing.sm),
+            padding: EdgeInsets.all(MemoryHubSpacing.sm),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
               borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -296,7 +296,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
 
   Widget _buildProgressIndicator() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: MemoryHubSpacing.lg),
+      padding: EdgeInsets.symmetric(vertical: MemoryHubSpacing.lg),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -353,7 +353,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
 
   Widget _buildStep1() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -366,7 +366,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
             const Center(child: CircularProgressIndicator())
           else if (_familyMembers.isEmpty)
             Container(
-              padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+              padding: EdgeInsets.all(MemoryHubSpacing.lg),
               decoration: BoxDecoration(
                 color: Colors.orange.shade50,
                 borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -487,7 +487,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
 
   Widget _buildStep2() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -569,7 +569,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
               setState(() => _showAdvancedDetails = !_showAdvancedDetails);
             },
             child: Container(
-              padding: const EdgeInsets.all(MemoryHubSpacing.md),
+              padding: EdgeInsets.all(MemoryHubSpacing.md),
               decoration: BoxDecoration(
                 color: Colors.grey.shade100,
                 borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -639,7 +639,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
 
   Widget _buildFooter() {
     return Container(
-      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       decoration: BoxDecoration(
         color: MemoryHubColors.gray50,
         borderRadius: const BorderRadius.only(
@@ -660,7 +660,7 @@ class _QuickAddHealthRecordDialogState extends State<QuickAddHealthRecordDialog>
               ),
             )
           else
-            const SizedBox.shrink(),
+            SizedBox.shrink(),
           const Spacer(),
           if (_currentStep == 0)
             ElevatedButton.icon(

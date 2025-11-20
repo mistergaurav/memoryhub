@@ -156,7 +156,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                   onPressed: () => Navigator.pop(context),
                   tooltip: 'Back',
                 ),
-                const HGap.xs(),
+                HGap.xs(),
                 Expanded(
                   child: Text(
                     'Collections',
@@ -169,7 +169,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                 ),
               ],
             ),
-            const VGap.xs(),
+            VGap.xs(),
             Padding(
               padding: const EdgeInsets.only(left: 56),
               child: Text(
@@ -213,7 +213,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                     onChanged: _filterCollections,
                   ),
                 ),
-                const HGap.md(),
+                HGap.md(),
                 Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
@@ -239,7 +239,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                 ),
               ],
             ),
-            const VGap.lg(),
+            VGap.lg(),
             Row(
               children: [
                 Text(
@@ -249,16 +249,16 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                     fontWeight: MemoryHubTypography.medium,
                   ),
                 ),
-                const HGap.md(),
+                HGap.md(),
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
                         _buildSortChip('Recent', 'recent'),
-                        const HGap.xs(),
+                        HGap.xs(),
                         _buildSortChip('Name', 'name'),
-                        const HGap.xs(),
+                        HGap.xs(),
                         _buildSortChip('Size', 'size'),
                       ],
                     ),
@@ -445,7 +445,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const VGap(4),
+                        VGap(4),
                         Row(
                           children: [
                             const Icon(
@@ -453,7 +453,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                               size: 14,
                               color: Colors.white,
                             ),
-                            const HGap(4),
+                            HGap(4),
                             Text(
                               '${collection['memory_count'] ?? 0} memories',
                               style: GoogleFonts.inter(
@@ -606,7 +606,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                   fontWeight: MemoryHubTypography.bold,
                 ),
               ),
-              const VGap.xl(),
+              VGap.xl(),
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(
@@ -615,7 +615,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                 ),
                 textCapitalization: TextCapitalization.words,
               ),
-              const VGap.lg(),
+              VGap.lg(),
               TextField(
                 controller: descriptionController,
                 decoration: const InputDecoration(
@@ -624,7 +624,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                 ),
                 maxLines: 3,
               ),
-              const VGap.lg(),
+              VGap.lg(),
               StatefulBuilder(
                 builder: (context, setState) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -636,7 +636,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                         fontWeight: MemoryHubTypography.medium,
                       ),
                     ),
-                    const VGap.xs(),
+                    VGap.xs(),
                     Row(
                       children: [
                         Expanded(
@@ -666,7 +666,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                   ],
                 ),
               ),
-              const VGap.xl(),
+              VGap.xl(),
               Row(
                 children: [
                   Expanded(
@@ -675,7 +675,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> with TickerProvid
                       child: const Text('Cancel'),
                     ),
                   ),
-                  const HGap.lg(),
+                  HGap.lg(),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {

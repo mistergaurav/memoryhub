@@ -54,14 +54,14 @@ class _AddTraditionDialogState extends State<AddTraditionDialog> {
       shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.xlRadius),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                  padding: EdgeInsets.all(MemoryHubSpacing.md),
                   decoration: BoxDecoration(gradient: const LinearGradient(colors: [MemoryHubColors.green500, MemoryHubColors.green400]), borderRadius: MemoryHubBorderRadius.mdRadius),
                   child: const Icon(Icons.local_florist, color: Colors.white),
                 ),
@@ -126,7 +126,7 @@ class _AddTraditionDialogState extends State<AddTraditionDialog> {
                 const SizedBox(width: MemoryHubSpacing.md),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
-                  style: ElevatedButton.styleFrom(backgroundColor: MemoryHubColors.green500, padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg)),
+                  style: ElevatedButton.styleFrom(backgroundColor: MemoryHubColors.green500, padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg)),
                   child: _isLoading
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
                       : const Text('Add Tradition', style: TextStyle(color: Colors.white)),

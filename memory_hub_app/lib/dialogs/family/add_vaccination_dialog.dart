@@ -103,7 +103,7 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+              padding: EdgeInsets.all(MemoryHubSpacing.xl),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [MemoryHubColors.red500, MemoryHubColors.red400],
@@ -138,7 +138,7 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
               child: Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+                  padding: EdgeInsets.all(MemoryHubSpacing.xl),
                   children: [
                     TextFormField(
                       controller: _vaccineNameController,
@@ -232,7 +232,7 @@ class _AddVaccinationDialogState extends State<AddVaccinationDialog> {
               ),
             ),
             Container(
-              padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+              padding: EdgeInsets.all(MemoryHubSpacing.xl),
               decoration: BoxDecoration(
                 color: MemoryHubColors.gray100,
                 borderRadius: const BorderRadius.only(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import '../../design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class PlacesScreen extends StatefulWidget {
   const PlacesScreen({super.key});
@@ -100,21 +101,21 @@ class _PlacesScreenState extends State<PlacesScreen> with SingleTickerProviderSt
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.explore_outlined, size: 80, color: context.colors.outline.withOpacity(0.5)),
-          const VGap.lg(),
+          VGap.lg(),
           Text(
             'Find Nearby Places',
             style: context.text.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const VGap.xs(),
+          VGap.xs(),
           Text(
             'Enable location to discover nearby places',
             style: context.text.bodyLarge?.copyWith(
               color: context.colors.outline,
             ),
           ),
-          const VGap.xl(),
+          VGap.xl(),
           FilledButton.icon(
             onPressed: () {
               // Request location permission
@@ -133,14 +134,14 @@ class _PlacesScreenState extends State<PlacesScreen> with SingleTickerProviderSt
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.place_outlined, size: 80, color: context.colors.outline.withOpacity(0.5)),
-          const VGap.lg(),
+          VGap.lg(),
           Text(
             'No Places Yet',
             style: context.text.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          const VGap.xs(),
+          VGap.xs(),
           Text(
             'Add your favorite places',
             style: context.text.bodyLarge?.copyWith(
@@ -167,7 +168,7 @@ class _PlacesScreenState extends State<PlacesScreen> with SingleTickerProviderSt
         ],
       ),
       child: ListTile(
-        contentPadding: Padded.all16,
+        contentPadding: const EdgeInsets.all(16),
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -195,7 +196,7 @@ class _PlacesScreenState extends State<PlacesScreen> with SingleTickerProviderSt
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (place['address'] != null) ...[
-              const VGap.xxs(),
+              VGap.xxs(),
               Text(
                 place['address'],
                 style: context.text.bodySmall?.copyWith(
@@ -203,7 +204,7 @@ class _PlacesScreenState extends State<PlacesScreen> with SingleTickerProviderSt
                 ),
               ),
             ],
-            const VGap.xs(),
+            VGap.xs(),
             Text(
               '${place['memory_count'] ?? 0} memories',
               style: context.text.labelSmall?.copyWith(

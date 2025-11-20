@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../../services/auth_service.dart';
 import '../../config/api_config.dart';
 import '../../design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class UserSearchScreen extends StatefulWidget {
   const UserSearchScreen({super.key});

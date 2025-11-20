@@ -181,7 +181,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
               backgroundColor: MemoryHubColors.teal600,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
-              margin: const EdgeInsets.all(MemoryHubSpacing.lg),
+              margin: EdgeInsets.all(MemoryHubSpacing.lg),
             ),
           );
         }
@@ -203,7 +203,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
       labelText: label,
       helperText: helperText,
       prefixIcon: Container(
-        margin: const EdgeInsets.all(MemoryHubSpacing.md),
+        margin: EdgeInsets.all(MemoryHubSpacing.md),
         width: 18,
         height: 18,
         decoration: BoxDecoration(
@@ -267,7 +267,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
           ),
         ],
       ),
-      padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+      padding: EdgeInsets.all(MemoryHubSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -330,7 +330,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
       child: AnimatedContainer(
         duration: MemoryHubAnimations.normal,
         height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
+        padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
         decoration: BoxDecoration(
           gradient: isSelected
               ? const LinearGradient(
@@ -374,7 +374,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
     
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(MemoryHubSpacing.lg),
+      insetPadding: EdgeInsets.all(MemoryHubSpacing.lg),
       child: Container(
         constraints: BoxConstraints(
           maxWidth: 640,
@@ -404,7 +404,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                   topRight: Radius.circular(MemoryHubBorderRadius.xxl),
                 ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xl),
+              padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xl),
               child: Row(
                 children: [
                   const Icon(Icons.folder_special, color: Colors.white, size: 28),
@@ -443,7 +443,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
               AnimatedContainer(
                 duration: MemoryHubAnimations.normal,
                 width: double.infinity,
-                padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                padding: EdgeInsets.all(MemoryHubSpacing.md),
                 color: MemoryHubColors.red50,
                 child: Row(
                   children: [
@@ -472,7 +472,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
               child: Form(
                 key: _formKey,
                 child: ListView(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+                  padding: EdgeInsets.all(MemoryHubSpacing.xl),
                   children: [
                     _buildSectionCard(
                       title: 'Document Type',
@@ -616,7 +616,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                         });
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                        padding: EdgeInsets.all(MemoryHubSpacing.lg),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -657,7 +657,7 @@ class _AddDocumentDialogState extends State<AddDocumentDialog> with SingleTicker
                     SizeTransition(
                       sizeFactor: _advancedAnimation,
                       child: Padding(
-                        padding: const EdgeInsets.only(top: MemoryHubSpacing.lg),
+                        padding: EdgeInsets.only(top: MemoryHubSpacing.lg),
                         child: _buildSectionCard(
                           title: 'Optional Details',
                           icon: Icons.edit_note,

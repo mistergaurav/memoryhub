@@ -329,7 +329,7 @@ class _ActivityFeedScreenState extends State<ActivityFeedScreen> {
   }
 
   Widget _buildMediaPreview(List<dynamic> mediaUrls) {
-    if (mediaUrls.isEmpty) return const SizedBox.shrink();
+    if (mediaUrls.isEmpty) return SizedBox.shrink();
     
     return Padding(
       padding: const EdgeInsets.only(top: 12),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'qr_code_screen.dart';
 import '../../design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class ShareManagementScreen extends StatefulWidget {
   const ShareManagementScreen({Key? key}) : super(key: key);
@@ -147,14 +148,14 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.share, size: 64, color: MemoryHubColors.gray400),
-                      const VGap.lg(),
+                      VGap.lg(),
                       Text(
                         'No active shares',
                         style: context.text.titleMedium?.copyWith(
                           color: MemoryHubColors.gray600,
                         ),
                       ),
-                      const VGap.sm(),
+                      VGap.sm(),
                       Text(
                         'Share memories, collections, or files to see them here',
                         style: context.text.bodyMedium?.copyWith(
@@ -165,7 +166,7 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
                   ),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.all(Spacing.lg),
+                  padding: EdgeInsets.all(Spacing.lg),
                   itemCount: _shares.length,
                   itemBuilder: (context, index) {
                     final share = _shares[index];
@@ -176,7 +177,7 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
                     final isActive = !isExpired && !isMaxedOut;
 
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: Spacing.md),
+                      padding: EdgeInsets.only(bottom: Spacing.md),
                       child: AppCard(
                         child: Padded.lg(
                         child: Column(
@@ -185,7 +186,7 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
                             Row(
                               children: [
                                 _getResourceIcon(share['resource_type']),
-                                const HGap.md(),
+                                HGap.md(),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,7 +247,7 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
                                   ),
                               ],
                             ),
-                            const VGap.lg(),
+                            VGap.lg(),
                             Row(
                               children: [
                                 Expanded(
@@ -256,7 +257,7 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
                                     leading: const Icon(Icons.qr_code, size: 18),
                                   ),
                                 ),
-                                const HGap.sm(),
+                                HGap.sm(),
                                 Expanded(
                                   child: ElevatedButton.icon(
                                     onPressed: () => _revokeShare(share['id']),
@@ -303,7 +304,7 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
     }
 
     return Container(
-      padding: const EdgeInsets.all(Spacing.sm),
+      padding: EdgeInsets.all(Spacing.sm),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: MemoryHubBorderRadius.smRadius,
@@ -317,7 +318,7 @@ class _ShareManagementScreenState extends State<ShareManagementScreen> {
       avatar: Icon(icon, size: 16),
       label: Text(label, style: context.text.labelSmall),
       backgroundColor: MemoryHubColors.gray100,
-      labelPadding: const EdgeInsets.symmetric(horizontal: Spacing.xxs),
+      labelPadding: EdgeInsets.symmetric(horizontal: Spacing.xxs),
       visualDensity: VisualDensity.compact,
     );
   }

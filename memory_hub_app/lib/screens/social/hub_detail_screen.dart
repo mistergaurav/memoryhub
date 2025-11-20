@@ -9,6 +9,7 @@ import '../memories/memory_detail_screen.dart';
 import 'hub_info_screen.dart';
 import '../../widgets/share_bottom_sheet.dart';
 import '../../design_system/design_system.dart';
+import '../../design_system/layout/padded.dart';
 
 class HubDetailScreen extends StatefulWidget {
   final String hubId;
@@ -119,7 +120,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
           title: Row(
             children: [
               Icon(Icons.share, color: context.colors.primary),
-              const HGap.sm(),
+              HGap.sm(),
               const Text('Share Memory to Hub'),
             ],
           ),
@@ -134,7 +135,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.error_outline, size: 48, color: context.colors.error.withOpacity(0.7)),
-                            const VGap.md(),
+                            VGap.md(),
                             Text(error, style: TextStyle(color: context.colors.error)),
                           ],
                         ),
@@ -145,14 +146,14 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.photo_library_outlined, size: 64, color: context.colors.onSurface.withOpacity(0.3)),
-                                const VGap.md(),
+                                VGap.md(),
                                 Text(
                                   'No memories to share',
                                   style: context.text.titleMedium?.copyWith(
                                     color: context.colors.onSurface.withOpacity(0.6),
                                   ),
                                 ),
-                                const VGap.sm(),
+                                VGap.sm(),
                                 Text(
                                   'Create a memory first',
                                   style: context.text.bodySmall?.copyWith(
@@ -167,7 +168,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                             itemBuilder: (context, index) {
                               final memory = myMemories[index];
                               return Padding(
-                                padding: const EdgeInsets.only(bottom: Spacing.sm),
+                                padding: EdgeInsets.only(bottom: Spacing.sm),
                                 child: AppCard(
                                   child: ListTile(
                                     leading: memory['image_url'] != null
@@ -333,14 +334,14 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                       size: 64,
                       color: context.colors.onSurface.withOpacity(0.3),
                     ),
-                    const VGap.md(),
+                    VGap.md(),
                     Text(
                       'No memories in this hub yet',
                       style: context.text.titleMedium?.copyWith(
                         color: context.colors.onSurface.withOpacity(0.6),
                       ),
                     ),
-                    const VGap.sm(),
+                    VGap.sm(),
                     Text(
                       'Memories shared to this hub will appear here',
                       style: context.text.bodyMedium?.copyWith(
@@ -353,7 +354,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
             )
           else
             SliverPadding(
-              padding: const EdgeInsets.all(Spacing.md),
+              padding: EdgeInsets.all(Spacing.md),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -404,14 +405,14 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const VGap.sm(),
+                                  VGap.sm(),
                                   Text(
                                     memory['content'] ?? '',
                                     style: context.text.bodyMedium,
                                     maxLines: 3,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const VGap.sm(),
+                                  VGap.sm(),
                                   Row(
                                     children: [
                                       CircleAvatar(
@@ -419,10 +420,10 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                         backgroundColor: context.colors.primary,
                                         child: Text(
                                           (memory['owner_name'] ?? 'U')[0].toUpperCase(),
-                                          style: const TextStyle(color: context.colors.surface, fontSize: 14),
+                                          style: TextStyle(color: context.colors.surface, fontSize: 14),
                                         ),
                                       ),
-                                      const HGap.sm(),
+                                      HGap.sm(),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,14 +446,14 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                       Row(
                                         children: [
                                           Icon(Icons.favorite_border, size: 20, color: context.colors.onSurface.withOpacity(0.6)),
-                                          const HGap.xxs(),
+                                          HGap.xxs(),
                                           Text(
                                             '${memory['like_count'] ?? 0}',
                                             style: TextStyle(color: context.colors.onSurface.withOpacity(0.6)),
                                           ),
-                                          const HGap.sm(),
+                                          HGap.sm(),
                                           Icon(Icons.comment_outlined, size: 20, color: context.colors.onSurface.withOpacity(0.6)),
-                                          const HGap.xxs(),
+                                          HGap.xxs(),
                                           Text(
                                             '${memory['comment_count'] ?? 0}',
                                             style: TextStyle(color: context.colors.onSurface.withOpacity(0.6)),
@@ -463,7 +464,7 @@ class _HubDetailScreenState extends State<HubDetailScreen> {
                                   ),
                                   if (memory['tags'] != null && (memory['tags'] as List).isNotEmpty)
                                     Padding(
-                                      padding: const EdgeInsets.only(top: Spacing.sm),
+                                      padding: EdgeInsets.only(top: Spacing.sm),
                                       child: Wrap(
                                         spacing: 8,
                                         runSpacing: 8,

@@ -94,7 +94,7 @@ class _AddAlbumDialogState extends State<AddAlbumDialog> {
       shape: RoundedRectangleBorder(borderRadius: MemoryHubBorderRadius.xlRadius),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 600),
-        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -103,7 +103,7 @@ class _AddAlbumDialogState extends State<AddAlbumDialog> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                    padding: EdgeInsets.all(MemoryHubSpacing.md),
                     decoration: BoxDecoration(
                       gradient: MemoryHubGradients.albums,
                       borderRadius: MemoryHubBorderRadius.mdRadius,
@@ -169,7 +169,7 @@ class _AddAlbumDialogState extends State<AddAlbumDialog> {
                     ..._privacyOptions.map((option) {
                       final isSelected = _selectedPrivacy == option['value'];
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: MemoryHubSpacing.sm),
+                        padding: EdgeInsets.only(bottom: MemoryHubSpacing.sm),
                         child: InkWell(
                           onTap: () {
                             setState(() {
@@ -178,7 +178,7 @@ class _AddAlbumDialogState extends State<AddAlbumDialog> {
                           },
                           borderRadius: MemoryHubBorderRadius.mdRadius,
                           child: Container(
-                            padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                            padding: EdgeInsets.all(MemoryHubSpacing.md),
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? Theme.of(context).primaryColor.withOpacity(0.1)

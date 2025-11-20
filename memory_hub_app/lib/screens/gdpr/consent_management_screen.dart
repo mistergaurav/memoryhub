@@ -112,7 +112,7 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
                               Icons.info_outline,
                               color: MemoryHubColors.blue400,
                             ),
-                            const HGap.xs(),
+                            HGap.xs(),
                             Text(
                               'About Your Privacy',
                               style: TextStyle(
@@ -122,7 +122,7 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
                             ),
                           ],
                         ),
-                        const VGap.sm(),
+                        VGap.sm(),
                         Text(
                           'Your privacy matters to us. You have full control over how your data is used. '
                           'Review and manage your consent preferences below.',
@@ -131,7 +131,7 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
                       ],
                     ),
                   ),
-                  const VGap.lg(),
+                  VGap.lg(),
                   Text(
                     'Data Usage Permissions',
                     style: TextStyle(
@@ -139,7 +139,7 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
                       fontWeight: MemoryHubTypography.bold,
                     ),
                   ),
-                  const VGap.md(),
+                  VGap.md(),
                   _buildConsentSwitch(
                     title: 'Analytics',
                     description: 'Allow us to collect anonymous usage data to improve our service',
@@ -168,7 +168,7 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
                     value: _dataSharingConsent,
                     onChanged: (value) => setState(() => _dataSharingConsent = value),
                   ),
-                  const VGap.lg(),
+                  VGap.lg(),
                   AppCard(
                     color: MemoryHubColors.amber50,
                     padding: EdgeInsets.all(MemoryHubSpacing.lg),
@@ -181,7 +181,7 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
                               Icons.security,
                               color: MemoryHubColors.amber700,
                             ),
-                            const HGap.xs(),
+                            HGap.xs(),
                             Text(
                               'Your Rights',
                               style: TextStyle(
@@ -191,7 +191,7 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
                             ),
                           ],
                         ),
-                        const VGap.xs(),
+                        VGap.xs(),
                         Text(
                           'You can withdraw your consent at any time. '
                           'You also have the right to access, export, and delete your data.',
@@ -203,7 +203,7 @@ class _ConsentManagementScreenState extends State<ConsentManagementScreen> {
                       ],
                     ),
                   ),
-                  const VGap.lg(),
+                  VGap.lg(),
                   PrimaryButton(
                     onPressed: _isSaving ? null : _saveConsentSettings,
                     label: 'Save Preferences',

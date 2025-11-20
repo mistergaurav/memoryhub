@@ -8,6 +8,7 @@ import 'package:memory_hub_app/design_system/components/buttons/secondary_button
 import 'package:memory_hub_app/design_system/components/feedback/app_snackbar.dart';
 import 'package:memory_hub_app/design_system/utils/context_ext.dart';
 import '../../services/auth_service.dart';
+import '../../design_system/layout/padded.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -174,7 +175,7 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                            padding: EdgeInsets.all(MemoryHubSpacing.lg),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: MemoryHubGradients.secondary,
@@ -185,7 +186,7 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                               color: context.colors.onPrimary,
                             ),
                           ),
-                          const VGap.lg(),
+                          VGap.lg(),
                           Text(
                             'Create Account',
                             textAlign: TextAlign.center,
@@ -194,7 +195,7 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                               color: context.colors.onSurface,
                             ),
                           ),
-                          const VGap.xs(),
+                          VGap.xs(),
                           Text(
                             'Join us and start preserving your memories',
                             textAlign: TextAlign.center,
@@ -202,7 +203,7 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                               color: context.colors.onSurfaceVariant,
                             ),
                           ),
-                          const VGap.xl(),
+                          VGap.xl(),
                           TextFormField(
                             controller: _fullNameController,
                             keyboardType: TextInputType.name,
@@ -213,7 +214,7 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                               hint: 'Optional',
                             ),
                           ),
-                          const VGap.md(),
+                          VGap.md(),
                           TextFormField(
                             controller: _emailController,
                             keyboardType: kIsWeb ? TextInputType.text : TextInputType.emailAddress,
@@ -231,7 +232,7 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                               return null;
                             },
                           ),
-                          const VGap.md(),
+                          VGap.md(),
                           TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
@@ -267,29 +268,29 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                               return null;
                             },
                           ),
-                          const VGap.lg(),
+                          VGap.lg(),
                           PrimaryButton(
                             onPressed: _handleSignup,
                             label: 'Sign Up',
                             isLoading: _isLoading,
                             fullWidth: true,
                           ),
-                          const VGap.md(),
+                          VGap.md(),
                           Row(
                             children: [
                               const Expanded(child: Divider()),
-                              const HGap.md(),
+                              HGap.md(),
                               Text(
                                 'OR',
                                 style: context.text.bodySmall?.copyWith(
                                   color: context.colors.onSurfaceVariant,
                                 ),
                               ),
-                              const HGap.md(),
+                              HGap.md(),
                               const Expanded(child: Divider()),
                             ],
                           ),
-                          const VGap.md(),
+                          VGap.md(),
                           SecondaryButton(
                             onPressed: _isLoading
                                 ? null
@@ -303,7 +304,7 @@ class _SignupScreenState extends State<SignupScreen> with SingleTickerProviderSt
                             leading: const Icon(Icons.login),
                             fullWidth: true,
                           ),
-                          const VGap.md(),
+                          VGap.md(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

@@ -279,7 +279,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
           child: Column(
             children: [
               Container(
-                margin: const EdgeInsets.only(top: MemoryHubSpacing.md),
+                margin: EdgeInsets.only(top: MemoryHubSpacing.md),
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
@@ -288,7 +288,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+                padding: EdgeInsets.all(MemoryHubSpacing.lg),
                 child: Text(
                   title,
                   style: const TextStyle(
@@ -362,7 +362,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                margin: const EdgeInsets.only(top: MemoryHubSpacing.md, bottom: MemoryHubSpacing.lg),
+                margin: EdgeInsets.only(top: MemoryHubSpacing.md, bottom: MemoryHubSpacing.lg),
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
@@ -524,7 +524,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+            padding: EdgeInsets.all(MemoryHubSpacing.lg),
             child: Row(
               children: List.generate(
                 3,
@@ -576,7 +576,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
         ],
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+            padding: EdgeInsets.all(MemoryHubSpacing.xl),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -636,7 +636,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
                 if (bio != null && bio.isNotEmpty) ...[
                   const SizedBox(height: MemoryHubSpacing.md),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
+                    padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
                     child: Text(
                       bio,
                       textAlign: TextAlign.center,
@@ -725,7 +725,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
     final followingCount = stats['following'] ?? 0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
+      padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
       child: Row(children: [
           Expanded(
             child: _buildStatCard(
@@ -777,7 +777,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
         onTap: onTap,
         borderRadius: MemoryHubBorderRadius.lgRadius,
         child: Padding(
-          padding: const EdgeInsets.all(MemoryHubSpacing.lg),
+          padding: EdgeInsets.all(MemoryHubSpacing.lg),
           child: Column(
             children: [
               Icon(icon, color: color, size: 32),
@@ -808,7 +808,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
 
   Widget _buildActionButtons() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
+      padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
       child: Row(
         children: [
           Expanded(
@@ -823,7 +823,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
                 },
                 borderRadius: MemoryHubBorderRadius.lgRadius,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: MemoryHubSpacing.md),
+                  padding: EdgeInsets.symmetric(vertical: MemoryHubSpacing.md),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -853,7 +853,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
                 onTap: _shareProfile,
                 borderRadius: MemoryHubBorderRadius.lgRadius,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: MemoryHubSpacing.md),
+                  padding: EdgeInsets.symmetric(vertical: MemoryHubSpacing.md),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -877,7 +877,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
             blur: 15,
             opacity: 0.1,
             borderRadius: MemoryHubBorderRadius.lgRadius,
-            padding: const EdgeInsets.all(MemoryHubSpacing.md),
+            padding: EdgeInsets.all(MemoryHubSpacing.md),
             child: InkWell(
               onTap: _showMoreOptions,
               borderRadius: MemoryHubBorderRadius.lgRadius,
@@ -893,12 +893,12 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
+          padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
           child: GlassmorphicCard(
             blur: 15,
             opacity: 0.1,
             borderRadius: MemoryHubBorderRadius.lgRadius,
-            padding: const EdgeInsets.all(MemoryHubSpacing.xs),
+            padding: EdgeInsets.all(MemoryHubSpacing.xs),
             child: TabBar(
               controller: _tabController,
               indicator: BoxDecoration(
@@ -961,7 +961,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
+      padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
       itemCount: _userPosts.length,
       itemBuilder: (context, index) {
         final post = _userPosts[index];
@@ -975,8 +975,8 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
       blur: 15,
       opacity: 0.1,
       borderRadius: MemoryHubBorderRadius.lgRadius,
-      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
-      margin: const EdgeInsets.only(bottom: MemoryHubSpacing.md),
+      padding: EdgeInsets.all(MemoryHubSpacing.lg),
+      margin: EdgeInsets.only(bottom: MemoryHubSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1041,12 +1041,12 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
     final email = _profile!['email'];
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
+      padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
       child: GlassmorphicCard(
         blur: 15,
         opacity: 0.1,
         borderRadius: MemoryHubBorderRadius.lgRadius,
-        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1167,7 +1167,7 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
+      padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.lg),
       itemCount: _userActivity.length,
       itemBuilder: (context, index) {
         final activity = _userActivity[index];
@@ -1207,13 +1207,13 @@ class _UserProfileViewScreenState extends State<UserProfileViewScreen>
       blur: 15,
       opacity: 0.1,
       borderRadius: MemoryHubBorderRadius.lgRadius,
-      padding: const EdgeInsets.all(MemoryHubSpacing.lg),
-      margin: const EdgeInsets.only(bottom: MemoryHubSpacing.md),
+      padding: EdgeInsets.all(MemoryHubSpacing.lg),
+      margin: EdgeInsets.only(bottom: MemoryHubSpacing.md),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(MemoryHubSpacing.sm),
+            padding: EdgeInsets.all(MemoryHubSpacing.sm),
             decoration: BoxDecoration(
               color: iconColor.withOpacity(0.1),
               borderRadius: MemoryHubBorderRadius.smRadius,

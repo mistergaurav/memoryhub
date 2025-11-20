@@ -262,7 +262,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                             size: 20,
                             color: _sortOrder == 'newest' ? Theme.of(context).primaryColor : null,
                           ),
-                          const HGap.xs(),
+                          HGap.xs(),
                           Text(
                             'Newest First',
                             style: TextStyle(
@@ -281,7 +281,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                             size: 20,
                             color: _sortOrder == 'oldest' ? Theme.of(context).primaryColor : null,
                           ),
-                          const HGap.xs(),
+                          HGap.xs(),
                           Text(
                             'Oldest First',
                             style: TextStyle(
@@ -315,7 +315,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                 size: 18,
                                 color: isSelected ? context.colors.surface : filter['color'] as Color,
                               ),
-                              const HGap.xxs(),
+                              HGap.xxs(),
                               Text(filter['label'] as String),
                             ],
                           ),
@@ -371,7 +371,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
               )
             else
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.md),
+                padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.md),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -379,12 +379,12 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                         return _buildEnhancedMilestoneCard(_milestones[index], index);
                       } else if (_isLoadingMore) {
                         return Padding(
-                          padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                          padding: EdgeInsets.all(MemoryHubSpacing.md),
                           child: Center(
                             child: Column(
                               children: [
                                 const CircularProgressIndicator(),
-                                const VGap.xs(),
+                                VGap.xs(),
                                 Text(
                                   'Loading more milestones...',
                                   style: TextStyle(
@@ -569,7 +569,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                 ),
                               ],
                             ),
-                            const VGap.xs(),
+                            VGap.xs(),
                             Row(
                               children: [
                                 Icon(
@@ -577,7 +577,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                   size: 14,
                                   color: Colors.grey[600],
                                 ),
-                                const HGap.xxs(),
+                                HGap.xxs(),
                                 Text(
                                   DateFormat('MMMM d, yyyy').format(milestone.milestoneDate),
                                   style: TextStyle(
@@ -585,7 +585,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                     color: Colors.grey[700],
                                   ),
                                 ),
-                                const HGap.xs(),
+                                HGap.xs(),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
@@ -604,11 +604,11 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                               ],
                             ),
                             if (milestone.genealogyPersonName != null) ...[
-                              const VGap.xs(),
+                              VGap.xs(),
                               Row(
                                 children: [
                                   const Icon(Icons.person, size: 14, color: Colors.indigo),
-                                  const HGap.xxs(),
+                                  HGap.xxs(),
                                   Text(
                                     milestone.genealogyPersonName!,
                                     style: const TextStyle(
@@ -618,14 +618,14 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                     ),
                                   ),
                                   if (milestone.autoGenerated) ...[
-                                    const HGap.xxs(),
+                                    HGap.xxs(),
                                     Icon(Icons.auto_awesome, size: 12, color: Colors.amber.shade700),
                                   ],
                                 ],
                               ),
                             ],
                             if (milestone.description != null) ...[
-                              const VGap.sm(),
+                              VGap.sm(),
                               Text(
                                 milestone.description!,
                                 style: TextStyle(
@@ -638,7 +638,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                               ),
                             ],
                             if (photos.isNotEmpty) ...[
-                              const VGap.sm(),
+                              VGap.sm(),
                               if (photos.length == 1)
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
@@ -687,7 +687,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                 ),
                             ],
                             if (milestone.celebrationDetails != null) ...[
-                              const VGap.xs(),
+                              VGap.xs(),
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
@@ -698,7 +698,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                 child: Row(
                                   children: [
                                     Icon(Icons.party_mode, size: 16, color: Colors.purple.shade700),
-                                    const HGap.xs(),
+                                    HGap.xs(),
                                     Expanded(
                                       child: Text(
                                         'Celebration Details Available',
@@ -713,7 +713,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                 ),
                               ),
                             ],
-                            const VGap.sm(),
+                            VGap.sm(),
                             Row(
                               children: [
                                 _buildInteractionChip(
@@ -721,7 +721,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                   milestone.likesCount.toString(),
                                   Theme.of(context).colorScheme.secondary,
                                 ),
-                                const HGap.xs(),
+                                HGap.xs(),
                                 _buildInteractionChip(
                                   Icons.comment,
                                   milestone.commentsCount.toString(),
@@ -739,9 +739,9 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                                   ),
                               ],
                             ),
-                            const VGap.xs(),
+                            VGap.xs(),
                             Divider(color: Colors.grey[300]),
-                            const VGap.xxs(),
+                            VGap.xxs(),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -784,7 +784,7 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: color),
-          const HGap.xxs(),
+          HGap.xxs(),
           Text(
             count,
             style: TextStyle(
@@ -872,22 +872,22 @@ class _FamilyMilestonesScreenState extends State<FamilyMilestonesScreen> with Si
                     height: 44,
                     borderRadius: BorderRadius.circular(22),
                   ),
-                  const HGap.sm(),
+                  HGap.sm(),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ShimmerBox(width: 200, height: 18, borderRadius: BorderRadius.circular(4)),
-                        const VGap.xs(),
+                        VGap.xs(),
                         ShimmerBox(width: 120, height: 13, borderRadius: BorderRadius.circular(4)),
                       ],
                     ),
                   ),
                 ],
               ),
-              const VGap.sm(),
+              VGap.sm(),
               ShimmerBox(width: double.infinity, height: 14, borderRadius: BorderRadius.circular(4)),
-              const VGap.xxs(),
+              VGap.xxs(),
               ShimmerBox(width: 250, height: 14, borderRadius: BorderRadius.circular(4)),
             ],
           ),

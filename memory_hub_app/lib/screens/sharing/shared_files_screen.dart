@@ -14,14 +14,14 @@ class SharedFilesScreen extends StatelessWidget {
         ),
       ),
       body: ListView.builder(
-        padding: const EdgeInsets.all(Spacing.xl),
+        padding: EdgeInsets.all(Spacing.xl),
         itemCount: 10,
         itemBuilder: (context, index) => Padding(
-          padding: const EdgeInsets.only(bottom: Spacing.md),
+          padding: EdgeInsets.only(bottom: Spacing.md),
           child: AppCard(
             child: ListTile(
             leading: Container(
-              padding: const EdgeInsets.all(Spacing.md),
+              padding: EdgeInsets.all(Spacing.md),
               decoration: BoxDecoration(
                 color: context.colors.primary.withOpacity(0.1),
                 borderRadius: MemoryHubBorderRadius.mdRadius,

@@ -91,7 +91,7 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
       ),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 500),
-        padding: const EdgeInsets.all(MemoryHubSpacing.xl),
+        padding: EdgeInsets.all(MemoryHubSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,7 +99,7 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(MemoryHubSpacing.md),
+                  padding: EdgeInsets.all(MemoryHubSpacing.md),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [MemoryHubColors.cyan600, MemoryHubColors.cyan400],
@@ -216,7 +216,7 @@ class _AddRelationshipDialogState extends State<AddRelationshipDialog> {
                   onPressed: _isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: MemoryHubColors.cyan600,
-                    padding: const EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg),
+                    padding: EdgeInsets.symmetric(horizontal: MemoryHubSpacing.xxl, vertical: MemoryHubSpacing.lg),
                     shape: RoundedRectangleBorder(
                       borderRadius: MemoryHubBorderRadius.mdRadius,
                     ),

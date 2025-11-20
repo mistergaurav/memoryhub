@@ -17,6 +17,7 @@ import '../../dialogs/family/add_relationship_dialog.dart';
 import '../../widgets/default_avatar.dart';
 import '../../design_system/family_design_system.dart';
 import 'package:intl/intl.dart';
+import '../../design_system/layout/padded.dart';
 
 class GenealogyTreeScreen extends StatefulWidget {
   const GenealogyTreeScreen({Key? key}) : super(key: key);
@@ -644,7 +645,7 @@ class PersonDetailSheet extends StatelessWidget {
                       label: const Text('Edit'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFF59E0B),
-                        padding: Padded.symmetric(vertical: 12),
+                        padding: EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -658,7 +659,7 @@ class PersonDetailSheet extends StatelessWidget {
                       icon: const Icon(Icons.link),
                       label: const Text('Relationships'),
                       style: OutlinedButton.styleFrom(
-                        padding: Padded.symmetric(vertical: 12),
+                        padding: EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),

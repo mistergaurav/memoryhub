@@ -514,7 +514,7 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
     final approvalStatus = _notificationDetails!['approval_status'] ?? 'pending';
 
     if (approvalStatus != 'pending') {
-      return const SizedBox.shrink();
+      return SizedBox.shrink();
     }
 
     return Row(

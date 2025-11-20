@@ -32,7 +32,7 @@ class EnhancedEmptyState extends StatelessWidget {
 
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(MemoryHubSpacing.xxl),
+        padding: EdgeInsets.all(MemoryHubSpacing.xxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
