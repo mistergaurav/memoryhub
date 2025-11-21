@@ -477,11 +477,18 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   late final List<Widget> _screens = [
-    DashboardScreen(),
-    FamilyHubDashboardScreen(),
-    SocialTabScreen(),
-    ProfileScreen(),
+    _buildErrorBoundary(0, const DashboardScreen()),
+    _buildErrorBoundary(1, const FamilyHubDashboardScreen()),
+    _buildErrorBoundary(2, const SocialTabScreen()),
+    _buildErrorBoundary(3, const ProfileScreen()),
   ];
+
+  Widget _buildErrorBoundary(int index, Widget child) {
+    return ErrorBoundary(
+      screenName: ['Home', 'Family', 'Social', 'Profile'][index],
+      child: child,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
