@@ -476,26 +476,19 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-  late final List<Widget> _screens = [
-    _buildErrorBoundary(0, const DashboardScreen()),
-    _buildErrorBoundary(1, const FamilyHubDashboardScreen()),
-    _buildErrorBoundary(2, const SocialTabScreen()),
-    _buildErrorBoundary(3, const ProfileScreen()),
-  ];
-
-  Widget _buildErrorBoundary(int index, Widget child) {
-    return ErrorBoundary(
-      screenName: ['Home', 'Family', 'Social', 'Profile'][index],
-      child: child,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      const DashboardScreen(),
+      const FamilyHubDashboardScreen(),
+      const SocialTabScreen(),
+      const ProfileScreen(),
+    ];
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _screens,
+        children: screens,
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -585,73 +578,3 @@ class SocialTabScreen extends StatelessWidget {
   }
 }
 
-class ErrorBoundary extends StatefulWidget {
-  final Widget child;
-  final String screenName;
-
-  const ErrorBoundary({
-    super.key,
-    required this.child,
-    required this.screenName,
-  });
-
-  @override
-  State<ErrorBoundary> createState() => _ErrorBoundaryState();
-}
-
-class _ErrorBoundaryState extends State<ErrorBoundary> {
-  bool _hasError = false;
-  String _errorMessage = '';
-
-  @override
-  void initState() {
-    super.initState();
-    FlutterError.onError = (FlutterErrorDetails details) {
-      if (mounted) {
-        setState(() {
-          _hasError = true;
-          _errorMessage = details.toString();
-        });
-      }
-    };
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_hasError) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
-              Text(
-                'Error in ${widget.screenName}',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                _errorMessage.split('\n').first,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    _hasError = false;
-                    _errorMessage = '';
-                  });
-                },
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return widget.child;
-  }
-}
