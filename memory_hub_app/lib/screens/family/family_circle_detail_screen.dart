@@ -9,6 +9,7 @@ import '../../widgets/shimmer_loading.dart';
 import '../../design_system/design_tokens.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../dialogs/family/create_family_circle_dialog.dart';
+import '../../dialogs/family/add_person_to_circle_dialog.dart';
 import '../../widgets/user_search_autocomplete.dart';
 import '../../design_system/layout/padded.dart';
 
@@ -385,7 +386,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              member.name,
+                              '${member.name}${member.relationshipLabel != null ? ' ${member.relationshipLabel}' : ''}',
                               style: const TextStyle(
                                 fontWeight: MemoryHubTypography.semiBold,
                               ),
@@ -414,10 +415,17 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
                       ),
                       subtitle: isCurrentUser ? const Text('You') : null,
                       trailing: canRemove
-                          ? IconButton(
-                              icon: const Icon(Icons.remove_circle_outline),
-                              color: MemoryHubColors.red500,
-                              onPressed: () => _confirmRemoveMember(member),
+                          ? PopupMenuButton(
+                              itemBuilder: (BuildContext context) => [
+                                PopupMenuItem(
+                                  child: const Text('View Profile'),
+                                  onTap: () => _showUserProfile(member),
+                                ),
+                                PopupMenuItem(
+                                  child: const Text('Remove'),
+                                  onTap: () => _confirmRemoveMember(member),
+                                ),
+                              ],
                             )
                           : null,
                     ),
@@ -445,9 +453,59 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
   void _showAddMemberDialog() {
     showDialog(
       context: context,
+      builder: (context) => AddPersonToCircleDialog(
+        onSubmit: (userId, relationshipType) => _handleAddPerson(userId, relationshipType),
+      ),
+    );
+  }
+
+  Future<void> _handleAddPerson(String userId, String relationshipType) async {
+    try {
+      await _circlesService.addPersonToCircle(_circle.id, userId, relationshipType);
+      _loadCircleDetails();
+      if (mounted) {
+        AppSnackbar.success(context, 'Person added successfully');
+      }
+    } catch (e) {
+      if (mounted) {
+        AppSnackbar.error(context, 'Failed to add person: $e');
+      }
+      rethrow;
+    }
+  }
+
+  void _showUserProfile(CircleMember member) {
+    showDialog(
+      context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Member'),
-        content: const Text('Use the user search feature to add members to this circle.'),
+        title: Text(member.name),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (member.avatar != null && member.avatar!.isNotEmpty)
+              Center(
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(member.avatar!),
+                  radius: 40,
+                ),
+              )
+            else
+              Center(
+                child: CircleAvatar(
+                  radius: 40,
+                  child: Text(member.name.isNotEmpty ? member.name[0].toUpperCase() : '?'),
+                ),
+              ),
+            const SizedBox(height: 16),
+            if (member.relationshipLabel != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text('Relationship: ${member.relationshipLabel}'),
+              ),
+            Text('User ID: ${member.id}'),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -456,6 +514,41 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmRemoveMember(CircleMember member) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove Person'),
+        content: Text('Are you sure you want to remove ${member.name} from this circle?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _circlesService.removePersonFromCircle(_circle.id, member.id);
+        _loadCircleDetails();
+        if (mounted) {
+          AppSnackbar.success(context, '${member.name} removed successfully');
+        }
+      } catch (e) {
+        if (mounted) {
+          AppSnackbar.error(context, 'Failed to remove person: $e');
+        }
+      }
+    }
   }
 
   void _showEditDialog() {

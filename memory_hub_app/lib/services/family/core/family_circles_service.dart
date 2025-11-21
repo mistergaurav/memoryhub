@@ -131,4 +131,44 @@ class FamilyCirclesService extends FamilyApiClient {
       );
     }
   }
+
+  Future<FamilyCircle> addPersonToCircle(
+    String circleId,
+    String userId,
+    String relationshipType,
+  ) async {
+    try {
+      final data = await post(
+        '/family/core/circles/$circleId/profiles',
+        body: {
+          'user_id': userId,
+          'display_name': userId,
+          'relationship_label': relationshipType,
+        },
+      );
+      return FamilyCircle.fromJson(data['data'] ?? data);
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to add person to circle',
+        originalError: e,
+      );
+    }
+  }
+
+  Future<void> removePersonFromCircle(String circleId, String userId) async {
+    try {
+      await delete('/family/core/circles/$circleId/profiles/$userId');
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to remove member from circle',
+        originalError: e,
+      );
+    }
+  }
 }

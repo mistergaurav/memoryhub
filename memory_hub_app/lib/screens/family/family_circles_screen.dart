@@ -8,6 +8,7 @@ import '../../widgets/shimmer_loading.dart';
 import '../../design_system/design_tokens.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../dialogs/family/create_family_circle_dialog.dart';
+import '../../dialogs/family/add_person_to_circle_dialog.dart';
 import 'family_circle_detail_screen.dart';
 import '../../design_system/layout/padded.dart';
 
@@ -225,12 +226,26 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
             curve: Curves.easeInOut,
           ),
         ),
-        child: FloatingActionButton.extended(
-          heroTag: 'family_circles_main_fab',
-          onPressed: _showCreateDialog,
-          icon: const Icon(Icons.add),
-          label: const Text('Create Circle'),
-          backgroundColor: MemoryHubColors.primary,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              heroTag: 'family_circles_add_fab',
+              mini: true,
+              onPressed: _circles.isEmpty ? null : _showAddPersonDialog,
+              backgroundColor: MemoryHubColors.green500,
+              child: const Icon(Icons.person_add),
+            ),
+            const SizedBox(height: MemoryHubSpacing.md),
+            FloatingActionButton.extended(
+              heroTag: 'family_circles_create_fab',
+              onPressed: _showCreateDialog,
+              icon: const Icon(Icons.add),
+              label: const Text('New Circle'),
+              backgroundColor: MemoryHubColors.primary,
+            ),
+          ],
         ),
       ),
     );
@@ -243,6 +258,38 @@ class _FamilyCirclesScreenState extends State<FamilyCirclesScreen>
         onSubmit: _handleCreate,
       ),
     );
+  }
+
+  void _showAddPersonDialog() {
+    if (_circles.isEmpty) {
+      AppSnackbar.info(context, 'Create a circle first');
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (context) => AddPersonToCircleDialog(
+        onSubmit: (userId, relationshipType) => _handleAddPerson(userId, relationshipType),
+      ),
+    );
+  }
+
+  Future<void> _handleAddPerson(String userId, String relationshipType) async {
+    try {
+      final firstCircleId = _circles.isNotEmpty ? _circles[0].id : null;
+      if (firstCircleId == null) {
+        throw Exception('No circle available');
+      }
+      await _circlesService.addPersonToCircle(firstCircleId, userId, relationshipType);
+      _loadCircles();
+      if (mounted) {
+        AppSnackbar.success(context, 'Person added successfully');
+      }
+    } catch (e) {
+      if (mounted) {
+        AppSnackbar.error(context, 'Failed to add person: $e');
+      }
+      rethrow;
+    }
   }
 
   Future<void> _handleCreate(FamilyCircleCreate circleData) async {
