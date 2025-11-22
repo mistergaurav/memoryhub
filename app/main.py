@@ -34,10 +34,11 @@ app = FastAPI(
 )
 
 # Build allowed origins list for CORS
-# Keep a short list of static origins for production/Replit
 allowed_origins = [
     "http://localhost:5000",
     "https://localhost:5000",
+    "http://127.0.0.1:5000",
+    "https://127.0.0.1:5000",
 ]
 
 # Add Replit preview domain if available
@@ -48,66 +49,13 @@ if replit_domain:
         f"http://{replit_domain}",
     ])
 
-# Import re for regex pattern matching
-import re
-
-# Helper function to check if origin matches localhost pattern
-def is_localhost_origin(origin: str) -> bool:
-    """Check if origin is localhost or 127.0.0.1 with any port"""
-    if not origin:
-        return False
-    # Match http://localhost or http://localhost:port or http://127.0.0.1 or http://127.0.0.1:port
-    # Also match https variants
-    pattern = r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
-    return bool(re.match(pattern, origin))
-
-# Global OPTIONS handler for CORS preflight requests MUST be added BEFORE including routers
-# This catches all OPTIONS requests before they reach endpoint validators that would fail on missing body
-from fastapi import Response, Request
-
-@app.options("/{path:path}", include_in_schema=False)
-async def global_options_handler(path: str, request: Request):
-    """
-    Handle CORS preflight OPTIONS requests globally.
-    
-    This is necessary because OPTIONS preflight requests don't include request bodies,
-    but FastAPI endpoint validators expect bodies for POST requests. This handler
-    intercepts all OPTIONS requests before they reach route-specific handlers that
-    would fail validation with 400 Bad Request.
-    
-    IMPORTANT: We echo the request origin instead of using "*" because browsers
-    reject credentialed requests (Access-Control-Allow-Credentials: true) when
-    Access-Control-Allow-Origin is set to "*". This is a security requirement.
-    """
-    origin = request.headers.get("origin", "")
-    
-    # Check if origin is in allowed_origins or matches localhost pattern
-    if origin in allowed_origins or is_localhost_origin(origin):
-        allowed_origin = origin
-    else:
-        allowed_origin = allowed_origins[0]
-    
-    return Response(
-        status_code=200,
-        headers={
-            "Access-Control-Allow-Origin": allowed_origin,
-            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-            "Access-Control-Allow-Headers": "Authorization, Content-Type, Accept, Origin, User-Agent, DNT, Cache-Control, X-Mx-ReqToken, Keep-Alive, X-Requested-With, If-Modified-Since",
-            "Access-Control-Max-Age": "86400",
-            "Access-Control-Allow-Credentials": "true",
-        }
-    )
-
-# CORS middleware with regex-based origin matching for localhost
-# This allows any localhost port for local development while being secure for production
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"],
 )
 
 # Include API routers

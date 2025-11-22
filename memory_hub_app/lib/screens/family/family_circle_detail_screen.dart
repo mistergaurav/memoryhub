@@ -538,7 +538,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
 
     if (confirmed == true) {
       try {
-        await _circlesService.removePersonFromCircle(_circle.id, member.id);
+        await _circlesService.removeCircleMember(_circle.id, member.id);
         _loadCircleDetails();
         if (mounted) {
           AppSnackbar.success(context, '${member.name} removed successfully');
@@ -621,29 +621,7 @@ class _FamilyCircleDetailScreenState extends State<FamilyCircleDetailScreen> {
     }
   }
 
-  void _confirmRemoveMember(CircleMember member) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Remove Member'),
-        content: Text('Are you sure you want to remove ${member.name} from this circle?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _handleRemoveMember(member);
-            },
-            style: TextButton.styleFrom(foregroundColor: MemoryHubColors.red500),
-            child: const Text('Remove'),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Future<void> _handleRemoveMember(CircleMember member) async {
     try {

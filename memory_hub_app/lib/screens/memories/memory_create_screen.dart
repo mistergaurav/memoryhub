@@ -12,6 +12,9 @@ import '../../design_system/utils/context_ext.dart';
 import '../../design_system/design_tokens.dart';
 import '../../design_system/tokens/radius_tokens.dart';
 import '../../design_system/tokens/spacing_tokens.dart';
+import '../../widgets/memories/visibility_selector.dart';
+import '../../widgets/memories/user_selection_sheet.dart';
+import '../../widgets/memories/circle_selection_sheet.dart';
 
 class MemoryCreateScreen extends StatefulWidget {
   const MemoryCreateScreen({super.key});
@@ -28,7 +31,10 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
   final _moodController = TextEditingController();
   final ApiService _apiService = ApiService();
   
-  String _privacy = 'private';
+  VisibilityType _visibilityType = VisibilityType.private;
+  List<String> _allowedUserIds = [];
+  List<String> _familyCircleIds = [];
+  
   List<File> _selectedFiles = [];
   bool _isLoading = false;
 
@@ -69,6 +75,111 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
     });
   }
 
+  void _showVisibilityOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padded.lg(
+            child: Text('Who can see this memory?', style: context.text.titleLarge),
+          ),
+          const Divider(height: 1),
+          _buildVisibilityOption(VisibilityType.private, 'Private', 'Only you', Icons.lock_outline),
+          _buildVisibilityOption(VisibilityType.friends, 'Friends', 'Your friends', Icons.people_outline),
+          _buildVisibilityOption(VisibilityType.family, 'Family', 'Your family members', Icons.family_restroom),
+          _buildVisibilityOption(VisibilityType.familyCircle, 'Family Circle', 'Select specific circles', Icons.diversity_3),
+          _buildVisibilityOption(VisibilityType.specificUsers, 'Specific Users', 'Select specific people', Icons.person_add_alt),
+          _buildVisibilityOption(VisibilityType.public, 'Public', 'Anyone on MemoryHub', Icons.public),
+          VGap.lg(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVisibilityOption(VisibilityType type, String title, String subtitle, IconData icon) {
+    return ListTile(
+      leading: Icon(icon, color: context.colors.primary),
+      title: Text(title),
+      subtitle: Text(subtitle),
+      onTap: () {
+        Navigator.pop(context);
+        _handleVisibilitySelection(type);
+      },
+      trailing: _visibilityType == type ? Icon(Icons.check, color: context.colors.primary) : null,
+    );
+  }
+
+  void _handleVisibilitySelection(VisibilityType type) {
+    if (type == VisibilityType.specificUsers) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) => UserSelectionSheet(
+          initialSelectedIds: _allowedUserIds,
+          onSelectionChanged: (ids) {
+            setState(() {
+              _visibilityType = type;
+              _allowedUserIds = ids;
+              _familyCircleIds = []; // Clear circles if switching to users
+            });
+          },
+        ),
+      );
+    } else if (type == VisibilityType.familyCircle) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (context) => CircleSelectionSheet(
+          initialSelectedIds: _familyCircleIds,
+          onSelectionChanged: (ids) {
+            setState(() {
+              _visibilityType = type;
+              _familyCircleIds = ids;
+              _allowedUserIds = []; // Clear users if switching to circles
+            });
+          },
+        ),
+      );
+    } else {
+      setState(() {
+        _visibilityType = type;
+        _allowedUserIds = [];
+        _familyCircleIds = [];
+      });
+    }
+  }
+
+  String _getPrivacyString() {
+    switch (_visibilityType) {
+      case VisibilityType.private: return 'private';
+      case VisibilityType.friends: return 'friends';
+      case VisibilityType.public: return 'public';
+      case VisibilityType.family: return 'family';
+      case VisibilityType.familyCircle: return 'family_circle';
+      case VisibilityType.specificUsers: return 'specific_users';
+    }
+  }
+
+  String? _getSpecificLabel() {
+    if (_visibilityType == VisibilityType.specificUsers && _allowedUserIds.isNotEmpty) {
+      return '${_allowedUserIds.length} people';
+    }
+    if (_visibilityType == VisibilityType.familyCircle && _familyCircleIds.isNotEmpty) {
+      return '${_familyCircleIds.length} circles';
+    }
+    return null;
+  }
+
   Future<void> _handleCreate() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -85,7 +196,9 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
         title: _titleController.text.trim(),
         content: _contentController.text.trim(),
         tags: tags,
-        privacy: _privacy,
+        privacy: _getPrivacyString(),
+        allowedUserIds: _allowedUserIds,
+        familyCircleIds: _familyCircleIds,
         mood: _moodController.text.trim().isEmpty ? null : _moodController.text.trim(),
       );
 
@@ -159,49 +272,48 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
               },
             ),
             VGap.lg(),
-            TextFormField(
-              controller: _tagsController,
-              decoration: InputDecoration(
-                labelText: 'Tags (comma separated)',
-                border: OutlineInputBorder(
-                  borderRadius: Radii.lgRadius,
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _tagsController,
+                    decoration: InputDecoration(
+                      labelText: 'Tags',
+                      border: OutlineInputBorder(
+                        borderRadius: Radii.lgRadius,
+                      ),
+                      hintText: 'travel, family',
+                    ),
+                    style: context.text.bodyLarge,
+                  ),
                 ),
-                hintText: 'travel, family, vacation',
-              ),
-              style: context.text.bodyLarge,
-            ),
-            VGap.lg(),
-            TextFormField(
-              controller: _moodController,
-              decoration: InputDecoration(
-                labelText: 'Mood (optional)',
-                border: OutlineInputBorder(
-                  borderRadius: Radii.lgRadius,
+                HGap.md(),
+                Expanded(
+                  child: TextFormField(
+                    controller: _moodController,
+                    decoration: InputDecoration(
+                      labelText: 'Mood',
+                      border: OutlineInputBorder(
+                        borderRadius: Radii.lgRadius,
+                      ),
+                      hintText: 'Happy',
+                    ),
+                    style: context.text.bodyLarge,
+                  ),
                 ),
-                hintText: 'Happy, Excited, Nostalgic',
-              ),
-              style: context.text.bodyLarge,
-            ),
-            VGap.lg(),
-            DropdownButtonFormField<String>(
-              value: _privacy,
-              decoration: InputDecoration(
-                labelText: 'Privacy',
-                border: OutlineInputBorder(
-                  borderRadius: Radii.lgRadius,
-                ),
-              ),
-              style: context.text.bodyLarge,
-              items: const [
-                DropdownMenuItem(value: 'private', child: Text('Private')),
-                DropdownMenuItem(value: 'friends', child: Text('Friends')),
-                DropdownMenuItem(value: 'public', child: Text('Public')),
               ],
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() => _privacy = value);
-                }
-              },
+            ),
+            VGap.lg(),
+            Row(
+              children: [
+                Text('Visibility:', style: context.text.bodyLarge),
+                HGap.md(),
+                VisibilitySelector(
+                  selectedType: _visibilityType,
+                  onTap: _showVisibilityOptions,
+                  specificLabel: _getSpecificLabel(),
+                ),
+              ],
             ),
             VGap.xl(),
             Text(
@@ -212,62 +324,65 @@ class _MemoryCreateScreenState extends State<MemoryCreateScreen> {
             ),
             VGap.xs(),
             if (_selectedFiles.isNotEmpty)
-              SizedBox(
-                height: 120,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _selectedFiles.length,
-                  itemBuilder: (context, index) {
-                    return Stack(
-                      children: [
-                        Container(
-                          width: 120,
-                          margin: EdgeInsets.only(right: Spacing.xs),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: context.colors.outline,
-                            ),
-                            borderRadius: Radii.smRadius,
-                          ),
-                          child: ClipRRect(
-                            borderRadius: Radii.smRadius,
-                            child: Image.file(
-                              _selectedFiles[index],
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Center(
-                                  child: Icon(
-                                    Icons.file_present,
-                                    color: context.colors.outline,
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          top: 4,
-                          right: 12,
-                          child: GestureDetector(
-                            onTap: () => _removeFile(index),
-                            child: Container(
-                              padding: EdgeInsets.all(Spacing.xxs),
-                              decoration: BoxDecoration(
-                                color: MemoryHubColors.red500,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.close,
-                                size: 16,
-                                color: context.colors.onError,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
                 ),
+                itemCount: _selectedFiles.length,
+                itemBuilder: (context, index) {
+                  return Stack(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: context.colors.outline,
+                          ),
+                          borderRadius: Radii.smRadius,
+                        ),
+                        child: ClipRRect(
+                          borderRadius: Radii.smRadius,
+                          child: Image.file(
+                            _selectedFiles[index],
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Center(
+                                child: Icon(
+                                  Icons.file_present,
+                                  color: context.colors.outline,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: GestureDetector(
+                          onTap: () => _removeFile(index),
+                          child: Container(
+                            padding: EdgeInsets.all(Spacing.xxs),
+                            decoration: BoxDecoration(
+                              color: MemoryHubColors.red500,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.close,
+                              size: 16,
+                              color: context.colors.onError,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             if (_selectedFiles.isNotEmpty) VGap.xs(),
             SecondaryButton(

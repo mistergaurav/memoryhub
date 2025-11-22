@@ -23,6 +23,8 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
   late AnimationController _fabAnimationController;
   String _selectedView = 'grid';
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     super.initState();
@@ -88,6 +90,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: HealthRecordsDesignSystem.backgroundColor,
       body: AnimatedBuilder(
         animation: _controller,
@@ -135,7 +138,6 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
                 _buildModernAppBar(),
                 if (_controller.isLoaded) ...[
                   _buildQuickStats(),
-                  _buildFilterChips(),
                 ],
                 _buildContent(),
               ],
@@ -143,6 +145,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
           );
         },
       ),
+      endDrawer: _buildFilterDrawer(),
       floatingActionButton: _buildFAB(),
     );
   }
@@ -169,8 +172,8 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                HealthRecordsDesignSystem.deepCobalt.withOpacity(0.05),
-                HealthRecordsDesignSystem.tealAccent.withOpacity(0.05),
+                HealthRecordsDesignSystem.deepCobalt.withValues(alpha: 0.05),
+                HealthRecordsDesignSystem.tealAccent.withValues(alpha: 0.05),
                 HealthRecordsDesignSystem.surfaceColor,
               ],
             ),
@@ -183,7 +186,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
                 child: Icon(
                   Icons.favorite_rounded,
                   size: 140,
-                  color: HealthRecordsDesignSystem.errorRed.withOpacity(0.05),
+                  color: HealthRecordsDesignSystem.errorRed.withValues(alpha: 0.05),
                 ),
               ),
               Positioned(
@@ -192,7 +195,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
                 child: Icon(
                   Icons.medical_services_rounded,
                   size: 80,
-                  color: HealthRecordsDesignSystem.deepCobalt.withOpacity(0.06),
+                  color: HealthRecordsDesignSystem.deepCobalt.withValues(alpha: 0.06),
                 ),
               ),
               Positioned(
@@ -201,7 +204,7 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
                 child: Icon(
                   Icons.health_and_safety_rounded,
                   size: 45,
-                  color: HealthRecordsDesignSystem.tealAccent.withOpacity(0.08),
+                  color: HealthRecordsDesignSystem.tealAccent.withValues(alpha: 0.08),
                 ),
               ),
             ],
@@ -277,6 +280,16 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
             ),
           ],
         ),
+        IconButton(
+          icon: const Icon(
+            Icons.filter_list_rounded,
+            color: HealthRecordsDesignSystem.textSecondary,
+          ),
+          onPressed: () {
+            _scaffoldKey.currentState?.openEndDrawer();
+          },
+          tooltip: 'Filter Records',
+        ),
         const SizedBox(width: HealthRecordsDesignSystem.spacing8),
       ],
     );
@@ -318,54 +331,121 @@ class _HealthRecordsScreenState extends State<HealthRecordsScreen>
     );
   }
 
-  Widget _buildFilterChips() {
+  Widget _buildFilterDrawer() {
     final filters = [
       {
         'value': 'all',
-        'label': 'All',
+        'label': 'All Records',
         'icon': Icons.list_alt_rounded,
         'color': HealthRecordsDesignSystem.deepCobalt,
       },
       {
         'value': 'medical',
-        'label': 'Medical',
+        'label': 'Medical History',
         'icon': Icons.medical_services_rounded,
         'color': HealthRecordsDesignSystem.deepCobalt,
       },
       {
         'value': 'vaccination',
-        'label': 'Vaccination',
+        'label': 'Vaccinations',
         'icon': Icons.vaccines_rounded,
         'color': HealthRecordsDesignSystem.successGreen,
       },
       {
         'value': 'lab_result',
-        'label': 'Labs',
+        'label': 'Lab Results',
         'icon': Icons.science_rounded,
         'color': HealthRecordsDesignSystem.purpleAccent,
       },
       {
         'value': 'prescription',
-        'label': 'Rx',
+        'label': 'Prescriptions',
         'icon': Icons.medication_rounded,
         'color': HealthRecordsDesignSystem.warningOrange,
       },
       {
         'value': 'allergy',
-        'label': 'Allergy',
+        'label': 'Allergies',
         'icon': Icons.warning_amber_rounded,
         'color': HealthRecordsDesignSystem.errorRed,
       },
     ];
 
-    return SliverToBoxAdapter(
-      child: Container(
-        margin: const EdgeInsets.only(top: HealthRecordsDesignSystem.spacing16),
-        child: RecordFilterChips(
-          selectedFilter: _controller.selectedFilter,
-          onFilterSelected: (filter) => _controller.setFilter(filter),
-          filters: filters,
-        ),
+    return Drawer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  HealthRecordsDesignSystem.deepCobalt,
+                  HealthRecordsDesignSystem.deepCobalt.withValues(alpha: 0.8),
+                ],
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const Icon(
+                  Icons.filter_alt_rounded,
+                  color: Colors.white,
+                  size: 48,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Filter Records',
+                  style: HealthRecordsDesignSystem.textTheme.headlineSmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              itemCount: filters.length,
+              itemBuilder: (context, index) {
+                final filter = filters[index];
+                final isSelected = _controller.selectedFilter == filter['value'];
+                final color = filter['color'] as Color;
+
+                return ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      filter['icon'] as IconData,
+                      color: isSelected ? color : HealthRecordsDesignSystem.textSecondary,
+                    ),
+                  ),
+                  title: Text(
+                    filter['label'] as String,
+                    style: TextStyle(
+                      color: isSelected ? color : HealthRecordsDesignSystem.textPrimary,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  trailing: isSelected
+                      ? Icon(Icons.check_circle_rounded, color: color)
+                      : null,
+                  onTap: () {
+                    _controller.setFilter(filter['value'] as String);
+                    Navigator.pop(context); // Close drawer
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

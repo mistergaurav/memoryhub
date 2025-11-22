@@ -5,9 +5,9 @@ import 'add_event_dialog.dart';
 import 'add_milestone_dialog.dart';
 
 class AddTimelinePostDialog extends StatelessWidget {
-  final Function(Map\u003cString, dynamic\u003e) onEventSubmit;
-  final Function(Map\u003cString, dynamic\u003e) onMilestoneSubmit;
-  final Function(Map\u003cString, dynamic\u003e)? onPostSubmit;
+  final void Function(Map<String, dynamic>) onEventSubmit;
+  final void Function(Map<String, dynamic>) onMilestoneSubmit;
+  final void Function(Map<String, dynamic>)? onPostSubmit;
 
   const AddTimelinePostDialog({
     Key? key,

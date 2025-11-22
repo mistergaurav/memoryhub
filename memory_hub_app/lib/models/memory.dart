@@ -5,6 +5,9 @@ class Memory {
   final List<String> mediaUrls;
   final List<String> tags;
   final String privacy;
+  final List<String> allowedUserIds;
+  final List<String> familyCircleIds;
+  final List<Map<String, dynamic>> taggedFamilyMembers;
   final Map<String, double>? location;
   final String? mood;
   final String ownerId;
@@ -25,6 +28,9 @@ class Memory {
     this.mediaUrls = const [],
     this.tags = const [],
     this.privacy = 'private',
+    this.allowedUserIds = const [],
+    this.familyCircleIds = const [],
+    this.taggedFamilyMembers = const [],
     this.location,
     this.mood,
     required this.ownerId,
@@ -49,6 +55,15 @@ class Memory {
           : [],
       tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
       privacy: json['privacy'] ?? 'private',
+      allowedUserIds: json['allowed_user_ids'] != null
+          ? List<String>.from(json['allowed_user_ids'])
+          : [],
+      familyCircleIds: json['family_circle_ids'] != null
+          ? List<String>.from(json['family_circle_ids'])
+          : [],
+      taggedFamilyMembers: json['tagged_family_members'] != null
+          ? List<Map<String, dynamic>>.from(json['tagged_family_members'])
+          : [],
       location: json['location'] != null
           ? Map<String, double>.from(json['location'])
           : null,
@@ -78,6 +93,9 @@ class Memory {
       'media_urls': mediaUrls,
       'tags': tags,
       'privacy': privacy,
+      'allowed_user_ids': allowedUserIds,
+      'family_circle_ids': familyCircleIds,
+      'tagged_family_members': taggedFamilyMembers,
       'location': location,
       'mood': mood,
       'owner_id': ownerId,
@@ -99,6 +117,9 @@ class MemoryCreate {
   final String content;
   final List<String> tags;
   final String privacy;
+  final List<String> allowedUserIds;
+  final List<String> familyCircleIds;
+  final List<Map<String, dynamic>> taggedFamilyMembers;
   final String? location;
   final String? mood;
 
@@ -107,19 +128,10 @@ class MemoryCreate {
     required this.content,
     this.tags = const [],
     this.privacy = 'private',
+    this.allowedUserIds = const [],
+    this.familyCircleIds = const [],
+    this.taggedFamilyMembers = const [],
     this.location,
     this.mood,
   });
-
-  // Note: This method is not currently used. Tags are JSON-encoded in ApiService.createMemory
-  Map<String, dynamic> toFormData() {
-    return {
-      'title': title,
-      'content': content,
-      'tags': tags,  // Keep as list for potential future use
-      'privacy': privacy,
-      if (location != null) 'location': location,
-      if (mood != null) 'mood': mood,
-    };
-  }
 }

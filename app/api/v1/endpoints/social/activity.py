@@ -27,24 +27,65 @@ async def get_activity_feed(
     current_user: UserInDB = Depends(get_current_user)
 ):
     """Get activity feed from followed users using MongoDB aggregation"""
-    # Get users that current user follows
+    current_user_id = ObjectId(current_user.id)
+    
+    # 1. Get users that current user follows
     relationships = await get_collection("relationships").find({
-        "follower_id": ObjectId(current_user.id),
+        "follower_id": current_user_id,
         "status": "accepted"
     }).to_list(length=None)
-    
     following_ids = [rel["following_id"] for rel in relationships]
-    following_ids.append(ObjectId(current_user.id))  # Include own activities
+    
+    # 2. Get family members
+    family_rels = await get_collection("family_relationships").find({
+        "user_id": current_user_id
+    }).to_list(length=None)
+    family_ids = [rel["related_user_id"] for rel in family_rels]
+    
+    # 3. Get circles user is a member of
+    my_circles = await get_collection("family_circles").find({
+        "member_ids": current_user_id
+    }).to_list(length=None)
+    my_circle_ids = [str(circle["_id"]) for circle in my_circles]
     
     skip = (page - 1) * limit
     
+    # Complex match condition for memories
+    memory_match = {
+        "$or": [
+            # 1. Own memories
+            {"owner_id": current_user_id},
+            
+            # 2. Public/Friends memories from people I follow
+            {
+                "owner_id": {"$in": following_ids},
+                "privacy": {"$in": ["public", "friends"]} 
+            },
+            
+            # 3. Family memories from relatives
+            {
+                "owner_id": {"$in": family_ids},
+                "privacy": "family"
+            },
+            
+            # 4. Circle memories
+            {
+                "family_circle_ids": {"$in": my_circle_ids},
+                "privacy": "family_circle"
+            },
+            
+            # 5. Specific users (shared with me)
+            {
+                "allowed_user_ids": str(current_user_id),
+                "privacy": "specific_users"
+            }
+        ]
+    }
+
     # Use MongoDB aggregation with $unionWith and $facet for accurate pagination
     pipeline = [
         {
-            "$match": {
-                "owner_id": {"$in": following_ids},
-                "privacy": {"$ne": "private"}
-            }
+            "$match": memory_match
         },
         {
             "$addFields": {

@@ -9,6 +9,9 @@ class MemoryPrivacy(str, Enum):
     PRIVATE = "private"
     FRIENDS = "friends"
     PUBLIC = "public"
+    FAMILY = "family"
+    FAMILY_CIRCLE = "family_circle"
+    SPECIFIC_USERS = "specific_users"
 
 class MemoryBase(BaseModel):
     title: str
@@ -16,6 +19,7 @@ class MemoryBase(BaseModel):
     media_urls: List[str] = Field(default_factory=list)
     tags: List[str] = Field(default_factory=list)
     privacy: MemoryPrivacy = MemoryPrivacy.PRIVATE
+    allowed_user_ids: List[str] = Field(default_factory=list)  # For SPECIFIC_USERS privacy
     location: Optional[Dict[str, float]] = None  # { "lat": 0.0, "lng": 0.0 }
     mood: Optional[str] = None
     weather: Optional[Dict[str, Any]] = None
@@ -46,6 +50,7 @@ class MemoryUpdate(BaseModel):
     media_urls: Optional[List[str]] = None
     tags: Optional[List[str]] = None
     privacy: Optional[MemoryPrivacy] = None
+    allowed_user_ids: Optional[List[str]] = None
     location: Optional[Dict[str, float]] = None
     mood: Optional[str] = None
     genealogy_person_ids: Optional[List[str]] = None

@@ -37,6 +37,7 @@ async def create_memory(
     content: str = Form(...),
     tags: str = Form("[]"),  # Accept tags as JSON string
     privacy: MemoryPrivacy = Form(MemoryPrivacy.PRIVATE),
+    allowed_user_ids: str = Form("[]"), # JSON array of user IDs for SPECIFIC_USERS privacy
     location: Optional[str] = Form(None),
     mood: Optional[str] = Form(None),
     tagged_family_members: str = Form("[]"),  # JSON array of {"user_id": "xxx", "relation": "mom"}
@@ -51,6 +52,12 @@ async def create_memory(
     except json.JSONDecodeError:
         tags_list = []
     
+    # Parse allowed_user_ids
+    try:
+        allowed_users = json.loads(allowed_user_ids) if allowed_user_ids else []
+    except json.JSONDecodeError:
+        allowed_users = []
+
     # Parse family tags
     try:
         tagged_family = json.loads(tagged_family_members) if tagged_family_members else []
@@ -63,6 +70,18 @@ async def create_memory(
     except json.JSONDecodeError:
         family_circles = []
     
+    # Validate allowed_user_ids - ensure they exist
+    validated_allowed_users = []
+    if privacy == MemoryPrivacy.SPECIFIC_USERS:
+        for user_id in allowed_users:
+            try:
+                user_oid = ObjectId(user_id)
+                user = await get_collection("users").find_one({"_id": user_oid})
+                if user:
+                    validated_allowed_users.append(user_id)
+            except:
+                continue
+
     # Validate tagged family members - ensure they are in user's family relationships
     validated_family_tags = []
     for family_member in tagged_family:
@@ -120,6 +139,7 @@ async def create_memory(
         "content": content,
         "tags": tags_list,
         "privacy": privacy,
+        "allowed_user_ids": validated_allowed_users,
         "media_urls": media_urls,
         "owner_id": ObjectId(current_user.id),
         "mood": mood,

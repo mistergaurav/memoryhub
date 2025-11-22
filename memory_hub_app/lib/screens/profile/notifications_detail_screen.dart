@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'package:memory_hub_app/design_system/design_system.dart';
 import '../../widgets/collapsible_settings_group.dart';
 import '../../design_system/layout/padded.dart';
+import '../../providers/notifications_provider.dart';
 
 class NotificationsDetailScreen extends StatefulWidget {
   const NotificationsDetailScreen({super.key});
@@ -12,47 +13,12 @@ class NotificationsDetailScreen extends StatefulWidget {
 }
 
 class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
-  bool _notificationsEnabled = true;
-  bool _emailNotifications = true;
-  bool _pushNotifications = true;
-  bool _memoriesNotif = true;
-  bool _commentsNotif = true;
-  bool _reactionsNotif = true;
-  bool _followersNotif = true;
-
   @override
   void initState() {
     super.initState();
-    _loadSettings();
-  }
-
-  Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
-      _emailNotifications = prefs.getBool('email_notifications') ?? true;
-      _pushNotifications = prefs.getBool('push_notifications') ?? true;
-      _memoriesNotif = prefs.getBool('memories_notif') ?? true;
-      _commentsNotif = prefs.getBool('comments_notif') ?? true;
-      _reactionsNotif = prefs.getBool('reactions_notif') ?? true;
-      _followersNotif = prefs.getBool('followers_notif') ?? true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<NotificationsProvider>(context, listen: false).loadSettings();
     });
-  }
-
-  Future<void> _saveSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('notifications_enabled', _notificationsEnabled);
-    await prefs.setBool('email_notifications', _emailNotifications);
-    await prefs.setBool('push_notifications', _pushNotifications);
-    await prefs.setBool('memories_notif', _memoriesNotif);
-    await prefs.setBool('comments_notif', _commentsNotif);
-    await prefs.setBool('reactions_notif', _reactionsNotif);
-    await prefs.setBool('followers_notif', _followersNotif);
-    
-    if (mounted) {
-      AppSnackbar.success(context, 'Settings saved successfully',
-      );
-    }
   }
 
   @override
@@ -60,144 +26,75 @@ class _NotificationsDetailScreenState extends State<NotificationsDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifications'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveSettings,
-            tooltip: 'Save Settings',
-          ),
-        ],
       ),
-      body: Padded.lg(
-        child: ListView(
-          children: [
-            Padded.lg(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [context.colors.primary, context.colors.primaryContainer],
-                  ),
-                  borderRadius: BorderRadius.circular(MemoryHubBorderRadius.lg),
-                ),
-                child: Row(
+      body: Consumer<NotificationsProvider>(
+        builder: (context, provider, child) {
+          if (provider.settingsLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final settings = provider.settings;
+          
+          // Helper to safely get bool value
+          bool getVal(String key) => settings[key] ?? true;
+          
+          // Helper to update setting
+          void update(String key, bool value) {
+            final newSettings = Map<String, bool>.from(settings);
+            newSettings[key] = value;
+            provider.updateSettings(newSettings);
+          }
+
+          return Padded.lg(
+            child: ListView(
+              children: [
+                CollapsibleSettingsGroup(
+                  title: 'General',
+                  icon: Icons.settings,
                   children: [
-                    Icon(Icons.notifications_active, color: context.colors.onPrimary, size: 32),
-                    HGap.md(),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Master Control',
-                            style: context.text.titleMedium?.copyWith(
-                              color: context.colors.onPrimary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Enable or disable all notifications',
-                            style: context.text.bodyMedium?.copyWith(
-                              color: context.colors.onPrimary.withValues(alpha: 0.9),
-                            ),
-                          ),
-                        ],
-                      ),
+                    SwitchListTile(
+                      title: const Text('Email Notifications'),
+                      subtitle: const Text('Receive important updates via email'),
+                      value: getVal('email_notifications'),
+                      onChanged: (val) => update('email_notifications', val),
                     ),
-                    Switch(
-                      value: _notificationsEnabled,
-                      onChanged: (value) {
-                        setState(() => _notificationsEnabled = value);
-                      },
-                      activeColor: context.colors.onPrimary,
-                      activeTrackColor: context.colors.onPrimary.withValues(alpha: 0.5),
+                    SwitchListTile(
+                      title: const Text('Push Notifications'),
+                      subtitle: const Text('Receive notifications on this device'),
+                      value: getVal('push_notifications'),
+                      onChanged: (val) => update('push_notifications', val),
                     ),
                   ],
                 ),
-              ),
+                VGap.md(),
+                CollapsibleSettingsGroup(
+                  title: 'Activity',
+                  icon: Icons.notifications_active,
+                  children: [
+                    SwitchListTile(
+                      title: const Text('Health Updates'),
+                      subtitle: const Text('New health records and status changes'),
+                      value: getVal('health_updates'),
+                      onChanged: (val) => update('health_updates', val),
+                    ),
+                    SwitchListTile(
+                      title: const Text('Family Activity'),
+                      subtitle: const Text('New members and family updates'),
+                      value: getVal('family_activity'),
+                      onChanged: (val) => update('family_activity', val),
+                    ),
+                    SwitchListTile(
+                      title: const Text('Memories'),
+                      subtitle: const Text('New memories and comments'),
+                      value: getVal('memories'),
+                      onChanged: (val) => update('memories', val),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          VGap.lg(),
-          CollapsibleSettingsGroup(
-            title: 'Notification Channels',
-            icon: Icons.send,
-            children: [
-              SwitchListTile(
-                title: const Text('Email Notifications'),
-                subtitle: const Text('Receive notifications via email'),
-                value: _emailNotifications,
-                onChanged: _notificationsEnabled
-                    ? (value) {
-                        setState(() => _emailNotifications = value);
-                      }
-                    : null,
-              ),
-              SwitchListTile(
-                title: const Text('Push Notifications'),
-                subtitle: const Text('Receive push notifications'),
-                value: _pushNotifications,
-                onChanged: _notificationsEnabled
-                    ? (value) {
-                        setState(() => _pushNotifications = value);
-                      }
-                    : null,
-              ),
-            ],
-          ),
-          VGap.md(),
-          CollapsibleSettingsGroup(
-            title: 'Content Notifications',
-            icon: Icons.auto_awesome,
-            children: [
-              SwitchListTile(
-                title: const Text('New Memories'),
-                subtitle: const Text('When people you follow share memories'),
-                value: _memoriesNotif,
-                onChanged: _notificationsEnabled
-                    ? (value) {
-                        setState(() => _memoriesNotif = value);
-                      }
-                    : null,
-              ),
-              SwitchListTile(
-                title: const Text('Comments'),
-                subtitle: const Text('When someone comments on your content'),
-                value: _commentsNotif,
-                onChanged: _notificationsEnabled
-                    ? (value) {
-                        setState(() => _commentsNotif = value);
-                      }
-                    : null,
-              ),
-              SwitchListTile(
-                title: const Text('Reactions'),
-                subtitle: const Text('When someone reacts to your content'),
-                value: _reactionsNotif,
-                onChanged: _notificationsEnabled
-                    ? (value) {
-                        setState(() => _reactionsNotif = value);
-                      }
-                    : null,
-              ),
-            ],
-          ),
-          VGap.md(),
-          CollapsibleSettingsGroup(
-            title: 'Social Notifications',
-            icon: Icons.people,
-            children: [
-              SwitchListTile(
-                title: const Text('New Followers'),
-                subtitle: const Text('When someone follows you'),
-                value: _followersNotif,
-                onChanged: _notificationsEnabled
-                    ? (value) {
-                        setState(() => _followersNotif = value);
-                      }
-                    : null,
-              ),
-            ],
-          ),
-        ],
-        ),
+          );
+        },
       ),
     );
   }

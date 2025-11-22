@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'config/api_config.dart';
 import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
+import 'providers/user_provider.dart';
+import 'providers/theme_provider.dart';
+import 'providers/notifications_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/signup_screen.dart';
 import 'screens/auth/password_reset_request_screen.dart';
 import 'screens/auth/password_reset_confirm_screen.dart';
-import 'screens/hub/hub_screen.dart';
 import 'screens/memories/memories_list_screen.dart';
 import 'screens/memories/memory_create_screen.dart';
 import 'screens/memories/memory_detail_screen.dart';
@@ -93,211 +96,222 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Memory Hub',
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
-      debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
-      onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case '/login':
-            return MaterialPageRoute(builder: (_) => const LoginScreen());
-          case '/signup':
-            return MaterialPageRoute(builder: (_) => const SignupScreen());
-          case '/memories':
-            return MaterialPageRoute(builder: (_) => const MemoriesListScreen());
-          case '/memories/create':
-            return MaterialPageRoute(builder: (_) => const MemoryCreateScreen());
-          case '/memories/detail':
-            final memoryId = settings.arguments as String;
-            return MaterialPageRoute(
-              builder: (_) => MemoryDetailScreen(memoryId: memoryId),
-            );
-          case '/vault':
-            return MaterialPageRoute(builder: (_) => const VaultListScreen());
-          case '/vault/upload':
-            return MaterialPageRoute(builder: (_) => const VaultUploadScreen());
-          case '/vault/detail':
-            final fileId = settings.arguments as String;
-            return MaterialPageRoute(
-              builder: (_) => VaultDetailScreen(fileId: fileId),
-            );
-          case '/profile/edit':
-            return MaterialPageRoute(builder: (_) => const EditProfileScreen());
-          case '/profile/password':
-            return MaterialPageRoute(builder: (_) => const ChangePasswordScreen());
-          case '/profile/settings':
-            return MaterialPageRoute(builder: (_) => const SettingsHomeScreen());
-          case '/settings/old':
-            return MaterialPageRoute(builder: (_) => const SettingsScreen());
-          case '/settings/account-security':
-            return MaterialPageRoute(builder: (_) => const AccountSecurityScreen());
-          case '/settings/notifications':
-            return MaterialPageRoute(builder: (_) => const NotificationsDetailScreen());
-          case '/settings/personalization':
-            return MaterialPageRoute(builder: (_) => const PersonalizationScreen());
-          case '/settings/support':
-            return MaterialPageRoute(builder: (_) => const SupportLegalScreen());
-          case '/profile/view':
-            final userId = settings.arguments as String;
-            return MaterialPageRoute(
-              builder: (_) => UserProfileViewScreen(userId: userId),
-            );
-          case '/social/hubs':
-            return MaterialPageRoute(builder: (_) => const HubsScreen());
-          case '/social/search':
-            return MaterialPageRoute(builder: (_) => const UserSearchScreen());
-          case '/notifications':
-            return MaterialPageRoute(builder: (_) => const NotificationsScreen());
-          case '/notifications/detail':
-            final notificationId = settings.arguments as String;
-            return MaterialPageRoute(
-              builder: (_) => NotificationDetailScreen(notificationId: notificationId),
-            );
-          case '/collections':
-            return MaterialPageRoute(builder: (_) => const CollectionsScreen());
-          case '/analytics':
-            return MaterialPageRoute(builder: (_) => const AnalyticsScreen());
-          case '/activity':
-            return MaterialPageRoute(builder: (_) => const ActivityFeedScreen());
-          case '/admin':
-            return MaterialPageRoute(builder: (_) => const AdminDashboardScreen());
-          case '/admin/users':
-            return MaterialPageRoute(builder: (_) => const AdminUsersScreen());
-          case '/search':
-            return MaterialPageRoute(builder: (_) => const SearchScreen());
-          case '/search/advanced':
-            return MaterialPageRoute(builder: (_) => const AdvancedSearchScreen());
-          case '/tags':
-            return MaterialPageRoute(builder: (_) => const TagsScreen());
-          case '/tags/detail':
-            final tag = settings.arguments as String;
-            return MaterialPageRoute(builder: (_) => TagDetailScreen(tag: tag));
-          case '/tags/management':
-            return MaterialPageRoute(builder: (_) => const TagsManagementScreen());
-          case '/stories':
-            return MaterialPageRoute(builder: (_) => const StoriesScreen());
-          case '/stories/create':
-            return MaterialPageRoute(builder: (_) => const CreateStoryScreen());
-          case '/stories/view':
-            final storyId = settings.arguments as String;
-            return MaterialPageRoute(builder: (_) => StoryViewerScreen(storyId: storyId));
-          case '/voice-notes':
-            return MaterialPageRoute(builder: (_) => const VoiceNotesScreen());
-          case '/voice-notes/create':
-            return MaterialPageRoute(builder: (_) => const CreateVoiceNoteScreen());
-          case '/categories':
-            return MaterialPageRoute(builder: (_) => const CategoriesScreen());
-          case '/categories/detail':
-            final categoryId = settings.arguments as String;
-            return MaterialPageRoute(builder: (_) => CategoryDetailScreen(categoryId: categoryId));
-          case '/reminders':
-            return MaterialPageRoute(builder: (_) => const RemindersScreen());
-          case '/reminders/create':
-            return MaterialPageRoute(builder: (_) => const CreateReminderScreen());
-          case '/export':
-            return MaterialPageRoute(builder: (_) => const ExportScreen());
-          case '/privacy/settings':
-            return MaterialPageRoute(builder: (_) => const PrivacySettingsScreen());
-          case '/privacy/blocked':
-            return MaterialPageRoute(builder: (_) => const BlockedUsersScreen());
-          case '/places':
-            return MaterialPageRoute(builder: (_) => const PlacesScreen());
-          case '/places/nearby':
-            return MaterialPageRoute(builder: (_) => const NearbyPlacesScreen());
-          case '/places/detail':
-            final placeId = settings.arguments as String;
-            return MaterialPageRoute(builder: (_) => PlaceDetailScreen(placeId: placeId));
-          case '/places/create':
-            return MaterialPageRoute(builder: (_) => const CreatePlaceScreen());
-          case '/password-reset/request':
-            return MaterialPageRoute(builder: (_) => const PasswordResetRequestScreen());
-          case '/password-reset/confirm':
-            final token = settings.arguments as String?;
-            return MaterialPageRoute(builder: (_) => PasswordResetConfirmScreen(token: token));
-          case '/admin/moderation':
-            return MaterialPageRoute(builder: (_) => const AdminModerationScreen());
-          case '/2fa/setup':
-            return MaterialPageRoute(builder: (_) => const TwoFactorSetupScreen());
-          case '/2fa/verify':
-            return MaterialPageRoute(builder: (_) => const TwoFactorVerifyScreen());
-          case '/scheduled-posts':
-            return MaterialPageRoute(builder: (_) => const ScheduledPostsScreen());
-          case '/scheduled-posts/create':
-            return MaterialPageRoute(builder: (_) => const CreateScheduledPostScreen());
-          case '/templates':
-            return MaterialPageRoute(builder: (_) => const TemplatesScreen());
-          case '/templates/create':
-            return MaterialPageRoute(builder: (_) => const TemplateEditorScreen());
-          case '/comments':
-            final args = settings.arguments as Map<String, String>;
-            return MaterialPageRoute(
-              builder: (_) => CommentsScreen(
-                targetId: args['targetId']!,
-                targetType: args['targetType']!,
-              ),
-            );
-          case '/sharing':
-            return MaterialPageRoute(builder: (_) => const FileSharingScreen());
-          case '/sharing/shared':
-            return MaterialPageRoute(builder: (_) => const SharedFilesScreen());
-          case '/sharing/management':
-            return MaterialPageRoute(builder: (_) => const ShareManagementScreen());
-          case '/sharing/qr-code':
-            final args = settings.arguments as Map<String, String>;
-            return MaterialPageRoute(
-              builder: (_) => QRCodeScreen(
-                shareUrl: args['shareUrl']!,
-                title: args['title']!,
-                description: args['description'],
-              ),
-            );
-          case '/gdpr/consent':
-            return MaterialPageRoute(builder: (_) => const ConsentManagementScreen());
-          case '/gdpr/export':
-            return MaterialPageRoute(builder: (_) => const DataExportScreen());
-          case '/gdpr/delete':
-            return MaterialPageRoute(builder: (_) => const AccountDeletionScreen());
-          case '/reactions':
-            final args = settings.arguments as Map<String, String>;
-            return MaterialPageRoute(
-              builder: (_) => ReactionsScreen(
-                targetId: args['targetId']!,
-                targetType: args['targetType']!,
-              ),
-            );
-          case '/dashboard':
-            return MaterialPageRoute(builder: (_) => const DashboardScreen());
-          case '/family':
-            return MaterialPageRoute(builder: (_) => const FamilyHubDashboardScreen());
-          case '/family/albums':
-            return MaterialPageRoute(builder: (_) => const FamilyAlbumsScreen());
-          case '/family/timeline':
-            return MaterialPageRoute(builder: (_) => const FamilyTimelineScreen());
-          case '/family/calendar':
-            return MaterialPageRoute(builder: (_) => const FamilyCalendarScreen());
-          case '/family/milestones':
-            return MaterialPageRoute(builder: (_) => const FamilyMilestonesScreen());
-          case '/family/recipes':
-            return MaterialPageRoute(builder: (_) => const FamilyRecipesScreen());
-          case '/family/letters':
-            return MaterialPageRoute(builder: (_) => const LegacyLettersScreen());
-          case '/family/traditions':
-            return MaterialPageRoute(builder: (_) => const FamilyTraditionsScreen());
-          case '/family/parental-controls':
-            return MaterialPageRoute(builder: (_) => const ParentalControlsScreen());
-          case '/family/vault':
-            return MaterialPageRoute(builder: (_) => const FamilyDocumentVaultScreen());
-          case '/family/genealogy':
-            return MaterialPageRoute(builder: (_) => const GenealogyTreeScreen());
-          case '/family/health':
-            return MaterialPageRoute(builder: (_) => const HealthRecordsScreen());
-          default:
-            return null;
-        }
-      },
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationsProvider()),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'Memory Hub',
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            themeMode: themeProvider.themeMode,
+            debugShowCheckedModeBanner: false,
+            home: const SplashScreen(),
+            onGenerateRoute: (settings) {
+              switch (settings.name) {
+                case '/login':
+                  return MaterialPageRoute(builder: (_) => const LoginScreen());
+                case '/signup':
+                  return MaterialPageRoute(builder: (_) => const SignupScreen());
+                case '/memories':
+                  return MaterialPageRoute(builder: (_) => const MemoriesListScreen());
+                case '/memories/create':
+                  return MaterialPageRoute(builder: (_) => const MemoryCreateScreen());
+                case '/memories/detail':
+                  final memoryId = settings.arguments as String;
+                  return MaterialPageRoute(
+                    builder: (_) => MemoryDetailScreen(memoryId: memoryId),
+                  );
+                case '/vault':
+                  return MaterialPageRoute(builder: (_) => const VaultListScreen());
+                case '/vault/upload':
+                  return MaterialPageRoute(builder: (_) => const VaultUploadScreen());
+                case '/vault/detail':
+                  final fileId = settings.arguments as String;
+                  return MaterialPageRoute(
+                    builder: (_) => VaultDetailScreen(fileId: fileId),
+                  );
+                case '/profile/edit':
+                  return MaterialPageRoute(builder: (_) => const EditProfileScreen());
+                case '/profile/password':
+                  return MaterialPageRoute(builder: (_) => const ChangePasswordScreen());
+                case '/profile/settings':
+                  return MaterialPageRoute(builder: (_) => const SettingsHomeScreen());
+                case '/settings/old':
+                  return MaterialPageRoute(builder: (_) => const SettingsScreen());
+                case '/settings/account-security':
+                  return MaterialPageRoute(builder: (_) => const AccountSecurityScreen());
+                case '/settings/notifications':
+                  return MaterialPageRoute(builder: (_) => const NotificationsDetailScreen());
+                case '/settings/personalization':
+                  return MaterialPageRoute(builder: (_) => const PersonalizationScreen());
+                case '/settings/support':
+                  return MaterialPageRoute(builder: (_) => const SupportLegalScreen());
+                case '/profile/view':
+                  final userId = settings.arguments as String;
+                  return MaterialPageRoute(
+                    builder: (_) => UserProfileViewScreen(userId: userId),
+                  );
+                case '/social/hubs':
+                  return MaterialPageRoute(builder: (_) => const HubsScreen());
+                case '/social/search':
+                  return MaterialPageRoute(builder: (_) => const UserSearchScreen());
+                case '/notifications':
+                  return MaterialPageRoute(builder: (_) => const NotificationsScreen());
+                case '/notifications/detail':
+                  final notificationId = settings.arguments as String;
+                  return MaterialPageRoute(
+                    builder: (_) => NotificationDetailScreen(notificationId: notificationId),
+                  );
+                case '/collections':
+                  return MaterialPageRoute(builder: (_) => const CollectionsScreen());
+                case '/analytics':
+                  return MaterialPageRoute(builder: (_) => const AnalyticsScreen());
+                case '/activity':
+                  return MaterialPageRoute(builder: (_) => const ActivityFeedScreen());
+                case '/admin':
+                  return MaterialPageRoute(builder: (_) => const AdminDashboardScreen());
+                case '/admin/users':
+                  return MaterialPageRoute(builder: (_) => const AdminUsersScreen());
+                case '/search':
+                  return MaterialPageRoute(builder: (_) => const SearchScreen());
+                case '/search/advanced':
+                  return MaterialPageRoute(builder: (_) => const AdvancedSearchScreen());
+                case '/tags':
+                  return MaterialPageRoute(builder: (_) => const TagsScreen());
+                case '/tags/detail':
+                  final tag = settings.arguments as String;
+                  return MaterialPageRoute(builder: (_) => TagDetailScreen(tag: tag));
+                case '/tags/management':
+                  return MaterialPageRoute(builder: (_) => const TagsManagementScreen());
+                case '/stories':
+                  return MaterialPageRoute(builder: (_) => const StoriesScreen());
+                case '/stories/create':
+                  return MaterialPageRoute(builder: (_) => const CreateStoryScreen());
+                case '/stories/view':
+                  final storyId = settings.arguments as String;
+                  return MaterialPageRoute(builder: (_) => StoryViewerScreen(storyId: storyId));
+                case '/voice-notes':
+                  return MaterialPageRoute(builder: (_) => const VoiceNotesScreen());
+                case '/voice-notes/create':
+                  return MaterialPageRoute(builder: (_) => const CreateVoiceNoteScreen());
+                case '/categories':
+                  return MaterialPageRoute(builder: (_) => const CategoriesScreen());
+                case '/categories/detail':
+                  final categoryId = settings.arguments as String;
+                  return MaterialPageRoute(builder: (_) => CategoryDetailScreen(categoryId: categoryId));
+                case '/reminders':
+                  return MaterialPageRoute(builder: (_) => const RemindersScreen());
+                case '/reminders/create':
+                  return MaterialPageRoute(builder: (_) => const CreateReminderScreen());
+                case '/export':
+                  return MaterialPageRoute(builder: (_) => const ExportScreen());
+                case '/privacy/settings':
+                  return MaterialPageRoute(builder: (_) => const PrivacySettingsScreen());
+                case '/privacy/blocked':
+                  return MaterialPageRoute(builder: (_) => const BlockedUsersScreen());
+                case '/places':
+                  return MaterialPageRoute(builder: (_) => const PlacesScreen());
+                case '/places/nearby':
+                  return MaterialPageRoute(builder: (_) => const NearbyPlacesScreen());
+                case '/places/detail':
+                  final placeId = settings.arguments as String;
+                  return MaterialPageRoute(builder: (_) => PlaceDetailScreen(placeId: placeId));
+                case '/places/create':
+                  return MaterialPageRoute(builder: (_) => const CreatePlaceScreen());
+                case '/password-reset/request':
+                  return MaterialPageRoute(builder: (_) => const PasswordResetRequestScreen());
+                case '/password-reset/confirm':
+                  final token = settings.arguments as String?;
+                  return MaterialPageRoute(builder: (_) => PasswordResetConfirmScreen(token: token));
+                case '/admin/moderation':
+                  return MaterialPageRoute(builder: (_) => const AdminModerationScreen());
+                case '/2fa/setup':
+                  return MaterialPageRoute(builder: (_) => const TwoFactorSetupScreen());
+                case '/2fa/verify':
+                  return MaterialPageRoute(builder: (_) => const TwoFactorVerifyScreen());
+                case '/scheduled-posts':
+                  return MaterialPageRoute(builder: (_) => const ScheduledPostsScreen());
+                case '/scheduled-posts/create':
+                  return MaterialPageRoute(builder: (_) => const CreateScheduledPostScreen());
+                case '/templates':
+                  return MaterialPageRoute(builder: (_) => const TemplatesScreen());
+                case '/templates/create':
+                  return MaterialPageRoute(builder: (_) => const TemplateEditorScreen());
+                case '/comments':
+                  final args = settings.arguments as Map<String, String>;
+                  return MaterialPageRoute(
+                    builder: (_) => CommentsScreen(
+                      targetId: args['targetId']!,
+                      targetType: args['targetType']!,
+                    ),
+                  );
+                case '/sharing':
+                  return MaterialPageRoute(builder: (_) => const FileSharingScreen());
+                case '/sharing/shared':
+                  return MaterialPageRoute(builder: (_) => const SharedFilesScreen());
+                case '/sharing/management':
+                  return MaterialPageRoute(builder: (_) => const ShareManagementScreen());
+                case '/sharing/qr-code':
+                  final args = settings.arguments as Map<String, String>;
+                  return MaterialPageRoute(
+                    builder: (_) => QRCodeScreen(
+                      shareUrl: args['shareUrl']!,
+                      title: args['title']!,
+                      description: args['description'],
+                    ),
+                  );
+                case '/gdpr/consent':
+                  return MaterialPageRoute(builder: (_) => const ConsentManagementScreen());
+                case '/gdpr/export':
+                  return MaterialPageRoute(builder: (_) => const DataExportScreen());
+                case '/gdpr/delete':
+                  return MaterialPageRoute(builder: (_) => const AccountDeletionScreen());
+                case '/reactions':
+                  final args = settings.arguments as Map<String, String>;
+                  return MaterialPageRoute(
+                    builder: (_) => ReactionsScreen(
+                      targetId: args['targetId']!,
+                      targetType: args['targetType']!,
+                    ),
+                  );
+                case '/dashboard':
+                  return MaterialPageRoute(builder: (_) => const DashboardScreen());
+                case '/family':
+                  return MaterialPageRoute(builder: (_) => const FamilyHubDashboardScreen());
+                case '/family/albums':
+                  return MaterialPageRoute(builder: (_) => const FamilyAlbumsScreen());
+                case '/family/timeline':
+                  return MaterialPageRoute(builder: (_) => const FamilyTimelineScreen());
+                case '/family/calendar':
+                  return MaterialPageRoute(builder: (_) => const FamilyCalendarScreen());
+                case '/family/milestones':
+                  return MaterialPageRoute(builder: (_) => const FamilyMilestonesScreen());
+                case '/family/recipes':
+                  return MaterialPageRoute(builder: (_) => const FamilyRecipesScreen());
+                case '/family/letters':
+                  return MaterialPageRoute(builder: (_) => const LegacyLettersScreen());
+                case '/family/traditions':
+                  return MaterialPageRoute(builder: (_) => const FamilyTraditionsScreen());
+                case '/family/parental-controls':
+                  return MaterialPageRoute(builder: (_) => const ParentalControlsScreen());
+                case '/family/vault':
+                  return MaterialPageRoute(builder: (_) => const FamilyDocumentVaultScreen());
+                case '/family/genealogy':
+                  return MaterialPageRoute(builder: (_) => const GenealogyTreeScreen());
+                case '/family/health':
+                  return MaterialPageRoute(builder: (_) => const HealthRecordsScreen());
+                default:
+                  return null;
+              }
+            },
+          );
+        },
+      ),
     );
   }
 }
@@ -360,7 +374,21 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         debugPrint('Widget not mounted, aborting navigation');
         return;
       }
+
+      if (isLoggedIn) {
+        // Load user data before navigating
+        debugPrint('Loading user data...');
+        try {
+          await Provider.of<UserProvider>(context, listen: false).loadCurrentUser();
+          debugPrint('User data loaded successfully');
+        } catch (e) {
+          debugPrint('Failed to load user data: $e');
+          // Continue anyway, dashboard might handle it or show error
+        }
+      }
       
+      if (!mounted) return;
+
       debugPrint('Navigating to ${isLoggedIn ? 'MainScreen' : 'LoginScreen'}');
       
       // Use Navigator.pushAndRemoveUntil for cleaner navigation
@@ -417,7 +445,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -442,7 +470,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.w400,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                     ),
                   ),
                   const SizedBox(height: 60),
@@ -452,7 +480,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     child: CircularProgressIndicator(
                       strokeWidth: 3,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.white.withOpacity(0.8),
+                        Colors.white.withValues(alpha: 0.8),
                       ),
                     ),
                   ),
@@ -494,7 +522,7 @@ class _MainScreenState extends State<MainScreen> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -508,7 +536,7 @@ class _MainScreenState extends State<MainScreen> {
           height: 70,
           elevation: 0,
           backgroundColor: Theme.of(context).colorScheme.surface,
-          indicatorColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+          indicatorColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: [
             NavigationDestination(

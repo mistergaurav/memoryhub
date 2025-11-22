@@ -60,4 +60,31 @@ class NotificationsService {
       throw Exception('Failed to load notification details');
     }
   }
+
+  Future<Map<String, dynamic>> getNotificationSettings() async {
+    final headers = await _getHeaders();
+    final response = await http.get(
+      Uri.parse('$baseUrl/notifications/settings'),
+      headers: headers,
+    );
+    
+    if (response.statusCode == 200) {
+      return Map<String, dynamic>.from(json.decode(response.body));
+    }
+    throw Exception('Failed to load notification settings');
+  }
+
+  Future<Map<String, dynamic>> updateNotificationSettings(Map<String, bool> settings) async {
+    final headers = await _getHeaders();
+    final response = await http.put(
+      Uri.parse('$baseUrl/notifications/settings'),
+      headers: headers,
+      body: json.encode(settings),
+    );
+    
+    if (response.statusCode == 200) {
+      return Map<String, dynamic>.from(json.decode(response.body));
+    }
+    throw Exception('Failed to update notification settings');
+  }
 }

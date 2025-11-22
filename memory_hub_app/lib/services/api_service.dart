@@ -239,6 +239,10 @@ class ApiService {
     request.fields['content'] = memoryCreate.content;
     request.fields['tags'] = jsonEncode(memoryCreate.tags);  // JSON encode tags array
     request.fields['privacy'] = memoryCreate.privacy;
+    request.fields['allowed_user_ids'] = jsonEncode(memoryCreate.allowedUserIds);
+    request.fields['family_circle_ids'] = jsonEncode(memoryCreate.familyCircleIds);
+    request.fields['tagged_family_members'] = jsonEncode(memoryCreate.taggedFamilyMembers);
+    
     if (memoryCreate.location != null) {
       request.fields['location'] = memoryCreate.location!;
     }

@@ -77,7 +77,12 @@ class FamilyHealthRecordsService extends FamilyApiClient {
     }
   }
 
-  Future<HealthRecord> approveHealthRecord(String recordId) async {
+  Future<HealthRecord> approveHealthRecord(
+    String recordId, {
+    String? visibilityType,
+    List<String>? visibilityUserIds,
+    List<String>? visibilityFamilyCircles,
+  }) async {
     try {
       if (recordId.isEmpty) {
         throw ApiException(
@@ -87,7 +92,13 @@ class FamilyHealthRecordsService extends FamilyApiClient {
         );
       }
 
-      final data = await post('/family/health-records/$recordId/approve');
+      final body = {
+        if (visibilityType != null) 'visibility_type': visibilityType,
+        if (visibilityUserIds != null) 'visibility_user_ids': visibilityUserIds,
+        if (visibilityFamilyCircles != null) 'visibility_family_circles': visibilityFamilyCircles,
+      };
+
+      final data = await post('/family/health-records/$recordId/approve', body: body);
       return HealthRecord.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
