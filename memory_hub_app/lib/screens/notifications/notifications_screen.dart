@@ -399,30 +399,34 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: OutlinedButton.icon(
-                              icon: const Icon(Icons.visibility, size: 16),
-                              label: Text('View Details', style: GoogleFonts.inter(fontSize: 13)),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: MemoryHubColors.blue600,
-                                padding: EdgeInsets.symmetric(vertical: MemoryHubSpacing.sm),
-                              ),
-                              onPressed: () async {
-                                if (!isRead) {
-                                  await provider.markAsRead(notification.id);
-                                }
-
-                                if (mounted) {
-                                  final result = await Navigator.pushNamed(
-                                    context,
-                                    '/notifications/detail',
-                                    arguments: notification.id,
-                                  );
-
-                                  if (result == true && mounted) {
-                                    await provider.refresh();
+                            child: Semantics(
+                              label: 'View ${notification.title} details',
+                              button: true,
+                              child: OutlinedButton.icon(
+                                icon: const Icon(Icons.visibility, size: 16),
+                                label: Text('View Details', style: GoogleFonts.inter(fontSize: 13)),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: MemoryHubColors.blue600,
+                                  padding: EdgeInsets.symmetric(vertical: MemoryHubSpacing.sm),
+                                ),
+                                onPressed: () async {
+                                  if (!isRead) {
+                                    await provider.markAsRead(notification.id);
                                   }
-                                }
-                              },
+
+                                  if (mounted) {
+                                    final result = await Navigator.pushNamed(
+                                      context,
+                                      '/notifications/detail',
+                                      arguments: notification.id,
+                                    );
+
+                                    if (result == true && mounted) {
+                                      await provider.refresh();
+                                    }
+                                  }
+                                },
+                              ),
                             ),
                           ),
                         ],

@@ -60,4 +60,49 @@ class GenealogyRelationshipRepository(BaseRepository):
                 {"person1_id": person2_id, "person2_id": person1_id}
             ]
         })
-
+    
+    async def validate_no_circular_reference(
+        self,
+        person1_id: ObjectId,
+        person2_id: ObjectId,
+        relationship_type: str,
+        family_id: ObjectId
+    ) -> None:
+        """
+        Validate that creating this relationship won't create a circular reference.
+        
+        For parent-child relationships, ensures no circular ancestry:
+        - A cannot be both parent and child of B
+        - A cannot be ancestor of B if B is being set as ancestor of A
+        
+        Args:
+            person1_id: First person in relationship
+            person2_id: Second person in relationship  
+            relationship_type: Type of relationship being created
+            family_id: Family tree ID
+            
+        Raises:
+            HTTPException: If circular reference would be created
+        """
+        # Only check for parent-child relationships
+        if relationship_type not in ["parent", "child"]:
+            return
+        
+        # Check for direct inverse relationship
+        inverse_type = "child" if relationship_type == "parent" else "parent"
+        inverse_exists = await self.find_existing_relationship(
+            person1_id=person2_id,
+            person2_id=person1_id,
+            relationship_type=inverse_type,
+            family_id=family_id
+        )
+        
+        if inverse_exists:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Circular relationship detected: {relationship_type} relationship cannot be created because inverse relationship already exists"
+            )
+        
+        # For more complex ancestry checking, we'd need to traverse the graph
+        # For now, we just check direct circular references
+        # TODO: Implement full ancestry path checking to prevent A->B->C->A cycles

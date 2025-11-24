@@ -50,9 +50,18 @@ from .permissions import ensure_tree_access
 @router.post("/relationships", status_code=status.HTTP_201_CREATED)
 async def create_genealogy_relationship(
     relationship: GenealogyRelationshipCreate,
+    create_inverse: bool = Query(True, description="Automatically create inverse/symmetric relationship"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Create relationship between two persons with automatic bidirectional handling"""
+    """
+    Create relationship between two persons.
+    
+    By default, creates inverse relationships automatically:
+    - For symmetric relationships (spouse, sibling): creates matching reverse
+    - For asymmetric relationships (parent/child): creates inverse type
+    
+    Set create_inverse=false to only create the specified relationship.
+    """
     person1_oid = genealogy_person_repo.validate_object_id(relationship.person1_id, "person1_id")
     person2_oid = genealogy_person_repo.validate_object_id(relationship.person2_id, "person2_id")
     
@@ -82,6 +91,14 @@ async def create_genealogy_relationship(
     
     await ensure_tree_access(tree_id, ObjectId(current_user.id), required_roles=["owner", "member"])
     
+    # Validate no circular references for parent-child relationships
+    await genealogy_relationship_repo.validate_no_circular_reference(
+        person1_id=person1_oid,
+        person2_id=person2_oid,
+        relationship_type=relationship.relationship_type,
+        family_id=tree_id
+    )
+    
     existing_relationship = await genealogy_relationship_repo.find_existing_relationship(
         person1_id=person1_oid,
         person2_id=person2_oid,
@@ -95,33 +112,36 @@ async def create_genealogy_relationship(
             detail=f"This relationship already exists between these two persons"
         )
     
-    if is_symmetric_relationship(relationship.relationship_type):
-        reverse_exists = await genealogy_relationship_repo.find_existing_relationship(
-            person1_id=person2_oid,
-            person2_id=person1_oid,
-            relationship_type=relationship.relationship_type,
-            family_id=tree_id
-        )
-        if reverse_exists:
-            raise HTTPException(
-                status_code=400,
-                detail=f"This relationship already exists (in reverse direction)"
-            )
-    else:
-        inverse_type = get_inverse_relationship_type(relationship.relationship_type)
-        if inverse_type:
-            inverse_exists = await genealogy_relationship_repo.find_existing_relationship(
+    # Check for existing inverse if we're planning to create bidirectional
+    if create_inverse:
+        if is_symmetric_relationship(relationship.relationship_type):
+            reverse_exists = await genealogy_relationship_repo.find_existing_relationship(
                 person1_id=person2_oid,
                 person2_id=person1_oid,
-                relationship_type=inverse_type,
+                relationship_type=relationship.relationship_type,
                 family_id=tree_id
             )
-            if inverse_exists:
+            if reverse_exists:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"The inverse relationship already exists between these persons"
+                    detail=f"This relationship already exists (in reverse direction)"
                 )
+        else:
+            inverse_type = get_inverse_relationship_type(relationship.relationship_type)
+            if inverse_type:
+                inverse_exists = await genealogy_relationship_repo.find_existing_relationship(
+                    person1_id=person2_oid,
+                    person2_id=person1_oid,
+                    relationship_type=inverse_type,
+                    family_id=tree_id
+                )
+                if inverse_exists:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"The inverse relationship already exists between these persons"
+                    )
     
+    # Create primary relationship
     relationship_data = {
         "family_id": tree_id,
         "person1_id": person1_oid,
@@ -132,33 +152,36 @@ async def create_genealogy_relationship(
     }
     
     relationship_doc = await genealogy_relationship_repo.create(relationship_data)
-    
     created_relationships = [relationship_doc_to_response(relationship_doc)]
     
-    if is_symmetric_relationship(relationship.relationship_type):
-        reverse_relationship_data = {
-            "family_id": tree_id,
-            "person1_id": person2_oid,
-            "person2_id": person1_oid,
-            "relationship_type": relationship.relationship_type,
-            "notes": relationship.notes,
-            "created_by": ObjectId(current_user.id)
-        }
-        reverse_doc = await genealogy_relationship_repo.create(reverse_relationship_data)
-        created_relationships.append(relationship_doc_to_response(reverse_doc))
-    else:
-        inverse_type = get_inverse_relationship_type(relationship.relationship_type)
-        if inverse_type:
-            inverse_relationship_data = {
+    # Optionally create inverse/symmetric relationship
+    if create_inverse:
+        if is_symmetric_relationship(relationship.relationship_type):
+            # For symmetric relationships, create matching reverse
+            reverse_relationship_data = {
                 "family_id": tree_id,
                 "person1_id": person2_oid,
                 "person2_id": person1_oid,
-                "relationship_type": inverse_type,
+                "relationship_type": relationship.relationship_type,
                 "notes": relationship.notes,
                 "created_by": ObjectId(current_user.id)
             }
-            inverse_doc = await genealogy_relationship_repo.create(inverse_relationship_data)
-            created_relationships.append(relationship_doc_to_response(inverse_doc))
+            reverse_doc = await genealogy_relationship_repo.create(reverse_relationship_data)
+            created_relationships.append(relationship_doc_to_response(reverse_doc))
+        else:
+            # For asymmetric relationships, create inverse type
+            inverse_type = get_inverse_relationship_type(relationship.relationship_type)
+            if inverse_type:
+                inverse_relationship_data = {
+                    "family_id": tree_id,
+                    "person1_id": person2_oid,
+                    "person2_id": person1_oid,
+                    "relationship_type": inverse_type,
+                    "notes": relationship.notes,
+                    "created_by": ObjectId(current_user.id)
+                }
+                inverse_doc = await genealogy_relationship_repo.create(inverse_relationship_data)
+                created_relationships.append(relationship_doc_to_response(inverse_doc))
     
     await log_audit_event(
         user_id=str(current_user.id),
@@ -169,12 +192,17 @@ async def create_genealogy_relationship(
             "relationship_type": relationship.relationship_type,
             "person1_id": relationship.person1_id,
             "person2_id": relationship.person2_id,
-            "bidirectional": len(created_relationships) > 1
+            "bidirectional": len(created_relationships) > 1,
+            "create_inverse": create_inverse
         }
     )
     
+    message = f"Relationship{'s' if len(created_relationships) > 1 else ''} created successfully"
+    if len(created_relationships) > 1:
+        message += f" ({len(created_relationships)} records: primary + inverse)"
+    
     return create_success_response(
-        message=f"Relationship{'s' if len(created_relationships) > 1 else ''} created successfully ({len(created_relationships)} record{'s' if len(created_relationships) > 1 else ''})",
+        message=message,
         data=created_relationships[0] if len(created_relationships) == 1 else created_relationships
     )
 

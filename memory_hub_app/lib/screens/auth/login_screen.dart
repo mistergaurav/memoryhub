@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart'; // Added to access kIsWeb
 import 'package:flutter/material.dart';
 import 'package:memory_hub_app/design_system/design_tokens.dart';
 import 'package:memory_hub_app/design_system/layout/gap.dart';
@@ -7,7 +8,7 @@ import 'package:memory_hub_app/design_system/components/buttons/secondary_button
 import 'package:memory_hub_app/design_system/components/feedback/app_snackbar.dart';
 import 'package:memory_hub_app/design_system/utils/context_ext.dart';
 import '../../services/auth_service.dart';
-import '../../design_system/layout/padded.dart';
+// Removed duplicate import of padded.dart
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -190,7 +191,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           VGap.xxl(),
                           TextFormField(
                             controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
+                            // Fix: Use TextInputType.text on web to avoid InvalidStateError
+                            keyboardType: kIsWeb ? TextInputType.text : TextInputType.emailAddress,
                             decoration: _buildInputDecoration(
                               label: 'Email',
                               icon: Icons.email,

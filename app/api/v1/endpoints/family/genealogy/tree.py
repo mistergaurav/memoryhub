@@ -50,17 +50,71 @@ from .permissions import get_tree_membership, ensure_tree_access
 @router.get("/tree")
 async def get_family_tree(
     tree_id: Optional[str] = Query(None, description="Tree ID (defaults to user's own tree)"),
+    root_person_id: Optional[str] = Query(None, description="Root person ID for lazy loading"),
+    page: int = Query(1, ge=1, description="Page number for pagination"),
+    page_size: int = Query(50, ge=1, le=200, description="Number of persons per page"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """Get complete family tree structure with nested person objects"""
+    """Get family tree structure with pagination and optional lazy loading"""
     tree_oid = safe_object_id(tree_id) if tree_id else ObjectId(current_user.id)
     if not tree_oid:
         raise HTTPException(status_code=400, detail="Invalid tree_id")
     
     await ensure_tree_access(tree_oid, ObjectId(current_user.id))
     
-    persons = await genealogy_person_repo.find_by_tree(tree_id=str(tree_oid), limit=1000)
-    relationships = await genealogy_relationship_repo.find_by_tree(tree_id=str(tree_oid), limit=1000)
+    if root_person_id:
+        # Lazy loading mode: fetch only the root person and their immediate relatives
+        root_oid = safe_object_id(root_person_id)
+        if not root_oid:
+            raise HTTPException(status_code=400, detail="Invalid root_person_id")
+        
+        # Find all relationships involving the root person
+        relationships = await genealogy_relationship_repo.find_many(
+            filter_dict={
+                "family_id": tree_oid,  # Fixed: use family_id not tree_id
+                "$or": [
+                    {"person1_id": root_oid},
+                    {"person2_id": root_oid}
+                ]
+            },
+            limit=100
+        )
+        
+        # Extract unique person IDs (root + all connected persons)
+        person_ids = {root_oid}
+        for rel_doc in relationships:
+            person_ids.add(rel_doc["person1_id"])
+            person_ids.add(rel_doc["person2_id"])
+        
+        # Fetch only those persons
+        persons = await genealogy_person_repo.find_many(
+            filter_dict={
+                "family_id": tree_oid,  # Fixed: use family_id not tree_id
+                "_id": {"$in": list(person_ids)}
+            },
+            limit=len(person_ids)
+        )
+    else:
+        # Standard pagination mode: fetch a page of persons
+        skip = (page - 1) * page_size
+        persons = await genealogy_person_repo.find_by_tree(
+            tree_id=str(tree_oid),
+            skip=skip,
+            limit=page_size
+        )
+        
+        # Fetch relationships only for the persons on this page
+        person_ids = [p["_id"] for p in persons]
+        relationships = await genealogy_relationship_repo.find_many(
+            filter_dict={
+                "family_id": tree_oid,
+                "$or": [
+                    {"person1_id": {"$in": person_ids}},
+                    {"person2_id": {"$in": person_ids}}
+                ]
+            },
+            limit=page_size * 10  # Allow for multiple relationships per person
+        )
     
     persons_dict = {}
     for person_doc in persons:
@@ -106,9 +160,20 @@ async def get_family_tree(
         for node in persons_dict.values()
     ]
     
+    # Get total count for pagination metadata
+    total_persons = await genealogy_person_repo.count({"tree_id": tree_oid})
+    
     return create_success_response(
         message="Family tree retrieved successfully",
-        data=tree_nodes
+        data={
+            "tree_nodes": tree_nodes,
+            "pagination": {
+                "page": page,
+                "page_size": page_size,
+                "total": total_persons,
+                "has_more": (page * page_size) < total_persons
+            } if not root_person_id else None
+        }
     )
 
 

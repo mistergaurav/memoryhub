@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -31,7 +31,16 @@ app = FastAPI(
     description="API for The Memory Hub - Your Family's Digital Legacy",
     version="1.0.0",
     lifespan=lifespan,
+
 )
+
+# Logging middleware to print request method and path
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    logging.info(f"Incoming request: {request.method} {request.url.path}")
+    response = await call_next(request)
+    return response
+
 
 # Build allowed origins list for CORS
 allowed_origins = [
@@ -39,6 +48,8 @@ allowed_origins = [
     "https://localhost:5000",
     "http://127.0.0.1:5000",
     "https://127.0.0.1:5000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
 ]
 
 # Add Replit preview domain if available
@@ -49,10 +60,11 @@ if replit_domain:
         f"http://{replit_domain}",
     ])
 
-# CORS middleware
+# CORS middleware - allow all localhost ports for local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",  # Allow any localhost port
+    allow_origins=allowed_origins,  # Also keep explicit origins for production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

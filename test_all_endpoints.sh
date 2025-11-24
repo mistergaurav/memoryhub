@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Memory Hub API Endpoint Testing Script
-BASE_URL="http://localhost:5000/api/v1"
+BASE_URL="http://localhost:8000/api/v1"
 TOKEN=""
 
 echo "=== Memory Hub API Testing ==="

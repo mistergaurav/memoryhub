@@ -431,11 +431,12 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
               MemoryHubSpacing.xl,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: context.colors.onPrimary.withValues(alpha: 0.3),
                           borderRadius: MemoryHubBorderRadius.lgRadius,
@@ -443,13 +444,13 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                             color: context.colors.onPrimary.withValues(alpha: 0.4),
                           ),
                         ),
-                        child: Icon(icon, color: context.colors.onPrimary, size: 32),
+                        child: Icon(icon, color: context.colors.onPrimary, size: 28),
                       ),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: MemoryHubSpacing.sm,
+                          horizontal: 12,
+                          vertical: MemoryHubSpacing.xs,
                         ),
                         decoration: BoxDecoration(
                           color: context.colors.onPrimary.withValues(alpha: 0.25),
@@ -468,7 +469,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                                 color: context.colors.onPrimary,
                               ),
                             ),
-                            HGap.sm(),
+                            HGap.xs(),
                             Text(
                               countLabel,
                               style: context.text.bodySmall?.copyWith(
@@ -495,38 +496,45 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       ],
                     ),
                   ),
-                  VGap.sm(),
+                  VGap.xs(),
                   Text(
                     subtitle,
-                    style: context.text.bodyMedium?.copyWith(
+                    style: context.text.bodySmall?.copyWith(
                       color: context.colors.onPrimary.withValues(alpha: 0.95),
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  VGap.lg(),
-                  Row(
-                    children: stats.map((stat) {
-                      return Padding(
-                        padding: EdgeInsets.only(right: MemoryHubSpacing.lg),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              stat['value']!,
-                              style: context.text.titleMedium?.copyWith(
-                                fontWeight: MemoryHubTypography.bold,
-                                color: context.colors.onPrimary,
+                  VGap.sm(),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: stats.map((stat) {
+                        return Padding(
+                          padding: EdgeInsets.only(right: MemoryHubSpacing.md),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                stat['value']!,
+                                style: context.text.titleSmall?.copyWith(
+                                  fontWeight: MemoryHubTypography.bold,
+                                  color: context.colors.onPrimary,
+                                ),
                               ),
-                            ),
-                            Text(
-                              stat['label']!,
-                              style: context.text.bodySmall?.copyWith(
-                                color: context.colors.onPrimary.withValues(alpha: 0.9),
+                              Text(
+                                stat['label']!,
+                                style: context.text.bodySmall?.copyWith(
+                                  color: context.colors.onPrimary.withValues(alpha: 0.9),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ],
               ),

@@ -113,17 +113,29 @@ class GenealogyPersonUpdate(BaseModel):
 
 
 class GenealogyPersonResponse(BaseModel):
+    """
+    Response model for genealogy person with field aliases for compatibility.
+    
+    Supports both naming conventions:
+    - Backend: birth_date, death_date, is_alive, family_id
+    - Frontend (legacy): date_of_birth, date_of_death, is_deceased, tree_id
+    """
+    model_config = {"populate_by_name": True}
+    
     id: str
-    family_id: str
+    family_id: str = Field(alias="tree_id")  # Alias for frontend compatibility
     first_name: str
     last_name: str
     maiden_name: Optional[str] = None
     gender: Gender
-    birth_date: Optional[str] = None
-    birth_place: Optional[str] = None
-    death_date: Optional[str] = None
-    death_place: Optional[str] = None
-    is_alive: bool = True
+    
+    # Date fields with aliases for frontend compatibility
+    birth_date: Optional[str] = Field(None, alias="date_of_birth")
+    birth_place: Optional[str] = Field(None, alias="place_of_birth")
+    death_date: Optional[str] = Field(None, alias="date_of_death")
+    death_place: Optional[str] = Field(None, alias="place_of_death")
+    is_alive: bool = Field(True, alias="is_deceased")  # Note: is_deceased is inverse of is_alive
+    
     biography: Optional[str] = None
     photo_url: Optional[str] = None
     occupation: Optional[str] = None
@@ -148,6 +160,16 @@ class GenealogyPersonResponse(BaseModel):
     linked_username: Optional[str] = None  # Username of linked platform user
     linked_full_name: Optional[str] = None  # Full name of linked platform user
     memory_count: int = 0  # Count of memories associated with this person
+    
+    @property
+    def is_deceased(self) -> bool:
+        """Property to get is_deceased (inverse of is_alive) for frontend compatibility."""
+        return not self.is_alive
+    
+    @property
+    def tree_id(self) -> str:
+        """Property alias for family_id to support frontend."""
+        return self.family_id
 
 
 class GenealogyRelationshipCreate(BaseModel):
@@ -169,11 +191,21 @@ class GenealogyRelationshipResponse(BaseModel):
 
 
 class FamilyTreeNode(BaseModel):
+    """
+    Tree node representing a person and their immediate family relationships.
+    
+    Note: parents, children, spouses, siblings can be either:
+    - List of person IDs (strings) for lazy loading
+    - List of GenealogyPersonResponse objects for full data
+    """
     person: GenealogyPersonResponse
     relationships: List[GenealogyRelationshipResponse] = []
-    children: List[str] = []
-    parents: List[str] = []
-    spouse: Optional[str] = None
+    
+    # Relationship arrays - can be IDs or full person objects
+    parents: List = []  # List[str] or List[GenealogyPersonResponse]
+    children: List = []  # List[str] or List[GenealogyPersonResponse]
+    spouses: List = []  # List[str] or List[GenealogyPersonResponse]
+    siblings: List = []  # List[str] or List[GenealogyPersonResponse]
 
 
 class UserSearchResult(BaseModel):

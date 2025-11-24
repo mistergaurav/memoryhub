@@ -27,9 +27,9 @@ class GenealogyTreeService extends FamilyApiClient {
       final tree = await getTree(treeId: treeId);
       
       // Backend returns nested structure:
-      // [{person: {...}, parents: [{...}], children: [{...}], spouses: [{...}]}, ...]
+      // {tree_nodes: [{person: {...}, parents: [{...}], children: [{...}], spouses: [{...}]}], pagination: {...}}
       
-      // Check if we have a list (the data array from backend)
+      // Check if we have a list (old format or direct array)
       if (tree is List) {
         return (tree as List)
             .where((node) => node is Map<String, dynamic>)
@@ -37,9 +37,11 @@ class GenealogyTreeService extends FamilyApiClient {
             .toList();
       }
       
-      // If tree is a map, it might be wrapped
+      // If tree is a map, extract tree_nodes array
       if (tree is Map<String, dynamic>) {
-        final nodesData = tree['nodes'] ?? tree['data'];
+        // New paginated format: {tree_nodes: [...], pagination: {...}}
+        final nodesData = tree['tree_nodes'] ?? tree['nodes'] ?? tree['data'];
+        
         if (nodesData is List) {
           return (nodesData as List)
               .where((node) => node is Map<String, dynamic>)
@@ -48,7 +50,7 @@ class GenealogyTreeService extends FamilyApiClient {
         }
         
         throw NetworkException(
-          message: 'Invalid tree data format. Expected array but got: ${tree.keys.join(", ")}',
+          message: 'Invalid tree data format. Expected tree_nodes array but got: ${tree.keys.join(", ")}',
           originalError: null,
         );
       }

@@ -39,9 +39,14 @@ async def process_memory_search_filters(
     if date_filter:
         filters['created_at'] = date_filter
         
-    # Person filter (tagged family members)
+    # Person filter - supports both platform users and genealogy persons
     if search_params.get('person_id'):
-        filters['tagged_family_members.user_id'] = search_params['person_id']
+        person_id = search_params['person_id']
+        # Search in both tagged_family_members (platform users) and genealogy_person_ids
+        filters['$or'] = [
+            {'tagged_family_members.user_id': person_id},
+            {'genealogy_person_ids': person_id}
+        ]
     
     return filters
 

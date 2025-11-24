@@ -13,8 +13,8 @@ import websockets
 
 # Test configuration
 BASE_URL = "http://localhost:5000"
-API_BASE = f"{BASE_URL}/api/v1"
-WS_BASE = "ws://localhost:5000/api/v1/ws/notifications"
+API_BASE = "http://localhost:8000/api/v1"
+WS_BASE = "ws://localhost:8000/api/v1/ws/notifications"
 
 # ANSI color codes
 GREEN = '\033[92m'

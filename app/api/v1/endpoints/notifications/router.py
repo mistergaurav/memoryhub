@@ -149,6 +149,78 @@ async def delete_all_notifications(
     
     return {"message": f"{result.deleted_count} notifications deleted"}
 
+@router.get("/{notification_id}/details")
+async def get_notification_details(
+    notification_id: str,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Get detailed information about a specific notification"""
+    try:
+        notif = await get_collection("notifications").find_one({
+            "_id": ObjectId(notification_id),
+            "user_id": ObjectId(current_user.id)
+        })
+        
+        if not notif:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        
+        # Fetch additional details based on notification type
+        details = {
+            "id": str(notif["_id"]),
+            "type": notif["type"],
+            "title": notif["title"],
+            "message": notif["message"],
+            "is_read": notif.get("is_read", False),
+            "created_at": notif["created_at"].isoformat(),
+            "approval_status": notif.get("approval_status", "pending"),
+        }
+        
+        # Add health record details if present
+        if notif.get("health_record_id"):
+            health_record = await get_collection("health_records").find_one({
+                "_id": notif["health_record_id"]
+            })
+            if health_record:
+                details.update({
+                    "health_record_id": str(health_record["_id"]),
+                    "record_title": health_record.get("title", ""),
+                    "record_type": health_record.get("type", ""),
+                    "record_description": health_record.get("description", ""),
+                    "record_date": health_record.get("date", ""),
+                    "record_provider": health_record.get("provider", ""),
+                    "record_severity": health_record.get("severity", ""),
+                })
+        
+        # Add assigner details
+        if notif.get("assigner_id"):
+            assigner = await get_collection("users").find_one({"_id": notif["assigner_id"]})
+            if assigner:
+                details.update({
+                    "assigner_id": str(assigner["_id"]),
+                    "assigner_name": assigner.get("full_name") or assigner.get("email", "Unknown"),
+                    "assigner_avatar": assigner.get("avatar_url"),
+                })
+        
+        details["assigned_at"] = notif.get("assigned_at", notif["created_at"]).isoformat() if notif.get("assigned_at") else notif["created_at"].isoformat()
+        details["has_reminder"] = notif.get("has_reminder", False)
+        
+        if notif.get("reminder_due_at"):
+            details["reminder_due_at"] = notif["reminder_due_at"].isoformat()
+        
+        # Determine if user can approve/reject
+        details["can_approve"] = notif.get("approval_status") == "pending" and notif["user_id"] == ObjectId(current_user.id)
+        details["can_reject"] = notif.get("approval_status") == "pending" and notif["user_id"] == ObjectId(current_user.id)
+        
+        from app.models.responses import create_success_response
+        return create_success_response(
+            message="Notification details retrieved successfully",
+            data=details
+        )
+        
+    except Exception as e:
+        logger.error(f"Error fetching notification details: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to fetch notification details: {str(e)}")
+
 # --- Settings Endpoints ---
 
 @router.get("/settings")

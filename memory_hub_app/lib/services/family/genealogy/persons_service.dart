@@ -3,25 +3,61 @@ import '../common/family_exceptions.dart';
 import '../../../models/family/genealogy_person.dart';
 
 class GenealogyPersonsService extends FamilyApiClient {
+  int _currentPage = 1;
+  bool _hasMore = true;
+  final int _pageSize = 50;
+  
+  /// Reset pagination state
+  void resetPagination() {
+    _currentPage = 1;
+    _hasMore = true;
+  }
+  
+  /// Check if more persons can be loaded
+  bool get hasMore => _hasMore;
+  
+  /// Get current page
+  int get currentPage => _currentPage;
+  
   Future<List<GenealogyPerson>> getPersons({
-    int page = 1,
-    int limit = 100,
+    int? page,
+    int? limit,
     String? treeId,
+    bool append = false,  // If true, load next page; if false, reset
   }) async {
     try {
+      // If not appending, reset to first page
+      if (!append) {
+        _currentPage = 1;
+        _hasMore = true;
+      }
+      
+      final pageToFetch = page ?? _currentPage;
+      final pageSize = limit ?? _pageSize;
+      
       final params = {
-        'page': page.toString(),
-        'limit': limit.toString(),
+        'page': pageToFetch.toString(),
+        'page_size': pageSize.toString(),
         if (treeId != null) 'tree_id': treeId,
       };
       
       final data = await get(
         '/family/genealogy/persons',
         params: params,
-        useCache: true,
+        useCache: false,  // Don't cache paginated results
       );
       
       final items = data['data']?['items'] ?? data['items'] ?? [];
+      final total = data['data']?['total'] ?? data['total'] ?? 0;
+      
+      // Update pagination state
+      if (append) {
+        _currentPage++;
+      }
+      
+      // Check if there are more pages
+      _hasMore = (pageToFetch * pageSize) < total;
+      
       if (items is List) {
         return items.map((item) => GenealogyPerson.fromJson(item as Map<String, dynamic>)).toList();
       }
@@ -35,6 +71,11 @@ class GenealogyPersonsService extends FamilyApiClient {
         originalError: e,
       );
     }
+  }
+  
+  /// Load next page of persons
+  Future<List<GenealogyPerson>> loadMorePersons({String? treeId}) async {
+    return getPersons(append: true, treeId: treeId);
   }
 
   Future<GenealogyPerson> getPerson(String personId) async {
@@ -104,10 +145,11 @@ class GenealogyPersonsService extends FamilyApiClient {
 
   Future<List<GenealogyPerson>> searchPersons(String query) async {
     try {
+      // Use the new search endpoint
       final data = await get(
         '/family/genealogy/persons/search',
-        params: {'q': query},
-        useCache: true,
+        params: {'q': query, 'limit': '50'},
+        useCache: false,  // Don't cache search results
       );
       
       final items = data['data']?['items'] ?? data['items'] ?? [];

@@ -24,7 +24,7 @@ class UserProfileViewScreen extends StatefulWidget {
 }
 
 class _UserProfileViewScreenState extends State<UserProfileViewScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final AuthService _authService = AuthService();
   final ActivityFeedService _activityService = ActivityFeedService();
   

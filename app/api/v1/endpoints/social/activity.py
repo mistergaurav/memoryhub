@@ -154,7 +154,7 @@ async def get_activity_feed(
             "user_id": str(item["owner_id"]),
             "user_name": owner.get("full_name") if owner is not None else "Unknown",
             "user_avatar": owner.get("avatar_url") if owner is not None else None,
-            "created_at": item["created_at"]
+            "created_at": item.get("created_at", datetime.utcnow())
         }
         
         if item["type"] == "memory":

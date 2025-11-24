@@ -92,7 +92,8 @@ class ApiConfig {
         return '/api/v1';
       } else if (hostname == 'localhost' || hostname == '127.0.0.1') {
         // Local development - backend on port 8000
-        return 'http://localhost:8000/api/v1';
+        // Use absolute URL to target the backend port
+        return 'http://$hostname:8000/api/v1';
       } else {
         // Generic fallback - same host (relative URL)
         return '/api/v1';
@@ -114,11 +115,15 @@ class ApiConfig {
         // Frontend and backend on same server - use same hostname
         return '$wsProtocol://$hostname/api/v1/ws';
       } else if (hostname == 'localhost' || hostname == '127.0.0.1') {
-        return 'ws://localhost:8000/api/v1/ws';
+        // Use port 8000 for backend WebSocket
+        return '$wsProtocol://$hostname:8000/api/v1/ws';
       } else {
-        return '$wsProtocol://$hostname/api/v1/ws';
+        final port = location['port'];
+        final portSuffix = (port != null && port.isNotEmpty) ? ':$port' : '';
+        return '$wsProtocol://$hostname$portSuffix/api/v1/ws';
       }
     } catch (e) {
+      // Fallback to assuming standard dev port if location fails
       return 'ws://localhost:8000/api/v1/ws';
     }
   }
@@ -154,9 +159,10 @@ class ApiConfig {
       return {
         'hostname': uri.host.isNotEmpty ? uri.host : 'localhost',
         'protocol': uri.scheme.isNotEmpty ? '${uri.scheme}:' : 'http:',
+        'port': uri.port.toString(),
       };
     } catch (e) {
-      return {'hostname': 'localhost', 'protocol': 'http:'};
+      return {'hostname': 'localhost', 'protocol': 'http:', 'port': '5000'};
     }
   }
   
@@ -176,10 +182,10 @@ class ApiConfig {
         } else if (hostname == 'localhost') {
           return 'Local Web (localhost:8000)';
         } else {
-          return 'Web ($hostname:8000)';
+          return 'Web ($hostname:5000)';
         }
       } catch (e) {
-        return 'Web (localhost:8000)';
+        return 'Web (localhost:5000)';
       }
     }
     

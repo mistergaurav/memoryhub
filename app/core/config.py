@@ -36,7 +36,7 @@ class Settings(BaseSettings):
         replit_domain = os.getenv("REPL_SLUG")
         if replit_domain:
             return f"https://{replit_domain}.replit.dev/api/v1/auth/google/callback"
-        return "http://localhost:5000/api/v1/auth/google/callback"
+        return "http://localhost:8000/api/v1/auth/google/callback"
     
     def is_google_oauth_configured(self) -> bool:
         """Check if Google OAuth is properly configured"""

@@ -94,6 +94,33 @@ class GenealogyPerson {
   }
 
   factory GenealogyPerson.fromJson(Map<String, dynamic> json) {
+    // Helper to parse dates safely with both field name conventions
+    DateTime? parseDate(String primaryKey, String? fallbackKey) {
+      final value = json[primaryKey] ?? (fallbackKey != null ? json[fallbackKey] : null);
+      if (value == null) return null;
+      try {
+        return DateTime.parse(value);
+      } catch (e) {
+        return null;
+      }
+    }
+    
+    // Helper to get string with fallback
+    String? getString(String primaryKey, String? fallbackKey) {
+      return json[primaryKey]?.toString() ?? 
+             (fallbackKey != null ? json[fallbackKey]?.toString() : null);
+    }
+    
+    // Handle is_alive vs is_deceased (they are inverse)
+    bool isDeceased;
+    if (json.containsKey('is_deceased')) {
+      isDeceased = json['is_deceased'] == true;
+    } else if (json.containsKey('is_alive')) {
+      isDeceased = !(json['is_alive'] == true);
+    } else {
+      isDeceased = false;
+    }
+    
     return GenealogyPerson(
       id: json['id'] ?? json['_id'] ?? '',
       firstName: json['first_name'] ?? '',
@@ -101,15 +128,14 @@ class GenealogyPerson {
       lastName: json['last_name'] ?? '',
       maidenName: json['maiden_name'],
       gender: json['gender'] ?? 'unknown',
-      dateOfBirth: json['date_of_birth'] != null 
-          ? DateTime.parse(json['date_of_birth']) 
-          : null,
-      placeOfBirth: json['place_of_birth'],
-      dateOfDeath: json['date_of_death'] != null 
-          ? DateTime.parse(json['date_of_death']) 
-          : null,
-      placeOfDeath: json['place_of_death'],
-      isDeceased: json['is_deceased'] ?? false,
+      
+      // Date fields - try both naming conventions
+      dateOfBirth: parseDate('date_of_birth', 'birth_date'),
+      placeOfBirth: getString('place_of_birth', 'birth_place'),
+      dateOfDeath: parseDate('date_of_death', 'death_date'),
+      placeOfDeath: getString('place_of_death', 'death_place'),
+      
+      isDeceased: isDeceased,
       biography: json['biography'],
       photoUrl: json['photo_url'],
       generation: json['generation'] ?? 0,

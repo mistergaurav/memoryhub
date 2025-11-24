@@ -14,6 +14,8 @@ import '../../widgets/animated/family_skeleton_loader.dart';
 import '../../widgets/person_card.dart';
 import '../../dialogs/family/add_person_wizard.dart';
 import '../../dialogs/family/add_relationship_dialog.dart';
+import '../../dialogs/family/edit_person_dialog.dart';
+import '../../dialogs/family/person_search_dialog.dart';
 import '../../widgets/default_avatar.dart';
 import '../../design_system/family_design_system.dart';
 import 'package:intl/intl.dart';
@@ -35,22 +37,45 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
   List<GenealogyPerson> _persons = [];
   List<GenealogyTreeNode> _treeNodes = [];
   bool _isLoading = true;
+  bool _isLoadingMore = false;  // Loading more pages
   bool _hasError = false;
   String _errorMessage = '';
   String _selectedView = 'grid';
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     _loadData();
   }
 
-  Future<void> _loadData() async {
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    // Load more when scrolled to bottom
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent * 0.9) {
+      if (!_isLoadingMore && _personsService.hasMore) {
+        _loadMorePersons();
+      }
+    }
+  }
+
+  Future<void> _loadData({bool resetPagination = true}) async {
     setState(() {
       _isLoading = true;
       _hasError = false;
       _errorMessage = '';
     });
+    
+    if (resetPagination) {
+      _personsService.resetPagination();
+    }
     
     try {
       final persons = await _personsService.getPersons();
@@ -79,6 +104,35 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
         _errorMessage = errorMsg;
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _loadMorePersons() async {
+    if (_isLoadingMore) return;
+    
+    setState(() {
+      _isLoadingMore = true;
+    });
+    
+    try {
+      final morePersons = await _personsService.loadMorePersons();
+      final relationships = await _relationshipsService.getRelationships();
+      
+      await _calculateRelationshipLabels(morePersons, relationships);
+      
+      setState(() {
+        _persons.addAll(morePersons);
+        _isLoadingMore = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingMore = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load more: $e')),
+        );
+      }
     }
   }
 
@@ -188,6 +242,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
       body: RefreshIndicator(
         onRefresh: _loadData,
         child: CustomScrollView(
+          controller: _scrollController,  // ✅ Add pagination scroll controller
           slivers: [
             SliverAppBar(
               expandedHeight: 200,
@@ -228,11 +283,7 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.search),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Search feature coming soon')),
-                    );
-                  },
+                  onPressed: _showSearchDialog,
                 ),
               ],
             ),
@@ -277,6 +328,22 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
                         childCount: _persons.length,
                       ),
                     ),
+            // Loading indicator for pagination
+            if (_isLoadingMore)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Column(
+                      children: const [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 8),
+                        Text('Loading more...', style: TextStyle(color: Colors.grey)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -401,10 +468,11 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
   }
 
   void _showEditPersonDialog(GenealogyPerson person) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Edit functionality coming soon! For now, please delete and re-add the person.'),
-        duration: Duration(seconds: 3),
+    showDialog(
+      context: context,
+      builder: (context) => EditPersonDialog(
+        person: person,
+        onSubmit: _handleEditPerson,
       ),
     );
   }
@@ -492,6 +560,18 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
       }
       rethrow;
     }
+  }
+
+  void _showSearchDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => PersonSearchDialog(
+        onPersonSelected: (person) {
+          Navigator.of(context).pop();
+          _navigateToPersonProfile(person);
+        },
+      ),
+    );
   }
 
   void _navigateToPersonProfile(GenealogyPerson person) {

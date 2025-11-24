@@ -30,7 +30,7 @@ class HealthRecordsRepository {
     String? subjectType,
     bool forceRefresh = false,
   }) async {
-    final cacheKey = '${recordType ?? 'all'}_${severity ?? 'all'}_${subjectType ?? 'all'}';
+    final cacheKey = '${recordType ?? 'all'}_${severity ?? 'all'}_${subjectType ?? 'all'}_p${page}_l$limit';
     
     if (!forceRefresh && _isCacheValid && _cache.containsKey(cacheKey)) {
       print('[HealthRecordsRepository] Returning ${_cache[cacheKey]!.length} records from cache');

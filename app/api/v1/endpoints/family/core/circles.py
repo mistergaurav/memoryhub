@@ -265,6 +265,7 @@ async def add_person_profile_to_circle(
 ):
     """Add a person profile to a relationship category/circle"""
     try:
+        import uuid
         from app.models.family.family import CircleMemberProfile
         
         circle = await validate_family_ownership(
@@ -282,8 +283,9 @@ async def add_person_profile_to_circle(
                 detail="display_name is required for person profile"
             )
         
+        # Generate unique ID if no user_id provided
         if not user_id:
-            user_id = display_name.lower().replace(" ", "_")
+            user_id = str(uuid.uuid4())
         
         profile = CircleMemberProfile(
             user_id=user_id,
@@ -305,6 +307,7 @@ async def add_person_profile_to_circle(
             }
         )
         
+        # Only add to member_ids if user_id is a valid ObjectId (actual user)
         if profile.user_id:
             try:
                 user_oid = ObjectId(profile.user_id)
@@ -318,6 +321,7 @@ async def add_person_profile_to_circle(
                         }
                     )
             except Exception:
+                # user_id is a UUID, not an ObjectId - skip adding to member_ids
                 pass
         
         await log_audit_event(

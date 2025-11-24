@@ -318,26 +318,40 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
       );
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildAssignerInfo(),
-          const SizedBox(height: 24),
-          _buildHealthRecordInfo(),
-          if (_notificationDetails!['has_reminder'] == true) ...[
-            VGap(MemoryHubSpacing.xxl),
-            _buildReminderInfo(),
+    try {
+      return SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildAssignerInfo(),
+            const SizedBox(height: 24),
+            _buildHealthRecordInfo(),
+            if (_notificationDetails!['has_reminder'] == true) ...[
+              VGap(MemoryHubSpacing.xxl),
+              _buildReminderInfo(),
+            ],
+            if (_notificationDetails!['can_approve'] == true ||
+                _notificationDetails!['can_reject'] == true) ...[
+              VGap(MemoryHubSpacing.xxl + 8),
+              _buildActionButtons(),
+            ],
           ],
-          if (_notificationDetails!['can_approve'] == true ||
-              _notificationDetails!['can_reject'] == true) ...[
-            VGap(MemoryHubSpacing.xxl + 8),
-            _buildActionButtons(),
-          ],
-        ],
-      ),
-    );
+        ),
+      );
+    } catch (e, stackTrace) {
+      print('Error building notification details: $e');
+      print(stackTrace);
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SelectableText(
+            'Error rendering details: $e\n\n$stackTrace',
+            style: GoogleFonts.inter(color: Colors.red),
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildAssignerInfo() {
@@ -641,12 +655,15 @@ class _NotificationDetailScreenState extends State<NotificationDetailScreen> {
   }
 
   String _formatType(String type) {
+    if (type.isEmpty) return 'Medical';
     return type.split('_').map((word) {
+      if (word.isEmpty) return '';
       return word[0].toUpperCase() + word.substring(1);
     }).join(' ');
   }
 
   String _formatSeverity(String severity) {
+    if (severity.isEmpty) return 'Unknown';
     return severity[0].toUpperCase() + severity.substring(1);
   }
 }

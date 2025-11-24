@@ -330,44 +330,119 @@ async def get_shared_health_dashboard(
     """Get comprehensive health dashboard with all accessible records and stats"""
     user_oid = ObjectId(current_user.id)
     
-    # Get all records accessible to user
-    # Include both approved records and pending records assigned to this user
-    all_records_query = {
-        "$or": [
-            {
-                "approval_status": "approved",
+    # Build aggregation pipeline to calculate statistics at database level
+    pipeline = [
+        # Stage 1: Match records accessible to user
+        {
+            "$match": {
                 "$or": [
-                    {"family_id": user_oid},
-                    {"subject_user_id": user_oid},
-                    {"assigned_user_ids": user_oid},
-                    {"created_by": user_oid}
-                ]
-            },
-            {
-                "approval_status": "pending_approval",
-                "$or": [
-                    {"subject_user_id": user_oid},
-                    {"assigned_user_ids": user_oid}
+                    {
+                        "approval_status": "approved",
+                        "$or": [
+                            {"family_id": user_oid},
+                            {"subject_user_id": user_oid},
+                            {"assigned_user_ids": user_oid},
+                            {"created_by": user_oid}
+                        ]
+                    },
+                    {
+                        "approval_status": "pending_approval",
+                        "$or": [
+                            {"subject_user_id": user_oid},
+                            {"assigned_user_ids": user_oid}
+                        ]
+                    }
                 ]
             }
-        ]
-    }
+        },
+        # Stage 2: Use $facet to calculate multiple statistics in parallel
+        {
+            "$facet": {
+                "total_count": [
+                    {"$count": "count"}
+                ],
+                "pending_approvals": [
+                    {
+                        "$match": {
+                            "approval_status": "pending_approval",
+                            "$or": [
+                                {"subject_user_id": user_oid},
+                                {"assigned_user_ids": user_oid}
+                            ]
+                        }
+                    },
+                    {"$count": "count"}
+                ],
+                "records_by_type": [
+                    {
+                        "$group": {
+                            "_id": "$record_type",
+                            "count": {"$sum": 1}
+                        }
+                    }
+                ],
+                "recent_records": [
+                    {"$sort": {"created_at": -1}},
+                    {"$limit": 10}
+                ],
+                "pending_approval_records": [
+                    {
+                        "$match": {
+                            "approval_status": "pending_approval",
+                            "$or": [
+                                {"subject_user_id": user_oid},
+                                {"assigned_user_ids": user_oid}
+                            ]
+                        }
+                    },
+                    {"$sort": {"created_at": -1}},
+                    {"$limit": 20}
+                ]
+            }
+        }
+    ]
     
-    all_records = await health_records_repo.find_many(
-        filter_dict=all_records_query,
-        limit=1000
-    )
+    # Execute aggregation
+    result = await health_records_repo.collection.aggregate(pipeline).to_list(length=1)
     
-    # Batch-fetch all unique user IDs from records
+    if not result:
+        # No records found
+        stats = {
+            "total_records": 0,
+            "pending_approvals": 0,
+            "upcoming_reminders": 0,
+            "records_by_type": {},
+            "recent_records": []
+        }
+        return create_success_response(
+            message="Health dashboard retrieved successfully",
+            data={
+                "statistics": stats,
+                "pending_approvals": [],
+                "upcoming_reminders": []
+            }
+        )
+    
+    result_data = result[0]
+    
+    # Extract counts
+    total_count = result_data["total_count"][0]["count"] if result_data["total_count"] else 0
+    pending_count = result_data["pending_approvals"][0]["count"] if result_data["pending_approvals"] else 0
+    
+    # Build records_by_type dict
+    records_by_type = {}
+    for type_doc in result_data["records_by_type"]:
+        records_by_type[type_doc["_id"]] = type_doc["count"]
+    
+    # Batch-fetch all unique user IDs from recent records and pending approvals
     unique_user_ids = set()
-    for record in all_records:
-        # Add created_by
+    all_record_docs = result_data["recent_records"] + result_data["pending_approval_records"]
+    
+    for record in all_record_docs:
         if record.get("created_by"):
             unique_user_ids.add(str(record["created_by"]))
-        # Add subject_user_id
         if record.get("subject_user_id"):
             unique_user_ids.add(str(record["subject_user_id"]))
-        # Add assigned_user_ids
         for uid in record.get("assigned_user_ids", []):
             unique_user_ids.add(str(uid))
     
@@ -387,13 +462,6 @@ async def get_shared_health_dashboard(
             for user in users
         }
     
-    # Get pending approvals (records awaiting this user's approval)
-    pending_approvals = [
-        r for r in all_records 
-        if (r.get("subject_user_id") == user_oid or user_oid in r.get("assigned_user_ids", []))
-        and r.get("approval_status") == "pending_approval"
-    ]
-    
     # Get recent reminders
     user_reminders = await reminders_repo.find_many(
         filter_dict={
@@ -408,24 +476,23 @@ async def get_shared_health_dashboard(
         sort_order=1
     )
     
-    # Calculate statistics
+    # Build stats object
     stats = {
-        "total_records": len(all_records),
-        "pending_approvals": len(pending_approvals),
+        "total_records": total_count,
+        "pending_approvals": pending_count,
         "upcoming_reminders": len(user_reminders),
-        "records_by_type": {},
-        "recent_records": []
+        "records_by_type": records_by_type,
+        "recent_records": [
+            health_record_to_response(record_doc, user_lookup=user_lookup)
+            for record_doc in result_data["recent_records"]
+        ]
     }
     
-    # Group by type
-    for record in all_records:
-        rec_type = record.get("record_type", "unknown")
-        stats["records_by_type"][rec_type] = stats["records_by_type"].get(rec_type, 0) + 1
-    
-    # Get 10 most recent records
-    sorted_records = sorted(all_records, key=lambda x: x["created_at"], reverse=True)[:10]
-    for record_doc in sorted_records:
-        stats["recent_records"].append(health_record_to_response(record_doc, user_lookup=user_lookup))
+    # Build pending approvals list
+    pending_approval_responses = [
+        health_record_to_response(r, user_lookup=user_lookup)
+        for r in result_data["pending_approval_records"]
+    ]
     
     # Log dashboard access
     await log_audit_event(
@@ -443,7 +510,7 @@ async def get_shared_health_dashboard(
         message="Health dashboard retrieved successfully",
         data={
             "statistics": stats,
-            "pending_approvals": [health_record_to_response(r, user_lookup=user_lookup) for r in pending_approvals],
+            "pending_approvals": pending_approval_responses,
             "upcoming_reminders": [reminder_to_dict(r) for r in user_reminders]
         }
     )

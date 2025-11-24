@@ -167,6 +167,53 @@ async def create_genealogy_person(
     )
 
 
+@router.get("/persons/search")
+async def search_genealogy_persons(
+    q: str = Query(..., min_length=2, description="Search query for first/last name"),
+    tree_id: Optional[str] = Query(None, description="Tree ID (defaults to user's own tree)"),
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(20, ge=1, le=100, description="Items per page"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Search persons by name in genealogy tree"""
+    tree_oid = safe_object_id(tree_id) if tree_id else ObjectId(current_user.id)
+    if not tree_oid:
+        raise HTTPException(status_code=400, detail="Invalid tree_id")
+    
+    await ensure_tree_access(tree_oid, ObjectId(current_user.id))
+    
+    # Use regex for case-insensitive fuzzy search
+    search_filter = {
+        "family_id": tree_oid,
+        "$or": [
+            {"first_name": {"$regex": q, "$options": "i"}},
+            {"last_name": {"$regex": q, "$options": "i"}},
+            {"maiden_name": {"$regex": q, "$options": "i"}}
+        ]
+    }
+    
+    skip = (page - 1) * page_size
+    persons = await genealogy_person_repo.find_many(
+        filter_dict=search_filter,
+        skip=skip,
+        limit=page_size,
+        sort_by="last_name",
+        sort_order=1
+    )
+    
+    total = await genealogy_person_repo.count(search_filter)
+    
+    person_responses = [person_doc_to_response(doc) for doc in persons]
+    
+    return create_paginated_response(
+        items=person_responses,
+        total=total,
+        page=page,
+        page_size=page_size,
+        message=f"Found {total} matching persons"
+    )
+
+
 @router.get("/persons")
 async def list_genealogy_persons(
     tree_id: Optional[str] = Query(None, description="Tree ID (defaults to user's own tree)"),
