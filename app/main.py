@@ -22,8 +22,15 @@ async def lifespan(app: FastAPI):
         await create_all_indexes()
     except Exception as e:
         print(f"Warning: Failed to create indexes: {e}")
+        
+    # Start Scheduler Service
+    from app.services.scheduler_service import SchedulerService
+    scheduler = SchedulerService()
+    scheduler.start()
+    
     yield
     # Shutdown
+    scheduler.shutdown()
     await close_mongo_connection()
 
 app = FastAPI(

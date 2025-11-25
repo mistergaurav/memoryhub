@@ -86,8 +86,18 @@ import 'screens/family/parental_controls_screen.dart';
 import 'screens/family/family_document_vault_screen.dart';
 import 'screens/family/genealogy_tree_screen.dart';
 import 'screens/family/health_records_screen.dart';
+import 'services/notification_service.dart';
+import 'features/health_records/screens/health_dashboard_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    await NotificationService().initialize();
+  } catch (e) {
+    debugPrint('Failed to initialize NotificationService: $e');
+  }
+  
   runApp(const MyApp());
 }
 
@@ -304,6 +314,8 @@ class MyApp extends StatelessWidget {
                 case '/family/genealogy':
                   return MaterialPageRoute(builder: (_) => const GenealogyTreeScreen());
                 case '/family/health':
+                  return MaterialPageRoute(builder: (_) => const HealthDashboardScreen());
+                case '/family/health/history':
                   return MaterialPageRoute(builder: (_) => const HealthRecordsScreen());
                 default:
                   return null;

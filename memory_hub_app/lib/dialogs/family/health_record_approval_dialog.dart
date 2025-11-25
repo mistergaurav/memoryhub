@@ -7,11 +7,11 @@ import '../../design_system/design_tokens.dart';
 import 'controllers/health_record_approval_controller.dart';
 
 class HealthRecordApprovalDialog extends StatefulWidget {
-  final HealthRecord record;
+  final HealthRecord? record;
 
   const HealthRecordApprovalDialog({
     Key? key,
-    required this.record,
+    this.record,
   }) : super(key: key);
 
   @override
@@ -58,6 +58,14 @@ class _HealthRecordApprovalDialogState extends State<HealthRecordApprovalDialog>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.record == null) {
+      return const Dialog(
+        child: Padding(
+          padding: EdgeInsets.all(24.0),
+          child: Text('No record to review'),
+        ),
+      );
+    }
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.all(16),
@@ -202,7 +210,7 @@ class _HealthRecordApprovalDialogState extends State<HealthRecordApprovalDialog>
             children: [
               Expanded(
                 child: Text(
-                  widget.record.title,
+                  widget.record!.title,
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -217,7 +225,7 @@ class _HealthRecordApprovalDialogState extends State<HealthRecordApprovalDialog>
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  widget.record.recordType.toUpperCase(),
+                  widget.record!.recordType.toUpperCase(),
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -229,7 +237,7 @@ class _HealthRecordApprovalDialogState extends State<HealthRecordApprovalDialog>
           ),
           const SizedBox(height: 8),
           Text(
-            widget.record.description ?? '',
+            widget.record!.description ?? '',
             style: GoogleFonts.inter(
               fontSize: 14,
               color: MemoryHubColors.gray700,
@@ -241,7 +249,7 @@ class _HealthRecordApprovalDialogState extends State<HealthRecordApprovalDialog>
               const Icon(Icons.calendar_today, size: 14, color: MemoryHubColors.gray500),
               const SizedBox(width: 6),
               Text(
-                DateFormat('MMM d, yyyy').format(widget.record.recordDate),
+                DateFormat('MMM d, yyyy').format(widget.record!.recordDate),
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color: MemoryHubColors.gray500,
@@ -251,7 +259,7 @@ class _HealthRecordApprovalDialogState extends State<HealthRecordApprovalDialog>
               const Icon(Icons.person, size: 14, color: MemoryHubColors.gray500),
               const SizedBox(width: 6),
               Text(
-                'From: ${widget.record.createdByName ?? "Unknown"}',
+                'From: ${widget.record!.createdByName ?? "Unknown"}',
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   color: MemoryHubColors.gray500,
@@ -541,7 +549,8 @@ class _HealthRecordApprovalDialogState extends State<HealthRecordApprovalDialog>
                         );
 
                         if (confirmed == true) {
-                          final success = await _controller.rejectRecord(widget.record.id);
+                          if (widget.record == null) return;
+                          final success = await _controller.rejectRecord(widget.record!.id);
                           if (success && mounted) {
                             Navigator.of(context).pop(true); // Return true to indicate refresh needed
                           }
@@ -558,8 +567,9 @@ class _HealthRecordApprovalDialogState extends State<HealthRecordApprovalDialog>
                 onPressed: _controller.isSubmitting
                     ? null
                     : () async {
+                        if (widget.record == null) return;
                         final success = await _controller.approveRecord(
-                          widget.record.id,
+                          widget.record!.id,
                           visibilityType: _visibilityType,
                           visibilityUserIds: _visibilityType == 'select_users' ? _selectedUserIds : null,
                           visibilityFamilyCircles: _visibilityType == 'family_circle' ? _selectedCircleTypes : null,

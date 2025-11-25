@@ -112,6 +112,18 @@ class NotificationService:
             # Broadcast via WebSocket
             await self._broadcast_notification_created(user_id, notification_data)
             
+            # Send Push Notification
+            await self.send_push_notification(
+                user_id=user_id,
+                title=title,
+                body=message,
+                data={
+                    "type": type,
+                    "id": str(notification_data["_id"]),
+                    "click_action": "FLUTTER_NOTIFICATION_CLICK"
+                }
+            )
+            
             logger.info(f"Notification created for user {user_id}, type: {type}")
             return notification_data
         
@@ -285,6 +297,45 @@ class NotificationService:
         except Exception as e:
             logger.error(f"Error broadcasting health record status changed: {str(e)}")
     
+    async def send_push_notification(
+        self,
+        user_id: str,
+        title: str,
+        body: str,
+        data: Optional[Dict[str, Any]] = None
+    ):
+        """Send FCM push notification"""
+        try:
+            # Get user's FCM tokens
+            user = await get_collection("users").find_one({"_id": ObjectId(user_id)})
+            if not user or "fcm_tokens" not in user:
+                return
+
+            tokens = user["fcm_tokens"]
+            if not tokens:
+                return
+
+            # In a real implementation, we would use firebase_admin here
+            # For now, we'll log it as a placeholder for the actual FCM call
+            # from firebase_admin import messaging
+            
+            logger.info(f"Sending push notification to user {user_id}: {title} - {body}")
+            
+            # Placeholder for FCM logic:
+            # message = messaging.MulticastMessage(
+            #     notification=messaging.Notification(
+            #         title=title,
+            #         body=body,
+            #     ),
+            #     data=data or {},
+            #     tokens=tokens,
+            # )
+            # response = messaging.send_multicast(message)
+            # logger.info(f"FCM response: {response.success_count} messages sent successfully")
+
+        except Exception as e:
+            logger.error(f"Error sending push notification: {str(e)}")
+
     async def create_audit_log(
         self,
         resource_type: str,

@@ -60,6 +60,25 @@ class GenealogTreeMembershipRepository(BaseRepository):
             {"tree_id": tree_oid},
             skip=skip,
             limit=limit,
+            sort_order=-1
+        )
+    
+    async def find_by_user(
+        self,
+        user_id: str
+    ) -> List[Dict[str, Any]]:
+        """
+        Find all tree memberships for a user.
+        
+        Args:
+            user_id: String representation of user ID
+            
+        Returns:
+            List of tree memberships
+        """
+        user_oid = self.validate_object_id(user_id, "user_id")
+        return await self.find_many(
+            {"user_id": user_oid},
             sort_by="joined_at",
             sort_order=-1
         )

@@ -429,10 +429,11 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
             ),
             Padded.all(
               MemoryHubSpacing.xl,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                   Row(
                     children: [
                       Container(
@@ -481,7 +482,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                       ),
                     ],
                   ),
-                  const Spacer(),
+                  VGap.xl(),
                   Text(
                     title,
                     style: context.text.headlineSmall?.copyWith(
@@ -518,14 +519,14 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                stat['value']!,
+                                stat['value'] ?? '0',
                                 style: context.text.titleSmall?.copyWith(
                                   fontWeight: MemoryHubTypography.bold,
                                   color: context.colors.onPrimary,
                                 ),
                               ),
                               Text(
-                                stat['label']!,
+                                stat['label'] ?? '',
                                 style: context.text.bodySmall?.copyWith(
                                   color: context.colors.onPrimary.withValues(alpha: 0.9),
                                 ),
@@ -539,6 +540,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 ],
               ),
             ),
+          ),
           ],
         ),
       ),
@@ -610,7 +612,7 @@ class _DashboardScreenState extends State<DashboardScreen> with TickerProviderSt
                 ),
                 child: Icon(icon, color: color, size: 24),
               ),
-              const Spacer(),
+              const Expanded(child: SizedBox()),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: MemoryHubSpacing.sm,

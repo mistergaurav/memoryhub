@@ -255,12 +255,37 @@ async def list_health_records(
     """List all health records with optional filtering and pagination"""
     user_oid = ObjectId(current_user.id)
     
-    # Include records where user is the creator, subject, or assigned
+    # Fetch user's tree memberships to determine family tree access
+    from app.repositories.family.tree_memberships import GenealogTreeMembershipRepository
+    tree_membership_repo = GenealogTreeMembershipRepository()
+    user_memberships = await tree_membership_repo.find_by_user(str(user_oid))
+    accessible_tree_ids = [m["tree_id"] for m in user_memberships]
+    
+    # Include user's own family tree (where they are the owner)
+    accessible_tree_ids.append(user_oid)
+    
+    # Construct query with strict visibility rules
     query: Dict[str, Any] = {
         "$or": [
+            # 1. User is directly involved (Creator, Subject, Assigned) - Show ALL statuses
             {"family_id": user_oid},
             {"subject_user_id": user_oid},
-            {"assigned_user_ids": user_oid}
+            {"assigned_user_ids": user_oid},
+            {"created_by": user_oid},
+            
+            # 2. Family Tree Visibility - Show ONLY APPROVED
+            {
+                "visibility_type": "family_tree",
+                "approval_status": "approved",
+                "family_id": {"$in": accessible_tree_ids}
+            },
+            
+            # 3. Specific User Visibility - Show ONLY APPROVED
+            {
+                "visibility_type": "select_users",
+                "approval_status": "approved",
+                "visibility_user_ids": user_oid
+            }
         ]
     }
     

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MemoryHubColors {
+  // Existing colors...
+
   static const Color primary = Color(0xFF4F46E5);
   
   static const Color white = Color(0xFFFFFFFF);
@@ -44,6 +46,7 @@ class MemoryHubColors {
   static const Color yellow500 = Color(0xFFEAB308);
   
   static const Color orange500 = Color(0xFFF97316);
+  static const Color orange600 = Color(0xFFFB8C00);
   
   static const Color amber50 = Color(0xFFFFFBEB);
   static const Color amber500 = Color(0xFFF59E0B);
