@@ -58,7 +58,9 @@ def person_doc_to_response(person_doc: dict) -> GenealogyPersonResponse:
         source=person_doc.get("source", PersonSource.MANUAL),
         created_at=person_doc["created_at"],
         updated_at=person_doc["updated_at"],
-        created_by=str(person_doc["created_by"])
+        created_by=str(person_doc["created_by"]),
+        approval_status=person_doc.get("approval_status", "approved"),
+        rejection_reason=person_doc.get("rejection_reason")
     )
 
 

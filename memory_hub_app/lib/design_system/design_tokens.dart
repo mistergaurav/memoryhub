@@ -44,6 +44,7 @@ class MemoryHubColors {
   static const Color yellow50 = Color(0xFFFEFCE8);
   static const Color yellow400 = Color(0xFFFACC15);
   static const Color yellow500 = Color(0xFFEAB308);
+  static const Color yellow600 = Color(0xFFCA8A04);
   
   static const Color orange500 = Color(0xFFF97316);
   static const Color orange600 = Color(0xFFFB8C00);

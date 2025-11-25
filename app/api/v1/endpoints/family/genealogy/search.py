@@ -45,6 +45,40 @@ family_repo = FamilyRepository()
 
 
 
+from .utils import person_doc_to_response
+from .permissions import ensure_tree_access
+
+@router.get("/persons/search")
+async def search_genealogy_persons(
+    q: str = Query(..., min_length=1, description="Search query"),
+    tree_id: Optional[str] = Query(None, description="Tree ID (defaults to user's own tree)"),
+    limit: int = Query(20, ge=1, le=50, description="Maximum number of results"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Search for persons in the family tree"""
+    tree_oid = safe_object_id(tree_id) if tree_id else ObjectId(current_user.id)
+    if not tree_oid:
+        raise HTTPException(status_code=400, detail="Invalid tree_id")
+    
+    await ensure_tree_access(tree_oid, ObjectId(current_user.id))
+    
+    persons = await genealogy_person_repo.search_persons(
+        query=q,
+        tree_id=str(tree_oid),
+        limit=limit
+    )
+    
+    person_responses = [person_doc_to_response(doc) for doc in persons]
+    
+    return create_success_response(
+        message="Persons found successfully",
+        data={
+            "items": person_responses,
+            "total": len(person_responses)
+        }
+    )
+
+
 @router.get("/search-users")
 async def search_platform_users(
     query: str = Query(..., min_length=2, description="Search query for username, email, or name"),

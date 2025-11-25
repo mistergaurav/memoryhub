@@ -9,6 +9,7 @@ import '../../widgets/animated_list_item.dart';
 import '../../services/websocket_service.dart';
 import '../../design_system/design_system.dart';
 import '../../design_system/layout/padded.dart';
+import '../../services/family/genealogy/persons_service.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -432,6 +433,39 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         ],
                       ),
                     ],
+                    if (notification.type == models.NotificationType.genealogyApprovalRequest &&
+                        notification.approvalStatus != 'approved' &&
+                        notification.approvalStatus != 'rejected') ...[
+                      VGap(MemoryHubSpacing.md),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              icon: const Icon(Icons.check, size: 16),
+                              label: Text('Approve', style: GoogleFonts.inter(fontSize: 13)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: MemoryHubColors.green600,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(vertical: MemoryHubSpacing.sm),
+                              ),
+                              onPressed: () => _handleApprove(notification, provider),
+                            ),
+                          ),
+                          HGap(MemoryHubSpacing.md),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              icon: const Icon(Icons.close, size: 16),
+                              label: Text('Reject', style: GoogleFonts.inter(fontSize: 13)),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: MemoryHubColors.red600,
+                                padding: EdgeInsets.symmetric(vertical: MemoryHubSpacing.sm),
+                              ),
+                              onPressed: () => _handleReject(notification, provider),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -440,6 +474,68 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleApprove(models.Notification notification, NotificationsProvider provider) async {
+    try {
+      final personId = notification.metadata?['person_id'];
+      if (personId == null) return;
+
+      final personsService = GenealogyPersonsService();
+      await personsService.approvePerson(personId);
+      
+      await provider.markAsRead(notification.id);
+      await provider.refresh();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Request approved', style: GoogleFonts.inter()),
+            backgroundColor: MemoryHubColors.green600,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to approve: $e', style: GoogleFonts.inter()),
+            backgroundColor: MemoryHubColors.red600,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleReject(models.Notification notification, NotificationsProvider provider) async {
+    try {
+      final personId = notification.metadata?['person_id'];
+      if (personId == null) return;
+
+      final personsService = GenealogyPersonsService();
+      await personsService.rejectPerson(personId);
+      
+      await provider.markAsRead(notification.id);
+      await provider.refresh();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Request rejected', style: GoogleFonts.inter()),
+            backgroundColor: MemoryHubColors.gray600,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to reject: $e', style: GoogleFonts.inter()),
+            backgroundColor: MemoryHubColors.red600,
+          ),
+        );
+      }
+    }
   }
 
   String _getTimeAgo(DateTime dateTime) {
@@ -480,6 +576,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         return Icons.check_circle;
       case models.NotificationType.healthRecordRejected:
         return Icons.cancel;
+      case models.NotificationType.genealogyApprovalRequest:
+        return Icons.person_add_alt_1;
+      case models.NotificationType.genealogyRequestApproved:
+        return Icons.how_to_reg;
+      case models.NotificationType.genealogyRequestRejected:
+        return Icons.person_off;
       default:
         return Icons.notifications;
     }
@@ -497,6 +599,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case models.NotificationType.healthRecordApproved:
         return MemoryHubColors.green600;
       case models.NotificationType.healthRecordRejected:
+        return MemoryHubColors.red600;
+      case models.NotificationType.genealogyApprovalRequest:
+        return MemoryHubColors.orange500;
+      case models.NotificationType.genealogyRequestApproved:
+        return MemoryHubColors.green600;
+      case models.NotificationType.genealogyRequestRejected:
         return MemoryHubColors.red600;
       case models.NotificationType.follow:
         return MemoryHubColors.green600;

@@ -8,7 +8,10 @@ from app.models.family.genealogy import (
     GenealogyPersonCreate, GenealogyPersonUpdate, GenealogyPersonResponse,
     GenealogyRelationshipCreate, GenealogyRelationshipResponse,
     FamilyTreeNode, PersonSource, UserSearchResult,
-    FamilyHubInvitationCreate, FamilyHubInvitationResponse, InvitationAction, InvitationStatus
+    GenealogyRelationshipCreate, GenealogyRelationshipResponse,
+    FamilyTreeNode, PersonSource, UserSearchResult,
+    FamilyHubInvitationCreate, FamilyHubInvitationResponse, InvitationAction, InvitationStatus,
+    ApprovalStatus
 )
 from app.models.user import UserInDB
 from app.core.security import get_current_user
@@ -61,6 +64,10 @@ def person_doc_to_response(person_doc: dict) -> GenealogyPersonResponse:
         notes=person_doc.get("notes"),
         linked_user_id=str(person_doc["linked_user_id"]) if person_doc.get("linked_user_id") else None,
         source=person_doc.get("source", PersonSource.MANUAL),
+        pending_invite_email=person_doc.get("pending_invite_email"),
+        is_memorial=person_doc.get("is_memorial", False),
+        approval_status=person_doc.get("approval_status", ApprovalStatus.APPROVED),
+        rejection_reason=person_doc.get("rejection_reason"),
         created_at=person_doc["created_at"],
         updated_at=person_doc["updated_at"],
         created_by=str(person_doc["created_by"])
@@ -184,15 +191,33 @@ async def create_genealogy_person(
         "occupation": person.occupation,
         "notes": person.notes,
         "source": person.source,
+        "pending_invite_email": person.pending_invite_email,
+        "is_memorial": person.is_memorial,
+        "approval_status": ApprovalStatus.APPROVED,  # Default to approved
         "created_by": ObjectId(current_user.id)
     }
     
     if linked_user_oid:
         person_data["linked_user_id"] = linked_user_oid
+        person_data["approval_status"] = ApprovalStatus.PENDING # Set to pending if linked
     
     person_doc = await genealogy_person_repo.create(person_data)
     person_id = person_doc["_id"]
     
+    # Send notification if linked user
+    if linked_user_oid:
+        await notification_repo.create_notification(
+            user_id=str(linked_user_oid),
+            type="genealogy_approval_request",
+            title="Family Tree Addition Request",
+            message=f"{current_user.full_name} wants to add you to their family tree.",
+            data={
+                "person_id": str(person_id),
+                "tree_id": str(tree_oid),
+                "requester_id": str(current_user.id)
+            }
+        )
+
     if person.relationships:
         for rel_spec in person.relationships:
             related_person_oid = genealogy_person_repo.validate_object_id(rel_spec.person_id, "related_person_id")
@@ -227,13 +252,95 @@ async def create_genealogy_person(
             "resource_id": str(person_id),
             "tree_id": str(tree_oid),
             "first_name": person.first_name,
-            "last_name": person.last_name
+            "last_name": person.last_name,
+            "linked_user_id": str(linked_user_oid) if linked_user_oid else None
         }
     )
     
     return create_success_response(
         message="Person created successfully",
         data=person_doc_to_response(person_doc)
+    )
+
+
+@router.post("/persons/{person_id}/approve", status_code=status.HTTP_200_OK)
+async def approve_genealogy_person(
+    person_id: str,
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Approve being added to a family tree"""
+    person_oid = genealogy_person_repo.validate_object_id(person_id)
+    person = await genealogy_person_repo.find_one({"_id": person_oid}, raise_404=True)
+    
+    # Verify current user is the linked user
+    if str(person.get("linked_user_id")) != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="You are not authorized to approve this request"
+        )
+        
+    if person.get("approval_status") == ApprovalStatus.APPROVED:
+        return create_success_response(message="Already approved", data=person_doc_to_response(person))
+
+    updated_person = await genealogy_person_repo.update(
+        {"_id": person_oid},
+        {"$set": {"approval_status": ApprovalStatus.APPROVED}}
+    )
+    
+    # Notify creator
+    creator_id = str(person["created_by"])
+    await notification_repo.create_notification(
+        user_id=creator_id,
+        type="genealogy_request_approved",
+        title="Request Approved",
+        message=f"{current_user.full_name} approved your request to add them to the family tree.",
+        data={"person_id": person_id}
+    )
+    
+    return create_success_response(
+        message="Request approved successfully",
+        data=person_doc_to_response(updated_person)
+    )
+
+
+@router.post("/persons/{person_id}/reject", status_code=status.HTTP_200_OK)
+async def reject_genealogy_person(
+    person_id: str,
+    reason: Optional[str] = Query(None),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Reject being added to a family tree"""
+    person_oid = genealogy_person_repo.validate_object_id(person_id)
+    person = await genealogy_person_repo.find_one({"_id": person_oid}, raise_404=True)
+    
+    # Verify current user is the linked user
+    if str(person.get("linked_user_id")) != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="You are not authorized to reject this request"
+        )
+
+    updated_person = await genealogy_person_repo.update(
+        {"_id": person_oid},
+        {"$set": {
+            "approval_status": ApprovalStatus.REJECTED,
+            "rejection_reason": reason
+        }}
+    )
+    
+    # Notify creator
+    creator_id = str(person["created_by"])
+    await notification_repo.create_notification(
+        user_id=creator_id,
+        type="genealogy_request_rejected",
+        title="Request Rejected",
+        message=f"{current_user.full_name} rejected your request to add them to the family tree.",
+        data={"person_id": person_id}
+    )
+    
+    return create_success_response(
+        message="Request rejected successfully",
+        data=person_doc_to_response(updated_person)
     )
 
 
@@ -389,6 +496,37 @@ async def delete_genealogy_person(
     )
     
     return create_success_response(message="Person deleted successfully")
+
+
+@router.get("/persons/search")
+async def search_genealogy_persons(
+    q: str = Query(..., min_length=1, description="Search query"),
+    tree_id: Optional[str] = Query(None, description="Tree ID (defaults to user's own tree)"),
+    limit: int = Query(20, ge=1, le=50, description="Maximum number of results"),
+    current_user: UserInDB = Depends(get_current_user)
+):
+    """Search for persons in the family tree"""
+    tree_oid = safe_object_id(tree_id) if tree_id else ObjectId(current_user.id)
+    if not tree_oid:
+        raise HTTPException(status_code=400, detail="Invalid tree_id")
+    
+    await ensure_tree_access(tree_oid, ObjectId(current_user.id))
+    
+    persons = await genealogy_person_repo.search_persons(
+        query=q,
+        tree_id=str(tree_oid),
+        limit=limit
+    )
+    
+    person_responses = [person_doc_to_response(doc) for doc in persons]
+    
+    return create_success_response(
+        message="Persons found successfully",
+        data={
+            "items": person_responses,
+            "total": len(person_responses)
+        }
+    )
 
 
 @router.get("/search-users")

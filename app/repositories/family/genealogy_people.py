@@ -28,3 +28,29 @@ class GenealogyPersonRepository(BaseRepository):
             sort_order=1
         )
 
+    async def search_persons(
+        self,
+        query: str,
+        tree_id: Optional[str] = None,
+        limit: int = 20
+    ) -> List[Dict[str, Any]]:
+        """Search for persons by name."""
+        filter_dict = {
+            "$or": [
+                {"first_name": {"$regex": query, "$options": "i"}},
+                {"last_name": {"$regex": query, "$options": "i"}},
+                {"maiden_name": {"$regex": query, "$options": "i"}}
+            ]
+        }
+        
+        if tree_id:
+            tree_oid = self.validate_object_id(tree_id, "tree_id")
+            filter_dict["family_id"] = tree_oid
+            
+        return await self.find_many(
+            filter_dict,
+            limit=limit,
+            sort_by="first_name",
+            sort_order=1
+        )
+

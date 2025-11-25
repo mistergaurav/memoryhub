@@ -17,55 +17,69 @@ class NotificationService {
     if (_isInitialized) return;
 
     try {
-      // Initialize Firebase
-      // We try to initialize it, but if it fails (e.g. no config), we catch it
-      // so the app doesn't crash completely
-      try {
-        await Firebase.initializeApp();
-        _firebaseMessaging = FirebaseMessaging.instance;
-      } catch (e) {
-        debugPrint('Warning: Firebase initialization failed: $e');
-        debugPrint('Push notifications will not be available.');
-        return;
-      }
-
-      if (_firebaseMessaging == null) return;
-
-      // Request permissions
-      await _requestPermissions();
-
-      // Initialize Local Notifications
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-      const iosSettings = DarwinInitializationSettings(
-        requestAlertPermission: true,
-        requestBadgePermission: true,
-        requestSoundPermission: true,
-      );
-      
-      const initSettings = InitializationSettings(android: androidSettings, iOS: iosSettings);
-      await _localNotifications.initialize(
-        initSettings,
-        onDidReceiveNotificationResponse: _onNotificationTap,
-      );
-
-      // Foreground handler
-      FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-      
-      // Background handler
-      FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-      // Get Token
-      try {
-        final token = await _firebaseMessaging!.getToken();
-        debugPrint('FCM Token: $token');
-        // TODO: Send token to backend
-      } catch (e) {
-        debugPrint('Error getting FCM token: $e');
+      // Only initialize Firebase if not on web or if FirebaseOptions are available
+      if (!kIsWeb) {
+        // Mobile platforms - Firebase should be configured
+        try {
+          await Firebase.initializeApp();
+          _firebaseMessaging = FirebaseMessaging.instance;
+          await _initializeMessaging();
+        } catch (e) {
+          debugPrint('Firebase initialization failed on mobile: $e');
+          debugPrint('Push notifications will not be available.');
+        }
+      } else {
+        // Web platform - Firebase is optional
+        try {
+          await Firebase.initializeApp();
+          _firebaseMessaging = FirebaseMessaging.instance;
+          await _initializeMessaging();
+        } catch (e) {
+          // Silently fail on web - Firebase is not required for core functionality
+          debugPrint('Firebase not configured for web platform. Push notifications disabled.');
+          // Don't rethrow - allow app to continue without Firebase
+        }
       }
 
       _isInitialized = true;
     } catch (e) {
       debugPrint('Error initializing NotificationService: $e');
+    }
+  }
+
+  Future<void> _initializeMessaging() async {
+    if (_firebaseMessaging == null) return;
+
+    // Request permissions
+    await _requestPermissions();
+
+    // Initialize Local Notifications
+    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const iosSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    
+    const initSettings = InitializationSettings(android: androidSettings, iOS: iosSettings);
+    await _localNotifications.initialize(
+      initSettings,
+      onDidReceiveNotificationResponse: _onNotificationTap,
+    );
+
+    // Foreground handler
+    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+    
+    // Background handler
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    // Get Token
+    try {
+      final token = await _firebaseMessaging!.getToken();
+      debugPrint('FCM Token: $token');
+      // TODO: Send token to backend
+    } catch (e) {
+      debugPrint('Error getting FCM token: $e');
     }
   }
 

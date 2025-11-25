@@ -39,6 +39,12 @@ class InvitationStatus(str, Enum):
     EXPIRED = "expired"
 
 
+class ApprovalStatus(str, Enum):
+    APPROVED = "approved"
+    PENDING = "pending"
+    REJECTED = "rejected"
+
+
 class RelationshipSpec(BaseModel):
     person_id: str
     relationship_type: RelationshipType
@@ -65,6 +71,7 @@ class GenealogyPersonCreate(BaseModel):
     # New fields for invitation and status tracking
     pending_invite_email: Optional[str] = Field(None, max_length=200)  # Email to send invite to
     is_memorial: bool = False  # True if this is a memorial profile (deceased)
+    approval_status: Optional[ApprovalStatus] = ApprovalStatus.APPROVED
     
     @validator('birth_date', 'death_date')
     def validate_date_format(cls, v):
@@ -97,6 +104,8 @@ class GenealogyPersonUpdate(BaseModel):
     linked_user_id: Optional[str] = None
     pending_invite_email: Optional[str] = Field(None, max_length=200)
     is_memorial: Optional[bool] = None
+    approval_status: Optional[ApprovalStatus] = None
+    rejection_reason: Optional[str] = Field(None, max_length=500)
     
     @validator('birth_date', 'death_date')
     def validate_date_format(cls, v):
@@ -139,6 +148,32 @@ class GenealogyPersonResponse(BaseModel):
     biography: Optional[str] = None
     photo_url: Optional[str] = None
     occupation: Optional[str] = None
+    notes: Optional[str] = None
+    linked_user_id: Optional[str] = None
+    source: PersonSource = PersonSource.MANUAL
+    
+    # New fields
+    pending_invite_email: Optional[str] = None
+    is_memorial: bool = False
+    approval_status: ApprovalStatus = ApprovalStatus.APPROVED
+    rejection_reason: Optional[str] = None
+    
+    created_at: datetime
+    updated_at: datetime
+    created_by: str
+    notes: Optional[str] = None
+    linked_user_id: Optional[str] = None
+    source: PersonSource = PersonSource.MANUAL
+    
+    # New fields
+    pending_invite_email: Optional[str] = None
+    is_memorial: bool = False
+    approval_status: ApprovalStatus = ApprovalStatus.APPROVED
+    rejection_reason: Optional[str] = None
+    
+    created_at: datetime
+    updated_at: datetime
+    created_by: str
     notes: Optional[str] = None
     linked_user_id: Optional[str] = None
     source: Optional[PersonSource] = PersonSource.MANUAL

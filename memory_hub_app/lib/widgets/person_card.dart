@@ -84,6 +84,11 @@ class PersonCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: _buildStatusBadge(),
+                  ),
                 ],
               ),
             ),
@@ -295,12 +300,21 @@ class PersonCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      fullName.isNotEmpty ? fullName : 'Unknown',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            fullName.isNotEmpty ? fullName : 'Unknown',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildStatusBadge(),
+                      ],
                     ),
                     if (person.relationshipLabel != null && person.relationshipLabel!.isNotEmpty) ...[
                       const SizedBox(height: 2),
@@ -344,6 +358,35 @@ class PersonCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildStatusBadge() {
+    if (person.approvalStatus == 'pending') {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.orange,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: const Text(
+          'PENDING',
+          style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+        ),
+      );
+    } else if (person.approvalStatus == 'rejected') {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: Colors.red,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: const Text(
+          'REJECTED',
+          style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
   }
 
   String _formatDate(dynamic date) {

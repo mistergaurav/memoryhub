@@ -29,6 +29,10 @@ class GenealogyPerson {
   
   final String? linkedUserId;
   
+  // Approval fields
+  final String approvalStatus; // 'approved', 'pending', 'rejected'
+  final String? rejectionReason;
+  
   // Transient field for UI display
   String? relationshipLabel;
 
@@ -58,6 +62,8 @@ class GenealogyPerson {
     required this.createdAt,
     required this.updatedAt,
     this.linkedUserId,
+    this.approvalStatus = 'approved',
+    this.rejectionReason,
   });
 
   String get fullName {
@@ -150,6 +156,8 @@ class GenealogyPerson {
       createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
       updatedAt: DateTime.parse(json['updated_at'] ?? DateTime.now().toIso8601String()),
       linkedUserId: json['linked_user_id'],
+      approvalStatus: json['approval_status'] ?? 'approved',
+      rejectionReason: json['rejection_reason'],
     );
   }
 
@@ -180,6 +188,8 @@ class GenealogyPerson {
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
       'linked_user_id': linkedUserId,
+      'approval_status': approvalStatus,
+      'rejection_reason': rejectionReason,
     };
   }
 }

@@ -8,7 +8,10 @@ enum NotificationType {
   healthRecordAssignment,
   healthReminderAssignment,
   healthRecordApproved,
-  healthRecordRejected;
+  healthRecordRejected,
+  genealogyApprovalRequest,
+  genealogyRequestApproved,
+  genealogyRequestRejected;
 
   String toJson() {
     switch (this) {
@@ -32,6 +35,12 @@ enum NotificationType {
         return 'health_record_approved';
       case NotificationType.healthRecordRejected:
         return 'health_record_rejected';
+      case NotificationType.genealogyApprovalRequest:
+        return 'genealogy_approval_request';
+      case NotificationType.genealogyRequestApproved:
+        return 'genealogy_request_approved';
+      case NotificationType.genealogyRequestRejected:
+        return 'genealogy_request_rejected';
     }
   }
 
@@ -57,6 +66,12 @@ enum NotificationType {
         return NotificationType.healthRecordApproved;
       case 'health_record_rejected':
         return NotificationType.healthRecordRejected;
+      case 'genealogy_approval_request':
+        return NotificationType.genealogyApprovalRequest;
+      case 'genealogy_request_approved':
+        return NotificationType.genealogyRequestApproved;
+      case 'genealogy_request_rejected':
+        return NotificationType.genealogyRequestRejected;
       default:
         print('⚠️ Unknown notification type: $value, defaulting to comment');
         return NotificationType.comment;

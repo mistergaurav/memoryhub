@@ -148,6 +148,8 @@ class GenealogyPersonResponse(BaseModel):
     linked_username: Optional[str] = None  # Username of linked platform user
     linked_full_name: Optional[str] = None  # Full name of linked platform user
     memory_count: int = 0  # Count of memories associated with this person
+    approval_status: str = "approved"
+    rejection_reason: Optional[str] = None
 
 
 class GenealogyRelationshipCreate(BaseModel):

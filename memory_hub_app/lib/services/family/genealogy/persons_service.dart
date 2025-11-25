@@ -6,6 +6,31 @@ class GenealogyPersonsService extends FamilyApiClient {
   int _currentPage = 1;
   bool _hasMore = true;
   final int _pageSize = 50;
+
+  /// Create self-person (user's own profile in family tree)
+  Future<Map<String, dynamic>> createSelfPerson() async {
+    try {
+      final data = await post(
+        '/family/genealogy/persons/self',
+        body: {},
+      );
+      return data['data'] ?? data;
+    } catch (e) {
+      if (e is ApiException) {
+        if (e.statusCode == 400) {
+          throw Exception('You already have a profile in your family tree');
+        }
+        throw Exception('Failed to create your profile: ${e.message}');
+      }
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Error creating self-person',
+        originalError: e,
+      );
+    }
+  }
   
   /// Reset pagination state
   void resetPagination() {
@@ -93,9 +118,14 @@ class GenealogyPersonsService extends FamilyApiClient {
     }
   }
 
-  Future<GenealogyPerson> createPerson(Map<String, dynamic> personData) async {
+  Future<GenealogyPerson> createPerson(Map<String, dynamic> personData, {String? treeId}) async {
     try {
-      final data = await post('/family/genealogy/persons', body: personData);
+      final queryParams = treeId != null ? {'tree_id': treeId} : null;
+      final data = await post(
+        '/family/genealogy/persons', 
+        body: personData,
+        params: queryParams,
+      );
       return GenealogyPerson.fromJson(data['data'] ?? data);
     } catch (e) {
       if (e is ApiException || e is NetworkException || e is AuthException) {
@@ -103,6 +133,40 @@ class GenealogyPersonsService extends FamilyApiClient {
       }
       throw NetworkException(
         message: 'Failed to create person',
+        originalError: e,
+      );
+    }
+  }
+
+  Future<GenealogyPerson> approvePerson(String personId) async {
+    try {
+      final data = await post('/family/genealogy/persons/$personId/approve');
+      return GenealogyPerson.fromJson(data['data'] ?? data);
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to approve person',
+        originalError: e,
+      );
+    }
+  }
+
+  Future<GenealogyPerson> rejectPerson(String personId, {String? reason}) async {
+    try {
+      final queryParams = reason != null ? {'reason': reason} : null;
+      final data = await post(
+        '/family/genealogy/persons/$personId/reject',
+        params: queryParams,
+      );
+      return GenealogyPerson.fromJson(data['data'] ?? data);
+    } catch (e) {
+      if (e is ApiException || e is NetworkException || e is AuthException) {
+        rethrow;
+      }
+      throw NetworkException(
+        message: 'Failed to reject person',
         originalError: e,
       );
     }

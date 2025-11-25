@@ -210,20 +210,9 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
       
       final createdPerson = await _familyService.createPerson(personData);
       
+      // Invitation is now handled automatically by the backend when linked_user_id is provided
       if (_sendInvitation && _selectedExistingUser != null && _isAlive) {
-        try {
-          await _familyService.sendFamilyHubInvitation(
-            createdPerson['id'],
-            _selectedExistingUser!['id'],
-            _invitationMessage.isEmpty ? null : _invitationMessage,
-          );
-        } catch (e) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Person added but invitation failed: ${e.toString()}')),
-            );
-          }
-        }
+         // Optional: Show a message saying invitation was sent
       }
       
       if (mounted) {
@@ -1011,8 +1000,30 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
               _buildSummaryItem(Icons.event_busy, 'Death', '$_deathDate${_deathPlace.isNotEmpty ? ' in $_deathPlace' : ''}'),
             if (_occupation.isNotEmpty)
               _buildSummaryItem(Icons.work, 'Occupation', _occupation),
-            if (_selectedExistingUser != null)
+            if (_selectedExistingUser != null) ...[
               _buildSummaryItem(Icons.link, 'Linked User', _selectedExistingUser!['username'] ?? 'Unknown'),
+              const SizedBox(height: MemoryHubSpacing.md),
+              Container(
+                padding: EdgeInsets.all(MemoryHubSpacing.md),
+                decoration: BoxDecoration(
+                  color: Colors.orange[50],
+                  borderRadius: MemoryHubBorderRadius.mdRadius,
+                  border: Border.all(color: Colors.orange[300]!),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.warning_amber_rounded, color: Colors.orange[800]),
+                    const SizedBox(width: MemoryHubSpacing.md),
+                    Expanded(
+                      child: Text(
+                        'This person will be marked as "Pending" until they approve the request.',
+                        style: TextStyle(fontSize: MemoryHubTypography.caption, color: Colors.orange[900]),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             if (_selectedRelationships.isNotEmpty)
               _buildSummaryItem(Icons.family_restroom, 'Relationships', '${_selectedRelationships.length} defined'),
             if (_sendInvitation)

@@ -16,6 +16,7 @@ import '../../dialogs/family/add_person_wizard.dart';
 import '../../dialogs/family/add_relationship_dialog.dart';
 import '../../dialogs/family/edit_person_dialog.dart';
 import '../../dialogs/family/person_search_dialog.dart';
+import '../../dialogs/family/tree_onboarding_dialog.dart';
 import '../../widgets/default_avatar.dart';
 import '../../design_system/family_design_system.dart';
 import 'package:intl/intl.dart';
@@ -89,6 +90,13 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
         _treeNodes = treeData;
         _isLoading = false;
       });
+      
+      // Show onboarding dialog if tree is empty
+      if (persons.isEmpty && mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showOnboardingDialog();
+        });
+      }
     } catch (e) {
       String errorMsg = e.toString();
       if (e is ApiException) {
@@ -463,6 +471,18 @@ class _GenealogyTreeScreenState extends State<GenealogyTreeScreen> {
       builder: (context) => const AddPersonWizard(),
     );
     if (result == true) {
+      _loadData();
+    }
+  }
+
+  void _showOnboardingDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const TreeOnboardingDialog(),
+    );
+    if (result == true) {
+      // User created their profile, reload data
       _loadData();
     }
   }

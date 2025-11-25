@@ -104,7 +104,7 @@ class _StatCardState extends State<StatCard>
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(MemoryHubSpacing.xl),
+                padding: EdgeInsets.all(MemoryHubSpacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,13 +124,16 @@ class _StatCardState extends State<StatCard>
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.value,
-                          style: GoogleFonts.inter(
-                            fontSize: MemoryHubTypography.h1,
-                            fontWeight: MemoryHubTypography.bold,
-                            color: Colors.white,
-                            height: 1.0,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            widget.value,
+                            style: GoogleFonts.inter(
+                              fontSize: MemoryHubTypography.h1,
+                              fontWeight: MemoryHubTypography.bold,
+                              color: Colors.white,
+                              height: 1.0,
+                            ),
                           ),
                         ),
                         const SizedBox(height: MemoryHubSpacing.xs),
