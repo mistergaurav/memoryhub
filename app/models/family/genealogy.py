@@ -22,6 +22,9 @@ class RelationshipType(str, Enum):
     AUNT_UNCLE = "aunt_uncle"
     NIECE_NEPHEW = "niece_nephew"
     COUSIN = "cousin"
+    STEP_PARENT = "step_parent"
+    STEP_CHILD = "step_child"
+    STEP_SIBLING = "step_sibling"
 
 
 class PersonSource(str, Enum):
@@ -48,6 +51,7 @@ class ApprovalStatus(str, Enum):
 class RelationshipSpec(BaseModel):
     person_id: str
     relationship_type: RelationshipType
+    is_biological: bool = True
     notes: Optional[str] = Field(None, max_length=500)
 
 
@@ -211,6 +215,7 @@ class GenealogyRelationshipCreate(BaseModel):
     person1_id: str
     person2_id: str
     relationship_type: RelationshipType
+    is_biological: bool = True
     notes: Optional[str] = Field(None, max_length=500)
 
 
@@ -220,6 +225,7 @@ class GenealogyRelationshipResponse(BaseModel):
     person1_id: str
     person2_id: str
     relationship_type: RelationshipType
+    is_biological: bool = True
     notes: Optional[str] = None
     created_at: datetime
     created_by: str

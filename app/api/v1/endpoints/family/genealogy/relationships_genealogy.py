@@ -209,26 +209,67 @@ async def create_genealogy_relationship(
 
 @router.get("/relationships")
 async def list_genealogy_relationships(
-    tree_id: Optional[str] = Query(None, description="Tree ID (defaults to user's own tree)"),
+    tree_id: Optional[str] = Query(None, description="Tree ID (defaults to all trees user is a member of)"),
+    person_id: Optional[str] = Query(None, description="Filter by person ID"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(50, ge=1, le=100, description="Items per page"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """List all relationships in a family tree with pagination"""
-    tree_oid = safe_object_id(tree_id) if tree_id else ObjectId(current_user.id)
-    if not tree_oid:
-        raise HTTPException(status_code=400, detail="Invalid tree_id")
-    
-    await ensure_tree_access(tree_oid, ObjectId(current_user.id))
-    
+    """List all relationships in family tree(s) with pagination"""
     skip = (page - 1) * page_size
-    relationships = await genealogy_relationship_repo.find_by_tree(
-        tree_id=str(tree_oid),
-        skip=skip,
-        limit=page_size
-    )
     
-    total = await genealogy_relationship_repo.count({"family_id": tree_oid})
+    if tree_id:
+        # Specific tree requested
+        tree_oid = safe_object_id(tree_id)
+        if not tree_oid:
+            raise HTTPException(status_code=400, detail="Invalid tree_id")
+        
+        await ensure_tree_access(tree_oid, ObjectId(current_user.id))
+        
+        relationships = await genealogy_relationship_repo.find_by_tree(
+            tree_id=str(tree_oid),
+            person_id=person_id,
+            skip=skip,
+            limit=page_size
+        )
+        
+        # Count query
+        count_query = {"family_id": tree_oid}
+        if person_id:
+            person_oid = safe_object_id(person_id)
+            if person_oid:
+                count_query["$or"] = [{"person1_id": person_oid}, {"person2_id": person_oid}]
+                
+        total = await genealogy_relationship_repo.count(count_query)
+        
+    else:
+        # No tree specified - fetch from ALL trees the user is a member of
+        memberships = await tree_membership_repo.find_many(
+            {"user_id": ObjectId(current_user.id)},
+            limit=1000 # Fetch all memberships
+        )
+        
+        tree_ids = [str(m["tree_id"]) for m in memberships]
+        
+        # Also include the user's own tree
+        if str(current_user.id) not in tree_ids:
+            tree_ids.append(str(current_user.id))
+            
+        relationships = await genealogy_relationship_repo.find_by_trees(
+            tree_ids=tree_ids,
+            person_id=person_id,
+            skip=skip,
+            limit=page_size
+        )
+        
+        tree_oids = [ObjectId(tid) for tid in tree_ids]
+        count_query = {"family_id": {"$in": tree_oids}}
+        if person_id:
+            person_oid = safe_object_id(person_id)
+            if person_oid:
+                count_query["$or"] = [{"person1_id": person_oid}, {"person2_id": person_oid}]
+                
+        total = await genealogy_relationship_repo.count(count_query)
     
     relationship_responses = [relationship_doc_to_response(doc) for doc in relationships]
     

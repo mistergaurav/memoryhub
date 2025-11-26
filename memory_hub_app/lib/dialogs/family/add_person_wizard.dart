@@ -30,6 +30,8 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   String _biography = '';
   String _occupation = '';
   String _notes = '';
+  String? _selectedRelationshipType;
+  bool _isBiological = true;
   String? _photoUrl;
   File? _photoFile;
   
@@ -140,6 +142,19 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   
   void _nextStep() {
     if (_currentStep < 4) {
+      // Skip details step if existing user is selected
+      if (_currentStep == 0 && _selectedExistingUser != null) {
+        _pageController.animateToPage(
+          2, // Jump to Relationships (Step 3 is index 2)
+          duration: MemoryHubAnimations.fast,
+          curve: Curves.easeInOut,
+        );
+        setState(() {
+          _currentStep = 2;
+        });
+        return;
+      }
+      
       _pageController.nextPage(
         duration: MemoryHubAnimations.fast,
         curve: Curves.easeInOut,
@@ -152,6 +167,19 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   
   void _previousStep() {
     if (_currentStep > 0) {
+      // Skip details step if going back and existing user is selected
+      if (_currentStep == 2 && _selectedExistingUser != null) {
+        _pageController.animateToPage(
+          0, // Jump back to Search (Step 1 is index 0)
+          duration: MemoryHubAnimations.fast,
+          curve: Curves.easeInOut,
+        );
+        setState(() {
+          _currentStep = 0;
+        });
+        return;
+      }
+
       _pageController.previousPage(
         duration: MemoryHubAnimations.fast,
         curve: Curves.easeInOut,
@@ -202,9 +230,9 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
         'linked_user_id': _selectedExistingUser?['id'],
         'source': _selectedExistingUser != null ? 'platform_user' : 'manual',
         'relationships': _selectedRelationships.map((rel) => {
-          'person_id': rel['personId'],
+          'person_id': rel['personId'], // In this wizard, we are usually adding relative to current user (self)
           'relationship_type': rel['type'],
-          'notes': rel['notes'],
+          'is_biological': rel['is_biological'] ?? true,
         }).toList(),
       };
       
@@ -793,6 +821,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
   void _showAddRelationshipDialog() {
     String? selectedPersonId;
     String? selectedRelationType;
+    bool isBiological = true;
     
     showDialog(
       context: context,
@@ -803,8 +832,12 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Select Person'),
-                items: _existingPersons.map<DropdownMenuItem<String>>((person) {
+                value: selectedPersonId,
+                decoration: InputDecoration(
+                  labelText: 'Select Person',
+                  border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
+                ),
+                items: _existingPersons.map((person) {
                   return DropdownMenuItem<String>(
                     value: person['id'],
                     child: Text('${person['first_name']} ${person['last_name']}'),
@@ -812,21 +845,46 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                 }).toList(),
                 onChanged: (value) => setDialogState(() => selectedPersonId = value),
               ),
-              const SizedBox(height: MemoryHubSpacing.lg),
+              const SizedBox(height: MemoryHubSpacing.md),
               DropdownButtonFormField<String>(
-                decoration: const InputDecoration(labelText: 'Relationship Type'),
+                value: selectedRelationType,
+                decoration: InputDecoration(
+                  labelText: 'Relationship Type',
+                  border: OutlineInputBorder(borderRadius: MemoryHubBorderRadius.mdRadius),
+                ),
                 items: const [
                   DropdownMenuItem(value: 'parent', child: Text('Parent')),
                   DropdownMenuItem(value: 'child', child: Text('Child')),
-                  DropdownMenuItem(value: 'spouse', child: Text('Spouse/Partner')),
+                  DropdownMenuItem(value: 'spouse', child: Text('Spouse')),
                   DropdownMenuItem(value: 'sibling', child: Text('Sibling')),
-                  DropdownMenuItem(value: 'grandparent', child: Text('Grandparent')),
-                  DropdownMenuItem(value: 'grandchild', child: Text('Grandchild')),
-                  DropdownMenuItem(value: 'aunt_uncle', child: Text('Aunt/Uncle')),
-                  DropdownMenuItem(value: 'niece_nephew', child: Text('Niece/Nephew')),
-                  DropdownMenuItem(value: 'cousin', child: Text('Cousin')),
+                  DropdownMenuItem(value: 'step_parent', child: Text('Step Parent')),
+                  DropdownMenuItem(value: 'step_child', child: Text('Step Child')),
+                  DropdownMenuItem(value: 'step_sibling', child: Text('Step Sibling')),
                 ],
-                onChanged: (value) => setDialogState(() => selectedRelationType = value),
+                onChanged: (value) {
+                  setDialogState(() {
+                    selectedRelationType = value;
+                    // Auto-set biological flag based on type
+                    if (value != null && value.startsWith('step_')) {
+                       isBiological = false;
+                    } else {
+                       isBiological = true;
+                    }
+                  });
+                },
+              ),
+              const SizedBox(height: MemoryHubSpacing.md),
+              CheckboxListTile(
+                title: const Text('Biological Relationship'),
+                subtitle: const Text('Uncheck for adopted or step relationships'),
+                value: isBiological,
+                onChanged: (bool? value) {
+                  setDialogState(() {
+                    isBiological = value ?? true;
+                  });
+                },
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
               ),
             ],
           ),
@@ -842,6 +900,7 @@ class _AddPersonWizardState extends State<AddPersonWizard> {
                         _selectedRelationships.add({
                           'personId': selectedPersonId,
                           'type': selectedRelationType,
+                          'is_biological': isBiological,
                           'notes': null,
                         });
                       });

@@ -148,13 +148,16 @@ async def create_genealogy_person(
         await validate_user_exists(person.linked_user_id)
         
         existing_link = await genealogy_person_repo.find_one(
-            {"linked_user_id": linked_user_oid},
+            {
+                "linked_user_id": linked_user_oid,
+                "family_id": tree_oid
+            },
             raise_404=False
         )
         if existing_link:
             raise HTTPException(
                 status_code=400, 
-                detail="This user is already linked to another genealogy person"
+                detail="This user is already linked to a person in this family tree"
             )
         
         if person.source != PersonSource.PLATFORM_USER:
@@ -178,6 +181,8 @@ async def create_genealogy_person(
         "occupation": person.occupation,
         "notes": person.notes,
         "source": person.source,
+        "pending_invite_email": person.pending_invite_email,
+        "is_memorial": person.is_memorial,
         "created_by": ObjectId(current_user.id)
     }
     
@@ -226,11 +231,29 @@ async def create_genealogy_person(
                     detail="Cannot create relationship with person from a different family tree"
                 )
             
+            # Advanced Genealogy Logic: Validate Relationship
+            try:
+                from app.services.family.genealogy_logic import GenealogyLogicService
+                logic_service = GenealogyLogicService()
+                await logic_service.validate_relationship(
+                    person_id=str(person_id),
+                    relationship_type=rel_spec.relationship_type,
+                    related_person_id=str(related_person_oid),
+                    is_biological=rel_spec.is_biological
+                )
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=str(e))
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                raise HTTPException(status_code=500, detail=f"Internal Logic Error: {str(e)}")
+
             relationship_data = {
                 "family_id": tree_oid,
                 "person1_id": person_id,
                 "person2_id": related_person_oid,
                 "relationship_type": rel_spec.relationship_type,
+                "is_biological": rel_spec.is_biological,
                 "notes": rel_spec.notes,
                 "created_by": ObjectId(current_user.id)
             }
@@ -240,12 +263,14 @@ async def create_genealogy_person(
     if linked_user_oid and str(linked_user_oid) != str(current_user.id):
         await notification_repo.create_notification(
             user_id=str(linked_user_oid),
-            notification_type="genealogyApprovalRequest",  # Matches frontend enum
+            notification_type="genealogy_approval_request",  # Matches frontend enum
             title="Family Tree Request",
-            message=f"{current_user.full_name or current_user.email} wants to add you to their family tree as {person.first_name} {person.last_name}.",
+            message=f"{current_user.full_name or current_user.email} invited you to join their family tree as {person.first_name} {person.last_name}. Click to view details.",
             target_id=str(person_id),
             actor_id=str(current_user.id),
-            target_type="genealogy_person"
+            target_type="genealogy_person",
+            metadata={"person_id": str(person_id)},
+            approval_status="pending"
         )
     
     await log_audit_event(
@@ -280,15 +305,83 @@ async def approve_genealogy_person(
     if str(person_doc.get("linked_user_id")) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Only the linked user can approve this request")
     
-    updated_person = await genealogy_person_repo.update_by_id(
-        person_id, 
+    person_oid = ObjectId(person_id)
+
+    # Update status
+    await genealogy_person_repo.update(
+        {"_id": person_oid},
         {"approval_status": "approved", "rejection_reason": None}
     )
+
+    # Grant access to the family tree
+    # The person was created by someone (creator_id) in a specific family tree (family_id)
+    # We need to give the linked user (current_user) access to that tree
+    try:
+        family_id = person_doc.get("family_id")
+        if family_id:
+            # Check if membership already exists
+            existing_membership = await tree_membership_repo.find_by_tree_and_user(
+                tree_id=str(family_id),
+                user_id=str(current_user.id)
+            )
+            
+            if not existing_membership:
+                await tree_membership_repo.create_membership(
+                    tree_id=str(family_id),
+                    user_id=str(current_user.id),
+                    role="member",
+                    granted_by=str(person_doc.get("created_by"))
+                )
+    except Exception as e:
+        print(f"Error granting tree membership: {e}")
+        # Don't fail the request, but log the error
+
     
+    # Advanced Genealogy Logic: Tree Federation
+    try:
+        from app.services.family.genealogy_logic import GenealogyLogicService
+        logic_service = GenealogyLogicService()
+        
+        # 1. Find the creator of this person (User A)
+        creator_id = person_doc.get("created_by")
+        if creator_id and str(creator_id) != str(current_user.id):
+            
+            # Trigger the "Perfect Logic" Tree Merge
+            # This will:
+            # 1. Create User A in User B's tree (if not exists)
+            # 2. Create the reciprocal relationship (User A <-> User B)
+            # 3. Recursively import User A's family (parents, siblings) into User B's tree
+            # 4. Recursively import User B's family into User A's tree (bidirectional sync)
+            
+            # Merge A's tree into B's tree (so B sees A's family)
+            await logic_service.propagate_tree_merge(
+                source_user_id=str(current_user.id), # B is approving, so B is "source" of this action
+                target_user_id=str(creator_id),      # A is the target
+                depth=4
+            )
+            
+            # Merge B's tree into A's tree (so A sees B's family)
+            await logic_service.propagate_tree_merge(
+                source_user_id=str(creator_id),      # A is source
+                target_user_id=str(current_user.id), # B is target
+                depth=4
+            )
+
+    except Exception as e:
+        # Log error but don't fail the approval
+        print(f"Error executing advanced genealogy logic: {e}")
+        import traceback
+        traceback.print_exc()
+
+    # Fetch the updated person document for response and notification
+    updated_person = await genealogy_person_repo.find_by_id(person_id)
+    if not updated_person:
+        raise HTTPException(status_code=404, detail="Person not found after update") # Should not happen
+
     # Notify the creator
     await notification_repo.create_notification(
-        user_id=str(person_doc["created_by"]),
-        notification_type="genealogy_approved",
+        user_id=str(updated_person["created_by"]),
+        notification_type="genealogy_request_approved",
         title="Request Approved",
         message=f"{current_user.full_name} approved being added to your family tree.",
         target_id=person_id,
@@ -324,7 +417,7 @@ async def reject_genealogy_person(
     # Notify the creator
     await notification_repo.create_notification(
         user_id=str(person_doc["created_by"]),
-        notification_type="genealogy_rejected",
+        notification_type="genealogy_request_rejected",
         title="Request Rejected",
         message=f"{current_user.full_name} rejected being added to your family tree: {reason}",
         target_id=person_id,
@@ -387,26 +480,50 @@ async def search_genealogy_persons(
 
 @router.get("/persons")
 async def list_genealogy_persons(
-    tree_id: Optional[str] = Query(None, description="Tree ID (defaults to user's own tree)"),
+    tree_id: Optional[str] = Query(None, description="Tree ID (defaults to all trees user is a member of)"),
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(50, ge=1, le=100, description="Items per page"),
     current_user: UserInDB = Depends(get_current_user)
 ):
-    """List all persons in family tree with pagination"""
-    tree_oid = safe_object_id(tree_id) if tree_id else ObjectId(current_user.id)
-    if not tree_oid:
-        raise HTTPException(status_code=400, detail="Invalid tree_id")
-    
-    await ensure_tree_access(tree_oid, ObjectId(current_user.id))
-    
+    """List all persons in family tree(s) with pagination"""
     skip = (page - 1) * page_size
-    persons = await genealogy_person_repo.find_by_tree(
-        tree_id=str(tree_oid),
-        skip=skip,
-        limit=page_size
-    )
     
-    total = await genealogy_person_repo.count({"family_id": tree_oid})
+    if tree_id:
+        # Specific tree requested
+        tree_oid = safe_object_id(tree_id)
+        if not tree_oid:
+            raise HTTPException(status_code=400, detail="Invalid tree_id")
+        
+        await ensure_tree_access(tree_oid, ObjectId(current_user.id))
+        
+        persons = await genealogy_person_repo.find_by_tree(
+            tree_id=str(tree_oid),
+            skip=skip,
+            limit=page_size
+        )
+        total = await genealogy_person_repo.count({"family_id": tree_oid})
+        
+    else:
+        # No tree specified - fetch from ALL trees the user is a member of
+        memberships = await tree_membership_repo.find_many(
+            {"user_id": ObjectId(current_user.id)},
+            limit=1000 # Fetch all memberships
+        )
+        
+        tree_ids = [str(m["tree_id"]) for m in memberships]
+        
+        # Also include the user's own tree (even if no explicit membership record exists yet)
+        if str(current_user.id) not in tree_ids:
+            tree_ids.append(str(current_user.id))
+            
+        persons = await genealogy_person_repo.find_by_trees(
+            tree_ids=tree_ids,
+            skip=skip,
+            limit=page_size
+        )
+        
+        tree_oids = [ObjectId(tid) for tid in tree_ids]
+        total = await genealogy_person_repo.count({"family_id": {"$in": tree_oids}})
     
     person_responses = [person_doc_to_response(doc) for doc in persons]
     
@@ -433,7 +550,11 @@ async def get_genealogy_person(
     if person_doc is None:
         raise HTTPException(status_code=404, detail="Person not found")
     
-    await ensure_tree_access(person_doc["family_id"], ObjectId(current_user.id))
+    # Allow access if the current user is the linked user (for pending invites)
+    if str(person_doc.get("linked_user_id")) == str(current_user.id):
+        pass # Access granted
+    else:
+        await ensure_tree_access(person_doc["family_id"], ObjectId(current_user.id))
     
     return create_success_response(
         message="Person retrieved successfully",

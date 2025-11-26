@@ -106,3 +106,28 @@ class GenealogyRelationshipRepository(BaseRepository):
         # For more complex ancestry checking, we'd need to traverse the graph
         # For now, we just check direct circular references
         # TODO: Implement full ancestry path checking to prevent A->B->C->A cycles
+
+    async def find_by_person(self, person_id: str) -> List[Dict[str, Any]]:
+        """Find all relationships involving a specific person."""
+        person_oid = self.validate_object_id(person_id, "person_id")
+        return await self.find_many({
+            "$or": [
+                {"person1_id": person_oid},
+                {"person2_id": person_oid}
+            ]
+        })
+
+    async def find_parents(self, person_id: str) -> List[Dict[str, Any]]:
+        """
+        Find all parent relationships for a person.
+        Returns relationships where the person is the CHILD.
+        """
+        person_oid = self.validate_object_id(person_id, "person_id")
+        return await self.find_many({
+            "$or": [
+                # Case 1: Someone else (P1) is PARENT of Me (P2)
+                {"person2_id": person_oid, "relationship_type": "parent"},
+                # Case 2: Me (P1) is CHILD of Someone else (P2)
+                {"person1_id": person_oid, "relationship_type": "child"}
+            ]
+        })

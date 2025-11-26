@@ -18,7 +18,7 @@ class NotificationsService {
   Future<Map<String, dynamic>> getNotifications({int page = 1, int limit = 20}) async {
     final headers = await _getHeaders();
     final response = await http.get(
-      Uri.parse('$baseUrl/notifications/?page=$page&limit=$limit'),
+      Uri.parse('$baseUrl/notifications?page=$page&limit=$limit'),
       headers: headers,
     );
     

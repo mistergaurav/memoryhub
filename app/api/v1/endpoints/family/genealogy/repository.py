@@ -121,6 +121,22 @@ class GenealogyPersonRepository(BaseRepository):
             sort_order=1
         )
 
+    async def find_by_trees(
+        self,
+        tree_ids: List[str],
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[Dict[str, Any]]:
+        """Find all persons in multiple family trees."""
+        tree_oids = self.validate_object_ids(tree_ids, "tree_ids")
+        return await self.find_many(
+            {"family_id": {"$in": tree_oids}},
+            skip=skip,
+            limit=limit,
+            sort_by="last_name",
+            sort_order=1
+        )
+
 
 
 class GenealogyRelationshipRepository(BaseRepository):
@@ -132,13 +148,51 @@ class GenealogyRelationshipRepository(BaseRepository):
     async def find_by_tree(
         self,
         tree_id: str,
+        person_id: Optional[str] = None,
         skip: int = 0,
         limit: int = 100
     ) -> List[Dict[str, Any]]:
-        """Find all relationships in a family tree."""
+        """Find all relationships in a family tree, optionally filtered by person."""
         tree_oid = self.validate_object_id(tree_id, "tree_id")
+        query = {"family_id": tree_oid}
+        
+        if person_id:
+            person_oid = self.validate_object_id(person_id, "person_id")
+            # Find relationships where person is either person1 or person2
+            query["$or"] = [
+                {"person1_id": person_oid},
+                {"person2_id": person_oid}
+            ]
+            
         return await self.find_many(
-            {"family_id": tree_oid},
+            query,
+            skip=skip,
+            limit=limit,
+            sort_by="created_at",
+            sort_order=-1
+        )
+
+    async def find_by_trees(
+        self,
+        tree_ids: List[str],
+        person_id: Optional[str] = None,
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[Dict[str, Any]]:
+        """Find all relationships in multiple family trees, optionally filtered by person."""
+        tree_oids = self.validate_object_ids(tree_ids, "tree_ids")
+        query = {"family_id": {"$in": tree_oids}}
+        
+        if person_id:
+            person_oid = self.validate_object_id(person_id, "person_id")
+            # Find relationships where person is either person1 or person2
+            query["$or"] = [
+                {"person1_id": person_oid},
+                {"person2_id": person_oid}
+            ]
+            
+        return await self.find_many(
+            query,
             skip=skip,
             limit=limit,
             sort_by="created_at",

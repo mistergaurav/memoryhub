@@ -23,6 +23,9 @@ class NotificationType(str, Enum):
     HEALTH_RECORD_REJECTED = "health_record_rejected"
     REMINDER_DUE = "reminder_due"
     SYSTEM = "system"
+    GENEALOGY_APPROVAL_REQUEST = "genealogy_approval_request"
+    GENEALOGY_REQUEST_APPROVED = "genealogy_request_approved"
+    GENEALOGY_REQUEST_REJECTED = "genealogy_request_rejected"
 
 
 class NotificationStatus(str, Enum):

@@ -44,7 +44,8 @@ app = FastAPI(
 # Logging middleware to print request method and path
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    logging.info(f"Incoming request: {request.method} {request.url.path}")
+    origin = request.headers.get("origin")
+    logging.info(f"Incoming request: {request.method} {request.url.path} | Origin: {origin}")
     response = await call_next(request)
     return response
 
@@ -70,8 +71,7 @@ if replit_domain:
 # CORS middleware - allow all localhost ports for local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",  # Allow any localhost port
-    allow_origins=allowed_origins,  # Also keep explicit origins for production
+    allow_origins=["*"],  # Allow all origins for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

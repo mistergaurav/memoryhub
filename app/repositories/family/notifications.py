@@ -23,7 +23,9 @@ class NotificationRepository(BaseRepository):
         related_id: Optional[str] = None,
         actor_id: Optional[str] = None,
         target_type: Optional[str] = None,
-        target_id: Optional[str] = None
+        target_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        approval_status: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Create a new notification for a user.
@@ -37,6 +39,8 @@ class NotificationRepository(BaseRepository):
             actor_id: Optional ID of user who triggered the notification
             target_type: Optional type of target resource
             target_id: Optional ID of target resource
+            metadata: Optional additional data
+            approval_status: Optional status for approval requests
             
         Returns:
             Created notification document
@@ -57,6 +61,12 @@ class NotificationRepository(BaseRepository):
             "is_read": False,  # Changed from 'read' to 'is_read'
             "created_at": datetime.utcnow()
         }
+        
+        if metadata:
+            notification_data["metadata"] = metadata
+            
+        if approval_status:
+            notification_data["approval_status"] = approval_status
         
         return await self.create(notification_data)
 

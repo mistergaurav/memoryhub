@@ -72,7 +72,7 @@ async def create_all_indexes():
     
     # Genealogy persons indexes
     await get_collection("genealogy_persons").create_index("family_id")
-    await get_collection("genealogy_persons").create_index("linked_user_id", unique=True, sparse=True)
+    await get_collection("genealogy_persons").create_index([("family_id", 1), ("linked_user_id", 1)], unique=True, sparse=True)
     await get_collection("genealogy_persons").create_index([("family_id", 1), ("created_at", -1)])
     await get_collection("genealogy_persons").create_index("source")
     

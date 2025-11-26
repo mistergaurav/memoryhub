@@ -58,14 +58,19 @@ class MemoryHubColors {
   static const Color amber900 = Color(0xFF78350F);
   
   static const Color red50 = Color(0xFFFEF2F2);
+  static const Color red200 = Color(0xFFFECACA);
   static const Color red300 = Color(0xFFFCA5A5);
   static const Color red500 = Color(0xFFEF4444);
   static const Color red400 = Color(0xFFF87171);
   static const Color red600 = Color(0xFFDC2626);
+  static const Color red700 = Color(0xFFB91C1C);
   
+  static const Color green50 = Color(0xFFECFDF5);
+  static const Color green200 = Color(0xFFA7F3D0);
   static const Color green500 = Color(0xFF10B981);
   static const Color green400 = Color(0xFF34D399);
   static const Color green600 = Color(0xFF059669);
+  static const Color green700 = Color(0xFF047857);
   
   static const Color teal50 = Color(0xFFF0FDFA);
   static const Color teal100 = Color(0xFFCCFBF1);
